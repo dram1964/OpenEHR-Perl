@@ -33,3 +33,13 @@ t/pod.t
 t/01OpenEHR.t
 t/02OpenEHR-Composition-LabResultReport.t
 t/03OpenEHR-Composition-LabResultReport-Simple.t
+t/04OpenEHR-Composition-Filler.t
+t/05OpenEHR-Composition-LabResult.t
+t/06OpenEHR-Composition-LabTest.pm
+t/07OpenEHR-Composition-OrderingProvider.t
+t/08OpenEHR-Composition-Placer.t
+t/09OpenEHR-Composition-Professional.t
+t/10OpenEHR-Composition-RequestedTest.t
+t/11OpenEHR-Composition-Requester.t
+t/12OpenEHR-Composition-Specimen.t
+t/13OpenEHR-Composition-TestRequestDetails.t

@@ -11,23 +11,23 @@ use Config::Simple;
 use version; our $VERSION = qv('0.0.2');
 
 my $config_file = 'OpenEHR.conf';
-my $cfg = new Config::Simple($config_file) 
+my $cfg         = new Config::Simple($config_file)
     or carp "Error reading $config_file: $!";
 
-enum 'CompositionFormat' => [qw( FLAT STRUCTURED RAW TDD ) ];
+enum 'CompositionFormat' => [qw( FLAT STRUCTURED RAW TDD )];
 
-has     composition_format  => (
-    is          =>  'rw', 
-    isa         =>  'CompositionFormat', 
-    default     =>  $cfg->{composition_format} || 'STRUCTURED', 
-    required    => 1,
+has composition_format => (
+    is       => 'rw',
+    isa      => 'CompositionFormat',
+    default  => $cfg->{composition_format} || 'STRUCTURED',
+    required => 1,
 );
 
-has composer_name 	=> (
-    is      =>  'rw', 
-    isa     =>  'Str', 
-    required => 1, 
-    default => 'Aupen Ayre',
+has composer_name => (
+    is       => 'rw',
+    isa      => 'Str',
+    required => 1,
+    default  => 'Aupen Ayre',
 );
 
 no Moose;
