@@ -7,6 +7,7 @@ use JSON;
 
 use OpenEHR::Composition::LabResultReport;
 use OpenEHR::REST::PathologyReport;
+note("testing OpenEHR::REST::PathologyReport $OpenEHR::VERSION");
 
 my $collected =
     DateTime::Format::DateParse->parse_datetime('2017-12-01T01:10:00');
@@ -70,12 +71,12 @@ ok( $report->add_labtests($data),          'Add Labtests from hash table' );
 ok( $report->composer_name('David Ramlakhan'),
     'Add composer name to rest client' );
 is( $report->composition_format,
-    'STRUCTURED', 'STRUCTURED format set by default' );
-
+    'STRUCTURED', 'STRUCTURED format set by default' ); 
 ok( $report->composition_format('FLAT'), 'Set FLAT composition format' );
 
 my $path_report = OpenEHR::REST::PathologyReport->new();
 
+note('Testing submit_new method with FLAT composition');
 ok( $path_report->request_format( $report->composition_format ),
     'Set report format for rest client' );
 ok( $path_report->composition( to_json( $report->compose() ) ),
@@ -86,7 +87,6 @@ ok( !$path_report->err_msg, 'No Error Message set' );
 is( $path_report->action, 'CREATE', 'Action is CREATE' );
 ok( $path_report->compositionUid, 'Composition UID set' );
 ok( $path_report->href,           'HREF set' );
-print Dumper $report->compose();
 note( 'Composition can be found at: ' . $path_report->href );
 
 done_testing;

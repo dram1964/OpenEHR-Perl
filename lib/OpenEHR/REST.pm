@@ -88,7 +88,7 @@ has headers     => (
     isa => 'ArrayRef',
 );
 
-has composer_name 	=> (
+has committer_name 	=> (
     is      =>  'rw', 
     isa     =>  'Str', 
     required => 1, 

@@ -15,19 +15,6 @@ has     resource        => (
     isa     =>  'Str', 
     default =>  'composition',
 );
-has 	report_id	    => (
-    is      =>  'rw', 
-    isa     =>  'Str', 
-    default => 'Report ID 36',
-);
-has 	results	        => (
-    is      =>  'rw', 
-    isa     =>  'ArrayRef[OpenEHR::Model::PathTest]',
-);
-has 	comment 	    => (
-    is      =>  'rw', 
-    isa     =>  'OpenEHR::Model::PatientComment',
-);
 has 	composition     => (
     is      =>  'rw',
 );
@@ -93,7 +80,7 @@ sub update_by_uid {
     $self->query({
 		templateId => 'GEL - Generic Lab Report import.v0',
 		format => $self->request_format,
-		committer => $self->composer_name,
+		committer => $self->committer_name,
 	});
     $self->resource('composition/' . $compositionUid);
     $self->headers([['Content-Type', 'application/json']]);
@@ -117,18 +104,19 @@ sub update_by_uid {
 sub submit_new {
 	my $self = shift;
 	my $ehrId = shift;
+    print Dumper $self->request_format;
     if ($self->request_format eq 'RAW') {
         $self->query({
             ehrId => $ehrId,
             format => $self->request_format,
-            committer => $self->composer_name,
+            committer => $self->committer_name,
         });
     }
     else {
         $self->query({
             ehrId => $ehrId,
             format => $self->request_format,
-            committer => $self->composer_name,
+            committer => $self->committer_name,
             templateId => 'GEL - Generic Lab Report import.v0',
         });
     }
@@ -175,11 +163,6 @@ This document describes OpenEHR::REST::PathologyReport version 0.0.1
     use OpenEHR::REST::PathologyReport;
 
     my $path_report1 = OpenEHR::REST::PathologyReport->new();
-    $path_report1->report_id('17V333999');
-    $path_report1->results([$path_test1, $path_test2]);
-    $path_report1->comment($comment);
-    $path_report1->Request_format('FLAT');
-    $path_report1->compose();
 
     $path_report1->submit_new($ehr->ehrId);
     warn ("Error occurred in submission: " . $path_report1->err_msg)
@@ -196,27 +179,6 @@ Use this module to submit and modify Pathology compositions in the
 
 
 =head1 METHODS
-
-=head2 report_id($id)
-
-Sets the report identifier for the composition
-
-=head2 results($result_arrayref)
-
-Adds an array of OpenEHR::Model::Array objects to the composition
-
-=head2 comment($comment)
-
-Adds an OpenEHR::Model::Comment object to the composition
-
-=head2 compose()
-
-Once data has been loaded to an OpenEHR::REST::PathologyReport object,
-this method is used to create a composition in the desired format. 
-Currently only FLAT and STRUCTURED formats are supported. This method
-will call one of compose_[ FLAT | STRUCTURED | RAW | TDD ] to create the 
-composition and the resulting composition is stored in the objects
-composition attribute
 
 =head2 submit_new($ehrId)
 
@@ -245,20 +207,6 @@ methods only parameter.
 
 
 =head1 ATTRIBUTES
-
-=head2 report_id
-
-The report identifier to be used in the composition being submitted
-
-=head2 results
-
-An ArrayRef of OpenEHR::Model::PathTest objects to be used in the REST
-call to represent the results being submitted with the composition
-
-=head2 comment
-
-An OpenEHR::Model::PatientComment object to be used in the REST call
-to represent a patient comment being submitted with the composition
 
 =head2 composition
 
@@ -306,27 +254,6 @@ The deleted value returned by the server in response to a REST call
 
 The lastVersion value returned by the server in response to a REST call
   
-
-=head1 PRIVATE METHODS
-
-=head2 compose_FLAT
-
-returns the pathology composition in 'FLAT' format
-
-=head2 compose_STRUCTURED
-
-returns the pathology composition in 'STRUCTURED' format
-
-=head2 compose_RAW
-
-**** Not Implemented yet **** 
-returns the pathology composition in 'RAW' format
-
-=head2 compose_TDD
-
-**** Not Implemented yet **** 
-returns the pathology composition in 'TDD' format
-
 
 =head1 PRIVATE ATTRIBUTES
 
