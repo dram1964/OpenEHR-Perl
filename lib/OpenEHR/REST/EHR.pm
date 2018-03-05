@@ -4,8 +4,104 @@ use warnings;
 use strict;
 use Carp;
 use Moose;
+use JSON;
+use Data::Dumper;
+extends 'OpenEHR::REST';
 
-use version; our $VERSION = qv('0.0.1');
+use version; our $VERSION = qv('0.0.2');
+
+has subjectId        => ( is => 'rw', isa => 'Str', required => 0 );
+has subjectNamespace => ( is => 'rw', isa => 'Str', required => 0 );
+has committerName    => ( is => 'rw', isa => 'Str', required => 0 );
+
+has resource => ( is => 'rw', isa => 'Str', default => 'ehr' );
+has ehrId    => ( is => 'rw', isa => 'Str' );
+has action   => ( is => 'rw', isa => 'Str' );
+has ehrStatus => ( is => 'rw', isa => 'HashRef' );
+has err_msg   => ( is => 'rw', isa => 'Str' );
+
+sub find_or_new {
+    my $self = shift;
+    croak unless $self->subjectId;
+    croak unless $self->subjectNamespace;
+    croak unless $self->committerName;
+    if ( $self->_find_by_subject_id() ) {
+        return 1;
+    }
+    elsif ( $self->_get_new_ehr() ) {
+        return 2;
+    }
+    else {
+        croak $self->err_msg;
+        return 0;
+    }
+}
+
+sub find_by_ehrid {
+    my ( $self, $ehrid ) = @_;
+    $self->resource("ehr/$ehrid");
+    $self->submit_rest_call;
+    if ( $self->response_code eq '200' ) {
+        my $response = from_json( $self->response );
+        $self->ehrId( $response->{ehrId} );
+        $self->action( $response->{action} );
+        $self->ehrStatus( $response->{ehrStatus} );
+        return 1;
+    }
+    else {
+        $self->ehrId(0);
+        $self->action('FAIL');
+        $self->err_msg( $self->response );
+        return 0;
+    }
+}
+
+sub _get_new_ehr {
+    my $self = shift;
+    $self->query(
+        {   subjectId        => $self->subjectId,
+            subjectNamespace => $self->subjectNamespace,
+            committerName    => $self->committerName,
+        }
+    );
+    $self->method('POST');
+    $self->submit_rest_call;
+    if ( $self->response_code eq '201' ) {
+        my $response = from_json( $self->response );
+        $self->ehrId( $response->{ehrId} );
+        $self->action( $response->{action} );
+        return 1;
+    }
+    else {
+        $self->ehrId(0);
+        $self->action('FAIL');
+        $self->err_msg( $self->response );
+        return 0;
+    }
+}
+
+sub _find_by_subject_id {
+    my $self = shift;
+    $self->query(
+        {   subjectId        => $self->subjectId,
+            subjectNamespace => $self->subjectNamespace,
+        }
+    );
+    $self->submit_rest_call;
+    if ( $self->response_code eq '200' ) {
+        my $response = from_json( $self->response );
+        $self->ehrId( $response->{ehrId} );
+        $self->action( $response->{action} );
+        $self->ehrStatus( $response->{ehrStatus} );
+        return 1;
+    }
+    else {
+        $self->ehrId(0);
+        $self->action('FAIL');
+        $self->err_msg( $self->response );
+        return 0;
+    }
+}
 
 no Moose;
 
@@ -15,8 +111,7 @@ __END__
 
 =head1 NAME
 
-OpenEHR::REST::EHR - [One line description of module's purpose here]
-
+OpenEHR::REST::EHR - Interface to EHR endpoint
 
 =head1 VERSION
 
@@ -42,81 +137,73 @@ This document describes OpenEHR::REST::EHR version 0.0.1
 
 =head1 INTERFACE 
 
-=for author to fill in:
-    Write a separate section listing the public components of the modules
-    interface. These normally consist of either subroutines that may be
-    exported, or methods that may be called on objects belonging to the
-    classes provided by the module.
+=head1 ATTRIBUTES
+
+=head2 ehrId
+
+The id value for an OpenEHR record
+
+=head2 action
+
+The action status returned from a REST call
+
+=head2 ehrStatus
+
+The ehrStatus values returned from a find request
+
+=head2 err_msg
+
+Contains the latest error message if any. Should be tested 
+after a call to find methods
+
+=head1 METHODS
+
+=head2 find_or_new
+
+my $ehr = OpenEHR::Model::EHR->new({
+	subjectId => '10203040',
+	subjectNamespace => 'MyProject'
+	committerName => 'Committer Name'};
+$ehr->find_or_new()
+
+Searches the database for an EHR record matching specified subjectId and
+subjectNamespace. If found, sets EHR object with values found. 
+Otherwise will request a new EHR from database and set object with these values.
+
+=head2 find_by_ehrid
+
+Searches the OpenEHR database for the given ehrId. Stores the ehrId in the object or 0 on failure
+
+=head2 _get_new_ehr
+
+Private method used by find_or_new to create a new ehr
+
+=head2 _find_by_subject_id
+
+Private method used by find_or_new to retrieve an existing ehr
 
 
 =head1 DIAGNOSTICS
 
-=for author to fill in:
-    List every single error and warning message that the module can
-    generate (even the ones that will "never happen"), with a full
-    explanation of each problem, one or more likely causes, and any
-    suggested remedies.
-
-=over
-
-=item C<< Error message here, perhaps with %s placeholders >>
-
-[Description of error here]
-
-=item C<< Another error message here >>
-
-[Description of error here]
-
-[Et cetera, et cetera]
-
-=back
-
+Check the value of $ehr->action. If this equals 'FAIL', then something went wrong. Check
+the value of $ehr->err_msg to see the error message from the server response
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-=for author to fill in:
-    A full explanation of any configuration system(s) used by the
-    module, including the names and locations of any configuration
-    files, and the meaning of any environment variables or properties
-    that can be set. These descriptions must also include details of any
-    configuration language used.
-  
 OpenEHR::REST::EHR requires no configuration files or environment variables.
 
 
 =head1 DEPENDENCIES
-
-=for author to fill in:
-    A list of all the other modules that this module relies upon,
-    including any restrictions on versions, and an indication whether
-    the module is part of the standard Perl distribution, part of the
-    module's distribution, or must be installed separately. ]
 
 None.
 
 
 =head1 INCOMPATIBILITIES
 
-=for author to fill in:
-    A list of any modules that this module cannot be used in conjunction
-    with. This may be due to name conflicts in the interface, or
-    competition for system or program resources, or due to internal
-    limitations of Perl (for example, many modules that use source code
-    filters are mutually incompatible).
-
 None reported.
 
 
 =head1 BUGS AND LIMITATIONS
-
-=for author to fill in:
-    A list of known problems with the module, together with some
-    indication Whether they are likely to be fixed in an upcoming
-    release. Also a list of restrictions on the features the module
-    does provide: data types that cannot be handled, performance issues
-    and the circumstances in which they may arise, practical
-    limitations on the size of data sets, special cases that are not
-    (yet) handled, etc.
 
 No bugs have been reported.
 
@@ -132,7 +219,7 @@ David Ramlakhan  C<< <dram1964@gmail.com> >>
 
 =head1 LICENCE AND COPYRIGHT
 
-Copyright (c) 2018, David Ramlakhan C<< <dram1964@gmail.com> >>. All rights reserved.
+Copyright (c) 2017, David Ramlakhan C<< <dram1964@gmail.com> >>. All rights reserved.
 
 This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself. See L<perlartistic>.

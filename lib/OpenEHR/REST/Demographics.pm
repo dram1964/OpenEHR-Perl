@@ -3,9 +3,61 @@ package OpenEHR::REST::Demographics;
 use warnings;
 use strict;
 use Carp;
+use Data::Dumper;
 use Moose;
+extends 'OpenEHR::REST';
 
-use version; our $VERSION = qv('0.0.1');
+use version; our $VERSION = qv('0.0.2');
+
+has resource => (is => 'rw', isa => 'Str', default => 'demographics');
+
+has action	    => (is => 'rw', isa => 'Str');
+has err_msg	    => (is => 'rw', isa => 'Str');
+
+=head2 get_by_ehrid
+
+Retrieves demographics information for specified ehrid
+
+=cut 
+
+sub get_by_ehrid {
+    my ($self, $ehrid) = @_;
+    $self->resource("demographics/ehr/$ehrid/party");
+    $self->submit_rest_call;
+    if ($self->response_code eq '200') {
+        $self->action($self->response->{action});
+        $self->err_msg('');
+    }
+    else {
+        carp $self->response_code;
+        $self->err_msg($self->response);
+    }
+}
+
+=head2 add_party
+
+Retrieves demographics information for specified ehrid
+
+=cut 
+
+sub add_party {
+    my ($self, $party) = @_;
+    $self->resource('demographics/party');
+    $self->method('POST');
+    $self->headers([['Content-Type', 'application/json']]);
+    $self->submit_rest_call($party);
+    if ($self->response_code eq '200') {
+        $self->action($self->response->{action});
+        $self->err_msg('');
+    }
+    else {
+        carp $self->response_code;
+        $self->err_msg($self->response);
+    }
+}
+
+
+
 
 no Moose;
 
@@ -132,7 +184,7 @@ David Ramlakhan  C<< <dram1964@gmail.com> >>
 
 =head1 LICENCE AND COPYRIGHT
 
-Copyright (c) 2018, David Ramlakhan C<< <dram1964@gmail.com> >>. All rights reserved.
+Copyright (c) 2017, David Ramlakhan C<< <dram1964@gmail.com> >>. All rights reserved.
 
 This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself. See L<perlartistic>.
