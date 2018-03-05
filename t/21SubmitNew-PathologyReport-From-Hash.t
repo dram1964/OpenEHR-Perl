@@ -72,15 +72,13 @@ ok( $report->composer_name('David Ramlakhan'),
     'Add composer name to rest client' );
 is( $report->composition_format,
     'STRUCTURED', 'STRUCTURED format set by default' ); 
-ok( $report->composition_format('FLAT'), 'Set FLAT composition format' );
 
 my $path_report = OpenEHR::REST::PathologyReport->new();
 
 note('Testing submit_new method with FLAT composition');
-ok( $path_report->request_format( $report->composition_format ),
-    'Set report format for rest client' );
-ok( $path_report->composition( to_json( $report->compose() ) ),
-    'Add composition to rest client' );
+ok( $report->composition_format('FLAT'), 'Set FLAT composition format' );
+ok( $path_report->composition( $report ), 
+    'Add composition object to rest client' );
 ok( $path_report->submit_new($report->test_ehrid), 'Submit composition' );
 diag( $path_report->err_msg ) if $path_report->err_msg;
 ok( !$path_report->err_msg, 'No Error Message set' );
@@ -88,5 +86,44 @@ is( $path_report->action, 'CREATE', 'Action is CREATE' );
 ok( $path_report->compositionUid, 'Composition UID set' );
 ok( $path_report->href,           'HREF set' );
 note( 'Composition can be found at: ' . $path_report->href );
+
+note('Testing submit_new method with STRUCTURED composition');
+ok( $report->composition_format('STRUCTURED'), 'Set STRUCTURED composition format' );
+ok( $path_report->composition( $report ), 
+    'Add composition object to rest client' );
+ok( $path_report->submit_new($report->test_ehrid), 'Submit composition' );
+diag( $path_report->err_msg ) if $path_report->err_msg;
+ok( !$path_report->err_msg, 'No Error Message set' );
+is( $path_report->action, 'CREATE', 'Action is CREATE' );
+ok( $path_report->compositionUid, 'Composition UID set' );
+ok( $path_report->href,           'HREF set' );
+note( 'Composition can be found at: ' . $path_report->href );
+
+note('Testing submit_new method with RAW composition');
+ok( $report->composition_format('RAW'), 'Set RAW composition format' );
+ok( $path_report->composition( $report ), 
+    'Add composition object to rest client' );
+ok( $path_report->submit_new($report->test_ehrid), 'Submit composition' );
+diag( $path_report->err_msg ) if $path_report->err_msg;
+ok( !$path_report->err_msg, 'No Error Message set' );
+is( $path_report->action, 'CREATE', 'Action is CREATE' );
+ok( $path_report->compositionUid, 'Composition UID set' );
+ok( $path_report->href,           'HREF set' );
+note( 'Composition can be found at: ' . $path_report->href );
+
+SKIP: {
+    skip "TDD compositions not supported yet", 1;
+note('Testing submit_new method with TDD composition');
+ok( $report->composition_format('TDD'), 'Set TDD composition format' );
+ok( $path_report->composition( $report ), 
+    'Add composition object to rest client' );
+ok( $path_report->submit_new($report->test_ehrid), 'Submit composition' );
+diag( $path_report->err_msg ) if $path_report->err_msg;
+ok( !$path_report->err_msg, 'No Error Message set' );
+is( $path_report->action, 'CREATE', 'Action is CREATE' );
+ok( $path_report->compositionUid, 'Composition UID set' );
+ok( $path_report->href,           'HREF set' );
+note( 'Composition can be found at: ' . $path_report->href );
+};
 
 done_testing;

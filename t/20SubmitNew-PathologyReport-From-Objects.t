@@ -149,17 +149,10 @@ note('Begin testing FLAT composition');
     ok( $labreport->composition_format('FLAT'),
         'Set FLAT composition format'
     );
-    ok( my $flat = $labreport->compose(), 'Request composition' );
-
     my $path_report = OpenEHR::REST::PathologyReport->new();
-
-    ok( $path_report->request_format( $labreport->composition_format ),
-        'Set report format for rest client' );
-    is( $path_report->request_format, 'FLAT', 'Format set to FLAT' );
-    ok( $path_report->composition( to_json($flat) ),
-        'Add composition to rest client' );
-    ok( $path_report->composer_name('David Ramlakhan'),
-        'Add composer name to rest client' );
+    ok( $path_report->composition($labreport),
+        'Add composition object to rest client'
+    );
     ok( $path_report->submit_new($ehrId), 'Submit composition' );
     diag( $path_report->err_msg ) if $path_report->err_msg;
     ok( !$path_report->err_msg, 'No Error Message set' );
@@ -174,16 +167,10 @@ note('Begin testing STRUCTURED composition');
     ok( $labreport->composition_format('STRUCTURED'),
         'Set STRUCTURED composition format'
     );
-    ok( my $struct = $labreport->compose(), 'Request composition' );
     my $path_report = OpenEHR::REST::PathologyReport->new();
-
-    ok( $path_report->request_format( $labreport->composition_format ),
-        'Set report format for rest client' );
-    is( $path_report->request_format,
-        'STRUCTURED', 'Format set to STRUCTURED' );
-    ok( $path_report->composition( to_json($struct) ),
-        'Add composition to rest client' );
-
+    ok( $path_report->composition($labreport),
+        'Add composition to rest client'
+    );
     ok( $path_report->submit_new($ehrId), 'Submit composition' );
     diag( $path_report->err_msg ) if $path_report->err_msg;
     ok( !$path_report->err_msg, 'No Error Message set' );
@@ -191,6 +178,42 @@ note('Begin testing STRUCTURED composition');
     ok( $path_report->compositionUid, 'Composition UID set' );
     ok( $path_report->href,           'HREF set' );
     note( 'Composition can be found at: ' . $path_report->href );
+}
+
+note('Begin testing RAW composition');
+{
+    ok( $labreport->composition_format('RAW'), 'Set RAW composition format' );
+    my $path_report = OpenEHR::REST::PathologyReport->new();
+    ok( $path_report->composition($labreport),
+        'Add composition to rest client'
+    );
+    ok( $path_report->submit_new($ehrId), 'Submit composition' );
+    diag( $path_report->err_msg ) if $path_report->err_msg;
+    ok( !$path_report->err_msg, 'No Error Message set' );
+    is( $path_report->action, 'CREATE', 'Action is CREATE' );
+    ok( $path_report->compositionUid, 'Composition UID set' );
+    ok( $path_report->href,           'HREF set' );
+    note( 'Composition can be found at: ' . $path_report->href );
+}
+
+SKIP: {
+    skip "TDD compositions not yet supported", 1;
+    note('Begin testing TDD composition');
+    {
+        ok( $labreport->composition_format('TDD'),
+            'Set TDD composition format' );
+        my $path_report = OpenEHR::REST::PathologyReport->new();
+        ok( $path_report->composition($labreport),
+            'Add composition to rest client'
+        );
+        ok( $path_report->submit_new($ehrId), 'Submit composition' );
+        diag( $path_report->err_msg ) if $path_report->err_msg;
+        ok( !$path_report->err_msg, 'No Error Message set' );
+        is( $path_report->action, 'CREATE', 'Action is CREATE' );
+        ok( $path_report->compositionUid, 'Composition UID set' );
+        ok( $path_report->href,           'HREF set' );
+        note( 'Composition can be found at: ' . $path_report->href );
+    }
 }
 
 done_testing;

@@ -17,6 +17,7 @@ has     resource        => (
 );
 has 	composition     => (
     is      =>  'rw',
+    isa     => 'OpenEHR::Composition',
 );
 has     compositionUid  => (
     is      =>  'rw', 
@@ -104,26 +105,25 @@ sub update_by_uid {
 sub submit_new {
 	my $self = shift;
 	my $ehrId = shift;
-    print Dumper $self->request_format;
-    if ($self->request_format eq 'RAW') {
+    if ($self->composition->composition_format eq 'RAW') {
         $self->query({
             ehrId => $ehrId,
-            format => $self->request_format,
-            committer => $self->committer_name,
+            format => $self->composition->composition_format,
+            committer => $self->composition->composer_name,
         });
     }
     else {
         $self->query({
             ehrId => $ehrId,
-            format => $self->request_format,
-            committer => $self->committer_name,
+            format => $self->composition->composition_format,
+            committer => $self->composition->composer_name,
             templateId => 'GEL - Generic Lab Report import.v0',
         });
     }
 
     $self->headers([['Content-Type', 'application/json']]);
     $self->method('POST');
-    $self->submit_rest_call($self->composition);
+    $self->submit_rest_call( to_json( $self->composition->compose() ) );
     if ($self->response_code eq '201') {
 		my $post_response = from_json( $self->response);
 		$self->compositionUid($post_response->{compositionUid});
@@ -132,7 +132,7 @@ sub submit_new {
 		return 1;
 	} else {
 		carp "Response Code: " . $self->response_code;
-		carp "Composition: " . $self->composition;
+		carp "Composition: " . $self->composition->compose();
 		$self->err_msg($self->response);
 		return 0;
 	}
@@ -211,13 +211,6 @@ methods only parameter.
 =head2 composition
 
 The composition data for the object in the specified format
-
-=head2 request_format
-
-The format to be used to construct the composition. Can be one of 
-[ FLAT | STRUCTURED | RAW | TDD ]. Currently, only FLAT and
-STRUCTURED formats are supported. If the request value is set to 
-anything other than 'FLAT', the STRUCTURED format is used.
 
 =head2 compositionUid
 

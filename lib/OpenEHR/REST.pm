@@ -18,7 +18,6 @@ has     request_format  => (
     isa     =>  'CompositionFormat', 
     default =>  'STRUCTURED', 
     required => 1, 
-    trigger =>  sub {my $self = shift; $self->composition('');},
 );
 
 has     response_format => (
