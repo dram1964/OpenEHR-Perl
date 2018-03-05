@@ -4,7 +4,7 @@ use Carp;
 use Moose;
 use JSON;
 use Data::Dumper;
-use version; our $VERSION = qv('0.0.1');
+use version; our $VERSION = qv('0.0.2');
 
 extends 'OpenEHR::REST';
 

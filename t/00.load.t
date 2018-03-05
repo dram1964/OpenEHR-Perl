@@ -1,4 +1,4 @@
-use Test::More tests => 22;
+use Test::More tests => 21;
 
 BEGIN {
     use_ok('OpenEHR');
@@ -8,7 +8,6 @@ BEGIN {
     use_ok('OpenEHR::Composition::LabResultReport');
     use_ok('OpenEHR::Composition::LabTest');
     use_ok('OpenEHR::Composition::LabTestPanel');
-    use_ok('OpenEHR::Composition::Mapping');
     use_ok('OpenEHR::Composition::OrderingProvider');
     use_ok('OpenEHR::Composition::Placer');
     use_ok('OpenEHR::Composition::Professional');
