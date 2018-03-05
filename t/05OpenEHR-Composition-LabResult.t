@@ -6,26 +6,28 @@ use Data::Dumper;
 
 use OpenEHR::Composition::LabResult;
 
-note("Testing constructor with result value text");
+note('Testing constructor with result value text');
 ok( my $labtest = OpenEHR::Composition::LabResult->new(
         result_value => 59,
         comment   => 'See http://biochem.org for interpretation guidelines',
         ref_range => '50-60',
         result_status => 'Final',
     ),
-    "Construct new lab test object"
+    'Construct new lab test object'
 );
 
-is( $labtest->result_value, 59, "Result Value" );
+is( $labtest->composition_format,
+    'STRUCTURED', 'STRUCTURED composition format inherited' );
+is( $labtest->result_value, 59, 'Result Value' );
 is( $labtest->comment,
     'See http://biochem.org for interpretation guidelines',
-    "Result comment"
+    'Result comment'
 );
-is( $labtest->ref_range,       '50-60',  "Ref Range" );
-is( $labtest->status->{code},  'at0009', "Status Code" );
-is( $labtest->status->{value}, 'Final',  "Status Value" );
+is( $labtest->ref_range,       '50-60',  'Ref Range' );
+is( $labtest->status->{code},  'at0009', 'Status Code' );
+is( $labtest->status->{value}, 'Final',  'Status Value' );
 
-note("Testing constructor with magnitude, status, unit and flag");
+note('Testing constructor with magnitude, status, unit and flag');
 ok( $labtest = OpenEHR::Composition::LabResult->new(
         magnitude        => 59,
         magnitude_status => '<',
@@ -37,10 +39,10 @@ ok( $labtest = OpenEHR::Composition::LabResult->new(
         test_name => 'Sodium',
         result_status => 'Final',
     ),
-    "Construct new lab test object"
+    'Construct new lab test object'
 );
 
-note("Testing FLAT composition");
+note('Testing FLAT composition');
 my $path = 'laboratory_result_report/laboratory_test:__TEST__/'
     . 'laboratory_test_panel:__PANEL__/laboratory_result:__RESULT__/';
 ok( $labtest->composition_format('FLAT'), 'Request Structured format' );
@@ -77,53 +79,53 @@ is( $flat->{ $path . 'result_value/_name|terminology' },
     'testcode terminology in flat format'
 );
 note(
-    "not implemented result_value/_name/_mapping:0/target|code: ",
+    'not implemented result_value/_name/_mapping:0/target|code: ',
     $flat->{ $path . 'result_value/_name/_mapping:0/target|code' }
 );
 note(
-    "not implemented " . "result_value/_name/_mapping:0/target|terminology:",
+    'not implemented ' . 'result_value/_name/_mapping:0/target|terminology:',
     $flat->{ $path . 'result_value/_name/_mapping:0/target|terminology' }
 );
 note(
-    "not implemented result_value/_name/_mapping:0|match: ",
+    'not implemented result_value/_name/_mapping:0|match: ',
     $flat->{ $path . 'result_value/_name/_mapping:0|match' }
 );
 note(
-    "not implemented result_value/value2|magnitude_status: ",
+    'not implemented result_value/value2|magnitude_status: ',
     $flat->{ $path . 'result_value/value2|magnitude_status' }
 );
 note(
-    "not implemented result_value/value2|unit: ",
+    'not implemented result_value/value2|unit: ',
     $flat->{ $path . 'result_value/value2|unit' }
 );
 note(
-    "not implemented result_value/value: ",
+    'not implemented result_value/value: ',
     $flat->{ $path . 'result_value/value' }
 );
 note(
-    "not implemented "
-        . "result_value/value2/_normal_range/lower|magnitude: ",
+    'not implemented '
+        . 'result_value/value2/_normal_range/lower|magnitude: ',
     $flat->{ $path . 'result_value/value2/_normal_range/lower|magnitude' }
 );
 note(
-    "not implemented result_value/value2/_normal_range/lower|unit: ",
+    'not implemented result_value/value2/_normal_range/lower|unit: ',
     $flat->{ $path . 'result_value/value2/_normal_range/lower|unit' }
 );
 note(
-    "not implemented "
-        . "result_value/value2/_normal_range/upper|magnitude: ",
+    'not implemented '
+        . 'result_value/value2/_normal_range/upper|magnitude: ',
     $flat->{ $path . 'result_value/value2/_normal_range/upper|magnitude' }
 );
 note(
-    "not implemented result_value/value2/_normal_range/upper|unit: ",
+    'not implemented result_value/value2/_normal_range/upper|unit: ',
     $flat->{ $path . 'result_value/value2/_normal_range/upper|unit' }
 );
 note(
-    "not implemented result_value/value2|normal_status: ",
+    'not implemented result_value/value2|normal_status: ',
     $flat->{ $path . 'result_value/value2|normal_status' }
 );
 
-note("Testing STRUCTURED composition");
+note('Testing STRUCTURED composition');
 ok( $labtest->composition_format('STRUCTURED'), 'Request Structured format' );
 ok( my $struct = $labtest->compose(), 'Compose called' );
 is( $struct->{reference_range_guidance}->[0],
@@ -169,7 +171,7 @@ is( $struct->{result_status}->[0]->{'|terminology'},
     'result status code in structured format'
 );
 
-note("Testing RAW composition");
+note('Testing RAW composition');
 ok( $labtest->composition_format('RAW'), 'Request Structured format' );
 ok( my $raw = $labtest->compose(), 'Compose called' );
 is( $raw->{'@class'}, 'CLUSTER', 'RAW result composition class' );

@@ -67,6 +67,8 @@ ok( my $report = OpenEHR::Composition::LabResultReport->new(),
 ok( $report->report_id('1112233322233'),   'report_id mutator' );
 ok( $report->patient_comment('Hello EHR'), 'comment mutator' );
 ok( $report->add_labtests($data),          'Add Labtests from hash table' );
+is( $report->composition_format,
+    'STRUCTURED', 'STRUCTURED format set by default' );
 
 ok( $report->composition_format('FLAT'), 'Set FLAT composition format' );
 ok( my $flat = $report->compose(), 'Request composition' );
@@ -87,6 +89,6 @@ ok( !$path_report->err_msg, 'No Error Message set' );
 is( $path_report->action, 'CREATE', 'Action is CREATE' );
 ok( $path_report->compositionUid, 'Composition UID set' );
 ok( $path_report->href,           'HREF set' );
-note( "Composition can be found at: " . $path_report->href );
+note( 'Composition can be found at: ' . $path_report->href );
 
 done_testing;

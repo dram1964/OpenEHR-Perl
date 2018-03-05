@@ -144,7 +144,7 @@ ok( my $labreport = OpenEHR::Composition::LabResultReport->new(
     'Lab Result Report Constructor'
 );
 
-note("Begin testing FLAT composition");
+note('Begin testing FLAT composition');
 {
     ok( $labreport->composition_format('FLAT'),
         'Set FLAT composition format'
@@ -166,10 +166,10 @@ note("Begin testing FLAT composition");
     is( $path_report->action, 'CREATE', 'Action is CREATE' );
     ok( $path_report->compositionUid, 'Composition UID set' );
     ok( $path_report->href,           'HREF set' );
-    note( "Composition can be found at: " . $path_report->href );
+    note( 'Composition can be found at: ' . $path_report->href );
 }
 
-note("Begin testing STRUCTURED composition");
+note('Begin testing STRUCTURED composition');
 {
     ok( $labreport->composition_format('STRUCTURED'),
         'Set STRUCTURED composition format'
@@ -184,14 +184,13 @@ note("Begin testing STRUCTURED composition");
     ok( $path_report->composition( to_json($struct) ),
         'Add composition to rest client' );
 
-#ok($path_report->composer_name('David Ramlakhan'), 'Add composer name to rest client');
     ok( $path_report->submit_new($ehrId), 'Submit composition' );
     diag( $path_report->err_msg ) if $path_report->err_msg;
     ok( !$path_report->err_msg, 'No Error Message set' );
     is( $path_report->action, 'CREATE', 'Action is CREATE' );
     ok( $path_report->compositionUid, 'Composition UID set' );
     ok( $path_report->href,           'HREF set' );
-    note( "Composition can be found at: " . $path_report->href );
+    note( 'Composition can be found at: ' . $path_report->href );
 }
 
 done_testing;
