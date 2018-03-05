@@ -19,6 +19,9 @@ has 	composition     => (
     is      =>  'rw',
     isa     => 'OpenEHR::Composition',
 );
+has     composition_response => (
+    is      => 'rw',
+);
 has     compositionUid  => (
     is      =>  'rw', 
     isa     =>  'Str',
@@ -57,14 +60,14 @@ sub find_by_uid {
 			$self->err_msg('XML responses from TDD not handled yet');
 			$self->templateId('XML responses from TDD not handled yet');
             $self->response_format('TDD');
-			$self->composition($self->response);
+			$self->composition_response($self->response);
 			$self->deleted(0);
 			$self->lastVersion(0);
 		} else {
 			$query_response = from_json($self->response);
 			$self->response_format($query_response->{format});
 			$self->templateId($query_response->{templateId});
-			$self->composition($query_response->{composition});
+			$self->composition_response($query_response->{composition});
 			$self->deleted($query_response->{deleted});
 			$self->lastVersion($query_response->{lastVersion});
 		}
@@ -80,13 +83,14 @@ sub update_by_uid {
 	my $compositionUid = shift;
     $self->query({
 		templateId => 'GEL - Generic Lab Report import.v0',
-		format => $self->request_format,
-		committer => $self->committer_name,
+		format => $self->composition->composition_format,
+		committer => $self->composition->composer_name,
 	});
     $self->resource('composition/' . $compositionUid);
     $self->headers([['Content-Type', 'application/json']]);
     $self->method('PUT');
-    $self->submit_rest_call($self->composition);
+    #$self->submit_rest_call($self->composition);
+    $self->submit_rest_call( to_json( $self->composition->compose() ) );
     if ($self->response_code eq '200') {
 		my $post_response = from_json( $self->response);
 		$self->compositionUid($post_response->{compositionUid});
@@ -139,8 +143,6 @@ sub submit_new {
 }
 
 no Moose;
-
-
 
 __PACKAGE__->meta->make_immutable;
 
@@ -211,6 +213,10 @@ methods only parameter.
 =head2 composition
 
 The composition data for the object in the specified format
+
+=head2 composition_response
+
+composition item returned from the server converted to hashref
 
 =head2 compositionUid
 

@@ -1,11 +1,51 @@
 package OpenEHR::REST::AQL;
 
-use warnings;
-use strict;
 use Carp;
 use Moose;
-
+use JSON;
+use Data::Dumper;
 use version; our $VERSION = qv('0.0.1');
+
+extends 'OpenEHR::REST';
+
+has resource    => (is => 'rw', isa => 'Str', default => 'query');
+
+has href        => (is => 'rw', isa => 'Str');
+has resultset   => (is => 'rw', isa => 'ArrayRef');
+has aql         => (is => 'rw', isa => 'Str');
+has executedAQL => (is => 'rw', isa => 'Str');
+has err_msg     => (is => 'rw', isa => 'Str');
+has statement       => (is => 'rw', isa => 'Str', trigger => \&format_statement);
+
+sub format_statement {
+    my $self = shift;
+    my $statement = shift;
+    $statement =~ s/\R//g;
+    $self->{statement} = $statement;
+    $self->query({aql => $self->statement});
+}
+
+sub run_query {
+    my $self = shift;
+    $self->submit_rest_call();
+
+    if ($self->response_code eq '200') {
+        my $response = from_json($self->response);
+        $self->href($response->{meta}->{href});
+        $self->resultset($response->{resultSet});
+        $self->aql($response->{aql});
+        $self->executedAQL($response->{executedAql});
+        $self->err_msg('');
+        return 1;
+    } elsif ($self->response_code eq '204') {
+	    $self->err_msg('204 Error: Query returned no content');
+	    return 0;
+    } else {
+        print Dumper($self->response_code);
+	    $self->err_msg($self->response);
+	    return 0;
+    }
+}
 
 no Moose;
 
@@ -15,7 +55,7 @@ __END__
 
 =head1 NAME
 
-OpenEHR::REST::AQL - [One line description of module's purpose here]
+OpenEHR::REST::AQL - Submit AQL queries via OpenEHR REST API
 
 
 =head1 VERSION
@@ -26,97 +66,81 @@ This document describes OpenEHR::REST::AQL version 0.0.1
 =head1 SYNOPSIS
 
     use OpenEHR::REST::AQL;
+    my $query = OpenEHR::REST::AQL->new(
+	    statement => "select c/uid/value as uid from Composition c");
+    $query->run_query;                  # Submit query
+    die ("Error Message: " . $query2->err_msg) if $query2->err_msg;
+    $query->resultset->[0]->{uid};      # Access first UID from resultset
 
-=for author to fill in:
-    Brief code example(s) here showing commonest usage(s).
-    This section will be as far as many users bother reading
-    so make it as educational and exeplary as possible.
+    my $aql = "select e/ehr_id/value as ehrId from Ehr e";
+    $query->statement($aql);            # Add new statement to aql object
+    $query->run_query;                  # Submitted new query
+
+
+Use this module to set an AQL query statement and then submit
+the query via the OpenEHR REST API. Results are stored as 
+an ArrayRef of HashRefs in the objects resultset attribute
   
   
 =head1 DESCRIPTION
 
-=for author to fill in:
-    Write a full description of the module and its features here.
-    Use subsections (=head2, =head3) as appropriate.
-
-
 =head1 INTERFACE 
 
-=for author to fill in:
-    Write a separate section listing the public components of the modules
-    interface. These normally consist of either subroutines that may be
-    exported, or methods that may be called on objects belonging to the
-    classes provided by the module.
+=head1 METHODS
 
+=head2 statement($aql)
+
+Use this method when adding an AQL statement to the object. Method removes
+unwanted new lines from multi-line AQL statements, and sets the REST query
+string for submitting the statement
+
+=head2 run_query
+
+Runs the query statement stored in the object. 
+
+=head2 format_statement
+
+Internal method triggered when setting the statement attribute either at
+construction or afterwards.
+
+=head1 ATTRIBUTES
+
+=head2 href
+
+The href value returned from a successful query response
+
+=head2 aql
+
+The AQL value returned from a successful query response
+
+=head2 executedAQL
+
+The executedAql value returned from a successful query response
+
+=head2 err_msg
+
+Holds the response content in the event that a query was not 
+successful. A successful query sets this to the empty string.
 
 =head1 DIAGNOSTICS
 
-=for author to fill in:
-    List every single error and warning message that the module can
-    generate (even the ones that will "never happen"), with a full
-    explanation of each problem, one or more likely causes, and any
-    suggested remedies.
-
-=over
-
-=item C<< Error message here, perhaps with %s placeholders >>
-
-[Description of error here]
-
-=item C<< Another error message here >>
-
-[Description of error here]
-
-[Et cetera, et cetera]
-
-=back
-
+Check if err_msg is set on the object
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-=for author to fill in:
-    A full explanation of any configuration system(s) used by the
-    module, including the names and locations of any configuration
-    files, and the meaning of any environment variables or properties
-    that can be set. These descriptions must also include details of any
-    configuration language used.
-  
 OpenEHR::REST::AQL requires no configuration files or environment variables.
 
 
 =head1 DEPENDENCIES
 
-=for author to fill in:
-    A list of all the other modules that this module relies upon,
-    including any restrictions on versions, and an indication whether
-    the module is part of the standard Perl distribution, part of the
-    module's distribution, or must be installed separately. ]
-
 None.
 
-
 =head1 INCOMPATIBILITIES
-
-=for author to fill in:
-    A list of any modules that this module cannot be used in conjunction
-    with. This may be due to name conflicts in the interface, or
-    competition for system or program resources, or due to internal
-    limitations of Perl (for example, many modules that use source code
-    filters are mutually incompatible).
 
 None reported.
 
 
 =head1 BUGS AND LIMITATIONS
-
-=for author to fill in:
-    A list of known problems with the module, together with some
-    indication Whether they are likely to be fixed in an upcoming
-    release. Also a list of restrictions on the features the module
-    does provide: data types that cannot be handled, performance issues
-    and the circumstances in which they may arise, practical
-    limitations on the size of data sets, special cases that are not
-    (yet) handled, etc.
 
 No bugs have been reported.
 
@@ -132,7 +156,7 @@ David Ramlakhan  C<< <dram1964@gmail.com> >>
 
 =head1 LICENCE AND COPYRIGHT
 
-Copyright (c) 2018, David Ramlakhan C<< <dram1964@gmail.com> >>. All rights reserved.
+Copyright (c) 2017, David Ramlakhan C<< <dram1964@gmail.com> >>. All rights reserved.
 
 This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself. See L<perlartistic>.
