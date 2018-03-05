@@ -7,6 +7,8 @@ use Data::Dumper;
 use OpenEHR::Composition::Professional;
 use OpenEHR::Composition::OrderingProvider;
 use OpenEHR::Composition::Requester;
+diag('Testing OpenEHR::Composition::Requester '
+    . $OpenEHR::Composition::Requester::VERSION);
 
 ok( my $ordering_provider = OpenEHR::Composition::OrderingProvider->new(
         given_name  => 'A&E',

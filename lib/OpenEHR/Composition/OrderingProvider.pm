@@ -6,88 +6,89 @@ use Carp;
 use Moose;
 extends 'OpenEHR::Composition';
 
-use version; our $VERSION = qv('0.0.1');
+use version; our $VERSION = qv('0.0.2');
 
-has given_name  => (is => 'rw', isa => 'Str');
-has family_name => (is => 'rw', isa => 'Str');
+has given_name  => ( is => 'rw', isa => 'Str' );
+has family_name => ( is => 'rw', isa => 'Str' );
 
 sub compose {
     my $self = shift;
-    $self->composition_format('RAW') if ($self->composition_format eq 'TDD');
+    $self->composition_format('RAW')
+        if ( $self->composition_format eq 'TDD' );
 
-    my $formatter = 'compose_' . lc($self->composition_format);
+    my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
 }
 
 sub compose_structured {
-    my $self = shift;
+    my $self        = shift;
     my $composition = {
-      family_name => $self->family_name,
-      given_name => $self->given_name,
+        family_name => $self->family_name,
+        given_name  => $self->given_name,
     };
     return $composition;
 }
 
 sub compose_raw {
-    my $self = shift;
-my $composition = {
-    'archetype_details' => {
-        '@class' => 'ARCHETYPED',
-        'rm_version' => '1.0.1',
-        'archetype_id' => {
-                 '@class' => 'ARCHETYPE_ID',
-                 'value' => 'openEHR-EHR-CLUSTER.person_name.v1'
-        }
-    },
-    'name' => {
-        '@class' => 'DV_TEXT',
-        'value' => 'Ordering provider'
-    },
-    'archetype_node_id' => 'openEHR-EHR-CLUSTER.person_name.v1',
-    'items' => [{
-            'archetype_node_id' => 'at0002',
-            'items' => [
-                {
-                    'value' => {
-                           '@class' => 'DV_TEXT',
-                           'value' => $self->given_name, #'Given name 61'
-                         },
-                    'archetype_node_id' => 'at0003',
-                    '@class' => 'ELEMENT',
-                    'name' => {
-                          '@class' => 'DV_TEXT',
-                          'value' => 'Given name'
-                    }
-                },
-                {
-                    'value' => {
-                           '@class' => 'DV_TEXT',
-                           'value' => $self->family_name, #'Family name 87'
-                    },
-                    '@class' => 'ELEMENT',
-                    'archetype_node_id' => 'at0005',
-                    'name' => {
-                          'value' => 'Family name',
-                          '@class' => 'DV_TEXT'
-                    }
-                }
-            ],
-            '@class' => 'CLUSTER',
-            'name' => {
-                'value' => 'Ordering provider',
-                '@class' => 'DV_TEXT'
+    my $self        = shift;
+    my $composition = {
+        'archetype_details' => {
+            '@class'       => 'ARCHETYPED',
+            'rm_version'   => '1.0.1',
+            'archetype_id' => {
+                '@class' => 'ARCHETYPE_ID',
+                'value'  => 'openEHR-EHR-CLUSTER.person_name.v1'
             }
-    }],
-    '@class' => 'CLUSTER'
+        },
+        'name' => {
+            '@class' => 'DV_TEXT',
+            'value'  => 'Ordering provider'
+        },
+        'archetype_node_id' => 'openEHR-EHR-CLUSTER.person_name.v1',
+        'items'             => [
+            {   'archetype_node_id' => 'at0002',
+                'items'             => [
+                    {   'value' => {
+                            '@class' => 'DV_TEXT',
+                            'value'  => $self->given_name,    #'Given name 61'
+                        },
+                        'archetype_node_id' => 'at0003',
+                        '@class'            => 'ELEMENT',
+                        'name'              => {
+                            '@class' => 'DV_TEXT',
+                            'value'  => 'Given name'
+                        }
+                    },
+                    {   'value' => {
+                            '@class' => 'DV_TEXT',
+                            'value'  => $self->family_name,  #'Family name 87'
+                        },
+                        '@class'            => 'ELEMENT',
+                        'archetype_node_id' => 'at0005',
+                        'name'              => {
+                            'value'  => 'Family name',
+                            '@class' => 'DV_TEXT'
+                        }
+                    }
+                ],
+                '@class' => 'CLUSTER',
+                'name'   => {
+                    'value'  => 'Ordering provider',
+                    '@class' => 'DV_TEXT'
+                }
+            }
+        ],
+        '@class' => 'CLUSTER'
     };
     return $composition;
 }
 
 sub compose_flat {
     my $self = shift;
-    my $path = 'laboratory_result_report/laboratory_test:__TEST__/test_request_details/requester/ordering_provider/ordering_provider/';
+    my $path =
+        'laboratory_result_report/laboratory_test:__TEST__/test_request_details/requester/ordering_provider/ordering_provider/';
     my $composition = {
-        $path . 'given_name' => $self->given_name,
+        $path . 'given_name'  => $self->given_name,
         $path . 'family_name' => $self->family_name,
     };
     return $composition;

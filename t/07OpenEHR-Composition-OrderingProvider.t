@@ -4,6 +4,8 @@ use warnings;
 use Test::More;
 use Data::Dumper;
 use OpenEHR::Composition::OrderingProvider;
+diag('Testing OpenEHR::Composition::OrderingProvider '
+    . $OpenEHR::Composition::OrderingProvider::VERSION);
 
 ok( my $ordering = OpenEHR::Composition::OrderingProvider->new(
         given_name  => 'A&E',

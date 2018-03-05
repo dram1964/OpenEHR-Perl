@@ -9,64 +9,64 @@ extends 'OpenEHR::Composition';
 use version; our $VERSION = qv('0.0.2');
 
 has order_number => (
-    is          =>  'rw', 
-    isa         =>  'Str',
-    required    =>  1,
+    is       => 'rw',
+    isa      => 'Str',
+    required => 1,
 );
 has issuer => (
-    is          =>  'rw', 
-    isa         =>  'Str',
-    required    =>  1,
-    default     =>  'UCLH Pathology',
+    is       => 'rw',
+    isa      => 'Str',
+    required => 1,
+    default  => 'UCLH Pathology',
 
 );
 has assigner => (
-    is          =>  'rw', 
-    isa         =>  'Str',
-    required    =>  1,
-    default     =>  'Winpath',
+    is       => 'rw',
+    isa      => 'Str',
+    required => 1,
+    default  => 'Winpath',
 );
 has type => (
-    is          =>  'rw', 
-    isa         =>  'Str',
-    required    =>  1,
-    default     =>  'local',
+    is       => 'rw',
+    isa      => 'Str',
+    required => 1,
+    default  => 'local',
 );
-
 
 sub compose {
     my $self = shift;
-    $self->composition_format('RAW') if ($self->composition_format eq 'TDD');
+    $self->composition_format('RAW')
+        if ( $self->composition_format eq 'TDD' );
 
-    my $formatter = 'compose_' . lc($self->composition_format);
+    my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
 }
 
 sub compose_structured {
-    my $self = shift;
+    my $self        = shift;
     my $composition = {
-                '|assigner' => $self->assigner,
-                '|issuer'   => $self->issuer,
-                '|id'       => $self->order_number,
-                '|type'     => $self->type,
+        '|assigner' => $self->assigner,
+        '|issuer'   => $self->issuer,
+        '|id'       => $self->order_number,
+        '|type'     => $self->type,
     };
     return $composition;
 }
 
 sub compose_raw {
-    my $self = shift;
+    my $self        = shift;
     my $composition = {
         'value' => {
-            'type' => $self->type,
-            '@class' => 'DV_IDENTIFIER',
-            'id' => $self->order_number,
-            'issuer' => $self->issuer,
+            'type'     => $self->type,
+            '@class'   => 'DV_IDENTIFIER',
+            'id'       => $self->order_number,
+            'issuer'   => $self->issuer,
             'assigner' => $self->assigner,
         },
-        '@class' => 'ELEMENT',
+        '@class'            => 'ELEMENT',
         'archetype_node_id' => 'at0063',
-        'name' => {
-            'value' => 'Filler order number',
+        'name'              => {
+            'value'  => 'Filler order number',
             '@class' => 'DV_TEXT'
         }
     };
@@ -75,12 +75,13 @@ sub compose_raw {
 
 sub compose_flat {
     my $self = shift;
-    my $path = 'laboratory_result_report/laboratory_test:__TEST__/test_request_details/';
+    my $path =
+        'laboratory_result_report/laboratory_test:__TEST__/test_request_details/';
     my $composition = {
-        $path . 'filler_order_number' => $self->order_number,
-        $path . 'filler_order_number|issuer' => $self->issuer,
+        $path . 'filler_order_number'          => $self->order_number,
+        $path . 'filler_order_number|issuer'   => $self->issuer,
         $path . 'filler_order_number|assigner' => $self->assigner,
-        $path . 'filler_order_number|type' => $self->type,
+        $path . 'filler_order_number|type'     => $self->type,
     };
     return $composition;
 }

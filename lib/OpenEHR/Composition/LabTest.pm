@@ -8,293 +8,303 @@ use Moose;
 extends 'OpenEHR::Composition';
 use Moose::Util::TypeConstraints;
 
-use version; our $VERSION = qv('0.0.1');
+use version; our $VERSION = qv('0.0.2');
 
-enum 'TestStatusName'   => [qw( Final Registered Partial Cancelled Corrected Amended Error)];
+enum 'TestStatusName' =>
+    [qw( Final Registered Partial Cancelled Corrected Amended Error)];
 
-has requested_test      => (is => 'rw', isa => 'OpenEHR::Composition::RequestedTest');
-has specimens           => (is => 'rw', isa => 'ArrayRef[OpenEHR::Composition::Specimen]');
-has history_origin      => (is => 'rw', isa => 'DateTime');
-has test_status         => (is => 'rw', isa => 'TestStatusName');
-has test_status_time    => (is => 'rw', isa => 'DateTime');
-has clinical_info       => (is => 'rw', isa => 'Str');
-has test_panels         => (is => 'rw', isa => 'ArrayRef[OpenEHR::Composition::LabTestPanel]');
-has conclusion          => (is => 'rw', isa => 'Str');
-has responsible_lab     => (is => 'rw', isa => 'Str');
-has request_details     => (is => 'rw', isa => 'OpenEHR::Composition::TestRequestDetails');
-
+has requested_test =>
+    ( is => 'rw', isa => 'OpenEHR::Composition::RequestedTest' );
+has specimens =>
+    ( is => 'rw', isa => 'ArrayRef[OpenEHR::Composition::Specimen]' );
+has history_origin   => ( is => 'rw', isa => 'DateTime' );
+has test_status      => ( is => 'rw', isa => 'TestStatusName' );
+has test_status_time => ( is => 'rw', isa => 'DateTime' );
+has clinical_info    => ( is => 'rw', isa => 'Str' );
+has test_panels =>
+    ( is => 'rw', isa => 'ArrayRef[OpenEHR::Composition::LabTestPanel]' );
+has conclusion      => ( is => 'rw', isa => 'Str' );
+has responsible_lab => ( is => 'rw', isa => 'Str' );
+has request_details =>
+    ( is => 'rw', isa => 'OpenEHR::Composition::TestRequestDetails' );
 
 sub test_status_lookup {
-    my $self = shift;
+    my $self               = shift;
     my $test_status_lookup = {
-        Final       => {
-            code    => 'at0038',
-            value   => 'Final',
+        Final => {
+            code  => 'at0038',
+            value => 'Final',
         },
-        Registered  => {
-            code    => 'at0107',
-            value   => 'Registered',
+        Registered => {
+            code  => 'at0107',
+            value => 'Registered',
         },
-        Partial     => {
-            code    => 'at0037',
-            value   => 'Partial',
+        Partial => {
+            code  => 'at0037',
+            value => 'Partial',
         },
-        Cancelled   => {
-            code    => 'at0074',
-            value   => 'Cancelled',
+        Cancelled => {
+            code  => 'at0074',
+            value => 'Cancelled',
         },
-        Corrected   => {
-            code    => 'at0115',
-            value   => 'Corrected',
+        Corrected => {
+            code  => 'at0115',
+            value => 'Corrected',
         },
-        Amended     => {
-            code    => 'at0040',
-            value   => 'Amended',
+        Amended => {
+            code  => 'at0040',
+            value => 'Amended',
         },
-        Error       => {
-            code    => 'at0116',
-            value   => 'Entered in error',
+        Error => {
+            code  => 'at0116',
+            value => 'Entered in error',
         }
     };
-    return $test_status_lookup->{$self->test_status};
+    return $test_status_lookup->{ $self->test_status };
 }
-
 
 sub compose {
     my $self = shift;
-    $self->composition_format('RAW') if ($self->composition_format eq 'TDD');
-    $self->requested_test->composition_format($self->composition_format);
-    for my $specimen (@{$self->specimens}) {
-        $specimen->composition_format($self->composition_format);
+    $self->composition_format('RAW')
+        if ( $self->composition_format eq 'TDD' );
+    $self->requested_test->composition_format( $self->composition_format );
+    for my $specimen ( @{ $self->specimens } ) {
+        $specimen->composition_format( $self->composition_format );
     }
-    for my $test_panel (@{$self->test_panels}) {
-        $test_panel->composition_format($self->composition_format);
+    for my $test_panel ( @{ $self->test_panels } ) {
+        $test_panel->composition_format( $self->composition_format );
     }
-    $self->request_details->composition_format($self->composition_format);
-    my $formatter = 'compose_' . lc($self->composition_format);
+    $self->request_details->composition_format( $self->composition_format );
+    my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
 }
 
 sub compose_structured {
     my $self = shift;
-    my $composition->{responsible_laboratory} = [{ name_of_organisation => $self->responsible_lab}];
-    $composition->{encoding} = [{
-        '|code' => 'UTF-8',
-        '|terminology' => 'IANA_character-sets'
-    }];
-    for my $panel (@{$self->test_panels}) {
-        push @{$composition->{laboratory_test_panel}}, $panel->compose();
+    my $composition->{responsible_laboratory} =
+        [ { name_of_organisation => $self->responsible_lab } ];
+    $composition->{encoding} = [
+        {   '|code'        => 'UTF-8',
+            '|terminology' => 'IANA_character-sets'
+        }
+    ];
+    for my $panel ( @{ $self->test_panels } ) {
+        push @{ $composition->{laboratory_test_panel} }, $panel->compose();
     }
     $composition->{requested_test} = $self->requested_test->compose();
-    $composition->{clinical_information_provided} = [$self->clinical_info];
-    $composition->{test_status} = [{
-        '|value' => $self->test_status_lookup->{value},
-        '|terminology' => 'local',
-        '|code' => $self->test_status_lookup->{code},
-    }];
-    for my $specimen (@{$self->specimens}) {
-        push @{$composition->{specimen}}, $specimen->compose();
+    $composition->{clinical_information_provided} = [ $self->clinical_info ];
+    $composition->{test_status}                   = [
+        {   '|value'       => $self->test_status_lookup->{value},
+            '|terminology' => 'local',
+            '|code'        => $self->test_status_lookup->{code},
+        }
+    ];
+    for my $specimen ( @{ $self->specimens } ) {
+        push @{ $composition->{specimen} }, $specimen->compose();
     }
     $composition->{conclusion} = [ $self->conclusion ];
-    $composition->{time} = [ DateTime->now->datetime ];
-    $composition->{language} = [{
-        '|terminology' => 'ISO_639-1',
-        '|code' => 'en'
-    }];
+    $composition->{time}       = [ DateTime->now->datetime ];
+    $composition->{language}   = [
+        {   '|terminology' => 'ISO_639-1',
+            '|code'        => 'en'
+        }
+    ];
     $composition->{test_request_details} = $self->request_details->compose();
-    $composition->{test_status_timestamp} = [$self->test_status_time->datetime];
+    $composition->{test_status_timestamp} =
+        [ $self->test_status_time->datetime ];
     return $composition;
 }
 
 sub compose_raw {
-    my $self = shift;
+    my $self        = shift;
     my $composition = {
         'name' => {
             '@class' => 'DV_TEXT',
-            'value' => 'Laboratory test'
+            'value'  => 'Laboratory test'
         },
-        '@class' => 'OBSERVATION',
-        'subject' => { '@class' => 'PARTY_SELF' },
+        '@class'            => 'OBSERVATION',
+        'subject'           => { '@class' => 'PARTY_SELF' },
         'archetype_node_id' => 'openEHR-EHR-OBSERVATION.laboratory_test.v0',
-        'encoding' => {
+        'encoding'          => {
             'terminology_id' => {
                 '@class' => 'TERMINOLOGY_ID',
-                'value' => $self->encoding_terminology,
+                'value'  => $self->encoding_terminology,
             },
             'code_string' => $self->encoding_code,
-            '@class' => 'CODE_PHRASE'
+            '@class'      => 'CODE_PHRASE'
         },
         'protocol' => {
             'items' => [
-                {
-                   'name' => {
-                       'value' => 'Responsible laboratory',
-                       '@class' => 'DV_TEXT'
-                   },
-                   '@class' => 'CLUSTER',
-                   'archetype_node_id' => 'openEHR-EHR-CLUSTER.organisation.v1',
-                   'archetype_details' => {
-                       'rm_version' => '1.0.1',
-                       '@class' => 'ARCHETYPED',
-                       'archetype_id' => {
-                           'value' => 'openEHR-EHR-CLUSTER.organisation.v1',
-                           '@class' => 'ARCHETYPE_ID'
-                       }
-                   },
-                   'items' => [
-                       {
-                          'name' => {
-                              'value' => 'Name of Organisation',
-                              '@class' => 'DV_TEXT'
-                          },
-                          'value' => {
-                              '@class' => 'DV_TEXT',
-                              'value' => $self->responsible_lab,
-                          },
-                          '@class' => 'ELEMENT',
-                          'archetype_node_id' => 'at0001'
-                       }
-                   ]
+                {   'name' => {
+                        'value'  => 'Responsible laboratory',
+                        '@class' => 'DV_TEXT'
+                    },
+                    '@class' => 'CLUSTER',
+                    'archetype_node_id' =>
+                        'openEHR-EHR-CLUSTER.organisation.v1',
+                    'archetype_details' => {
+                        'rm_version'   => '1.0.1',
+                        '@class'       => 'ARCHETYPED',
+                        'archetype_id' => {
+                            'value'  => 'openEHR-EHR-CLUSTER.organisation.v1',
+                            '@class' => 'ARCHETYPE_ID'
+                        }
+                    },
+                    'items' => [
+                        {   'name' => {
+                                'value'  => 'Name of Organisation',
+                                '@class' => 'DV_TEXT'
+                            },
+                            'value' => {
+                                '@class' => 'DV_TEXT',
+                                'value'  => $self->responsible_lab,
+                            },
+                            '@class'            => 'ELEMENT',
+                            'archetype_node_id' => 'at0001'
+                        }
+                    ]
                 },
-               $self->request_details->compose(), 
+                $self->request_details->compose(),
             ],
             'archetype_node_id' => 'at0004',
-            '@class' => 'ITEM_TREE',
-            'name' => {
-                        'value' => 'Tree',
-                        '@class' => 'DV_TEXT',
-                      },
+            '@class'            => 'ITEM_TREE',
+            'name'              => {
+                'value'  => 'Tree',
+                '@class' => 'DV_TEXT',
+            },
         },
         'language' => {
-            '@class' => 'CODE_PHRASE',
-            'code_string' => $self->language_code,
+            '@class'         => 'CODE_PHRASE',
+            'code_string'    => $self->language_code,
             'terminology_id' => {
-                'value' => $self->language_terminology,
+                'value'  => $self->language_terminology,
                 '@class' => 'TERMINOLOGY_ID',
             },
         },
         'archetype_details' => {
             'archetype_id' => {
-                'value' => 'openEHR-EHR-OBSERVATION.laboratory_test.v0',
+                'value'  => 'openEHR-EHR-OBSERVATION.laboratory_test.v0',
                 '@class' => 'ARCHETYPE_ID'
             },
-            '@class' => 'ARCHETYPED',
+            '@class'     => 'ARCHETYPED',
             'rm_version' => '1.0.1',
         },
         'data' => {
-                    'name' => {
-                                '@class' => 'DV_TEXT',
-                                'value' => 'Event Series'
-                              },
-                    '@class' => 'HISTORY',
-                    'archetype_node_id' => 'at0001',
-                    'origin' => {
-                                  '@class' => 'DV_DATE_TIME',
-                                  'value' => '2017-08-21T19:26:52.84+02:00'
-                                },
-                    'events' => [
-                        {
-                            'data' => {
-                                '@class' => 'ITEM_TREE',
-                                'name' => {
+            'name' => {
+                '@class' => 'DV_TEXT',
+                'value'  => 'Event Series'
+            },
+            '@class'            => 'HISTORY',
+            'archetype_node_id' => 'at0001',
+            'origin'            => {
+                '@class' => 'DV_DATE_TIME',
+                'value'  => '2017-08-21T19:26:52.84+02:00'
+            },
+            'events' => [
+                {   'data' => {
+                        '@class' => 'ITEM_TREE',
+                        'name'   => {
+                            '@class' => 'DV_TEXT',
+                            'value'  => 'Tree'
+                        },
+                        'items' => [
+                            $self->requested_test->compose(),
+                            {   'name' => {
                                     '@class' => 'DV_TEXT',
-                                    'value' => 'Tree'
+                                    'value'  => 'Test status'
                                 },
-                                'items' => [
-                                    $self->requested_test->compose(),
-                                    {
-                                       'name' => {
-                                           '@class' => 'DV_TEXT',
-                                           'value' => 'Test status'
-                                       },
-                                       '@class' => 'ELEMENT',
-                                       'value' => {
-                                            'value' => $self->test_status_lookup->{value},
-                                            'defining_code' => {
-                                                'terminology_id' => {
-                                                    '@class' => 'TERMINOLOGY_ID',
-                                                    'value' => 'local'
-                                                },
-                                                'code_string' => $self->test_status_lookup->{code},
-                                                '@class' => 'CODE_PHRASE'
-                                            },
-                                            '@class' => 'DV_CODED_TEXT'
-                                       },
-                                       'archetype_node_id' => 'at0073'
+                                '@class' => 'ELEMENT',
+                                'value'  => {
+                                    'value' =>
+                                        $self->test_status_lookup->{value},
+                                    'defining_code' => {
+                                        'terminology_id' => {
+                                            '@class' => 'TERMINOLOGY_ID',
+                                            'value'  => 'local'
+                                        },
+                                        'code_string' =>
+                                            $self->test_status_lookup->{code},
+                                        '@class' => 'CODE_PHRASE'
                                     },
-                                    {
-                                       'archetype_node_id' => 'at0075',
-                                       'value' => {
-                                                    'value' => $self->test_status_time->datetime,
-                                                    '@class' => 'DV_DATE_TIME'
-                                                  },
-                                       '@class' => 'ELEMENT',
-                                       'name' => {
-                                                   '@class' => 'DV_TEXT',
-                                                   'value' => 'Test status timestamp'
-                                                 }
-                                    },
-                                    {
-                                       'archetype_node_id' => 'at0100',
-                                       'name' => {
-                                                   '@class' => 'DV_TEXT',
-                                                   'value' => 'Clinical information provided'
-                                                 },
-                                       '@class' => 'ELEMENT',
-                                       'value' => {
-                                                    '@class' => 'DV_TEXT',
-                                                    'value' => $self->clinical_info,
-                                                  }
-                                    },
-                                ],
-                                'archetype_node_id' => 'at0003'
+                                    '@class' => 'DV_CODED_TEXT'
+                                },
+                                'archetype_node_id' => 'at0073'
                             },
-                            'archetype_node_id' => 'at0002',
-                            'time' => {
-                                        'value' => DateTime->now->datetime,
-                                        '@class' => 'DV_DATE_TIME'
-                                      },
-                            'name' => {
-                                        'value' => 'Any event',
-                                        '@class' => 'DV_TEXT'
-                                      },
-                            '@class' => 'POINT_EVENT'
-                        }
-                                ]
-                  }
+                            {   'archetype_node_id' => 'at0075',
+                                'value'             => {
+                                    'value' =>
+                                        $self->test_status_time->datetime,
+                                    '@class' => 'DV_DATE_TIME'
+                                },
+                                '@class' => 'ELEMENT',
+                                'name'   => {
+                                    '@class' => 'DV_TEXT',
+                                    'value'  => 'Test status timestamp'
+                                }
+                            },
+                            {   'archetype_node_id' => 'at0100',
+                                'name'              => {
+                                    '@class' => 'DV_TEXT',
+                                    'value' => 'Clinical information provided'
+                                },
+                                '@class' => 'ELEMENT',
+                                'value'  => {
+                                    '@class' => 'DV_TEXT',
+                                    'value'  => $self->clinical_info,
+                                }
+                            },
+                        ],
+                        'archetype_node_id' => 'at0003'
+                    },
+                    'archetype_node_id' => 'at0002',
+                    'time'              => {
+                        'value'  => DateTime->now->datetime,
+                        '@class' => 'DV_DATE_TIME'
+                    },
+                    'name' => {
+                        'value'  => 'Any event',
+                        '@class' => 'DV_TEXT'
+                    },
+                    '@class' => 'POINT_EVENT'
+                }
+            ]
+        }
     };
-    for my $specimen (@{$self->specimens}) {
-        push @{$composition->{data}->{events}->[0]->{data}->{items}}, $specimen->compose();
+    for my $specimen ( @{ $self->specimens } ) {
+        push @{ $composition->{data}->{events}->[0]->{data}->{items} },
+            $specimen->compose();
     }
-    for my $panel (@{$self->test_panels}) {
-        push @{$composition->{data}->{events}->[0]->{data}->{items}}, $panel->compose();
+    for my $panel ( @{ $self->test_panels } ) {
+        push @{ $composition->{data}->{events}->[0]->{data}->{items} },
+            $panel->compose();
     }
-    if ($self->conclusion) {
+    if ( $self->conclusion ) {
         my $conclusion = {
-                                       '@class' => 'ELEMENT',
-                                       'value' => {
-                                                    '@class' => 'DV_TEXT',
-                                                    'value' => $self->conclusion,
-                                                  },
-                                       'name' => {
-                                                   'value' => 'Conclusion',
-                                                   '@class' => 'DV_TEXT'
-                                                 },
-                                       'archetype_node_id' => 'at0057'
+            '@class' => 'ELEMENT',
+            'value'  => {
+                '@class' => 'DV_TEXT',
+                'value'  => $self->conclusion,
+            },
+            'name' => {
+                'value'  => 'Conclusion',
+                '@class' => 'DV_TEXT'
+            },
+            'archetype_node_id' => 'at0057'
         };
-        push @{$composition->{data}->{events}->[0]->{data}->{items}}, $conclusion; 
+        push @{ $composition->{data}->{events}->[0]->{data}->{items} },
+            $conclusion;
     }
     return $composition;
 }
 
 sub compose_flat {
-    my $self = shift;
-    my $path = 'laboratory_result_report/laboratory_test:__TEST__/';
+    my $self           = shift;
+    my $path           = 'laboratory_result_report/laboratory_test:__TEST__/';
     my $specimen_index = '0';
-    my $specimen_comp = {};
-    for my $specimen (@{$self->specimens}) {
+    my $specimen_comp  = {};
+    for my $specimen ( @{ $self->specimens } ) {
         my $composition_fragment = $specimen->compose();
-        for my $key (keys %{$composition_fragment}) {
+        for my $key ( keys %{$composition_fragment} ) {
             my $new_key = $key;
             $new_key =~ s/__SPEC__/$specimen_index/;
             $specimen_comp->{$new_key} = $composition_fragment->{$key};
@@ -302,10 +312,10 @@ sub compose_flat {
         $specimen_index++;
     }
     my $panel_index = '0';
-    my $panel_comp = {};
-    for my $panel (@{$self->test_panels}) {
+    my $panel_comp  = {};
+    for my $panel ( @{ $self->test_panels } ) {
         my $composition_fragment = $panel->compose();
-        for my $key (keys %{$composition_fragment}) {
+        for my $key ( keys %{$composition_fragment} ) {
             my $new_key = $key;
             $new_key =~ s/__PANEL__/$panel_index/;
             $panel_comp->{$new_key} = $composition_fragment->{$key};
@@ -313,18 +323,20 @@ sub compose_flat {
         $panel_index++;
     }
     my $composition = {
-        $path . 'history_origin' => $self->history_origin->datetime,
+        $path . 'history_origin'    => $self->history_origin->datetime,
         $path . 'test_status|value' => $self->test_status_lookup->{value},
-        $path . 'test_status|code' => $self->test_status_lookup->{code},
+        $path . 'test_status|code'  => $self->test_status_lookup->{code},
         $path . 'test_status|terminology' => 'local',
         $path . 'test_status_timestamp' => $self->test_status_time->datetime,
         $path . 'clinical_information_provided' => $self->clinical_info,
-        $path . 'conclusion' => $self->conclusion,
-        $path . 'responsible_laboratory/name_of_organisation' => $self->responsible_lab,
+        $path . 'conclusion'                    => $self->conclusion,
+        $path
+            . 'responsible_laboratory/name_of_organisation' =>
+            $self->responsible_lab,
         %{$panel_comp},
         %{$specimen_comp},
-        %{$self->requested_test->compose()}, 
-        %{$self->request_details->compose()}, 
+        %{ $self->requested_test->compose() },
+        %{ $self->request_details->compose() },
     };
     return $composition;
 }

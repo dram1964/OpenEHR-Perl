@@ -7,41 +7,43 @@ use Moose;
 use Data::Dumper;
 extends 'OpenEHR::Composition';
 
-use version; our $VERSION = qv('0.0.1');
+use version; our $VERSION = qv('0.0.2');
 
-has lab_results     =>  (is => 'rw', isa => 'ArrayRef[OpenEHR::Composition::LabResult]');
+has lab_results =>
+    ( is => 'rw', isa => 'ArrayRef[OpenEHR::Composition::LabResult]' );
 
 sub compose {
     my $self = shift;
-    $self->composition_format('RAW') if ($self->composition_format eq 'TDD');
-    for my $result (@{$self->lab_results}) {
-        $result->composition_format($self->composition_format);
+    $self->composition_format('RAW')
+        if ( $self->composition_format eq 'TDD' );
+    for my $result ( @{ $self->lab_results } ) {
+        $result->composition_format( $self->composition_format );
     }
 
-    my $formatter = 'compose_' . lc($self->composition_format);
+    my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
 }
 
 sub compose_structured {
-    my $self = shift;
+    my $self        = shift;
     my $composition = {
         laboratory_result => [],
 
     };
-    for my $result (@{$self->lab_results}) {
-        push @{$composition->{laboratory_result}}, $result->compose();
+    for my $result ( @{ $self->lab_results } ) {
+        push @{ $composition->{laboratory_result} }, $result->compose();
     }
     return $composition;
 }
 
 sub compose_flat {
-    my $self = shift;
+    my $self        = shift;
     my $composition = {};
 
     my $index = '0';
-    for my $result (@{$self->lab_results}) {
+    for my $result ( @{ $self->lab_results } ) {
         my $fc = $result->compose();
-        for my $key (keys %{$fc}) {
+        for my $key ( keys %{$fc} ) {
             my $new_key = $key;
             $new_key =~ s/__RESULT__/$index/;
             $composition->{$new_key} = $fc->{$key};
@@ -52,31 +54,29 @@ sub compose_flat {
 }
 
 sub compose_raw {
-    my $self = shift;
+    my $self        = shift;
     my $composition = {
         'name' => {
             '@class' => 'DV_TEXT',
-            'value' => 'Laboratory test panel'
+            'value'  => 'Laboratory test panel'
         },
-        '@class' => 'CLUSTER',
+        '@class'            => 'CLUSTER',
         'archetype_details' => {
             'archetype_id' => {
                 '@class' => 'ARCHETYPE_ID',
-                'value' => 'openEHR-EHR-CLUSTER.laboratory_test_panel.v0'
+                'value'  => 'openEHR-EHR-CLUSTER.laboratory_test_panel.v0'
             },
-            '@class' => 'ARCHETYPED',
+            '@class'     => 'ARCHETYPED',
             'rm_version' => '1.0.1'
         },
         'archetype_node_id' => 'openEHR-EHR-CLUSTER.laboratory_test_panel.v0',
-        'items' => [ ],
+        'items'             => [],
     };
-    for my $result (@{$self->lab_results}) {
-        push @{$composition->{items}}, $result->compose();
+    for my $result ( @{ $self->lab_results } ) {
+        push @{ $composition->{items} }, $result->compose();
     }
     return $composition;
 }
-            
-
 
 no Moose;
 

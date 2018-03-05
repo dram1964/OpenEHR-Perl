@@ -5,6 +5,8 @@ use Test::More;
 use DateTime;
 
 use OpenEHR::Composition::Specimen;
+diag('Testing OpenEHR::Composition::Specimen '
+    . $OpenEHR::Composition::Specimen::VERSION);
 
 ok( my $specimen = OpenEHR::Composition::Specimen->new(
         specimen_type      => 'Blood',

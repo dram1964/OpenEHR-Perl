@@ -67,28 +67,26 @@ ok( my $report = OpenEHR::Composition::LabResultReport->new(),
 ok( $report->report_id('1112233322233'),   'report_id mutator' );
 ok( $report->patient_comment('Hello EHR'), 'comment mutator' );
 ok( $report->add_labtests($data),          'Add Labtests from hash table' );
+ok( $report->composer_name('David Ramlakhan'),
+    'Add composer name to rest client' );
 is( $report->composition_format,
     'STRUCTURED', 'STRUCTURED format set by default' );
 
 ok( $report->composition_format('FLAT'), 'Set FLAT composition format' );
-ok( my $flat = $report->compose(), 'Request composition' );
 
 my $path_report = OpenEHR::REST::PathologyReport->new();
-my $ehrid       = $report->test_ehrid;
 
 ok( $path_report->request_format( $report->composition_format ),
     'Set report format for rest client' );
-is( $path_report->request_format, 'FLAT', 'Format set to FLAT' );
-ok( $path_report->composition( to_json($flat) ),
+ok( $path_report->composition( to_json( $report->compose() ) ),
     'Add composition to rest client' );
-ok( $path_report->composer_name('David Ramlakhan'),
-    'Add composer name to rest client' );
-ok( $path_report->submit_new($ehrid), 'Submit composition' );
+ok( $path_report->submit_new($report->test_ehrid), 'Submit composition' );
 diag( $path_report->err_msg ) if $path_report->err_msg;
 ok( !$path_report->err_msg, 'No Error Message set' );
 is( $path_report->action, 'CREATE', 'Action is CREATE' );
 ok( $path_report->compositionUid, 'Composition UID set' );
 ok( $path_report->href,           'HREF set' );
+print Dumper $report->compose();
 note( 'Composition can be found at: ' . $path_report->href );
 
 done_testing;

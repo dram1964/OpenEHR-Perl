@@ -6,11 +6,11 @@ use Carp;
 use Moose;
 extends 'OpenEHR::Composition';
 
-has code        => (is => 'rw', isa => 'Str');
-has terminology => (is => 'rw', isa => 'Str');
-has match       => (is => 'rw', isa => 'Str', default => '=');
+has code        => ( is => 'rw', isa => 'Str' );
+has terminology => ( is => 'rw', isa => 'Str' );
+has match       => ( is => 'rw', isa => 'Str', default => '=' );
 
-use version; our $VERSION = qv('0.0.1');
+use version; our $VERSION = qv('0.0.2');
 
 no Moose;
 

@@ -8,12 +8,13 @@ use JSON;
 use Data::Dumper;
 extends 'OpenEHR::Composition';
 
-use version; our $VERSION = qv('0.0.1');
+use version; our $VERSION = qv('0.0.2');
 
-has ctx         => (is => 'rw', isa => 'OpenEHR::Composition::CTX');
-has report_id   => (is => 'rw', isa => 'Str');
-has labtests     => (is => 'rw', isa => 'ArrayRef[OpenEHR::Composition::LabTest]');
-has patient_comment  => (is => 'rw', isa => 'Str');
+has ctx       => ( is => 'rw', isa => 'OpenEHR::Composition::CTX' );
+has report_id => ( is => 'rw', isa => 'Str' );
+has labtests =>
+    ( is => 'rw', isa => 'ArrayRef[OpenEHR::Composition::LabTest]' );
+has patient_comment => ( is => 'rw', isa => 'Str' );
 
 sub add_labtests {
     use OpenEHR::Composition::RequestedTest;
@@ -28,231 +29,220 @@ sub add_labtests {
     use OpenEHR::Composition::TestRequestDetails;
     use OpenEHR::Composition::LabTest;
 
-    my ($self, $data) = @_;
+    my ( $self, $data ) = @_;
 
     my $request = OpenEHR::Composition::RequestedTest->new(
-         requested_test     => $data->{ordername} || $data->{ordercode},
-         name               => $data->{ordername} || $data->{ordercode},
-         code               => $data->{ordercode},
-         terminology     => 'local',
+        requested_test => $data->{ordername} || $data->{ordercode},
+        name           => $data->{ordername} || $data->{ordercode},
+        code           => $data->{ordercode},
+        terminology    => 'local',
     );
     my $specimen = OpenEHR::Composition::Specimen->new(
-        specimen_type       => $data->{spec_type},
-        datetime_collected  => $data->{collected}, 
-        collection_method   => $data->{collect_method},
-        datetime_received   => $data->{received},
-        spec_id             => $data->{labnumber}->{id},
+        specimen_type      => $data->{spec_type},
+        datetime_collected => $data->{collected},
+        collection_method  => $data->{collect_method},
+        datetime_received  => $data->{received},
+        spec_id            => $data->{labnumber}->{id},
     );
 
     my $labresults = [];
-    for my $res (@{$data->{labresults}}) {
+    for my $res ( @{ $data->{labresults} } ) {
         my $labresult = OpenEHR::Composition::LabResult->new(
-            result_value => $res->{result},
-            comment => $res->{comment},
-            ref_range => $res->{ref_range},
-            testcode => $res->{testcode},
-            testname => $res->{testname},
-            result_status  => $res->{result_status},
+            result_value  => $res->{result},
+            comment       => $res->{comment},
+            ref_range     => $res->{ref_range},
+            testcode      => $res->{testcode},
+            testname      => $res->{testname},
+            result_status => $res->{result_status},
         );
         push @{$labresults}, $labresult;
     }
 
-    my $labpanel = OpenEHR::Composition::LabTestPanel->new(
-        lab_results => $labresults
-    );
+    my $labpanel =
+        OpenEHR::Composition::LabTestPanel->new( lab_results => $labresults );
 
     my $placer = OpenEHR::Composition::Placer->new(
-        order_number    => $data->{order_number}->{id},
-        assigner        => $data->{order_number}->{assigner},
-        issuer          => $data->{order_number}->{issuer},
-        type            => 'local',
+        order_number => $data->{order_number}->{id},
+        assigner     => $data->{order_number}->{assigner},
+        issuer       => $data->{order_number}->{issuer},
+        type         => 'local',
     );
 
     my $filler = OpenEHR::Composition::Filler->new(
-        order_number    => $data->{labnumber}->{id},
-        assigner        => $data->{labnumber}->{assigner},
-        issuer          => $data->{labnumber}->{issuer},
-        type            => 'local',
+        order_number => $data->{labnumber}->{id},
+        assigner     => $data->{labnumber}->{assigner},
+        issuer       => $data->{labnumber}->{issuer},
+        type         => 'local',
     );
 
     my $ordering_provider = OpenEHR::Composition::OrderingProvider->new(
-        given_name => $data->{location}->{id},
+        given_name  => $data->{location}->{id},
         family_name => $data->{location}->{parent},
     );
 
     my $professional = OpenEHR::Composition::Professional->new(
-        id          => $data->{clinician}->{id},
-        assigner    => $data->{clinician}->{assigner},
-        issuer      => $data->{clinician}->{issuer},
-        type        => 'local',
+        id       => $data->{clinician}->{id},
+        assigner => $data->{clinician}->{assigner},
+        issuer   => $data->{clinician}->{issuer},
+        type     => 'local',
     );
 
     my $requester = OpenEHR::Composition::Requester->new(
-        ordering_provider   => $ordering_provider,
-        professional        => $professional,
+        ordering_provider => $ordering_provider,
+        professional      => $professional,
     );
 
     my $request_details = OpenEHR::Composition::TestRequestDetails->new(
-       placer   => $placer,
-       filler   => $filler,
-       ordering_provider    => $ordering_provider,
-       professional         => $professional,
-       requester            => $requester,
+        placer            => $placer,
+        filler            => $filler,
+        ordering_provider => $ordering_provider,
+        professional      => $professional,
+        requester         => $requester,
     );
 
     my $labtests = OpenEHR::Composition::LabTest->new(
-        requested_test  => $request,
-        specimens       => [$specimen],
-        history_origin  => DateTime->now(),
-        test_status     => $data->{test_status},
+        requested_test   => $request,
+        specimens        => [$specimen],
+        history_origin   => DateTime->now(),
+        test_status      => $data->{test_status},
         test_status_time => $data->{report_date},
-        clinical_info   => $data->{clinical_info},
-        test_panels     => [$labpanel],
-        conclusion      => '',
-        responsible_lab => $data->{labnumber}->{issuer},
-        request_details => $request_details,
+        clinical_info    => $data->{clinical_info},
+        test_panels      => [$labpanel],
+        conclusion       => '',
+        responsible_lab  => $data->{labnumber}->{issuer},
+        request_details  => $request_details,
     );
 
-    $self->labtests([$labtests]);
+    $self->labtests( [$labtests] );
     return 1;
 
 }
 
-
-
 sub compose {
     my $self = shift;
-    $self->composition_format('RAW') if ($self->composition_format eq 'TDD');
+    $self->composition_format('RAW')
+        if ( $self->composition_format eq 'TDD' );
 
-    for my $labtest (@{$self->labtests}) {
-        $labtest->composition_format($self->composition_format);
+    for my $labtest ( @{ $self->labtests } ) {
+        $labtest->composition_format( $self->composition_format );
     }
-    $self->ctx->composition_format($self->composition_format) if $self->ctx;
+    $self->ctx->composition_format( $self->composition_format ) if $self->ctx;
 
-    my $formatter = 'compose_' . lc($self->composition_format);
+    my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
 }
 
 sub compose_structured {
-    my $self = shift;
-	my $patient_comment = [ {
-		'encoding' => [
-			{
-			'|code' => $self->encoding_code,
-			'|terminology' => $self->encoding_terminology
-			}
-		],
-		'comment' => [
-			$self->patient_comment
-		],
-		'language' => [
-			{
-			'|terminology' => $self->language_terminology,
-			'|code' => $self->language_code
-			}
-		]
-	} ];
-	my $laboratory_test;
-    for my $labtest (@{$self->labtests}) {
+    my $self            = shift;
+    my $patient_comment = [
+        {   'encoding' => [
+                {   '|code'        => $self->encoding_code,
+                    '|terminology' => $self->encoding_terminology
+                }
+            ],
+            'comment'  => [ $self->patient_comment ],
+            'language' => [
+                {   '|terminology' => $self->language_terminology,
+                    '|code'        => $self->language_code
+                }
+            ]
+        }
+    ];
+    my $laboratory_test;
+    for my $labtest ( @{ $self->labtests } ) {
         push @{$laboratory_test}, $labtest->compose();
     }
-	my $composer = [ { '|name' => $self->composer_name } ];
-	my $context = [ {
-		'setting' => [
-			{
-			'|code' => '238',
-			'|value' => 'other care',
-			'|terminology' => 'openehr',
-			}
-		],
-		'report_id' => [
-			$self->report_id
-		],
-		'_health_care_facility' => [
-			{
-			'|id_namespace' => 'UCLH-NS',
-			'|id_scheme' => 'UCLH-NS',
-			'|id' => 'RRV',
-			'|name' => 'UCLH',
-			}
-		],
-		'start_time' => [
-			DateTime->now->datetime,
-		]
-	} ];
-	my $language = [{ 
-        '|terminology' => $self->language_terminology, 
-        '|code' => $self->language_code 
-    }];
-	my $territory = [{ 
-        '|terminology' => $self->territory_terminology, 
-        '|code' => $self->territory_code
-    }];
+    my $composer = [ { '|name' => $self->composer_name } ];
+    my $context = [
+        {   'setting' => [
+                {   '|code'        => '238',
+                    '|value'       => 'other care',
+                    '|terminology' => 'openehr',
+                }
+            ],
+            'report_id'             => [ $self->report_id ],
+            '_health_care_facility' => [
+                {   '|id_namespace' => 'UCLH-NS',
+                    '|id_scheme'    => 'UCLH-NS',
+                    '|id'           => 'RRV',
+                    '|name'         => 'UCLH',
+                }
+            ],
+            'start_time' => [ DateTime->now->datetime, ]
+        }
+    ];
+    my $language = [
+        {   '|terminology' => $self->language_terminology,
+            '|code'        => $self->language_code
+        }
+    ];
+    my $territory = [
+        {   '|terminology' => $self->territory_terminology,
+            '|code'        => $self->territory_code
+        }
+    ];
 
-	my $composition = {
-		'laboratory_result_report' => {
-			'context' => $context,
-			'laboratory_test' => $laboratory_test,
-			'patient_comment' => $patient_comment,
-			'composer' => $composer,
-			'language' => $language,
-			'territory' => $territory
-		}
-	};
+    my $composition = {
+        'laboratory_result_report' => {
+            'context'         => $context,
+            'laboratory_test' => $laboratory_test,
+            'patient_comment' => $patient_comment,
+            'composer'        => $composer,
+            'language'        => $language,
+            'territory'       => $territory
+        }
+    };
     return $composition;
 }
 
 sub compose_raw {
     my $self = shift;
-    my (    
-        $composer,              $content,           $territory,
-        $category,              $class,             $laboratory_test,
-        $language,          $uid,
-        $archetype_node_id,     $name,              $archetype_details,
-        $context,
+    my ($composer, $content,           $territory,
+        $category, $class,             $laboratory_test,
+        $language, $uid,               $archetype_node_id,
+        $name,     $archetype_details, $context,
     );
-    
+
     $composer = {
-        'name' => $self->composer_name,
+        'name'   => $self->composer_name,
         '@class' => 'PARTY_IDENTIFIED'
     };
 
     $content = [];
-    for my $labtest (@{$self->labtests}) {
+    for my $labtest ( @{ $self->labtests } ) {
         push @{$content}, $labtest->compose();
     }
     my $evaluation = {
         'encoding' => {
-            'code_string' => $self->encoding_code,
-            '@class' => 'CODE_PHRASE',
+            'code_string'    => $self->encoding_code,
+            '@class'         => 'CODE_PHRASE',
             'terminology_id' => {
                 '@class' => 'TERMINOLOGY_ID',
-                'value' => $self->encoding_terminology,
+                'value'  => $self->encoding_terminology,
             },
         },
         'language' => {
-            '@class' => 'CODE_PHRASE',
-            'code_string' => $self->language_code,
+            '@class'         => 'CODE_PHRASE',
+            'code_string'    => $self->language_code,
             'terminology_id' => {
                 '@class' => 'TERMINOLOGY_ID',
-                'value' => $self->language_terminology,
+                'value'  => $self->language_terminology,
             }
         },
         'data' => {
             '@class' => 'ITEM_TREE',
-            'name' => {
+            'name'   => {
                 '@class' => 'DV_TEXT',
-                'value' => 'List',
+                'value'  => 'List',
             },
             'items' => [
-                {
-                    '@class' => 'ELEMENT',
-                    'value' => {
-                        'value' => $self->patient_comment,
+                {   '@class' => 'ELEMENT',
+                    'value'  => {
+                        'value'  => $self->patient_comment,
                         '@class' => 'DV_TEXT'
                     },
                     'name' => {
-                        'value' => 'Comment',
+                        'value'  => 'Comment',
                         '@class' => 'DV_TEXT'
                     },
                     'archetype_node_id' => 'at0002'
@@ -263,107 +253,106 @@ sub compose_raw {
         'archetype_details' => {
             'archetype_id' => {
                 '@class' => 'ARCHETYPE_ID',
-                'value' => 'openEHR-EHR-EVALUATION.clinical_synopsis.v1'
+                'value'  => 'openEHR-EHR-EVALUATION.clinical_synopsis.v1'
             },
             'rm_version' => '1.0.1',
-            '@class' => 'ARCHETYPED'
+            '@class'     => 'ARCHETYPED'
         },
         'name' => {
-            'value' => 'Patient comment',
+            'value'  => 'Patient comment',
             '@class' => 'DV_TEXT'
         },
-        '@class' => 'EVALUATION',
-        'subject' => {
-            '@class' => 'PARTY_SELF'
-        },
+        '@class'            => 'EVALUATION',
+        'subject'           => { '@class' => 'PARTY_SELF' },
         'archetype_node_id' => 'openEHR-EHR-EVALUATION.clinical_synopsis.v1'
     };
     push @$content, $evaluation if $evaluation;
 
     $territory = {
-        '@class' => 'CODE_PHRASE',
+        '@class'         => 'CODE_PHRASE',
         'terminology_id' => {
             '@class' => 'TERMINOLOGY_ID',
-            'value' => $self->territory_terminology,
+            'value'  => $self->territory_terminology,
         },
         'code_string' => $self->territory_code,
     };
 
     $category = {
-        'value' => 'event',
-        '@class' => 'DV_CODED_TEXT',
+        'value'         => 'event',
+        '@class'        => 'DV_CODED_TEXT',
         'defining_code' => {
-            'code_string' => '433',
-            '@class' => 'CODE_PHRASE',
+            'code_string'    => '433',
+            '@class'         => 'CODE_PHRASE',
             'terminology_id' => {
                 '@class' => 'TERMINOLOGY_ID',
-                'value' => 'openehr'
+                'value'  => 'openehr'
             }
         }
     };
-    
+
     $class = 'COMPOSITION';
 
     $context = {
         'other_context' => {
             'name' => {
                 '@class' => 'DV_TEXT',
-                'value' => 'Tree'
+                'value'  => 'Tree'
             },
             '@class' => 'ITEM_TREE',
-            'items' => [{
-                'value' => {
-                    'value' => $self->report_id, #'17V444999',
-                    '@class' => 'DV_TEXT'
-                },
-                'archetype_node_id' => 'at0002',
-                '@class' => 'ELEMENT',
-                'name' => {
-                    '@class' => 'DV_TEXT',
-                    'value' => 'Report ID'
+            'items'  => [
+                {   'value' => {
+                        'value'  => $self->report_id,    #'17V444999',
+                        '@class' => 'DV_TEXT'
+                    },
+                    'archetype_node_id' => 'at0002',
+                    '@class'            => 'ELEMENT',
+                    'name'              => {
+                        '@class' => 'DV_TEXT',
+                        'value'  => 'Report ID'
+                    }
                 }
-            }],
+            ],
             'archetype_node_id' => 'at0001'
         },
         'setting' => {
-            'value' => 'other care',
-            '@class' => 'DV_CODED_TEXT',
+            'value'         => 'other care',
+            '@class'        => 'DV_CODED_TEXT',
             'defining_code' => {
                 'terminology_id' => {
                     '@class' => 'TERMINOLOGY_ID',
-                    'value' => 'openehr'
+                    'value'  => 'openehr'
                 },
-                '@class' => 'CODE_PHRASE',
+                '@class'      => 'CODE_PHRASE',
                 'code_string' => '238'
             }
         },
-        '@class' => 'EVENT_CONTEXT',
+        '@class'               => 'EVENT_CONTEXT',
         'health_care_facility' => {
-            '@class' => 'PARTY_IDENTIFIED',
-            'name' => 'UCLH',
+            '@class'       => 'PARTY_IDENTIFIED',
+            'name'         => 'UCLH',
             'external_ref' => {
                 'namespace' => 'UCLH-NS',
-                'type' => 'ANY',
-                'id' => {
+                'type'      => 'ANY',
+                'id'        => {
                     'scheme' => 'UCLH-NS',
-                    'value' => 'RRV',
+                    'value'  => 'RRV',
                     '@class' => 'GENERIC_ID'
                 },
                 '@class' => 'PARTY_REF'
             }
         },
         'start_time' => {
-            'value' => DateTime->now->datetime,
+            'value'  => DateTime->now->datetime,
             '@class' => 'DV_DATE_TIME'
         }
     };
 
     $language = {
         'terminology_id' => {
-            'value' => $self->language_terminology,
+            'value'  => $self->language_terminology,
             '@class' => 'TERMINOLOGY_ID',
         },
-        '@class' => 'CODE_PHRASE',
+        '@class'      => 'CODE_PHRASE',
         'code_string' => $self->language_code,
     };
 
@@ -371,46 +360,47 @@ sub compose_raw {
 
     $name = {
         '@class' => 'DV_TEXT',
-        'value' => 'Laboratory Result Report'
+        'value'  => 'Laboratory Result Report'
     };
 
     $archetype_details = {
-        '@class' => 'ARCHETYPED',
-            'archetype_id' => {
+        '@class'       => 'ARCHETYPED',
+        'archetype_id' => {
             '@class' => 'ARCHETYPE_ID',
-            'value' => 'openEHR-EHR-COMPOSITION.report-result.v1'
+            'value'  => 'openEHR-EHR-COMPOSITION.report-result.v1'
         },
-        'rm_version' => '1.0.1',
+        'rm_version'  => '1.0.1',
         'template_id' => {
             '@class' => 'TEMPLATE_ID',
-            'value' => 'GEL - Generic Lab Report import.v0'
+            'value'  => 'GEL - Generic Lab Report import.v0'
         }
     };
-    
-	my $composition = {
-        composer    => $composer,
-        content     => $content,
-        territory   => $territory, 
-        category    => $category, 
-        '@class'    => $class,
-        context     => $context,
-        language    => $language,
+
+    my $composition = {
+        composer          => $composer,
+        content           => $content,
+        territory         => $territory,
+        category          => $category,
+        '@class'          => $class,
+        context           => $context,
+        language          => $language,
         archetype_node_id => $archetype_node_id,
-        name        => $name,
-        archetype_details   => $archetype_details,
+        name              => $name,
+        archetype_details => $archetype_details,
     };
+
     #print Dumper $composition;
     return $composition;
 }
 
 sub compose_flat {
-    my $self = shift;
-    my $path = 'laboratory_result_report/';
+    my $self          = shift;
+    my $path          = 'laboratory_result_report/';
     my $labtest_index = '0';
-    my $labtest_comp = {};
-    for my $labtest (@{$self->labtests}) {
+    my $labtest_comp  = {};
+    for my $labtest ( @{ $self->labtests } ) {
         my $composition_fragment = $labtest->compose();
-        for my $key (keys %{$composition_fragment}) {
+        for my $key ( keys %{$composition_fragment} ) {
             my $new_key = $key;
             $new_key =~ s/__TEST__/$labtest_index/;
             $labtest_comp->{$new_key} = $composition_fragment->{$key};
@@ -418,21 +408,20 @@ sub compose_flat {
         $labtest_index++;
     }
     my $composition = {
-        'ctx/language'  => $self->language_code,
-        'ctx/territory' => $self->territory_code,
-        'ctx/composer_name' => $self->composer_name,
-        'ctx/time'  => DateTime->now->datetime,
-        'ctx/id_namespace' => 'UCLH-NS',
-        'ctx/id_scheme'     => 'UCLH-NS',
+        'ctx/language'                  => $self->language_code,
+        'ctx/territory'                 => $self->territory_code,
+        'ctx/composer_name'             => $self->composer_name,
+        'ctx/time'                      => DateTime->now->datetime,
+        'ctx/id_namespace'              => 'UCLH-NS',
+        'ctx/id_scheme'                 => 'UCLH-NS',
         'ctx/health_care_facility|name' => 'UCLH',
         'ctx/health_care_facility|id'   => 'RRV',
-        $path . 'context/report_id' => $self->report_id,
+        $path . 'context/report_id'     => $self->report_id,
         %{$labtest_comp},
         $path . 'patient_comment/comment' => $self->patient_comment,
     };
     return $composition;
 }
-
 
 no Moose;
 

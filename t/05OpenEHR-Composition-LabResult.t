@@ -5,6 +5,8 @@ use Test::More;
 use Data::Dumper;
 
 use OpenEHR::Composition::LabResult;
+diag('Testing OpenEHR::Composition::LabResult '
+    . $OpenEHR::Composition::LabResult::VERSION);
 
 note('Testing constructor with result value text');
 ok( my $labtest = OpenEHR::Composition::LabResult->new(

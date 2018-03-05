@@ -5,6 +5,7 @@ use strict;
 use Carp;
 use Moose;
 extends 'OpenEHR::Composition';
+use version; our $VERSION = qv('0.0.2');
 
 has ordering_provider => (is => 'rw', isa => 'OpenEHR::Composition::OrderingProvider');
 has professional      => (is => 'rw', isa => 'OpenEHR::Composition::Professional');
@@ -61,7 +62,6 @@ sub compose_flat {
 }
 
 
-use version; our $VERSION = qv('0.0.1');
 
 no Moose;
 

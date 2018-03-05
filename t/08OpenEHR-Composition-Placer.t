@@ -5,6 +5,8 @@ use Test::More;
 use Data::Dumper;
 
 use OpenEHR::Composition::Placer;
+diag('Testing OpenEHR::Composition::Placer '
+    . $OpenEHR::Composition::Placer::VERSION);
 
 note('Testing constuction with full parameters');
 ok( my $placer1 = OpenEHR::Composition::Placer->new(

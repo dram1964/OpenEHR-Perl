@@ -5,6 +5,8 @@ use Test::More;
 use Data::Dumper;
 
 use OpenEHR::Composition::Filler;
+diag("Testing OpenEHR::Composition::Filler
+    . $OpenEHR::Composition::Filler::VERSION");
 
 note('Testing constuction with full parameters');
 ok( my $filler1 = OpenEHR::Composition::Filler->new(

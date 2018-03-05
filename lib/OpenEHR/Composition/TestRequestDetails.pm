@@ -5,60 +5,60 @@ use strict;
 use Carp;
 use Moose;
 extends 'OpenEHR::Composition';
+use version; our $VERSION = qv('0.0.2');
 
-has placer => (is => 'rw', isa => 'OpenEHR::Composition::Placer');
-has filler => (is => 'rw', isa => 'OpenEHR::Composition::Filler');
-has requester => (is => 'rw', isa => 'OpenEHR::Composition::Requester');
+has placer    => ( is => 'rw', isa => 'OpenEHR::Composition::Placer' );
+has filler    => ( is => 'rw', isa => 'OpenEHR::Composition::Filler' );
+has requester => ( is => 'rw', isa => 'OpenEHR::Composition::Requester' );
 
 sub compose {
     my $self = shift;
-    $self->composition_format('RAW') if ($self->composition_format eq 'TDD');
-    $self->placer->composition_format($self->composition_format);
-    $self->filler->composition_format($self->composition_format);
-    $self->requester->composition_format($self->composition_format);
-    my $formatter = 'compose_' . lc($self->composition_format);
+    $self->composition_format('RAW')
+        if ( $self->composition_format eq 'TDD' );
+    $self->placer->composition_format( $self->composition_format );
+    $self->filler->composition_format( $self->composition_format );
+    $self->requester->composition_format( $self->composition_format );
+    my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
 }
 
 sub compose_structured {
-    my $self = shift;
-    my $composition = [{ 
-        requester => $self->requester->compose(),
-        filler_order_number => [$self->filler->compose()],
-        placer_order_number => [$self->placer->compose()],
-    }];
+    my $self        = shift;
+    my $composition = [
+        {   requester           => $self->requester->compose(),
+            filler_order_number => [ $self->filler->compose() ],
+            placer_order_number => [ $self->placer->compose() ],
+        }
+    ];
     return $composition;
 }
 
 sub compose_raw {
-    my $self = shift;
-    my $composition = { # TestRequestDetails
-                   'archetype_node_id' => 'at0094',
-                   'items' => [
-                                $self->placer->compose(),
-                                $self->filler->compose(),
-                                $self->requester->compose(),
-                              ],
-                   'name' => {
-                               '@class' => 'DV_TEXT',
-                               'value' => 'Test request details'
-                             },
-                   '@class' => 'CLUSTER'
-                };
-    return $composition;
-}
-
-sub compose_flat {
-    my $self = shift;
-    my $composition = {
-        %{$self->placer->compose()}, 
-        %{$self->filler->compose()}, 
-        %{$self->requester->compose()}, 
+    my $self        = shift;
+    my $composition = {        # TestRequestDetails
+        'archetype_node_id' => 'at0094',
+        'items'             => [
+            $self->placer->compose(), $self->filler->compose(),
+            $self->requester->compose(),
+        ],
+        'name' => {
+            '@class' => 'DV_TEXT',
+            'value'  => 'Test request details'
+        },
+        '@class' => 'CLUSTER'
     };
     return $composition;
 }
 
-use version; our $VERSION = qv('0.0.1');
+sub compose_flat {
+    my $self        = shift;
+    my $composition = {
+        %{ $self->placer->compose() },
+        %{ $self->filler->compose() },
+        %{ $self->requester->compose() },
+    };
+    return $composition;
+}
 
 no Moose;
 

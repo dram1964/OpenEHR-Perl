@@ -5,6 +5,8 @@ use Test::More;
 use Data::Dumper;
 
 use OpenEHR::Composition::Professional;
+diag('Testing OpenEHR::Composition::Professional '
+    . $OpenEHR::Composition::Professional::VERSION);
 
 note('Testing constuction with full parameters');
 ok( my $professional1 = OpenEHR::Composition::Professional->new(

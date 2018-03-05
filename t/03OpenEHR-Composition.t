@@ -4,6 +4,7 @@ use warnings;
 use Test::More;
 
 BEGIN { use_ok('OpenEHR::Composition') }
+diag("Testing OpenEHR::Composition $OpenEHR::Composition::VERSION");
 
 ok( my $composition = OpenEHR::Composition->new(),
     'Construct Composition object' );

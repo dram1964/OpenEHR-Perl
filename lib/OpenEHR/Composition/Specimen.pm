@@ -7,39 +7,38 @@ use Moose;
 extends 'OpenEHR::Composition';
 use DateTime;
 
-use version; our $VERSION = qv('0.0.1');
+use version; our $VERSION = qv('0.0.2');
 
-has specimen_type       => (is => 'rw', isa => 'Str');
-has datetime_collected  => (is => 'rw', isa => 'DateTime');
-has collection_method   => (is => 'rw', isa => 'Str');
-has datetime_received   => (is => 'rw', isa => 'DateTime');
-has spec_id => (is => 'rw', isa => 'Str');
-has spec_issuer              => (is => 'rw', isa => 'Str', default => 'UCLH Pathology');
-has spec_assigner            => (is => 'rw', isa => 'Str', default => 'Winpath');
-has spec_type                => (is => 'rw', isa => 'Str', default => 'local');
+has specimen_type      => ( is => 'rw', isa => 'Str' );
+has datetime_collected => ( is => 'rw', isa => 'DateTime' );
+has collection_method  => ( is => 'rw', isa => 'Str' );
+has datetime_received  => ( is => 'rw', isa => 'DateTime' );
+has spec_id            => ( is => 'rw', isa => 'Str' );
+has spec_issuer => ( is => 'rw', isa => 'Str', default => 'UCLH Pathology' );
+has spec_assigner => ( is => 'rw', isa => 'Str', default => 'Winpath' );
+has spec_type     => ( is => 'rw', isa => 'Str', default => 'local' );
 
 sub compose {
     my $self = shift;
-    $self->composition_format('RAW') if ($self->composition_format eq 'TDD');
+    $self->composition_format('RAW')
+        if ( $self->composition_format eq 'TDD' );
 
-    my $formatter = 'compose_' . lc($self->composition_format);
+    my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
 }
 
 sub compose_structured {
-    my $self = shift;
+    my $self        = shift;
     my $composition = {
-        collection_method => [ $self->collection_method ],
+        collection_method  => [ $self->collection_method ],
         datetime_collected => [ $self->datetime_collected->datetime ],
-        specimen_type => [ $self->specimen_type ],
-        processing => [ 
-            {
-                laboratory_specimen_identifier => [
-                    {
-                        '|issuer' => $self->spec_issuer,
+        specimen_type      => [ $self->specimen_type ],
+        processing         => [
+            {   laboratory_specimen_identifier => [
+                    {   '|issuer'   => $self->spec_issuer,
                         '|assigner' => $self->spec_assigner,
-                        '|type' => $self->spec_type,
-                        '|id' => $self->spec_id,
+                        '|type'     => $self->spec_type,
+                        '|id'       => $self->spec_id,
                     },
                 ],
                 datetime_received => [ $self->datetime_received->datetime ],
@@ -50,78 +49,72 @@ sub compose_structured {
 }
 
 sub compose_raw {
-    my $self = shift;
+    my $self        = shift;
     my $composition = {
         'items' => [
-            {
-                'value' => {
+            {   'value' => {
                     '@class' => 'DV_TEXT',
-                    'value' => $self->specimen_type,
+                    'value'  => $self->specimen_type,
                 },
                 '@class' => 'ELEMENT',
-                'name' => {
+                'name'   => {
                     '@class' => 'DV_TEXT',
-                    'value' => 'Specimen type',
+                    'value'  => 'Specimen type',
                 },
                 'archetype_node_id' => 'at0029',
             },
-            {
-                'value' => {
-                    'value' => $self->datetime_collected->datetime,
+            {   'value' => {
+                    'value'  => $self->datetime_collected->datetime,
                     '@class' => 'DV_DATE_TIME',
-                    },
+                },
                 '@class' => 'ELEMENT',
-                'name' => {
-                    'value' => 'Datetime collected',
+                'name'   => {
+                    'value'  => 'Datetime collected',
                     '@class' => 'DV_TEXT',
-                    },
+                },
                 'archetype_node_id' => 'at0015',
             },
-            {
-                'name' => {
+            {   'name' => {
                     '@class' => 'DV_TEXT',
-                    'value' => 'Collection method'
+                    'value'  => 'Collection method'
                 },
                 'value' => {
                     '@class' => 'DV_TEXT',
-                    'value' => $self->collection_method,
+                    'value'  => $self->collection_method,
                 },
-                '@class' => 'ELEMENT',
+                '@class'            => 'ELEMENT',
                 'archetype_node_id' => 'at0007',
             },
-            {
-                'archetype_node_id' => 'at0046',
-                'items' => [
-                    {
-                        'archetype_node_id' => 'at0034',
-                        'value' => {
-                            'value' => $self->datetime_received->datetime,
+            {   'archetype_node_id' => 'at0046',
+                'items'             => [
+                    {   'archetype_node_id' => 'at0034',
+                        'value'             => {
+                            'value'  => $self->datetime_received->datetime,
                             '@class' => 'DV_DATE_TIME',
                         },
                         '@class' => 'ELEMENT',
-                        'name' => {
+                        'name'   => {
                             '@class' => 'DV_TEXT',
-                            'value' => 'Datetime received',
+                            'value'  => 'Datetime received',
                         },
                     },
-                    {
-                        'archetype_node_id' => 'at0001',
-                        'value' => {
-                            '@class' => 'DV_IDENTIFIER',
+                    {   'archetype_node_id' => 'at0001',
+                        'value'             => {
+                            '@class'   => 'DV_IDENTIFIER',
                             'assigner' => $self->spec_assigner,
-                            'type' => $self->spec_type,
-                            'issuer' => $self->spec_issuer,
-                            'id' => $self->spec_id
+                            'type'     => $self->spec_type,
+                            'issuer'   => $self->spec_issuer,
+                            'id'       => $self->spec_id
                         },
                         '@class' => 'ELEMENT',
-                        'name' => {
-                            'value' => 'Laboratory specimen identifier',
+                        'name'   => {
+                            'value'  => 'Laboratory specimen identifier',
                             '@class' => 'DV_TEXT',
                         }
                     }
                 ],
                 'name' => {
-                    'value' => 'Processing',
+                    'value'  => 'Processing',
                     '@class' => 'DV_TEXT'
                 },
                 '@class' => 'CLUSTER'
@@ -129,17 +122,17 @@ sub compose_raw {
         ],
         'archetype_node_id' => 'openEHR-EHR-CLUSTER.specimen.v0',
         'archetype_details' => {
-            'rm_version' => '1.0.1',
-            '@class' => 'ARCHETYPED',
+            'rm_version'   => '1.0.1',
+            '@class'       => 'ARCHETYPED',
             'archetype_id' => {
-                'value' => 'openEHR-EHR-CLUSTER.specimen.v0',
+                'value'  => 'openEHR-EHR-CLUSTER.specimen.v0',
                 '@class' => 'ARCHETYPE_ID'
             }
         },
         '@class' => 'CLUSTER',
-        'name' => {
+        'name'   => {
             '@class' => 'DV_TEXT',
-            'value' => 'Specimen'
+            'value'  => 'Specimen'
         }
     };
     return $composition;
@@ -147,16 +140,25 @@ sub compose_raw {
 
 sub compose_flat {
     my $self = shift;
-    my $path = 'laboratory_result_report/laboratory_test:__TEST__/specimen:__SPEC__/';
+    my $path =
+        'laboratory_result_report/laboratory_test:__TEST__/specimen:__SPEC__/';
     my $composition = {
-        $path . 'specimen_type' => $self->specimen_type,
-        $path . 'datetime_collected'  => $self->datetime_collected->datetime,
-        $path . 'collection_method' => $self->collection_method,
-        $path . 'processing/datetime_received' => $self->datetime_received->datetime,
+        $path . 'specimen_type'      => $self->specimen_type,
+        $path . 'datetime_collected' => $self->datetime_collected->datetime,
+        $path . 'collection_method'  => $self->collection_method,
+        $path
+            . 'processing/datetime_received' =>
+            $self->datetime_received->datetime,
         $path . 'processing/laboratory_specimen_identifier' => $self->spec_id,
-        $path . 'processing/laboratory_specimen_identifier|issuer' => $self->spec_issuer,
-        $path . 'processing/laboratory_specimen_identifier|assigner' => $self->spec_assigner,
-        $path . 'processing/laboratory_specimen_identifier|type' => $self->spec_type,
+        $path
+            . 'processing/laboratory_specimen_identifier|issuer' =>
+            $self->spec_issuer,
+        $path
+            . 'processing/laboratory_specimen_identifier|assigner' =>
+            $self->spec_assigner,
+        $path
+            . 'processing/laboratory_specimen_identifier|type' =>
+            $self->spec_type,
     };
     return $composition;
 }

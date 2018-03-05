@@ -16,6 +16,8 @@ use OpenEHR::Composition::Professional;
 use OpenEHR::Composition::TestRequestDetails;
 
 use OpenEHR::Composition::LabTest;
+diag('Testing OpenEHR::Composition::LabTest '
+    . $OpenEHR::Composition::LabTest::VERSION);
 
 my $request = OpenEHR::Composition::RequestedTest->new(
     requested_test => 'Electrolytes',
