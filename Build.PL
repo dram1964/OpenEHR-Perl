@@ -10,6 +10,14 @@ my $builder = Module::Build->new(
     requires => {
         'Test::More' => 0,
         'version'    => 0,
+        'Carp'       => 0,
+        'JSON'       => 0,
+        'Moose'      => 0,
+        'DateTime'   => 0,
+        'Config::Simple'    => 0,
+        'Data::Dumper'      => 0,
+        'Moose::Util::TypeConstraints'  => 0,
+        'URI::Encode'       => 0,
     },
     add_to_cleanup      => [ 'OpenEHR-*' ],
 );

@@ -1,11 +1,102 @@
 package OpenEHR::REST::Template;
 
-use warnings;
-use strict;
 use Carp;
 use Moose;
+use JSON;
+use URI::Encode;
+extends 'OpenEHR::REST';
 
-use version; our $VERSION = qv('0.0.1');
+use version; our $VERSION = qv('0.0.2');
+
+has resource => ( is => 'rw', isa => 'Str', default => 'template' );
+
+has data    => ( is => 'rw', isa => 'HashRef' );
+has xml     => ( is => 'rw', isa => 'Str' );
+has err_msg => ( is => 'rw', isa => 'Str' );
+
+sub get_all_template_ids {
+    my $self = shift;
+    $self->submit_rest_call;
+    if ( $self->response_code eq '200' ) {
+        $self->data( from_json( $self->response ) );
+    }
+    else {
+        $self->err_msg( $self->response );
+        carp "*** Error Response Code: " . $self->response_code . " ***";
+    }
+}
+
+sub get_web_template {
+    my $self       = shift;
+    my $templateId = shift;
+    my $uri        = URI::Encode->new();
+    $templateId = $uri->encode($templateId);
+    $self->resource( $self->resource . "/" . $templateId );
+    $self->submit_rest_call;
+    if ( $self->response_code eq '200' ) {
+        $self->data( from_json( $self->response ) );
+    }
+    else {
+        $self->err_msg( $self->response );
+        carp "*** Error Response Code: " . $self->response_code . " ***";
+    }
+}
+
+sub get_template_example {
+    my $self          = shift;
+    my $templateId    = shift;
+    my $format        = shift || 'STRUCTURED';
+    my $exampleFilter = shift || 'INPUT';
+    my $uri           = URI::Encode->new();
+    $templateId = $uri->encode($templateId);
+    $self->query(
+        {   format        => $format,
+            exampleFilter => $exampleFilter
+        }
+    );
+    $self->resource("template/$templateId/example");
+    $self->submit_rest_call;
+
+    if ( $self->response_code eq '200' ) {
+        $self->data( from_json( $self->response ) );
+    }
+    else {
+        $self->err_msg( $self->response );
+        carp "*** Error Response Code: " . $self->response_code . " ***";
+    }
+}
+
+sub get_template_xml {
+    my $self       = shift;
+    my $templateId = shift;
+    my $uri        = URI::Encode->new();
+    $templateId = $uri->encode($templateId);
+    $self->resource("template/$templateId/opt");
+    $self->submit_rest_call;
+    if ( $self->response_code eq '200' ) {
+        $self->xml( $self->response );
+    }
+    else {
+        $self->err_msg( $self->response );
+        carp "*** Error Response Code: " . $self->response_code . " ***";
+    }
+}
+
+sub get_template_xsd {
+    my $self       = shift;
+    my $templateId = shift;
+    my $uri        = URI::Encode->new();
+    $templateId = $uri->encode($templateId);
+    $self->resource("template/$templateId/xsd");
+    $self->submit_rest_call;
+    if ( $self->response_code eq '200' ) {
+        $self->xml( $self->response );
+    }
+    else {
+        $self->err_msg( $self->response );
+        carp "*** Error Response Code: " . $self->response_code . " ***";
+    }
+}
 
 no Moose;
 
@@ -15,7 +106,7 @@ __END__
 
 =head1 NAME
 
-OpenEHR::REST::Template - [One line description of module's purpose here]
+OpenEHR::REST::Template - Submit Think!EHR REST API /template calls
 
 
 =head1 VERSION
@@ -26,6 +117,14 @@ This document describes OpenEHR::REST::Template version 0.0.1
 =head1 SYNOPSIS
 
     use OpenEHR::REST::Template;
+    my $query = OpenEHR::REST::Template->new();
+    my $templateId = 'GEL - Data request Summary.v1';
+    $query->get_web_template($templateId);
+    if ($query->err_msg) {
+        warn "REST Query failed: $query->err_msg";
+    else {
+        print $query->data;
+    }
 
 =for author to fill in:
     Brief code example(s) here showing commonest usage(s).
@@ -48,6 +147,60 @@ This document describes OpenEHR::REST::Template version 0.0.1
     exported, or methods that may be called on objects belonging to the
     classes provided by the module.
 
+=head1 METHODS
+
+=head2 get_all_template_ids
+
+Returns array of hashes for all templates on the server. Each hash
+will contain the following keys
+Implements GET call to '/template' REST endpoint.
+
+=over 4
+
+=item templateId
+
+The name of the template
+
+=item createdOn
+
+The date the template was created
+
+=back
+
+=cut 
+
+=head2 get_web_template ( $template_id )
+
+Retrieves a RAW JSON representation of a template and stores this as a 
+hashref in the object's data property. The RAW JSON representation
+for the template can be used as a source of documentation for the
+template.
+Implements GET request to the '/template/{templateId}' REST endpoint.
+
+
+=head2 get_template_example ($template_id, [ $format, $example_filter])
+
+Retrieves an example for the requested template_id with dummy data filled-in
+and stores this in the 'data' property of the object. The format can be 
+specified in the optional second parameter as one of 'RAW', 'STRUCTURED',
+'FLAT' or 'TDD'. Only 'FLAT' and 'STRUCTURED' values work at the moment. 
+Requesting either 'RAW' or 'TDD' will result in a response in 
+'STRUCTURED' format. The example returned can be filtered to represent either 
+an 'INPUT' or 'OUTPUT' template using the third parameter.
+Implements a GET request to the /template/{templateId}/example' REST endpoint.
+
+=head2 get_template_xml ($template_id)
+
+Retrieves an OpenEHR operational template for the specified template_id
+and stores this in the object's 'xml' property. The xml attribute
+can be used as a source of documentation for the specified template.
+Implements a GET request to '/template/{template_id}/opt' REST endpoint
+
+=head2 get_template_xsd
+
+Retrieves an XSD for the specified template and stores this in the object's
+'xml' property. 
+Implements a GET request to '/template/{template_id}/xsd' REST endpoint
 
 =head1 DIAGNOSTICS
 
@@ -132,7 +285,7 @@ David Ramlakhan  C<< <dram1964@gmail.com> >>
 
 =head1 LICENCE AND COPYRIGHT
 
-Copyright (c) 2018, David Ramlakhan C<< <dram1964@gmail.com> >>. All rights reserved.
+Copyright (c) 2017, David Ramlakhan C<< <dram1964@gmail.com> >>. All rights reserved.
 
 This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself. See L<perlartistic>.

@@ -18,6 +18,7 @@ WriteMakefile(
         'Config::Simple'    => 0,
         'Data::Dumper'      => 0,
         'Moose::Util::TypeConstraints'  => 0,
+        'URI::Encode'       => 0,
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean               => { FILES => 'OpenEHR-*' },

@@ -15,12 +15,12 @@ has subject_namespace => ( is => 'rw', isa => 'Str' );
 has committer_name    => ( is => 'rw', isa => 'Str' );
 has committer_id      => ( is => 'rw', isa => 'Str' );
 
-has resource          => ( is => 'rw', isa => 'Str', default  => 'ehr' );
+has resource => ( is => 'rw', isa => 'Str', default => 'ehr' );
 
-has ehr_id  => ( is => 'ro', isa => 'Str', writer => '_set_ehr_id'  );
-has action  => ( is => 'ro', isa => 'Str', writer => '_set_action'  );
+has ehr_id  => ( is => 'ro', isa => 'Str', writer => '_set_ehr_id' );
+has action  => ( is => 'ro', isa => 'Str', writer => '_set_action' );
 has err_msg => ( is => 'ro', isa => 'Str', writer => '_set_err_msg' );
-has href    => ( is => 'ro', isa => 'Str', writer => '_set_href'    );
+has href    => ( is => 'ro', isa => 'Str', writer => '_set_href' );
 has ehr_status => (
     is     => 'ro',
     isa    => 'HashRef',
@@ -54,9 +54,9 @@ sub get_new_ehr {
     $self->submit_rest_call;
     if ( $self->response_code eq '201' ) {
         my $response = from_json( $self->response );
-        $self->_set_ehr_id( $response->{ehrId}        );
-        $self->_set_action( $response->{action}       );
-        $self->_set_href(   $response->{meta}->{href} );
+        $self->_set_ehr_id( $response->{ehrId} );
+        $self->_set_action( $response->{action} );
+        $self->_set_href( $response->{meta}->{href} );
         return 1;
     }
     else {
@@ -77,10 +77,10 @@ sub find_by_subject_id {
     $self->submit_rest_call;
     if ( $self->response_code eq '200' ) {
         my $response = from_json( $self->response );
-        $self->_set_ehr_id(     $response->{ehrId}        );
-        $self->_set_action(     $response->{action}       );
-        $self->_set_ehr_status( $response->{ehrStatus}    );
-        $self->_set_href(       $response->{meta}->{href} );
+        $self->_set_ehr_id( $response->{ehrId} );
+        $self->_set_action( $response->{action} );
+        $self->_set_ehr_status( $response->{ehrStatus} );
+        $self->_set_href( $response->{meta}->{href} );
         return 1;
     }
     else {
@@ -97,10 +97,10 @@ sub find_by_ehrid {
     $self->submit_rest_call;
     if ( $self->response_code eq '200' ) {
         my $response = from_json( $self->response );
-        $self->_set_ehr_id(     $response->{ehrId}        );
-        $self->_set_action(     $response->{action}       );
-        $self->_set_ehr_status( $response->{ehrStatus}    );
-        $self->_set_href(       $response->{meta}->{href} );
+        $self->_set_ehr_id( $response->{ehrId} );
+        $self->_set_action( $response->{action} );
+        $self->_set_ehr_status( $response->{ehrStatus} );
+        $self->_set_href( $response->{meta}->{href} );
         return 1;
     }
     else {
@@ -111,29 +111,30 @@ sub find_by_ehrid {
     }
 }
 
-
 sub update_ehr_status {
-    my ($self, $status) = @_;
-    $self->resource('ehr/' . $self->ehr_id . '/status');
-    $self->headers([['Content-Type', 'application/json']]);
+    my ( $self, $status ) = @_;
+    $self->resource( 'ehr/' . $self->ehr_id . '/status' );
+    $self->headers( [ [ 'Content-Type', 'application/json' ] ] );
     $self->method('PUT');
-    $self->submit_rest_call( to_json( $status ) );
+    $self->submit_rest_call( to_json($status) );
     if ( $self->response_code eq '200' ) {
         my $response = from_json( $self->response );
-        $self->_set_action(     $response->{action}       );
-        $self->_set_href(       $response->{meta}->{href} );
+        $self->_set_action( $response->{action} );
+        $self->_set_href( $response->{meta}->{href} );
         return 1;
     }
-    elsif ($self->response_code eq '500') {
+    elsif ( $self->response_code eq '500' ) {
         $self->_set_action('DUPLICATE');
-        $self->_set_err_msg( 'Server Response: '. $self->response_code
-            . "\nEHR status already in use for another EHR");
+        $self->_set_err_msg( 'Server Response: '
+                . $self->response_code
+                . "\nEHR status already in use for another EHR" );
         return 0;
     }
     else {
         $self->_set_action('FAIL');
-        $self->_set_err_msg( 'Server Response: '. $self->response_code
-            . "\n" . $self->response);
+        $self->_set_err_msg( 'Server Response: '
+                . $self->response_code . "\n"
+                . $self->response );
         return 0;
     }
 }
