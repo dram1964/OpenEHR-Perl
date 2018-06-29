@@ -112,8 +112,6 @@ my $requester = OpenEHR::Composition::Requester->new(
 my $request_details = OpenEHR::Composition::TestRequestDetails->new(
     placer            => $placer,
     filler            => $filler,
-    ordering_provider => $ordering_provider,
-    professional      => $professional,
     requester         => $requester,
 );
 
