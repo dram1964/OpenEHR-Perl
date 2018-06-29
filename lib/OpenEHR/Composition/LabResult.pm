@@ -9,10 +9,8 @@ use Moose::Util::TypeConstraints;
 
 use version; our $VERSION = qv('0.0.2');
 
-enum 'ResultTestName' => [
-    'Registered', 'Interim', 'Final', 'Amended',
-    'Cancelled',  'Not Requested'
-];
+enum 'ResultTestName' =>
+  [ 'Registered', 'Interim', 'Final', 'Amended', 'Cancelled', 'Not Requested' ];
 
 has result_value => (
     is  => 'rw',
@@ -132,7 +130,7 @@ sub result_status_lookup {
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')
-        if ( $self->composition_format eq 'TDD' );
+      if ( $self->composition_format eq 'TDD' );
 
     my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
@@ -144,8 +142,10 @@ sub compose_structured {
         'reference_range_guidance' => [ $self->ref_range ],
         'comment'                  => [ $self->comment ],
         'result_value'             => [
-            {   '_name' => [
-                    {   '|code'        => $self->testcode,
+            {
+                '_name' => [
+                    {
+                        '|code'        => $self->testcode,
                         '|value'       => $self->testname,
                         '|terminology' => $self->testcode_terminology,
                     },
@@ -153,7 +153,8 @@ sub compose_structured {
             },
         ],
         'result_status' => [
-            {   '|value'       => $self->status->{value},
+            {
+                '|value'       => $self->status->{value},
                 '|terminology' => $self->status->{terminology},
                 '|code'        => $self->status->{code},
             },
@@ -161,11 +162,12 @@ sub compose_structured {
     };
     if ( $self->result_value ) {
         $composition->{result_value}->[0]->{text_value} =
-            [ $self->result_value ];
+          [ $self->result_value ];
     }
     elsif ( $self->magnitude ) {
         $composition->{result_value}->[0]->{value2} = [
-            {   magnitude        => $self->magnitude,
+            {
+                magnitude        => $self->magnitude,
                 magnitude_status => $self->magnitude_status,
                 unit             => $self->unit,
                 normal_status    => $self->normal_flag,
@@ -178,21 +180,19 @@ sub compose_structured {
 sub compose_flat {
     my $self = shift;
     my $path = 'laboratory_result_report/laboratory_test:__TEST__/'
-        . 'laboratory_test_panel:__PANEL__/laboratory_result:__RESULT__/';
+      . 'laboratory_test_panel:__PANEL__/laboratory_result:__RESULT__/';
     my $composition = {
-        $path . 'result_value/_name|value' => $self->testname,
-        $path . 'result_value/_name|code'  => $self->testcode,
+        $path . 'result_value/_name|value'       => $self->testname,
+        $path . 'result_value/_name|code'        => $self->testcode,
+        $path . 'result_value/_name|terminology' => $self->testcode_terminology,
         $path
-            . 'result_value/_name|terminology' => $self->testcode_terminology,
+          . 'result_value/_name/_mapping:0/target|code' => $self->mapping_code,
         $path
-            . 'result_value/_name/_mapping:0/target|code' =>
-            $self->mapping_code,
+          . 'result_value/_name/_mapping:0/target|terminology' =>
+          $self->mapping_terminology,
         $path
-            . 'result_value/_name/_mapping:0/target|terminology' =>
-            $self->mapping_terminology,
-        $path
-            . 'result_value/_name/_mapping:0|match' =>
-            $self->mapping_match_operator,
+          . 'result_value/_name/_mapping:0|match' =>
+          $self->mapping_match_operator,
         $path . 'reference_range_guidance' => $self->ref_range,
         $path . 'comment'                  => $self->comment,
         $path . 'result_status|code'       => $self->status->{code},
@@ -202,12 +202,12 @@ sub compose_flat {
     }
     elsif ( $self->magnitude ) {
         $composition->{ $path . 'result_value/value2|magnitude' } =
-            $self->magnitude;
+          $self->magnitude;
         $composition->{ $path . 'result_value/value2|magnitude_status' } =
-            $self->magnitude_status;
+          $self->magnitude_status;
         $composition->{ $path . 'result_value/value2|unit' } = $self->unit;
         $composition->{ $path . 'result_value/value2|normal_status' } =
-            $self->normal_flag;
+          $self->normal_flag;
     }
     return $composition;
 }
@@ -221,7 +221,8 @@ sub compose_raw {
             '@class' => 'DV_TEXT'
         },
         'items' => [
-            {   'archetype_node_id' => 'at0001',
+            {
+                'archetype_node_id' => 'at0001',
                 '@class'            => 'ELEMENT',
                 'value'             => {
                     'value'  => $self->result_value,
@@ -240,29 +241,8 @@ sub compose_raw {
                     '@class' => 'DV_CODED_TEXT',
                 }
             },
-            {   'name' => {
-                    'value'  => 'Comment',
-                    '@class' => 'DV_TEXT'
-                },
-                'value' => {
-                    '@class' => 'DV_TEXT',
-                    'value'  => $self->comment,
-                },
-                '@class'            => 'ELEMENT',
-                'archetype_node_id' => 'at0003'
-            },
-            {   'archetype_node_id' => 'at0004',
-                'name'              => {
-                    'value'  => 'Reference range guidance',
-                    '@class' => 'DV_TEXT'
-                },
+            {
                 '@class' => 'ELEMENT',
-                'value'  => {
-                    '@class' => 'DV_TEXT',
-                    'value'  => $self->ref_range,
-                }
-            },
-            {   '@class' => 'ELEMENT',
                 'value'  => {
                     '@class'        => 'DV_CODED_TEXT',
                     'value'         => $self->status->{value},
@@ -280,10 +260,40 @@ sub compose_raw {
                     '@class' => 'DV_TEXT'
                 },
                 'archetype_node_id' => 'at0005'
-            }
+            },
         ],
         'archetype_node_id' => 'at0002'
     };
+    if ( $self->comment ) {
+        push @{ $composition->{items} },
+          {
+            'name' => {
+                'value'  => 'Comment',
+                '@class' => 'DV_TEXT'
+            },
+            'value' => {
+                '@class' => 'DV_TEXT',
+                'value'  => $self->comment,
+            },
+            '@class'            => 'ELEMENT',
+            'archetype_node_id' => 'at0003'
+          };
+    }
+    if ( $self->ref_range ) {
+        push @{ $composition->{items} },
+          {
+            'archetype_node_id' => 'at0004',
+            'name'              => {
+                'value'  => 'Reference range guidance',
+                '@class' => 'DV_TEXT'
+            },
+            '@class' => 'ELEMENT',
+            'value'  => {
+                '@class' => 'DV_TEXT',
+                'value'  => $self->ref_range,
+            }
+          };
+    }
     return $composition;
 }
 

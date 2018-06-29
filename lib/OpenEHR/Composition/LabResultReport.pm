@@ -13,10 +13,113 @@ use version; our $VERSION = qv('0.0.2');
 has ctx       => ( is => 'rw', isa => 'OpenEHR::Composition::CTX' );
 has report_id => ( is => 'rw', isa => 'Str' );
 has labtests =>
-    ( is => 'rw', isa => 'ArrayRef[OpenEHR::Composition::LabTest]' );
+    ( is => 'rw', isa => 'ArrayRef[OpenEHR::Composition::LabTest]',
+        default => sub { [] } );
 has patient_comment => ( is => 'rw', isa => 'Str' );
 
 sub add_labtests {
+    use OpenEHR::Composition::RequestedTest;
+    use OpenEHR::Composition::Specimen;
+    use OpenEHR::Composition::LabResult;
+    use OpenEHR::Composition::LabTestPanel;
+    use OpenEHR::Composition::Placer;
+    use OpenEHR::Composition::Filler;
+    use OpenEHR::Composition::Requester;
+    use OpenEHR::Composition::OrderingProvider;
+    use OpenEHR::Composition::Professional;
+    use OpenEHR::Composition::TestRequestDetails;
+    use OpenEHR::Composition::LabTest;
+
+    my ( $self, $order ) = @_;
+
+    my $request = OpenEHR::Composition::RequestedTest->new(
+        requested_test => $order->{ordername} || $order->{ordercode},
+        name           => $order->{ordername} || $order->{ordercode},
+        code           => $order->{ordercode},
+        terminology    => 'local',
+    );
+    my $specimen = OpenEHR::Composition::Specimen->new(
+        specimen_type      => $order->{spec_type},
+        datetime_collected => $order->{collected},
+        collection_method  => $order->{collect_method},
+        datetime_received  => $order->{received},
+        spec_id            => $order->{labnumber}->{id},
+    );
+
+    my $labresults = [];
+    for my $res ( @{ $order->{labresults} } ) {
+        my $labresult = OpenEHR::Composition::LabResult->new(
+            result_value  => $res->{result},
+            comment       => $res->{comment},
+            ref_range     => $res->{ref_range},
+            testcode      => $res->{testcode},
+            testname      => $res->{testname},
+            result_status => $res->{result_status},
+        );
+        push @{$labresults}, $labresult;
+    }
+
+    my $labpanel =
+        OpenEHR::Composition::LabTestPanel->new( lab_results => $labresults );
+
+    my $placer = OpenEHR::Composition::Placer->new(
+        order_number => $order->{order_number}->{id},
+        assigner     => $order->{order_number}->{assigner},
+        issuer       => $order->{order_number}->{issuer},
+        type         => 'local',
+    );
+
+    my $filler = OpenEHR::Composition::Filler->new(
+        order_number => $order->{labnumber}->{id},
+        assigner     => $order->{labnumber}->{assigner},
+        issuer       => $order->{labnumber}->{issuer},
+        type         => 'local',
+    );
+
+    my $ordering_provider = OpenEHR::Composition::OrderingProvider->new(
+        given_name  => $order->{location}->{id},
+        family_name => $order->{location}->{parent},
+    );
+
+    my $professional = OpenEHR::Composition::Professional->new(
+        id       => $order->{clinician}->{id},
+        assigner => $order->{clinician}->{assigner},
+        issuer   => $order->{clinician}->{issuer},
+        type     => 'local',
+    );
+
+    my $requester = OpenEHR::Composition::Requester->new(
+        ordering_provider => $ordering_provider,
+        professional      => $professional,
+    );
+
+    my $request_details = OpenEHR::Composition::TestRequestDetails->new(
+        placer            => $placer,
+        filler            => $filler,
+        ordering_provider => $ordering_provider,
+        professional      => $professional,
+        requester         => $requester,
+    );
+
+    my $labtests = OpenEHR::Composition::LabTest->new(
+        requested_test   => $request,
+        specimens        => [$specimen],
+        history_origin   => DateTime->now(),
+        test_status      => $order->{test_status},
+        test_status_time => $order->{report_date},
+        clinical_info    => $order->{clinical_info},
+        test_panels      => [$labpanel],
+        conclusion       => '',
+        responsible_lab  => $order->{labnumber}->{issuer},
+        request_details  => $request_details,
+    );
+
+    push @{$self->labtests}, $labtests;
+    return 1;
+
+}
+
+sub add_labtests_v1 {
     use OpenEHR::Composition::RequestedTest;
     use OpenEHR::Composition::Specimen;
     use OpenEHR::Composition::LabResult;
@@ -492,8 +595,59 @@ Returns a hashref of the object in FLAT format
 
 =head2 add_labtests
 
-Utility method that adds labtest objects to Report object using a hash table.
-The hash table should be structured like this: 
+Utility method that adds labtest objects (items ordered) 
+to Report object using an array of hashes. Each hash should
+represent a single order code. The array should be structured like this: 
+
+my $data = [{
+    ordercode   => 'Str', 
+    ordername   => 'Str, 
+    spec_type   => 'Str',
+    collected   => 'DateTime',
+    collect_method  => 'Str',
+    received    => 'DateTime',
+    labnumber   => {
+        id          => 'Str',
+        assigner    => 'Str',
+        issuer      => 'Str',
+    },
+    labresults  => [
+        {
+            result          => 'Str',
+            comment         => 'Str',
+            ref_range       => 'Str',
+            testcode        => 'Str',
+            testname        => 'Str',
+            result_status   => 'Str',
+        },
+    ],
+    ordernumber => {
+        id          => 'Str',
+        assigner    => 'Str',
+        issuer      => 'Str',
+    },
+    report_date => 'DateTime',
+    clinician   => {
+        id          => 'Str',
+        assigner    => 'Str',
+        issuer      => 'Str',
+    },
+    location => {
+        id          => 'Str',
+        parent      => 'Str',
+    },
+    test_status     => 'Str',
+    clinical_info   => 'Str',
+    },
+    { ...data for next order code ... }, 
+];
+
+
+=head2 add_labtests_v1
+
+Utility method that adds a single order item  
+to Report object using a hash. The hash should
+represent a single order code and be be structured like this: 
 
 my $data = {
     ordercode   => 'Str', 
@@ -535,12 +689,6 @@ my $data = {
     test_status     => 'Str',
     clinical_info   => 'Str',
 };
-
-=for author to fill in:
-    Write a separate section listing the public components of the modules
-    interface. These normally consist of either subroutines that may be
-    exported, or methods that may be called on objects belonging to the
-    classes provided by the module.
 
 
 =head1 DIAGNOSTICS
