@@ -141,4 +141,39 @@ ok( my $struct = $labtest->compose, 'Request composition' );
 ok( $labtest->composition_format('RAW'), 'Set RAW composition format' );
 ok( my $raw = $labtest->compose, 'Request composition' );
 
+ok( my $labtest2 = OpenEHR::Composition::LabTest->new(
+        requested_test   => $request,
+        specimens        => [$specimen],
+        history_origin   => DateTime->now(),
+        test_status      => 'Final',
+        test_status_time => DateTime->new(
+            year   => 2017,
+            month  => 11,
+            day    => 10,
+            hour   => 14,
+            minute => 12
+        ),
+        clinical_info   => undef,
+        test_panels     => [$labpanel],
+        conclusion      => '',
+        responsible_lab => 'Clinical Biochemistry',
+        request_details => $request_details,
+    ),
+    'LabTest Constructor with no clinical_info' 
+);
+
+is( $labtest2->composition_format,
+    'STRUCTURED', 'STRUCTURED composition format set by default' );
+ok( $labtest2->composition_format('FLAT'), 'Set FLAT composition format' );
+ok( my $flat = $labtest2->compose, 'Request composition' );
+
+ok( $labtest2->composition_format('STRUCTURED'),
+    'Set STRUCTURED composition format'
+);
+ok( my $struct = $labtest2->compose, 'Request composition' );
+
+ok( $labtest2->composition_format('RAW'), 'Set RAW composition format' );
+ok( my $raw = $labtest2->compose, 'Request composition' );
+
+
 done_testing;

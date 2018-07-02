@@ -20,7 +20,7 @@ has specimens =>
 has history_origin   => ( is => 'rw', isa => 'DateTime' );
 has test_status      => ( is => 'rw', isa => 'TestStatusName' );
 has test_status_time => ( is => 'rw', isa => 'DateTime' );
-has clinical_info    => ( is => 'rw', isa => 'Str' );
+has clinical_info    => ( is => 'rw'  );
 has test_panels =>
     ( is => 'rw', isa => 'ArrayRef[OpenEHR::Composition::LabTestPanel]' );
 has conclusion      => ( is => 'rw', isa => 'Str' );
