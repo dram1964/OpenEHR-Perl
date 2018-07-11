@@ -10,10 +10,11 @@ extends 'OpenEHR::REST';
 
 use version; our $VERSION = qv('0.0.2');
 
-has subject_id        => ( is => 'rw', isa => 'Str' );
-has subject_namespace => ( is => 'rw', isa => 'Str' );
-has committer_name    => ( is => 'rw', isa => 'Str' );
-has committer_id      => ( is => 'rw', isa => 'Str' );
+has subject_id => ( is => 'rw', isa => 'Str' );
+has subject_namespace =>
+  ( is => 'rw', isa => 'Str', trigger => \&_check_namespace );
+has committer_name => ( is => 'rw', isa => 'Str' );
+has committer_id   => ( is => 'rw', isa => 'Str' );
 
 has resource => ( is => 'rw', isa => 'Str', default => 'ehr' );
 
@@ -26,6 +27,16 @@ has ehr_status => (
     isa    => 'HashRef',
     writer => '_set_ehr_status',
 );
+
+sub _check_namespace {
+    my ( $self, $namespace, $old_namespace ) = @_;
+    if ( $namespace eq 'uk.nhs.nhs_number' ) {
+        carp 'NHS Number used: ' . $self->subject_id;
+        if ($self->subject_id !~ /^\d{10,10}$/) {
+            carp 'Invalid NHS Number Specified: ' . $self->subject_id;
+        }
+    }
+}
 
 sub find_or_new {
     my $self = shift;
@@ -44,7 +55,8 @@ sub find_or_new {
 sub get_new_ehr {
     my $self = shift;
     $self->query(
-        {   subjectId        => $self->subject_id,
+        {
+            subjectId        => $self->subject_id,
             subjectNamespace => $self->subject_namespace,
             committerName    => $self->committer_name,
             committerId      => $self->committer_id,
@@ -70,7 +82,8 @@ sub get_new_ehr {
 sub find_by_subject_id {
     my $self = shift;
     $self->query(
-        {   subjectId        => $self->subject_id,
+        {
+            subjectId        => $self->subject_id,
             subjectNamespace => $self->subject_namespace,
         }
     );
@@ -126,15 +139,15 @@ sub update_ehr_status {
     elsif ( $self->response_code eq '500' ) {
         $self->_set_action('DUPLICATE');
         $self->_set_err_msg( 'Server Response: '
-                . $self->response_code
-                . "\nEHR status already in use for another EHR" );
+              . $self->response_code
+              . "\nEHR status already in use for another EHR" );
         return 0;
     }
     else {
         $self->_set_action('FAIL');
         $self->_set_err_msg( 'Server Response: '
-                . $self->response_code . "\n"
-                . $self->response );
+              . $self->response_code . "\n"
+              . $self->response );
         return 0;
     }
 }
@@ -143,7 +156,7 @@ sub _check_query {
     my $self = shift;
     croak 'No subjectId specified in query' unless $self->subject_id;
     croak 'No subjectNamespace specified in query'
-        unless $self->subject_namespace;
+      unless $self->subject_namespace;
     return 1;
 }
 
