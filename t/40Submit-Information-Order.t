@@ -3,14 +3,9 @@ use warnings;
 use Test::More;
 use Data::Dumper;
 use OpenEHR::REST::EHR;
-use OpenEHR::REST::Template;
+use OpenEHR::Composition::InformationOrder;
 
-BEGIN { use_ok('OpenEHR::Composition::InformationOrder'); }
-
-my $template_id = 'GEL - Data request Summary.v1';
-my $template = OpenEHR::REST::Template->new();
-$template->get_template_example($template_id, 'RAW', 'INPUT');
-print Dumper $template->data;
+BEGIN { use_ok('OpenEHR::REST::InformationOrder'); }
 
 my $ehr1 = &get_new_random_subject();
 $ehr1->get_new_ehr;
@@ -20,36 +15,13 @@ if ( $ehr1->err_msg ) {
 diag( 'EhrId: ' . $ehr1->ehr_id );
 diag( 'SubjectId: ' . $ehr1->subject_id );
 
-ok(
-    my $planned_order = OpenEHR::Composition::InformationOrder->new(
-        current_state      => 'planned',
-    )
+my $planned_order = OpenEHR::Composition::InformationOrder->new(
+    current_state      => 'planned',
 );
+$planned_order->composition_format('FLAT');
+my $composition = $planned_order->compose;
 
-is($planned_order->current_state, 'planned', 'Current State accessor');
-is($planned_order->current_state_code, '526', 'Current State Code accessor');
-
-ok($planned_order->current_state('scheduled'), 'Current State changed to scheduled');
-is($planned_order->current_state_code, '529', 'Current State Code updated for scheduled');
-
-ok($planned_order->current_state('aborted'), 'Current State changed to aborted');
-is($planned_order->current_state_code, '531', 'Current State Code updated for aborted');
-
-ok($planned_order->current_state('completed'), 'Current State changed to completed');
-is($planned_order->current_state_code, '532', 'Current State Code updated for completed');
-
-ok($planned_order->current_state('planned'), 'Current State changed to planned');
-is($planned_order->current_state_code, '526', 'Current State Code updated for planned');
-
-is( $planned_order->composition_format,
-    'STRUCTURED', 'Default composition format is STRUCTURED' );
-
-ok($planned_order->composition_format('FLAT'), 'Set composition to FLAT format');
-ok(my $composition = $planned_order->compose, 'Called compose for FLAT composition');
-
-ok($planned_order->composition_format('STRUCTURED'), 'Set composition to STRUCTURED format');
-ok($composition = $planned_order->compose, 'Called compose for STRUCTURED composition');
-print Dumper ($composition);
+my $query = OpenEHR::REST::InformationOrder->new();
 
 
 done_testing;
@@ -69,4 +41,3 @@ sub get_new_random_subject {
     }
     return $ehr;
 }
-

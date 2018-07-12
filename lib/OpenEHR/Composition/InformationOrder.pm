@@ -144,19 +144,6 @@ sub compose_structured {
 sub compose_raw {
     my $self        = shift;
     my $composition = {
-        'value' => {
-            'type'     => $self->type,
-            '@class'   => 'DV_IDENTIFIER',
-            'id'       => $self->order_number,
-            'issuer'   => $self->issuer,
-            'assigner' => $self->assigner,
-        },
-        '@class'            => 'ELEMENT',
-        'archetype_node_id' => 'at0063',
-        'name'              => {
-            'value'  => 'Filler order number',
-            '@class' => 'DV_TEXT'
-        }
     };
     return $composition;
 }
