@@ -9,7 +9,7 @@ BEGIN { use_ok('OpenEHR::Composition::InformationOrder'); }
 
 my $template_id = 'GEL - Data request Summary.v1';
 my $template = OpenEHR::REST::Template->new();
-$template->get_template_example($template_id, 'FLAT', 'INPUT');
+$template->get_template_example($template_id, 'RAW', 'INPUT');
 print Dumper $template->data;
 
 my $ehr1 = &get_new_random_subject();
@@ -38,12 +38,17 @@ is($planned_order->current_state_code, '531', 'Current State Code updated for ab
 ok($planned_order->current_state('completed'), 'Current State changed to completed');
 is($planned_order->current_state_code, '532', 'Current State Code updated for completed');
 
+ok($planned_order->current_state('planned'), 'Current State changed to planned');
+is($planned_order->current_state_code, '526', 'Current State Code updated for planned');
+
 is( $planned_order->composition_format,
     'STRUCTURED', 'Default composition format is STRUCTURED' );
 
 ok($planned_order->composition_format('FLAT'), 'Set composition to FLAT format');
-
 ok(my $composition = $planned_order->compose, 'Called compose for FLAT composition');
+
+ok($planned_order->composition_format('STRUCTURED'), 'Set composition to STRUCTURED format');
+ok($composition = $planned_order->compose, 'Called compose for STRUCTURED composition');
 print Dumper ($composition);
 
 

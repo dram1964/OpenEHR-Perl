@@ -20,8 +20,8 @@ has current_state_code => (
     isa => 'Str',
 );
 has service_type => (
-    is  => 'rw', 
-    isa => 'Str',
+    is      => 'rw',
+    isa     => 'Str',
     default => 'pathology',
 );
 
@@ -48,14 +48,99 @@ sub compose {
 sub compose_structured {
     my $self        = shift;
     my $composition = {
-        '|assigner' => $self->assigner,
-        '|issuer'   => $self->issuer,
-        '|id'       => $self->order_number,
-        '|type'     => $self->type,
+        'ctx/language'                => $self->language_code,
+        'ctx/territory'               => $self->territory_code,
+        'ctx/composer_name'             => $self->composer_name,
+        'ctx/id_namespace'            => 'UCLH-NS',
+        'ctx/id_scheme'                 => 'UCLH-NS',
+        'ctx/health_care_facility|name' => 'UCLH',
+        'ctx/health_care_facility|id' => 'RRV',
+        'gel_data_request_summary'      => {
+            'service_request' => [
+                {
+                    'narrative' => [ 'GEL Information data request - ' . $self->service_type ],
+                    'request'   => [
+                        {
+                            'gel_information_request_details' => [
+                                {
+                                    'patient_information_request_end_date' =>
+                                      [ '2018-07-12T12:23:08.531+01:00' ],
+                                    'patient_information_request_start_date' =>
+                                      [ DateTime->now->datetime ]
+                                }
+                            ],
+                            'service_type' => [ 'GEL Information data request' ],
+                            'timing'       => [
+                                {
+                                    '|value' =>
+                                      DateTime->now->datetime
+                                }
+                            ],
+                            'service_name' => [ 'GEL Information data request' ]
+                        }
+                    ],
+                    'requestor_identifier' => [ 'Ident. 43' ],
+                    'expiry_time' => [ '2018-08-12T12:23:08.531+01:00' ],
+                    '_uid'        => [ 'c3408c7c-8075-46d0-b18b-428e91e64f9f' ]
+                }
+            ],
+            'service' => [
+                {
+                    'service_type' => [ $self->service_type ],
+                    'service_name' => [ 'GEL Information data request' ],
+                    'comment'      => [ 'Comment 25' ],
+                    'time'         => [ DateTime->now->datetime ],
+                    'requestor_identifier' => [
+                        {
+                            '|id' => '9b9a4864-3062-4ef6-bf92-71ee72351f3a',
+                            '|assigner' => 'OpenEHR-Perl',
+                            '|issuer'   => 'UCLH',
+                            '|type'     => 'Test'
+                        }
+                    ],
+                    'ism_transition' => [
+                        {
+                            'current_state' => [
+                                {
+                                    '|code'  => $self->current_state_code,
+                                    '|value' => $self->current_state
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
     };
     return $composition;
 }
-
+#    'ctx/participation_mode'      => 'face-to-face communication',
+#    'ctx/participation_id'        => '199',
+#    'ctx/participation_function:1'  => 'performer',
+#    'ctx/participation_name:1'      => 'Lara Markham',
+#    'ctx/participation_id:1'        => '198',
+#    'ctx/participation_name'        => 'Dr. Marcus Johnson',
+#    'ctx/participation_function'    => 'requester',
+#        'context' => [
+#            {
+#                'individual_professional_demographics_uk' => [
+#                    {
+#                        'grade'                   => [ 'Grade 46' ],
+#                        'professional_identifier' => [
+#                            {
+#                                '|id' =>
+#                                  '51c464b4-234f-447c-8c62-266af833fc06',
+#                                '|assigner' => 'Assigner',
+#                                '|issuer'   => 'Issuer',
+#                                '|type'     => 'Prescription'
+#                            }
+#                        ],
+#                        'team'               => [ 'Team 17' ],
+#                        'professional_group' => [ 'Professional group 88' ]
+#                    }
+#                ]
+#            }
+#        ],
 sub compose_raw {
     my $self        = shift;
     my $composition = {
@@ -105,11 +190,10 @@ sub compose_flat {
           => $self->current_state_code,
         'gel_data_request_summary/service:0/ism_transition/current_state|value'
           => $self->current_state,
-        'gel_data_request_summary/service:0/service_name' => 'GEL Information data request',
-        'gel_data_request_summary/service:0/service_type' =>
-          'pathology',
-          'gel_data_request_summary/service:0/time' =>
-          DateTime->now->datetime,
+        'gel_data_request_summary/service:0/service_name' =>
+          'GEL Information data request',
+        'gel_data_request_summary/service:0/service_type' => 'pathology',
+        'gel_data_request_summary/service:0/time' => DateTime->now->datetime,
     };
 
     return $composition;
