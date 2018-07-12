@@ -31,9 +31,8 @@ has ehr_status => (
 sub _check_namespace {
     my ( $self, $namespace, $old_namespace ) = @_;
     if ( $namespace eq 'uk.nhs.nhs_number' ) {
-        carp 'NHS Number used: ' . $self->subject_id;
         if ($self->subject_id !~ /^\d{10,10}$/) {
-            carp 'Invalid NHS Number Specified: ' . $self->subject_id;
+            croak 'Invalid NHS Number Specified: ' . $self->subject_id;
         }
     }
 }

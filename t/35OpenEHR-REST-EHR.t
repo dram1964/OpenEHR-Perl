@@ -131,4 +131,27 @@ else {
     diag( 'Unknown error encountered in update_ehr_status' . $ehr9->err_msg );
 }
 
+ok(my $ehr10 = OpenEHR::REST::EHR->new(
+    {
+        subject_id      => '9998887777',
+        subject_namespace       => 'uk.nhs.nhs_number',
+    }
+), "Create new EHR query with NHS Number");
+
+ok(my $ehr11 = OpenEHR::REST::EHR->new(
+    {
+        subject_id      => '40404040',
+        subject_namespace       => 'uk.nhs.uclh',
+    }
+), "Create new EHR query with non-NHS Number");
+
+eval {
+    my $ehr12 = OpenEHR::REST::EHR->new(
+        {
+            subject_id  => '99991',
+            subject_namespace   => 'uk.nhs.nhs_number',
+        }
+    );
+};
+ok($@, "Incorrect NHS Number format detected");
 done_testing;
