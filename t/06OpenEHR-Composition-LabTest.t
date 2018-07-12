@@ -165,15 +165,15 @@ ok( my $labtest2 = OpenEHR::Composition::LabTest->new(
 is( $labtest2->composition_format,
     'STRUCTURED', 'STRUCTURED composition format set by default' );
 ok( $labtest2->composition_format('FLAT'), 'Set FLAT composition format' );
-ok( my $flat = $labtest2->compose, 'Request composition' );
+ok( my $flat2 = $labtest2->compose, 'Request composition' );
 
 ok( $labtest2->composition_format('STRUCTURED'),
     'Set STRUCTURED composition format'
 );
-ok( my $struct = $labtest2->compose, 'Request composition' );
+ok( my $struct2 = $labtest2->compose, 'Request composition' );
 
 ok( $labtest2->composition_format('RAW'), 'Set RAW composition format' );
-ok( my $raw = $labtest2->compose, 'Request composition' );
+ok( my $raw2 = $labtest2->compose, 'Request composition' );
 
 
 done_testing;
