@@ -6,8 +6,8 @@ use Data::Dumper;
 use JSON;
 
 use OpenEHR::Composition::LabResultReport;
-use OpenEHR::REST::PathologyReport;
-note("testing OpenEHR::REST::PathologyReport $OpenEHR::VERSION");
+use OpenEHR::REST::Composition;
+note("testing OpenEHR::REST::Composition $OpenEHR::VERSION");
 
 my $collected =
     DateTime::Format::DateParse->parse_datetime('2017-12-01T01:10:00');
@@ -121,12 +121,14 @@ ok( $report->composer_name('David Ramlakhan'),
 is( $report->composition_format,
     'STRUCTURED', 'STRUCTURED format set by default' ); 
 
-my $path_report = OpenEHR::REST::PathologyReport->new();
+my $path_report = OpenEHR::REST::Composition->new();
 
 note('Testing submit_new method with FLAT composition');
 ok( $report->composition_format('FLAT'), 'Set FLAT composition format' );
 ok( $path_report->composition( $report ), 
     'Add composition object to rest client' );
+ok( $path_report->template_id('GEL - Generic Lab Report import.v0'),
+    'Add template_id for FLAT composition');
 ok( $path_report->submit_new($report->test_ehrid), 'Submit composition' );
 diag( $path_report->err_msg ) if $path_report->err_msg;
 ok( !$path_report->err_msg, 'No Error Message set' );
@@ -139,6 +141,8 @@ note('Testing submit_new method with STRUCTURED composition');
 ok( $report->composition_format('STRUCTURED'), 'Set STRUCTURED composition format' );
 ok( $path_report->composition( $report ), 
     'Add composition object to rest client' );
+ok( $path_report->template_id('GEL - Generic Lab Report import.v0'),
+    'Add template_id for FLAT composition');
 ok( $path_report->submit_new($report->test_ehrid), 'Submit composition' );
 diag( $path_report->err_msg ) if $path_report->err_msg;
 ok( !$path_report->err_msg, 'No Error Message set' );

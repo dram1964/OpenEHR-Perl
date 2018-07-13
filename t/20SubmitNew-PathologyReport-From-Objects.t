@@ -4,7 +4,7 @@ use Test::More;
 use Data::Dumper;
 use DateTime;
 use JSON;
-use OpenEHR::REST::PathologyReport;
+use OpenEHR::REST::Composition;
 
 use OpenEHR::Composition::RequestedTest;
 use OpenEHR::Composition::Specimen;
@@ -75,7 +75,7 @@ my $labresult2 = OpenEHR::Composition::LabResult->new(
 );
 
 my $labpanel =
-    OpenEHR::Composition::LabTestPanel->new(
+  OpenEHR::Composition::LabTestPanel->new(
     lab_results => [ $labresult1, $labresult2 ], );
 
 my $placer = OpenEHR::Composition::Placer->new(
@@ -110,9 +110,9 @@ my $requester = OpenEHR::Composition::Requester->new(
 );
 
 my $request_details = OpenEHR::Composition::TestRequestDetails->new(
-    placer            => $placer,
-    filler            => $filler,
-    requester         => $requester,
+    placer    => $placer,
+    filler    => $filler,
+    requester => $requester,
 );
 
 my $labtest = OpenEHR::Composition::LabTest->new(
@@ -134,7 +134,8 @@ my $labtest = OpenEHR::Composition::LabTest->new(
     request_details => $request_details,
 );
 
-ok( my $labreport = OpenEHR::Composition::LabResultReport->new(
+ok(
+    my $labreport = OpenEHR::Composition::LabResultReport->new(
         report_id       => '17V999333',
         labtests        => [$labtest],
         patient_comment => 'Patient feeling poorly',
@@ -144,13 +145,14 @@ ok( my $labreport = OpenEHR::Composition::LabResultReport->new(
 
 note('Begin testing FLAT composition');
 {
-    ok( $labreport->composition_format('FLAT'),
-        'Set FLAT composition format'
-    );
-    my $path_report = OpenEHR::REST::PathologyReport->new();
-    ok( $path_report->composition($labreport),
+    ok( $labreport->composition_format('FLAT'), 'Set FLAT composition format' );
+    my $path_report = OpenEHR::REST::Composition->new();
+    ok(
+        $path_report->composition($labreport),
         'Add composition object to rest client'
     );
+    ok( $path_report->template_id('GEL - Generic Lab Report import.v0'),
+        'Add template_id for FLAT composition' );
     ok( $path_report->submit_new($ehrId), 'Submit composition' );
     diag( $path_report->err_msg ) if $path_report->err_msg;
     ok( !$path_report->err_msg, 'No Error Message set' );
@@ -162,13 +164,17 @@ note('Begin testing FLAT composition');
 
 note('Begin testing STRUCTURED composition');
 {
-    ok( $labreport->composition_format('STRUCTURED'),
+    ok(
+        $labreport->composition_format('STRUCTURED'),
         'Set STRUCTURED composition format'
     );
-    my $path_report = OpenEHR::REST::PathologyReport->new();
-    ok( $path_report->composition($labreport),
+    my $path_report = OpenEHR::REST::Composition->new();
+    ok(
+        $path_report->composition($labreport),
         'Add composition to rest client'
     );
+    ok( $path_report->template_id('GEL - Generic Lab Report import.v0'),
+        'Add template_id for STRUCTURED composition' );
     ok( $path_report->submit_new($ehrId), 'Submit composition' );
     diag( $path_report->err_msg ) if $path_report->err_msg;
     ok( !$path_report->err_msg, 'No Error Message set' );
@@ -181,8 +187,9 @@ note('Begin testing STRUCTURED composition');
 note('Begin testing RAW composition');
 {
     ok( $labreport->composition_format('RAW'), 'Set RAW composition format' );
-    my $path_report = OpenEHR::REST::PathologyReport->new();
-    ok( $path_report->composition($labreport),
+    my $path_report = OpenEHR::REST::Composition->new();
+    ok(
+        $path_report->composition($labreport),
         'Add composition to rest client'
     );
     ok( $path_report->submit_new($ehrId), 'Submit composition' );
@@ -200,8 +207,9 @@ SKIP: {
     {
         ok( $labreport->composition_format('TDD'),
             'Set TDD composition format' );
-        my $path_report = OpenEHR::REST::PathologyReport->new();
-        ok( $path_report->composition($labreport),
+        my $path_report = OpenEHR::REST::Composition->new();
+        ok(
+            $path_report->composition($labreport),
             'Add composition to rest client'
         );
         ok( $path_report->submit_new($ehrId), 'Submit composition' );

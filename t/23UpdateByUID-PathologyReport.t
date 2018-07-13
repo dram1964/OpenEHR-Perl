@@ -4,7 +4,7 @@ use warnings;
 use Test::More;
 use OpenEHR::REST::AQL;
 use OpenEHR::Composition::LabResultReport;
-use OpenEHR::REST::PathologyReport;
+use OpenEHR::REST::Composition;
 use Data::Dumper;
 use DateTime::Format::DateParse;
 
@@ -84,9 +84,11 @@ diag $aql->err_msg if $aql->err_msg;
 $uid = $aql->resultset->[0]->{compos}->{uid}->{value};
 note( 'Preparing FLAT update to composition with UID: ' . $uid );
 ok( $report->composition_format('FLAT'), 'FLAT format set' );
-ok( $update = OpenEHR::REST::PathologyReport->new(),
+ok( $update = OpenEHR::REST::Composition->new(),
     'Create PathologyReport object' );
 ok( $update->composition($report), 'Add composition to update' );
+ok( $update->template_id('GEL - Generic Lab Report import.v0'),
+    'Add template_id for FLAT composition');
 ok( $update->update_by_uid($uid),  'Updated with new composition' );
 diag( $update->err_msg ) if $update->err_msg;
 note( 'Composition update can be found at: ' . $update->href );
@@ -96,9 +98,11 @@ diag $aql->err_msg if $aql->err_msg;
 $uid = $aql->resultset->[0]->{compos}->{uid}->{value};
 note( 'Preparing STRUCTURED update to composition with UID: ' . $uid );
 ok( $report->composition_format('STRUCTURED'), 'STRUCTURED format set' );
-ok( $update = OpenEHR::REST::PathologyReport->new(),
+ok( $update = OpenEHR::REST::Composition->new(),
     'Create PathologyReport object' );
 ok( $update->composition($report), 'Add composition to update' );
+ok( $update->template_id('GEL - Generic Lab Report import.v0'),
+    'Add template_id for STRUCTURED composition');
 ok( $update->update_by_uid($uid),  'Updated with new composition' );
 diag( $update->err_msg ) if $update->err_msg;
 note( 'Composition update can be found at: ' . $update->href );
@@ -108,7 +112,7 @@ diag $aql->err_msg if $aql->err_msg;
 $uid = $aql->resultset->[0]->{compos}->{uid}->{value};
 note( 'Preparing RAW update to composition with UID: ' . $uid );
 ok( $report->composition_format('RAW'), 'RAW format set' );
-ok( $update = OpenEHR::REST::PathologyReport->new(),
+ok( $update = OpenEHR::REST::Composition->new(),
     'Create PathologyReport object' );
 ok( $update->composition($report), 'Add composition to update' );
 ok( $update->update_by_uid($uid),  'Updated with new composition' );
@@ -122,7 +126,7 @@ SKIP: {
     $uid = $aql->resultset->[0]->{compos}->{uid}->{value};
     note( 'Preparing TDD update to composition with UID: ' . $uid );
     ok( $report->composition_format('TDD'), 'TDD format set' );
-    ok( $update = OpenEHR::REST::PathologyReport->new(),
+    ok( $update = OpenEHR::REST::Composition->new(),
         'Create PathologyReport object' );
     ok( $update->composition($report), 'Add composition to update' );
     ok( $update->update_by_uid($uid),  'Updated with new composition' );

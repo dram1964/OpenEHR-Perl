@@ -5,9 +5,9 @@ use Test::More;
 use DateTime;
 use Data::Dumper;
 
-use OpenEHR::REST::PathologyReport;
+use OpenEHR::REST::Composition;
 
-ok( my $path_report1 = OpenEHR::REST::PathologyReport->new(),
+ok( my $path_report1 = OpenEHR::REST::Composition->new(),
     "PathologyReport Construction" );
 my $test_uid = $path_report1->test_uid;
 
@@ -22,7 +22,7 @@ SKIP: {
     ok( !$path_report1->err_msg, 'No Error Message set' );
     is( $path_report1->response_format,
         'RAW', 'Composition returned in RAW format' );
-    is( $path_report1->templateId,
+    is( $path_report1->template_id,
         'GEL - Generic Lab Report import.v0',
         'Composition Template ID'
     );
@@ -34,7 +34,7 @@ SKIP: {
         'Composition last version is false' );
 
     note("Searching for FLAT composition using compositionUid: $test_uid");
-    ok( my $path_report2 = OpenEHR::REST::PathologyReport->new(),
+    ok( my $path_report2 = OpenEHR::REST::Composition->new(),
         "PathologyReport Construction" );
     ok( $path_report2->request_format('FLAT'), "Request format set to FLAT" );
     ok( $path_report2->find_by_uid($test_uid),
@@ -43,7 +43,7 @@ SKIP: {
     ok( !$path_report2->err_msg, "No Error Message set" );
     is( $path_report2->response_format,
         'FLAT', "Composition returned in FLAT format" );
-    is( $path_report2->templateId,
+    is( $path_report2->template_id,
         'GEL - Generic Lab Report import.v0',
         "Composition Template ID"
     );
@@ -58,7 +58,7 @@ SKIP: {
     note(
         "Searching for STRUCTURED composition using compositionUid: $test_uid"
     );
-    ok( my $path_report3 = OpenEHR::REST::PathologyReport->new(),
+    ok( my $path_report3 = OpenEHR::REST::Composition->new(),
         "PathologyReport Construction" );
     ok( $path_report3->request_format('STRUCTURED'),
         "Request format set to STRUCTURED"
@@ -69,7 +69,7 @@ SKIP: {
     ok( !$path_report3->err_msg, "No Error Message set" );
     is( $path_report3->response_format,
         'STRUCTURED', "Composition returned in STRUCTURED format" );
-    is( $path_report3->templateId,
+    is( $path_report3->template_id,
         'GEL - Generic Lab Report import.v0',
         "Composition Template ID"
     );
@@ -81,7 +81,7 @@ SKIP: {
         "Composition last version is false" );
 
     note("Searching for TDD composition using compositionUid: $test_uid");
-    ok( my $path_report4 = OpenEHR::REST::PathologyReport->new(),
+    ok( my $path_report4 = OpenEHR::REST::Composition->new(),
         "PathologyReport Construction" );
     ok( $path_report4->request_format('TDD'), 'Request format set to TDD' );
     ok( $path_report4->find_by_uid( $test_uid, 'TDD' ),
@@ -92,7 +92,7 @@ SKIP: {
     );
     is( $path_report4->response_format,
         'TDD', "Composition returned in TDD format" );
-    is( $path_report4->templateId,
+    is( $path_report4->template_id,
         'XML responses from TDD not handled yet',
         "Composition Template ID"
     );

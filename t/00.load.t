@@ -19,7 +19,7 @@ BEGIN {
     use_ok('OpenEHR::REST::AQL');
     use_ok('OpenEHR::REST::Demographics');
     use_ok('OpenEHR::REST::EHR');
-    use_ok('OpenEHR::REST::PathologyReport');
+    use_ok('OpenEHR::REST::Composition');
     use_ok('OpenEHR::REST::Template');
     use_ok('OpenEHR::REST::View');
 }

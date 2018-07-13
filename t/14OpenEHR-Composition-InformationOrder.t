@@ -66,6 +66,10 @@ sub get_new_random_subject {
     my $ehr;
     while ( $action eq 'RETRIEVE' ) {
         my $subject_id = int( rand(10000000000) );
+        $subject_id += '0000000000';
+        if ($subject_id =~ /^([\d]{10,10}).*/) {
+            $subject_id = $1;
+        }
         my $subject    = {
             subject_id        => $subject_id,
             subject_namespace => 'uk.nhs.nhs_number',
