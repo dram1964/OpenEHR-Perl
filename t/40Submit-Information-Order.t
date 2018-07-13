@@ -88,11 +88,6 @@ diag($order_update3->href); # URL to view the submitted composition;
 #   $order_diag->find_by_uid($order->compositionUid);
 #   print Dumper $order_diag->composition_response;
 
-
-
-
-done_testing;
-
 sub get_new_random_subject {
     my $action = 'RETRIEVE';
     my $ehr;
@@ -112,3 +107,6 @@ sub get_new_random_subject {
     }
     return $ehr;
 }
+
+done_testing;
+
