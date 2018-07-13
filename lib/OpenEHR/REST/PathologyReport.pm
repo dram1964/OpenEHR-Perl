@@ -165,6 +165,7 @@ This document describes OpenEHR::REST::PathologyReport version 0.0.1
     use OpenEHR::REST::PathologyReport;
 
     my $path_report1 = OpenEHR::REST::PathologyReport->new();
+    $path_report->composition($labreport); # add a composition object
 
     $path_report1->submit_new($ehr->ehrId);
     warn ("Error occurred in submission: " . $path_report1->err_msg)

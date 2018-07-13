@@ -48,48 +48,49 @@ sub compose {
 sub compose_structured {
     my $self        = shift;
     my $composition = {
-        'ctx/language'                => $self->language_code,
-        'ctx/territory'               => $self->territory_code,
+        'ctx/language'                  => $self->language_code,
+        'ctx/territory'                 => $self->territory_code,
         'ctx/composer_name'             => $self->composer_name,
-        'ctx/id_namespace'            => 'UCLH-NS',
+        'ctx/id_namespace'              => 'UCLH-NS',
         'ctx/id_scheme'                 => 'UCLH-NS',
         'ctx/health_care_facility|name' => 'UCLH',
-        'ctx/health_care_facility|id' => 'RRV',
+        'ctx/health_care_facility|id'   => 'RRV',
         'gel_data_request_summary'      => {
             'service_request' => [
                 {
-                    'narrative' => [ 'GEL Information data request - ' . $self->service_type ],
-                    'request'   => [
+                    'narrative' => [
+                        'GEL Information data request - ' . $self->service_type
+                    ],
+                    'request' => [
                         {
                             'gel_information_request_details' => [
                                 {
                                     'patient_information_request_end_date' =>
-                                      [ '2018-07-12T12:23:08.531+01:00' ],
+                                      ['2018-07-12T12:23:08.531+01:00'],
                                     'patient_information_request_start_date' =>
                                       [ DateTime->now->datetime ]
                                 }
                             ],
-                            'service_type' => [ 'GEL Information data request' ],
+                            'service_type' => ['GEL Information data request'],
                             'timing'       => [
                                 {
-                                    '|value' =>
-                                      DateTime->now->datetime
+                                    '|value' => DateTime->now->datetime
                                 }
                             ],
-                            'service_name' => [ 'GEL Information data request' ]
+                            'service_name' => ['GEL Information data request']
                         }
                     ],
-                    'requestor_identifier' => [ 'Ident. 43' ],
-                    'expiry_time' => [ '2018-08-12T12:23:08.531+01:00' ],
-                    '_uid'        => [ 'c3408c7c-8075-46d0-b18b-428e91e64f9f' ]
+                    'requestor_identifier' => ['Ident. 43'],
+                    'expiry_time'          => ['2018-08-12T12:23:08.531+01:00'],
+                    '_uid' => ['c3408c7c-8075-46d0-b18b-428e91e64f9f']
                 }
             ],
             'service' => [
                 {
-                    'service_type' => [ $self->service_type ],
-                    'service_name' => [ 'GEL Information data request' ],
-                    'comment'      => [ 'Comment 25' ],
-                    'time'         => [ DateTime->now->datetime ],
+                    'service_type'         => [ $self->service_type ],
+                    'service_name'         => ['GEL Information data request'],
+                    'comment'              => ['Comment 25'],
+                    'time'                 => [ DateTime->now->datetime ],
                     'requestor_identifier' => [
                         {
                             '|id' => '9b9a4864-3062-4ef6-bf92-71ee72351f3a',
@@ -114,6 +115,7 @@ sub compose_structured {
     };
     return $composition;
 }
+
 #    'ctx/participation_mode'      => 'face-to-face communication',
 #    'ctx/participation_id'        => '199',
 #    'ctx/participation_function:1'  => 'performer',
@@ -144,6 +146,303 @@ sub compose_structured {
 sub compose_raw {
     my $self        = shift;
     my $composition = {
+        'territory' => {
+            'terminology_id' => {
+                'value'  => $self->territory_terminology,
+                '@class' => 'TERMINOLOGY_ID'
+            },
+            'code_string' => $self->territory_code,
+            '@class'      => 'CODE_PHRASE'
+        },
+        'language' => {
+            'terminology_id' => {
+                'value'  => $self->language_terminology,
+                '@class' => 'TERMINOLOGY_ID'
+            },
+            'code_string' => $self->language_code,
+            '@class'      => 'CODE_PHRASE'
+        },
+        'archetype_node_id' => 'openEHR-EHR-COMPOSITION.report.v1',
+#       'uid'               => {
+#           'value'  => '81a78d8a-a4d0-4c20-b6a5-69c203f969fe::default::1',
+#           '@class' => 'OBJECT_VERSION_ID'
+#       },
+        'content' => [
+            {
+                'protocol' => {
+                    'archetype_node_id' => 'at0008',
+                    'name'              => {
+                        'value'  => 'Tree',
+                        '@class' => 'DV_TEXT'
+                    },
+                    'items' => [
+                        {
+                            'archetype_node_id' => 'at0010',
+                            'value'             => {
+                                'value'  => 'Ident. 6',
+                                '@class' => 'DV_TEXT'
+                            },
+                            'name' => {
+                                'value'  => 'Requestor Identifier',
+                                '@class' => 'DV_TEXT'
+                            },
+                            '@class' => 'ELEMENT'
+                        }
+                    ],
+                    '@class' => 'ITEM_TREE'
+                },
+                'language' => {
+                    'terminology_id' => {
+                        'value'  => $self->language_terminology,
+                        '@class' => 'TERMINOLOGY_ID'
+                    },
+                    'code_string' => $self->language_code,
+                    '@class'      => 'CODE_PHRASE'
+                },
+                'archetype_node_id' => 'openEHR-EHR-INSTRUCTION.request.v0',
+#               'uid'               => {
+#                   'value'  => 'df79fd08-8456-4041-8324-f3790bd8d616',
+#                   '@class' => 'HIER_OBJECT_ID'
+#               },
+                'subject' => {
+                    '@class' => 'PARTY_SELF'
+                },
+                'activities' => [
+                    {
+                        'action_archetype_id' => '/.*/',
+                        'timing'              => {
+                            'value'     => DateTime->now->datetime,
+                            'formalism' => 'timing',
+                            '@class'    => 'DV_PARSABLE'
+                        },
+                        'archetype_node_id' => 'at0001',
+                        'name'              => {
+                            'value'  => 'Request',
+                            '@class' => 'DV_TEXT'
+                        },
+                        'description' => {
+                            'archetype_node_id' => 'at0009',
+                            'name'              => {
+                                'value'  => 'Tree',
+                                '@class' => 'DV_TEXT'
+                            },
+                            'items' => [
+                                {
+                                    'archetype_node_id' => 'at0121',
+                                    'value'             => {
+                                        'value' =>
+                                          'GEL Information data request',
+                                        '@class' => 'DV_TEXT'
+                                    },
+                                    'name' => {
+                                        'value'  => 'Service name',
+                                        '@class' => 'DV_TEXT'
+                                    },
+                                    '@class' => 'ELEMENT'
+                                },
+                                {
+                                    'archetype_node_id' => 'at0148',
+                                    'value'             => {
+                                        'value'  => 'pathology',
+                                        '@class' => 'DV_TEXT'
+                                    },
+                                    'name' => {
+                                        'value'  => 'Service type',
+                                        '@class' => 'DV_TEXT'
+                                    },
+                                    '@class' => 'ELEMENT'
+                                }
+                            ],
+                            '@class' => 'ITEM_TREE'
+                        },
+                        '@class' => 'ACTIVITY'
+                    }
+                ],
+                'name' => {
+                    'value'  => 'Service request',
+                    '@class' => 'DV_TEXT'
+                },
+                'archetype_details' => {
+                    'rm_version'   => '1.0.1',
+                    'archetype_id' => {
+                        'value'  => 'openEHR-EHR-INSTRUCTION.request.v0',
+                        '@class' => 'ARCHETYPE_ID'
+                    },
+                    '@class' => 'ARCHETYPED'
+                },
+                'expiry_time' => {
+                    'value'  => '2018-07-14T11:16:32.485+01:00',
+                    '@class' => 'DV_DATE_TIME'
+                },
+                '@class'    => 'INSTRUCTION',
+                'narrative' => {
+                    'value'  => 'GEL Information data request - pathology',
+                    '@class' => 'DV_TEXT'
+                },
+                'encoding' => {
+                    'terminology_id' => {
+                        'value'  => 'IANA_character-sets',
+                        '@class' => 'TERMINOLOGY_ID'
+                    },
+                    'code_string' => 'UTF-8',
+                    '@class'      => 'CODE_PHRASE'
+                }
+            },
+            {
+                'language' => {
+                    'terminology_id' => {
+                        'value'  => 'ISO_639-1',
+                        '@class' => 'TERMINOLOGY_ID'
+                    },
+                    'code_string' => 'en',
+                    '@class'      => 'CODE_PHRASE'
+                },
+                'archetype_node_id' => 'openEHR-EHR-ACTION.service.v0',
+                'time'              => {
+                    'value'  => '2018-07-13T08:36:44+01:00',
+                    '@class' => 'DV_DATE_TIME'
+                },
+                'subject' => {
+                    '@class' => 'PARTY_SELF'
+                },
+                'name' => {
+                    'value'  => 'Service',
+                    '@class' => 'DV_TEXT'
+                },
+                'archetype_details' => {
+                    'rm_version'   => '1.0.1',
+                    'archetype_id' => {
+                        'value'  => 'openEHR-EHR-ACTION.service.v0',
+                        '@class' => 'ARCHETYPE_ID'
+                    },
+                    '@class' => 'ARCHETYPED'
+                },
+                'description' => {
+                    'archetype_node_id' => 'at0001',
+                    'name'              => {
+                        'value'  => 'Tree',
+                        '@class' => 'DV_TEXT'
+                    },
+                    'items' => [
+                        {
+                            'archetype_node_id' => 'at0011',
+                            'value'             => {
+                                'value'  => 'GEL Information data request',
+                                '@class' => 'DV_TEXT'
+                            },
+                            'name' => {
+                                'value'  => 'Service name',
+                                '@class' => 'DV_TEXT'
+                            },
+                            '@class' => 'ELEMENT'
+                        },
+                        {
+                            'archetype_node_id' => 'at0014',
+                            'value'             => {
+                                'value'  => 'pathology',
+                                '@class' => 'DV_TEXT'
+                            },
+                            'name' => {
+                                'value'  => 'Service type',
+                                '@class' => 'DV_TEXT'
+                            },
+                            '@class' => 'ELEMENT'
+                        }
+                    ],
+                    '@class' => 'ITEM_TREE'
+                },
+                '@class'         => 'ACTION',
+                'ism_transition' => {
+                    'current_state' => {
+                        'value'         => $self->current_state,
+                        'defining_code' => {
+                            'terminology_id' => {
+                                'value'  => 'openehr',
+                                '@class' => 'TERMINOLOGY_ID'
+                            },
+                            'code_string' => $self->current_state_code,
+                            '@class'      => 'CODE_PHRASE'
+                        },
+                        '@class' => 'DV_CODED_TEXT'
+                    },
+                    '@class' => 'ISM_TRANSITION'
+                },
+                'encoding' => {
+                    'terminology_id' => {
+                        'value'  => $self->encoding_terminology,
+                        '@class' => 'TERMINOLOGY_ID'
+                    },
+                    'code_string' => $self->encoding_code,
+                    '@class'      => 'CODE_PHRASE'
+                }
+            }
+        ],
+        'name' => {
+            'value'  => 'GEL Data request summary',
+            '@class' => 'DV_TEXT'
+        },
+        'archetype_details' => {
+            'template_id' => {
+                'value'  => 'GEL - Data request Summary.v1',
+                '@class' => 'TEMPLATE_ID'
+            },
+            'rm_version'   => '1.0.1',
+            'archetype_id' => {
+                'value'  => 'openEHR-EHR-COMPOSITION.report.v1',
+                '@class' => 'ARCHETYPE_ID'
+            },
+            '@class' => 'ARCHETYPED'
+        },
+        '@class'  => 'COMPOSITION',
+        'context' => {
+            'start_time' => {
+                'value'  => DateTime->now->datetime,
+                '@class' => 'DV_DATE_TIME'
+            },
+            'health_care_facility' => {
+                'name'         => 'UCLH',
+                'external_ref' => {
+                    'namespace' => 'UCLH-NS',
+                    'type'      => 'PARTY',
+                    'id'        => {
+                        'value'  => 'RRV',
+                        'scheme' => 'UCLH-NS',
+                        '@class' => 'GENERIC_ID'
+                    },
+                    '@class' => 'PARTY_REF'
+                },
+                '@class' => 'PARTY_IDENTIFIED'
+            },
+            'setting' => {
+                'value'         => 'other care',
+                'defining_code' => {
+                    'terminology_id' => {
+                        'value'  => 'openehr',
+                        '@class' => 'TERMINOLOGY_ID'
+                    },
+                    'code_string' => '238',
+                    '@class'      => 'CODE_PHRASE'
+                },
+                '@class' => 'DV_CODED_TEXT'
+            },
+            '@class' => 'EVENT_CONTEXT'
+        },
+        'category' => {
+            'value'         => 'event',
+            'defining_code' => {
+                'terminology_id' => {
+                    'value'  => 'openehr',
+                    '@class' => 'TERMINOLOGY_ID'
+                },
+                'code_string' => '433',
+                '@class'      => 'CODE_PHRASE'
+            },
+            '@class' => 'DV_CODED_TEXT'
+        },
+        'composer' => {
+            'name'   => 'Aupen Ayre',
+            '@class' => 'PARTY_IDENTIFIED'
+        }
     };
     return $composition;
 }

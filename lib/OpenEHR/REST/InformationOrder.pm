@@ -163,7 +163,15 @@ This document describes OpenEHR::REST::InformationOrder version 0.0.2
 
     use OpenEHR::REST::InformationOrder;
 
-    my $path_report1 = OpenEHR::REST::InformationOrder->new();
+    my $order = OpenEHR::REST::InformationOrder->new();
+    $order->composition($composition_object);
+
+    $order->submit_new();
+    warn ("Error occurred in submission: " . $order->err_msg)
+        if $order->err_msg;
+    $order->action; # 'CREATE' if successful;
+    $order->compositionUid; # the returned CompositionUid;
+    $order->href; # URL to view the submitted composition;
 
 
 =head1 DESCRIPTION
