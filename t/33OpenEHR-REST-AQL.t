@@ -9,7 +9,6 @@ BEGIN {
 }
 
 diag("Testing OpenEHR::REST::AQL $OpenEHR::REST::AQL::VERSION");
-
 my $query4 = OpenEHR::REST::AQL->new();
 
 my $ehrId           = $query4->test_ehrid;
@@ -128,6 +127,35 @@ ok( !$query2->err_msg, "No Error Message set" );
 isa_ok( $query2->resultset,      'ARRAY', "Resultset is an ArrayRef" );
 isa_ok( $query2->resultset->[0], 'HASH',  "First Result is a HashRef" );
 is( $query2->aql, $query2->statement, "AQL matches Query String" );
+
+note("SELECT all aborted pathology information orders");
+my $aql_info_orders = << 'END_AQL';
+select a/uid/value as composition_id, c/narrative/value as narrative,
+ c/uid/value as request_id, c/protocol[at0008]/items[at0010]/value/value as unique_message_id,
+ c/activities[at0001]/timing/value as request_start_date, c/expiry_time/value as request_end_date,
+ c/activities[at0001]/description[at0009]/items[at0148]/value/value as service_type,
+ d/ism_transition/current_state/value as current_state,
+ d/ism_transition/current_state/defining_code/code_string as current_state_code,
+ e/ehr_status/subject/external_ref/id/value as nhsnumber
+ from EHR e
+ contains COMPOSITION a[openEHR-EHR-COMPOSITION.report.v1]
+ contains (INSTRUCTION c[openEHR-EHR-INSTRUCTION.request.v0]
+ and ACTION d[openEHR-EHR-ACTION.service.v0])
+ where c/activities[at0001]/description[at0009]/items[at0121]/value = 'GEL Information data request'
+ and c/activities[at0001]/description[at0009]/items[at0148]/value/value = 'pathology'
+ and d/ism_transition/current_state/value = 'aborted'
+END_AQL
+#diag $aql_info_orders;
+
+my $query9 = OpenEHR::REST::AQL->new();
+ok( $query9->statement($aql_info_orders), "Prepare search for information orders" );
+ok( $query9->run_query,       "Submitted Query" );
+diag $query9->err_msg if $query9->err_msg;
+ok( !$query9->err_msg, "No Error Message set" );
+isa_ok( $query9->resultset,      'ARRAY', "Resultset is an ArrayRef" );
+isa_ok( $query9->resultset->[0], 'HASH',  "First Result is a HashRef" );
+#print Dumper $query9->resultset->[0];
+#diag( $query9->aql);
 
 done_testing;
 
