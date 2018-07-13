@@ -5,7 +5,7 @@ use Data::Dumper;
 use OpenEHR::REST::EHR;
 use OpenEHR::Composition::InformationOrder;
 
-BEGIN { use_ok('OpenEHR::REST::InformationOrder'); }
+BEGIN { use_ok('OpenEHR::REST::Composition'); }
 
 my $ehr1 = &get_new_random_subject();
 $ehr1->get_new_ehr;
@@ -21,7 +21,7 @@ my $planned_order = OpenEHR::Composition::InformationOrder->new(
 $planned_order->composition_format('RAW');
 $planned_order->compose;
 
-ok(my $order = OpenEHR::REST::InformationOrder->new(), "Construct REST order");
+ok(my $order = OpenEHR::REST::Composition->new(), "Construct REST order");
 ok($order->composition($planned_order), "Add composition to new order");
 ok($order->submit_new($ehr1->ehr_id), "Submit new information order");
 ok(!$order->err_msg, "No error message returned from REST call");
@@ -38,7 +38,7 @@ my $update_scheduled = OpenEHR::Composition::InformationOrder->new(
 $update_scheduled->composition_format('RAW');
 $update_scheduled->compose;
 
-ok(my $order_update1 = OpenEHR::REST::InformationOrder->new(), 'Construct REST order update1');
+ok(my $order_update1 = OpenEHR::REST::Composition->new(), 'Construct REST order update1');
 ok($order_update1->composition($update_scheduled), 'Add scheduled composition');
 ok($order_update1->update_by_uid($order->compositionUid), 'Call update_by_uid');
 ok(!$order_update1->err_msg, 'No error message returned from REST call');
@@ -55,7 +55,7 @@ my $update_completed = OpenEHR::Composition::InformationOrder->new(
 $update_completed->composition_format('RAW');
 $update_completed->compose;
 
-ok(my $order_update2 = OpenEHR::REST::InformationOrder->new(), 'Construct REST order update2');
+ok(my $order_update2 = OpenEHR::REST::Composition->new(), 'Construct REST order update2');
 ok($order_update2->composition($update_completed), 'Add completed composition');
 ok($order_update2->update_by_uid($order_update1->compositionUid), 'Call update by UID');
 ok(!$order_update2->err_msg, 'No error message returned from REST call');
@@ -72,7 +72,7 @@ my $update_aborted = OpenEHR::Composition::InformationOrder->new(
 $update_aborted->composition_format('RAW');
 $update_aborted->compose;
 
-ok(my $order_update3 = OpenEHR::REST::InformationOrder->new(), 'Construct REST order update3');
+ok(my $order_update3 = OpenEHR::REST::Composition->new(), 'Construct REST order update3');
 ok($order_update3->composition($update_aborted), 'Add aborted composition');
 ok($order_update3->update_by_uid($order_update2->compositionUid), 'Call update by UID');
 ok(!$order_update3->err_msg, 'No error message returned from REST call');
@@ -83,7 +83,7 @@ is($order_update3->action, 'UPDATE', 'Action is UPDATE');
 diag($order_update3->compositionUid); # the returned CompositionUid;
 diag($order_update3->href); # URL to view the submitted composition;
 
-#   my $order_diag = OpenEHR::REST::InformationOrder->new();
+#   my $order_diag = OpenEHR::REST::Composition->new();
 #   $order_diag->request_format('RAW');
 #   $order_diag->find_by_uid($order->compositionUid);
 #   print Dumper $order_diag->composition_response;
