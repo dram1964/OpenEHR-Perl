@@ -16,7 +16,7 @@ my $received =
 my $resulted =
     DateTime::Format::DateParse->parse_datetime('2017-12-01T01:30:00');
 
-my $data = {
+my $data = [{
     ordercode      => 'ELL',
     ordername      => 'Electrolytes',
     spec_type      => 'Blood',
@@ -60,14 +60,62 @@ my $data = {
         parent => 'UCLH',
     },
     test_status   => 'Final',
-    clinical_info => 'Patient feeling unwell',
-};
+    clinical_info => 'Patient feeling unwell', 
+    },
+    {
+    ordercode      => 'SFLC',
+    ordername      => 'Serum Free Light Chains',
+    spec_type      => 'Blood',
+    collected      => $collected,
+    collect_method => 'Phlebotomy',
+    received       => $received,
+    labnumber      => {
+        id       => '17V333322',
+        assigner => 'Winpath',
+        issuer   => 'UCLH Pathology',
+    },
+    labresults => [
+        {   result        => '15.0 mg/L',
+            comment       => '',
+            ref_range     => '',
+            testcode      => 'KAPA',
+            testname      => 'Free Kappa Light Chains',
+            result_status => 'Final',
+        },
+        {   result        => '20 mg/L',
+            comment       => '',
+            ref_range     => '',
+            testcode      => 'LAMB',
+            testname      => 'Free Lambda Light Chains',
+            result_status => 'Final',
+        },
+    ],
+    order_number => {
+        id       => 'TQ00112233',
+        assigner => 'TQuest',
+        issuer   => 'UCLH',
+    },
+    report_date => $resulted,
+    clinician   => {
+        id       => 'AB01',
+        assigner => 'Carecast',
+        issuer   => 'UCLH',
+    },
+    location => {
+        id     => 'ITU1',
+        parent => 'UCLH',
+    },
+    test_status   => 'Final',
+    clinical_info => 'Patient feeling unwell', }
+];
 
 ok( my $report = OpenEHR::Composition::LabResultReport->new(),
     'Construct a blank LabResultReport object' );
 ok( $report->report_id('1112233322233'),   'report_id mutator' );
 ok( $report->patient_comment('Hello EHR'), 'comment mutator' );
-ok( $report->add_labtests($data),          'Add Labtests from hash table' );
+for my $order (@{$data}) {
+    ok( $report->add_labtests($order),          'Add Labtests from hash table' );
+}
 ok( $report->composer_name('David Ramlakhan'),
     'Add composer name to rest client' );
 is( $report->composition_format,
@@ -94,7 +142,7 @@ ok( $report->composition_format('STRUCTURED'), 'Set STRUCTURED composition forma
 ok( $path_report->composition( $report ), 
     'Add composition object to rest client' );
 ok( $path_report->template_id('GEL - Generic Lab Report import.v0'),
-    'Add template_id for STRUCTURED composition');
+    'Add template_id for FLAT composition');
 ok( $path_report->submit_new($report->test_ehrid), 'Submit composition' );
 diag( $path_report->err_msg ) if $path_report->err_msg;
 ok( !$path_report->err_msg, 'No Error Message set' );

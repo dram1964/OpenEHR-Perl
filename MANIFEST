@@ -19,7 +19,7 @@ lib/OpenEHR/REST.pm
 lib/OpenEHR/REST/AQL.pm
 lib/OpenEHR/REST/Demographics.pm
 lib/OpenEHR/REST/EHR.pm
-lib/OpenEHR/REST/PathologyReport.pm
+lib/OpenEHR/REST/Composition.pm
 lib/OpenEHR/REST/Template.pm
 lib/OpenEHR/REST/View.pm
 Makefile.PL
@@ -31,7 +31,7 @@ t/01OpenEHR.t
 t/03OpenEHR-Composition.t
 t/04OpenEHR-Composition-Filler.t
 t/05OpenEHR-Composition-LabResult.t
-t/06OpenEHR-Composition-LabTest.pm
+t/06OpenEHR-Composition-LabTest.t
 t/07OpenEHR-Composition-OrderingProvider.t
 t/08OpenEHR-Composition-Placer.t
 t/09OpenEHR-Composition-Professional.t
@@ -39,10 +39,16 @@ t/10OpenEHR-Composition-RequestedTest.t
 t/11OpenEHR-Composition-Requester.t
 t/12OpenEHR-Composition-Specimen.t
 t/13OpenEHR-Composition-TestRequestDetails.t
+t/14OpenEHR-Composition-InformationOrder.t
 t/20SubmitNew-PathologyReport-From-Objects.t
 t/21SubmitNew-PathologyReport-From-Hash.t
 t/22FindByUID-PathologyReport.t
 t/23UpdateByUID-PathologyReport.t
+t/24Submit-Information-Order.t
+t/33OpenEHR-REST-AQL.t
+t/34OpenEHR-REST-Demographics.t
+t/35OpenEHR-REST-EHR.t
+t/36OpenEHR-REST-Template.t
 t/perlcritic.t
 t/pod-coverage.t
 t/pod.t
