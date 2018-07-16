@@ -128,7 +128,7 @@ isa_ok( $query2->resultset,      'ARRAY', "Resultset is an ArrayRef" );
 isa_ok( $query2->resultset->[0], 'HASH',  "First Result is a HashRef" );
 is( $query2->aql, $query2->statement, "AQL matches Query String" );
 
-note("SELECT all aborted pathology information orders");
+note("SELECT all planned pathology information orders");
 my $aql_info_orders = << 'END_AQL';
 select a/uid/value as composition_id, c/narrative/value as narrative,
  c/uid/value as request_id, c/protocol[at0008]/items[at0010]/value/value as unique_message_id,
@@ -143,7 +143,7 @@ select a/uid/value as composition_id, c/narrative/value as narrative,
  and ACTION d[openEHR-EHR-ACTION.service.v0])
  where c/activities[at0001]/description[at0009]/items[at0121]/value = 'GEL Information data request'
  and c/activities[at0001]/description[at0009]/items[at0148]/value/value = 'pathology'
- and d/ism_transition/current_state/value = 'aborted'
+ and d/ism_transition/current_state/value = 'planned'
 END_AQL
 #diag $aql_info_orders;
 
@@ -154,7 +154,7 @@ diag $query9->err_msg if $query9->err_msg;
 ok( !$query9->err_msg, "No Error Message set" );
 isa_ok( $query9->resultset,      'ARRAY', "Resultset is an ArrayRef" );
 isa_ok( $query9->resultset->[0], 'HASH',  "First Result is a HashRef" );
-#print Dumper $query9->resultset->[0];
+print Dumper $query9->resultset;
 #diag( $query9->aql);
 
 done_testing;

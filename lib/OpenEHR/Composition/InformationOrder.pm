@@ -4,14 +4,17 @@ use warnings;
 use strict;
 use Carp;
 use Moose;
+use Moose::Util::TypeConstraints;
 use DateTime;
 extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
+enum 'CurrentState' => [qw( planned scheduled aborted completed )];
+
 has current_state => (
     is       => 'rw',
-    isa      => 'Str',
+    isa      => 'CurrentState',
     required => 1,
     trigger  => \&_set_state_code,
 );
@@ -23,6 +26,11 @@ has service_type => (
     is      => 'rw',
     isa     => 'Str',
     default => 'pathology',
+);
+has service_name => (
+    is      => 'rw', 
+    isa     => 'Str',
+    default => 'GEL Information data request',
 );
 
 sub _set_state_code {
@@ -59,7 +67,7 @@ sub compose_structured {
             'service_request' => [
                 {
                     'narrative' => [
-                        'GEL Information data request - ' . $self->service_type
+                        $self->service_name . ' - ' . $self->service_type
                     ],
                     'request' => [
                         {
@@ -71,24 +79,23 @@ sub compose_structured {
                                       [ DateTime->now->datetime ]
                                 }
                             ],
-                            'service_type' => ['GEL Information data request'],
+                            'service_type' => [ $self->service_type ],
                             'timing'       => [
                                 {
                                     '|value' => DateTime->now->datetime
                                 }
                             ],
-                            'service_name' => ['GEL Information data request']
+                            'service_name' => [ $self->service_name]
                         }
                     ],
                     'requestor_identifier' => ['Ident. 43'],
                     'expiry_time'          => ['2018-08-12T12:23:08.531+01:00'],
-                    '_uid' => ['c3408c7c-8075-46d0-b18b-428e91e64f9f']
                 }
             ],
             'service' => [
                 {
                     'service_type'         => [ $self->service_type ],
-                    'service_name'         => ['GEL Information data request'],
+                    'service_name'         => [ $self->service_name ],
                     'comment'              => ['Comment 25'],
                     'time'                 => [ DateTime->now->datetime ],
                     'requestor_identifier' => [
@@ -201,7 +208,7 @@ sub compose_raw {
                 },
                 'archetype_node_id' => 'openEHR-EHR-INSTRUCTION.request.v0',
 #               'uid'               => {
-#                   'value'  => 'df79fd08-8456-4041-8324-f3790bd8d616',
+#                   'value'  => '',
 #                   '@class' => 'HIER_OBJECT_ID'
 #               },
                 'subject' => {
@@ -231,7 +238,7 @@ sub compose_raw {
                                     'archetype_node_id' => 'at0121',
                                     'value'             => {
                                         'value' =>
-                                          'GEL Information data request',
+                                          $self->service_name,
                                         '@class' => 'DV_TEXT'
                                     },
                                     'name' => {
@@ -251,7 +258,7 @@ sub compose_raw {
                                         '@class' => 'DV_TEXT'
                                     },
                                     '@class' => 'ELEMENT'
-                                }
+                                },
                             ],
                             '@class' => 'ITEM_TREE'
                         },
@@ -276,7 +283,7 @@ sub compose_raw {
                 },
                 '@class'    => 'INSTRUCTION',
                 'narrative' => {
-                    'value'  => 'GEL Information data request - pathology',
+                    'value'  => $self->service_name . ' - ' . $self->service_type,
                     '@class' => 'DV_TEXT'
                 },
                 'encoding' => {
@@ -327,7 +334,7 @@ sub compose_raw {
                         {
                             'archetype_node_id' => 'at0011',
                             'value'             => {
-                                'value'  => 'GEL Information data request',
+                                'value'  => $self->service_type,
                                 '@class' => 'DV_TEXT'
                             },
                             'name' => {
@@ -440,7 +447,7 @@ sub compose_raw {
             '@class' => 'DV_CODED_TEXT'
         },
         'composer' => {
-            'name'   => 'Aupen Ayre',
+            'name'   => $self->composer_name,
             '@class' => 'PARTY_IDENTIFIED'
         }
     };
@@ -461,13 +468,13 @@ sub compose_flat {
         'ctx/health_care_facility|name' => 'UCLH',
         'ctx/health_care_facility|id'   => 'RRV',
         'gel_data_request_summary/service_request:0/request:0/service_name' =>
-          'GEL Information data request',
+          $self->service_name,
         'gel_data_request_summary/service_request:0/request:0/service_type' =>
           $self->service_type,
         'gel_data_request_summary/service_request:0/request:0/timing' =>
           DateTime->now->datetime,
         'gel_data_request_summary/service_request:0/narrative' =>
-          'GEL Information data request - ' . $self->service_type,
+          $self->service_name . ' - ' . $self->service_type,
         'gel_data_request_summary/service_request:0/requestor_identifier' =>
           'Ident. 6',
         'gel_data_request_summary/service_request:0/expiry_time' =>
@@ -477,7 +484,7 @@ sub compose_flat {
         'gel_data_request_summary/service:0/ism_transition/current_state|value'
           => $self->current_state,
         'gel_data_request_summary/service:0/service_name' =>
-          'GEL Information data request',
+          $self->service_name,
         'gel_data_request_summary/service:0/service_type' => 'pathology',
         'gel_data_request_summary/service:0/time' => DateTime->now->datetime,
     };
@@ -541,15 +548,11 @@ This document describes OpenEHR::Composition::InformationOrder version 0.0.2
 =head1 SYNOPSIS
 
     use OpenEHR::Composition::InformationOrder;
-    my $filler = OpenEHR::Composition::InformationOrder->new({
-        order_number    => '17V111333',
-        assigner        => 'Winpath',
-        issuer          => 'UCLH',
-        type            => 'local',
-        composition_format => 'FLAT',
-    });
+    my $planned_order = OpenEHR::Composition::InformationOrder->new(
+        current_state      => 'planned',
+    );
+    my $info_order_hash = $planned_order->compose;
 
-    my $filler_hashref = $filler->compose;
 
   
 =head1 DESCRIPTION
@@ -613,7 +616,8 @@ None reported.
 
 =head1 BUGS AND LIMITATIONS
 
-No bugs have been reported.
+When using the RAW format compositions, uids are not automatically assigned to 
+instructions or actions
 
 Please report any bugs or feature requests to
 C<bug-openehr-composition-filler@rt.cpan.org>, or through the web interface at

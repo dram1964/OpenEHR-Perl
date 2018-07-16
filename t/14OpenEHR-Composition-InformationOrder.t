@@ -51,12 +51,12 @@ ok($planned_order->composition_format('STRUCTURED'), 'Set composition to STRUCTU
 ok($composition = $planned_order->compose, 'Called compose for STRUCTURED composition');
 #print Dumper ($composition);
 
-TODO: {
-    local $TODO = "Not yet implemented";
+#TODO: {
+#    local $TODO = "Not yet implemented";
     ok($planned_order->composition_format('RAW'), 'Set composition to RAW format');
     ok($composition = $planned_order->compose, 'Called compose for RAW composition');
 
-}
+#}
 
 
 done_testing;
@@ -66,7 +66,7 @@ sub get_new_random_subject {
     my $ehr;
     while ( $action eq 'RETRIEVE' ) {
         my $subject_id = int( rand(10000000000) );
-        $subject_id += '0000000000';
+        $subject_id .= '0000000000';
         if ($subject_id =~ /^([\d]{10,10}).*/) {
             $subject_id = $1;
         }
