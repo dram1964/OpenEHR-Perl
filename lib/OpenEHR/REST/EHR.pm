@@ -179,10 +179,10 @@ This document describes OpenEHR::REST::EHR version 0.0.2
     use OpenEHR::REST::EHR;
 
     my $ehr = OpenEHR::Model::EHR->new(
-        {   subjectId        => '10203040',
-            subjectNamespace => 'MyProject',
-            committerName    => 'Committer Name',
-            commmitterId     => 'comnam1',
+        {   subject_id        => '10203040',
+            subject_namespace => 'MyProject',
+            committer_name    => 'Committer Name',
+            committer_id     => 'comnam1',
         }
     );
     $ehr->find_or_new()

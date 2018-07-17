@@ -35,6 +35,7 @@ my $party_json = to_json($party);
 
 SKIP: {
     skip "REST Demographics not installed yet", 1;
+
     ok( $demog->get_by_ehrid($ehrid), "Get by ehrid method called" );
     diag( $demog->err_msg ) if $demog->err_msg;
     is( $demog->action, "RETRIEVE", "Response action is RETRIEVE" );

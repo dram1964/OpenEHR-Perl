@@ -44,7 +44,7 @@ ok( $@, "find_or_new fails if only committer_name specified" );
 note('Testing find_or_new for existing record');
 ok( my $ehr5 = OpenEHR::REST::EHR->new(
         {   subject_id        => $test_subjectid,
-            subject_namespace => 'GEL',
+            subject_namespace => 'uk.nhs.nhs_number',
         }
     ),
     'Constructor called with test_subject record details'
@@ -62,10 +62,14 @@ is( $ehr5->ehr_status->{subjectNamespace},
 note( 'EHR can be found at ' . $ehr5->href );
 
 note('Testing find_or_new for probable non-existing record');
-my $subjectId = int( rand(100000000) );
+my $subjectId = int( rand(1000000000) );
+$subjectId .= '0000000000';
+if ($subjectId =~ /^([\d]{10,10}).*/) {
+    $subjectId = $1;
+}
 ok( my $ehr6 = OpenEHR::REST::EHR->new(
         {   subject_id        => $subjectId,
-            subject_namespace => 'GEL',
+            subject_namespace => 'uk.nhs.nhs_number',
             committer_name    => 'Committer Name',
         }
     ),
