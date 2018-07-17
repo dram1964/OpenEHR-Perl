@@ -2,10 +2,34 @@ use strict;
 use warnings;
 use Test::More;
 use Data::Dumper;
+use DateTime;
 use OpenEHR::REST::EHR;
 use OpenEHR::Composition::InformationOrder;
 
 BEGIN { use_ok('OpenEHR::REST::Composition'); }
+
+my $start_date = DateTime->new(
+    year    => 2011,
+    month   => 1,
+    day     => 1,
+);
+
+my $end_date = DateTime->new(
+    year    => 2017,
+    month   => 12,
+    day     => 31,
+);
+
+my $timing  = DateTime->new(
+    year    => 2018,
+    month   => 07,
+    day     => 07,
+);
+my $expiry_time = DateTime->new(
+    year    => 2019,
+    month   => 11,
+    day     => 30,
+);
 
 my @formats = qw(FLAT STRUCTURED RAW);
 
@@ -19,8 +43,15 @@ for my $format (@formats) {
     diag( 'EhrId: ' . $ehr1->ehr_id );
     diag( 'SubjectId: ' . $ehr1->subject_id );
 
+    my $request_id = int(rand(1000000000));
     my $planned_order =
-      OpenEHR::Composition::InformationOrder->new( current_state => 'planned',
+      OpenEHR::Composition::InformationOrder->new( 
+        current_state => 'planned',
+        start_date    => $start_date,
+        end_date      => $end_date,
+        timing        => $timing,
+        expiry_time   => $expiry_time,
+        request_id    => $request_id,
       );
     $planned_order->composition_format($format);
     $planned_order->compose;

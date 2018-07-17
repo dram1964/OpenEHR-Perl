@@ -28,9 +28,29 @@ has service_type => (
     default => 'pathology',
 );
 has service_name => (
-    is      => 'rw', 
+    is      => 'rw',
     isa     => 'Str',
     default => 'GEL Information data request',
+);
+has start_date => (
+    is      => 'rw',
+    isa     => 'DateTime',
+);
+has end_date => (
+    is      => 'rw',
+    isa     => 'DateTime',
+);
+has timing  => (
+    is      => 'rw',
+    isa     => 'DateTime',
+);
+has expiry_time  => (
+    is      => 'rw',
+    isa     => 'DateTime',
+);
+has request_id => (
+    is      => 'rw',
+    isa     => 'Str',
 );
 
 sub _set_state_code {
@@ -66,30 +86,30 @@ sub compose_structured {
         'gel_data_request_summary'      => {
             'service_request' => [
                 {
-                    'narrative' => [
-                        $self->service_name . ' - ' . $self->service_type
-                    ],
+                    'narrative' =>
+                      [ $self->service_name . ' - ' . $self->service_type ],
                     'request' => [
                         {
                             'gel_information_request_details' => [
                                 {
                                     'patient_information_request_end_date' =>
-                                      ['2018-07-12T12:23:08.531+01:00'],
+                                      $self->end_date->datetime,
                                     'patient_information_request_start_date' =>
-                                      [ DateTime->now->datetime ]
+                                      $self->start_date->datetime,
                                 }
                             ],
                             'service_type' => [ $self->service_type ],
                             'timing'       => [
                                 {
-                                    '|value' => DateTime->now->datetime
+                                    '|value' => $self->timing->datetime,
+
                                 }
                             ],
-                            'service_name' => [ $self->service_name]
+                            'service_name' => [ $self->service_name ]
                         }
                     ],
-                    'requestor_identifier' => ['Ident. 43'],
-                    'expiry_time'          => ['2018-08-12T12:23:08.531+01:00'],
+                    'requestor_identifier' => [DateTime->now()->epoch()],
+                    'expiry_time'          => $self->expiry_time->datetime,
                 }
             ],
             'service' => [
@@ -100,7 +120,7 @@ sub compose_structured {
                     'time'                 => [ DateTime->now->datetime ],
                     'requestor_identifier' => [
                         {
-                            '|id' => '9b9a4864-3062-4ef6-bf92-71ee72351f3a',
+                            '|id'       => $self->request_id, 
                             '|assigner' => 'OpenEHR-Perl',
                             '|issuer'   => 'UCLH',
                             '|type'     => 'Test'
@@ -170,10 +190,11 @@ sub compose_raw {
             '@class'      => 'CODE_PHRASE'
         },
         'archetype_node_id' => 'openEHR-EHR-COMPOSITION.report.v1',
-#       'uid'               => {
-#           'value'  => '81a78d8a-a4d0-4c20-b6a5-69c203f969fe::default::1',
-#           '@class' => 'OBJECT_VERSION_ID'
-#       },
+
+     #       'uid'               => {
+     #           'value'  => '81a78d8a-a4d0-4c20-b6a5-69c203f969fe::default::1',
+     #           '@class' => 'OBJECT_VERSION_ID'
+     #       },
         'content' => [
             {
                 'protocol' => {
@@ -186,7 +207,7 @@ sub compose_raw {
                         {
                             'archetype_node_id' => 'at0010',
                             'value'             => {
-                                'value'  => 'Ident. 6',
+                                'value'  => $self->request_id,
                                 '@class' => 'DV_TEXT'
                             },
                             'name' => {
@@ -207,10 +228,11 @@ sub compose_raw {
                     '@class'      => 'CODE_PHRASE'
                 },
                 'archetype_node_id' => 'openEHR-EHR-INSTRUCTION.request.v0',
-#               'uid'               => {
-#                   'value'  => '',
-#                   '@class' => 'HIER_OBJECT_ID'
-#               },
+
+                #               'uid'               => {
+                #                   'value'  => '',
+                #                   '@class' => 'HIER_OBJECT_ID'
+                #               },
                 'subject' => {
                     '@class' => 'PARTY_SELF'
                 },
@@ -218,7 +240,7 @@ sub compose_raw {
                     {
                         'action_archetype_id' => '/.*/',
                         'timing'              => {
-                            'value'     => DateTime->now->datetime,
+                            'value'     => $self->timing->datetime,
                             'formalism' => 'timing',
                             '@class'    => 'DV_PARSABLE'
                         },
@@ -237,8 +259,7 @@ sub compose_raw {
                                 {
                                     'archetype_node_id' => 'at0121',
                                     'value'             => {
-                                        'value' =>
-                                          $self->service_name,
+                                        'value'  => $self->service_name,
                                         '@class' => 'DV_TEXT'
                                     },
                                     'name' => {
@@ -278,12 +299,13 @@ sub compose_raw {
                     '@class' => 'ARCHETYPED'
                 },
                 'expiry_time' => {
-                    'value'  => '2018-07-14T11:16:32.485+01:00',
+                    'value'  => $self->expiry_time->datetime,
                     '@class' => 'DV_DATE_TIME'
                 },
                 '@class'    => 'INSTRUCTION',
                 'narrative' => {
-                    'value'  => $self->service_name . ' - ' . $self->service_type,
+                    'value' => $self->service_name . ' - '
+                      . $self->service_type,
                     '@class' => 'DV_TEXT'
                 },
                 'encoding' => {
@@ -306,7 +328,7 @@ sub compose_raw {
                 },
                 'archetype_node_id' => 'openEHR-EHR-ACTION.service.v0',
                 'time'              => {
-                    'value'  => '2018-07-13T08:36:44+01:00',
+                    'value'  => DateTime->now->datetime,
                     '@class' => 'DV_DATE_TIME'
                 },
                 'subject' => {
@@ -403,7 +425,11 @@ sub compose_raw {
         '@class'  => 'COMPOSITION',
         'context' => {
             'start_time' => {
-                'value'  => DateTime->now->datetime,
+                'value'  => $self->start_date->datetime,
+                '@class' => 'DV_DATE_TIME'
+            },
+            'end_time' => {
+                'value'  => $self->end_date->datetime,
                 '@class' => 'DV_DATE_TIME'
             },
             'health_care_facility' => {
@@ -455,9 +481,7 @@ sub compose_raw {
 }
 
 sub compose_flat {
-    my $self = shift;
-    my $path =
-      'laboratory_result_report/laboratory_test:__TEST__/test_request_details/';
+    my $self        = shift;
     my $composition = {
         'ctx/language'                  => $self->language_code,
         'ctx/territory'                 => $self->territory_code,
@@ -471,22 +495,21 @@ sub compose_flat {
           $self->service_name,
         'gel_data_request_summary/service_request:0/request:0/service_type' =>
           $self->service_type,
-        'gel_data_request_summary/service_request:0/request:0/timing' =>
-          DateTime->now->datetime,
+        'gel_data_request_summary/service_request:0/request:0/timing' => $self->timing->datetime,
         'gel_data_request_summary/service_request:0/narrative' =>
           $self->service_name . ' - ' . $self->service_type,
-        'gel_data_request_summary/service_request:0/requestor_identifier' =>
-          'Ident. 6',
-        'gel_data_request_summary/service_request:0/expiry_time' =>
-          '2018-07-14T11:16:32.485+01:00',
+        'gel_data_request_summary/service_request:0/requestor_identifier' => $self->request_id,
+        'gel_data_request_summary/service_request:0/expiry_time' => => $self->expiry_time->datetime,
         'gel_data_request_summary/service:0/ism_transition/current_state|code'
           => $self->current_state_code,
         'gel_data_request_summary/service:0/ism_transition/current_state|value'
           => $self->current_state,
         'gel_data_request_summary/service:0/service_name' =>
           $self->service_name,
-        'gel_data_request_summary/service:0/service_type' => 'pathology',
+        'gel_data_request_summary/service:0/service_type' => $self->service_type,
         'gel_data_request_summary/service:0/time' => DateTime->now->datetime,
+'gel_data_request_summary/service_request:0/request:0/gel_information_request_details:0/patient_information_request_start_date' => $self->start_date->datetime,
+'gel_data_request_summary/service_request:0/request:0/gel_information_request_details:0/patient_information_request_end_date' => $self->end_date->datetime,
     };
 
     return $composition;
@@ -520,12 +543,8 @@ sub compose_flat {
 #        'gel_data_request_summary/service:0/requestor_identifier|type' =>
 #          'Prescription',
 #        'gel_data_request_summary/service:0/comment' => 'Comment 45',
-#'gel_data_request_summary/service_request:0/request:0/gel_information_request_details:0/patient_information_request_end_date'
-#          => '2018-07-12T11:16:32.485+01:00',
 #        'gel_data_request_summary/service:0/requestor_identifier' =>
 #          '0cce9c45-861f-4d4e-8102-0a9c96cf59dc',
-#'gel_data_request_summary/service_request:0/request:0/gel_information_request_details:0/patient_information_request_start_date'
-#          => '2018-07-12T11:16:32.485+01:00',
 #        'gel_data_request_summary/service:0/requestor_identifier|assigner' =>
 #          'Assigner',
 
