@@ -6,6 +6,7 @@ use Carp;
 use Moose;
 use Moose::Util::TypeConstraints;
 use DateTime;
+use Data::Dumper;
 extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
@@ -15,7 +16,6 @@ enum 'CurrentState' => [qw( planned scheduled aborted completed )];
 has current_state => (
     is       => 'rw',
     isa      => 'CurrentState',
-    required => 1,
     trigger  => \&_set_state_code,
 );
 has current_state_code => (
@@ -72,6 +72,45 @@ sub compose {
     my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
 }
+
+sub decompose_structured {
+    my ($self, $composition) = @_;
+    croak "Not an information order compostion" if (!defined($composition->{gel_data_request_summary}));
+    $self->current_state($composition->{gel_data_request_summary}->{service}->[0]->{ism_transition}->[0]->{current_state}->[0]->{'|value'});
+    my $expiry_time = &format_datetime($composition->{gel_data_request_summary}->{service_request}->[0]->{expiry_time}->[0]);
+    $self->expiry_time($expiry_time);
+
+    my $start_date = &format_datetime($composition->{gel_data_request_summary}->{context}->[0]->{start_time}->[0]);
+    $self->start_date($start_date);
+
+    my $end_date = &format_datetime($composition->{gel_data_request_summary}->{context}->[0]->{'_end_time'}->[0]);
+    $self->end_date($end_date);
+
+    my $timing = &format_datetime($composition->{gel_data_request_summary}->{service_request}->[0]->{request}->[0]->{timing}->[0]->{'|value'});
+    $self->timing($timing);
+    
+    $self->request_id($composition->{gel_data_request_summary}->{service_request}->[0]->{requestor_identifier}->[0]);
+
+}
+
+sub format_datetime {
+    my $date = shift;
+    return 0 unless defined($date);
+    $date =~ s/T/ /;
+    $date =~ s/Z/\:00/;
+    eval {
+    my $et = DateTime::Format::Pg->parse_datetime($date);
+    };
+    if ($@) {
+        croak $@;
+    }
+    else {
+        $date = DateTime::Format::Pg->parse_datetime($date); 
+        return $date; 
+    }
+}
+ 
+
 
 sub compose_structured {
     my $self        = shift;
@@ -613,6 +652,14 @@ Returns a hashref of the object in RAW format
 
 Returns a hashref of the object in FLAT format
 
+=head2 format_datetime
+
+Takes a date value in 'yyyy-dd-mmThh:mmZ' format and converts it to 'yyyy-mm-dd hh:mm' format
+
+=head2 decompose_structured
+
+Populates an InformationOrder object with the composition_response data 
+recieved from a call to OpenEHR::REST::Composition->find_by_uid
 
 =head1 DIAGNOSTICS
 
