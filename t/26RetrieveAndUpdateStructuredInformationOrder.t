@@ -78,19 +78,6 @@ is($order_update->end_date, $end_date, 'end_date set after decompose');
 is($order_update->timing, $timing, 'timing set after decompose');
 is($order_update->expiry_time, $expiry_time, 'expiry_time set after decompose');
 
-
-#   my $order_completed_data = {
-#       current_state      => 'completed',
-#           start_date    => $order_update->start_date,
-#           end_date      => $order_update->end_date,
-#           timing        => $order_update->timing,
-#           expiry_time   => $order_update->expiry_time,
-#           request_id    => $order_update->request_id, 
-#   };
-
-#   my $completed_order = OpenEHR::Composition::InformationOrder->new(
-#       $order_completed_data,
-#   );
 note('Updating the order');
 ok($order_update->current_state('completed'), 'Update current state for retrieved composition');
 ok($order_update->composition_format('RAW'), 'Change submission format to RAW');
@@ -107,10 +94,6 @@ if ($order->err_msg) {
 is($order->action, "UPDATE", "Action is UPDATE");
 diag($order->compositionUid); 
 diag($order->href);
-
-SKIP: {
-    skip "Not implmenented yet", 1;
-};
 
 sub get_new_random_subject {
     my $action = 'RETRIEVE';

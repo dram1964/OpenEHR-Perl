@@ -93,6 +93,16 @@ sub decompose_structured {
 
 }
 
+sub decompose_raw {
+    my ($self, $composition) = @_;
+    for my $content (@{$composition->{content}}) {
+        if ($content->{archetype_node_id} eq 'openEHR-EHR-ACTION.service.v0') {
+            $self->current_state($content->{ism_transition}->{current_state}->{value});
+        }
+    }
+    return 1;
+}
+
 sub format_datetime {
     my $date = shift;
     return 0 unless defined($date);
@@ -657,6 +667,11 @@ Returns a hashref of the object in FLAT format
 Takes a date value in 'yyyy-dd-mmThh:mmZ' format and converts it to 'yyyy-mm-dd hh:mm' format
 
 =head2 decompose_structured
+
+Populates an InformationOrder object with the composition_response data 
+recieved from a call to OpenEHR::REST::Composition->find_by_uid
+
+=head2 decompose_raw
 
 Populates an InformationOrder object with the composition_response data 
 recieved from a call to OpenEHR::REST::Composition->find_by_uid
