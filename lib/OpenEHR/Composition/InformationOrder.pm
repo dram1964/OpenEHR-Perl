@@ -14,9 +14,9 @@ use version; our $VERSION = qv('0.0.2');
 enum 'CurrentState' => [qw( planned scheduled aborted completed )];
 
 has current_state => (
-    is       => 'rw',
-    isa      => 'CurrentState',
-    trigger  => \&_set_state_code,
+    is      => 'rw',
+    isa     => 'CurrentState',
+    trigger => \&_set_state_code,
 );
 has current_state_code => (
     is  => 'rw',
@@ -33,24 +33,24 @@ has service_name => (
     default => 'GEL Information data request',
 );
 has start_date => (
-    is      => 'rw',
-    isa     => 'DateTime',
+    is  => 'rw',
+    isa => 'DateTime',
 );
 has end_date => (
-    is      => 'rw',
-    isa     => 'DateTime',
+    is  => 'rw',
+    isa => 'DateTime',
 );
-has timing  => (
-    is      => 'rw',
-    isa     => 'DateTime',
+has timing => (
+    is  => 'rw',
+    isa => 'DateTime',
 );
-has expiry_time  => (
-    is      => 'rw',
-    isa     => 'DateTime',
+has expiry_time => (
+    is  => 'rw',
+    isa => 'DateTime',
 );
 has request_id => (
-    is      => 'rw',
-    isa     => 'Str',
+    is  => 'rw',
+    isa => 'Str',
 );
 
 sub _set_state_code {
@@ -74,30 +74,47 @@ sub compose {
 }
 
 sub decompose_structured {
-    my ($self, $composition) = @_;
-    croak "Not an information order compostion" if (!defined($composition->{gel_data_request_summary}));
-    $self->current_state($composition->{gel_data_request_summary}->{service}->[0]->{ism_transition}->[0]->{current_state}->[0]->{'|value'});
-    my $expiry_time = &format_datetime($composition->{gel_data_request_summary}->{service_request}->[0]->{expiry_time}->[0]);
+    my ( $self, $composition ) = @_;
+    croak "Not an information order compostion"
+      if ( !defined( $composition->{gel_data_request_summary} ) );
+    my $service = $composition->{gel_data_request_summary}->{service}->[0];
+    my $service_request =
+      $composition->{gel_data_request_summary}->{service_request}->[0];
+    my $request_details =
+      $service_request->{request}->[0]->{gel_information_request_details}->[0];
+
+    $self->current_state(
+        $service->{ism_transition}->[0]->{current_state}->[0]->{'|value'} );
+
+    my $expiry_time = &format_datetime( $service_request->{expiry_time}->[0] );
     $self->expiry_time($expiry_time);
 
-    my $start_date = &format_datetime($composition->{gel_data_request_summary}->{context}->[0]->{start_time}->[0]);
+    my $start_date =
+      &format_datetime(
+        $request_details->{patient_information_request_start_date}->[0] );
     $self->start_date($start_date);
 
-    my $end_date = &format_datetime($composition->{gel_data_request_summary}->{context}->[0]->{'_end_time'}->[0]);
+    my $end_date =
+      &format_datetime(
+        $request_details->{patient_information_request_end_date}->[0] );
     $self->end_date($end_date);
 
-    my $timing = &format_datetime($composition->{gel_data_request_summary}->{service_request}->[0]->{request}->[0]->{timing}->[0]->{'|value'});
+    my $timing =
+      &format_datetime(
+        $service_request->{request}->[0]->{timing}->[0]->{'|value'} );
     $self->timing($timing);
-    
-    $self->request_id($composition->{gel_data_request_summary}->{service_request}->[0]->{requestor_identifier}->[0]);
+
+    $self->request_id( $service_request->{requestor_identifier}->[0] );
 
 }
 
 sub decompose_raw {
-    my ($self, $composition) = @_;
-    for my $content (@{$composition->{content}}) {
-        if ($content->{archetype_node_id} eq 'openEHR-EHR-ACTION.service.v0') {
-            $self->current_state($content->{ism_transition}->{current_state}->{value});
+    my ( $self, $composition ) = @_;
+    for my $content ( @{ $composition->{content} } ) {
+        if ( $content->{archetype_node_id} eq 'openEHR-EHR-ACTION.service.v0' )
+        {
+            $self->current_state(
+                $content->{ism_transition}->{current_state}->{value} );
         }
     }
     return 1;
@@ -108,19 +125,15 @@ sub format_datetime {
     return 0 unless defined($date);
     $date =~ s/T/ /;
     $date =~ s/Z/\:00/;
-    eval {
-    my $et = DateTime::Format::Pg->parse_datetime($date);
-    };
+    eval { my $et = DateTime::Format::Pg->parse_datetime($date); };
     if ($@) {
         croak $@;
     }
     else {
-        $date = DateTime::Format::Pg->parse_datetime($date); 
-        return $date; 
+        $date = DateTime::Format::Pg->parse_datetime($date);
+        return $date;
     }
 }
- 
-
 
 sub compose_structured {
     my $self        = shift;
@@ -157,7 +170,7 @@ sub compose_structured {
                             'service_name' => [ $self->service_name ]
                         }
                     ],
-                    'requestor_identifier' => [DateTime->now()->epoch()],
+                    'requestor_identifier' => [ DateTime->now()->epoch() ],
                     'expiry_time'          => $self->expiry_time->datetime,
                 }
             ],
@@ -165,11 +178,11 @@ sub compose_structured {
                 {
                     'service_type'         => [ $self->service_type ],
                     'service_name'         => [ $self->service_name ],
-                    'comment'              => ['Comment 25'],
+#                    'comment'              => ['Comment 25'],
                     'time'                 => [ DateTime->now->datetime ],
                     'requestor_identifier' => [
                         {
-                            '|id'       => $self->request_id, 
+                            '|id'       => $self->request_id,
                             '|assigner' => 'OpenEHR-Perl',
                             '|issuer'   => 'UCLH',
                             '|type'     => 'Test'
@@ -544,21 +557,27 @@ sub compose_flat {
           $self->service_name,
         'gel_data_request_summary/service_request:0/request:0/service_type' =>
           $self->service_type,
-        'gel_data_request_summary/service_request:0/request:0/timing' => $self->timing->datetime,
+        'gel_data_request_summary/service_request:0/request:0/timing' =>
+          $self->timing->datetime,
         'gel_data_request_summary/service_request:0/narrative' =>
           $self->service_name . ' - ' . $self->service_type,
-        'gel_data_request_summary/service_request:0/requestor_identifier' => $self->request_id,
-        'gel_data_request_summary/service_request:0/expiry_time' => => $self->expiry_time->datetime,
+        'gel_data_request_summary/service_request:0/requestor_identifier' =>
+          $self->request_id,
+        'gel_data_request_summary/service_request:0/expiry_time' => =>
+          $self->expiry_time->datetime,
         'gel_data_request_summary/service:0/ism_transition/current_state|code'
           => $self->current_state_code,
         'gel_data_request_summary/service:0/ism_transition/current_state|value'
           => $self->current_state,
         'gel_data_request_summary/service:0/service_name' =>
           $self->service_name,
-        'gel_data_request_summary/service:0/service_type' => $self->service_type,
+        'gel_data_request_summary/service:0/service_type' =>
+          $self->service_type,
         'gel_data_request_summary/service:0/time' => DateTime->now->datetime,
-'gel_data_request_summary/service_request:0/request:0/gel_information_request_details:0/patient_information_request_start_date' => $self->start_date->datetime,
-'gel_data_request_summary/service_request:0/request:0/gel_information_request_details:0/patient_information_request_end_date' => $self->end_date->datetime,
+'gel_data_request_summary/service_request:0/request:0/gel_information_request_details:0/patient_information_request_start_date'
+          => $self->start_date->datetime,
+'gel_data_request_summary/service_request:0/request:0/gel_information_request_details:0/patient_information_request_end_date'
+          => $self->end_date->datetime,
     };
 
     return $composition;
