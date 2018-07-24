@@ -15,6 +15,7 @@ WriteMakefile(
         'JSON'       => 0,
         'Moose'      => 0,
         'DateTime'   => 0,
+        'DateTime::Format::Pg' => 0,
         'Config::Simple'    => 0,
         'Data::Dumper'      => 0,
         'Moose::Util::TypeConstraints'  => 0,

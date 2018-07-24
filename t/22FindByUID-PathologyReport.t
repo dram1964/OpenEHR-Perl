@@ -31,7 +31,7 @@ SKIP: {
     #print Dumper $path_report1->composition_response;
     ok( !$path_report1->deleted, 'Composition deleted value is false' );
     is( $path_report1->lastVersion, '1',
-        'Composition last version is false' );
+        'Composition last version is true' );
 
     note("Searching for FLAT composition using compositionUid: $test_uid");
     ok( my $path_report2 = OpenEHR::REST::Composition->new(),
@@ -53,7 +53,7 @@ SKIP: {
     #print Dumper $path_report2->composition_response;
     ok( !$path_report2->deleted, "Composition deleted value is false" );
     is( $path_report2->lastVersion, '1',
-        "Composition last version is false" );
+        "Composition last version is true" );
 
     note(
         "Searching for STRUCTURED composition using compositionUid: $test_uid"
@@ -78,7 +78,7 @@ SKIP: {
     #print Dumper $path_report3->composition_response;
     ok( !$path_report3->deleted, "Composition deleted value is false" );
     is( $path_report3->lastVersion, '1',
-        "Composition last version is false" );
+        "Composition last version is true" );
 
     note("Searching for TDD composition using compositionUid: $test_uid");
     ok( my $path_report4 = OpenEHR::REST::Composition->new(),
