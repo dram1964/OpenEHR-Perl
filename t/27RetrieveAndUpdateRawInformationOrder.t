@@ -48,57 +48,63 @@ my $order_retrieval = OpenEHR::REST::Composition->new();
 ok($order_retrieval->request_format('RAW'), 'Set retrieveal format to RAW');
 ok($order_retrieval->find_by_uid($composition_uid), 'Find Existing order');
 is($order_retrieval->response_format, 'RAW', 'Default response is in RAW format'); 
-print Dumper $order_retrieval;
+#print Dumper $order_retrieval;
 
-    is($order_retrieval->template_id, 'GEL - Data request Summary.v1', 'Information Order Template ID returned');
-    my $composition_format = $order_retrieval->response_format;
-    my $template_id = $order_retrieval->template_id;
-    my $composition = $order_retrieval->composition_response;
+is($order_retrieval->template_id, 'GEL - Data request Summary.v1', 'Information Order Template ID returned');
+my $composition_format = $order_retrieval->response_format;
+my $template_id = $order_retrieval->template_id;
+my $composition = $order_retrieval->composition_response;
 
-    ok(my $order_update = OpenEHR::Composition::InformationOrder->new(), 'Create blank Information order');
-    ok(!$order_update->current_state, 'current_state not set before decompose');
-    ok(!$order_update->current_state_code, 'current_state_code not set before decompose');
-    is($order_update->service_name, 'GEL Information data request', 'service_name set before decompose');
-    is($order_update->service_type, 'pathology', 'service_type set before decompose');
-    ok(!$order_update->request_id, 'request_id not set before decompose');
-    ok(!$order_update->start_date, 'start_date not set before decompose');
-    ok(!$order_update->end_date, 'end_date not set before decompose');
-    ok(!$order_update->timing, 'timing not set before decompose');
-    ok(!$order_update->expiry_time, 'expiry_time not set before decompose');
+ok(my $order_update = OpenEHR::Composition::InformationOrder->new(), 'Create blank Information order');
+ok(!$order_update->current_state, 'current_state not set before decompose');
+ok(!$order_update->current_state_code, 'current_state_code not set before decompose');
+is($order_update->service_name, 'GEL Information data request', 'service_name set before decompose');
+is($order_update->service_type, 'pathology', 'service_type set before decompose');
+ok(!$order_update->request_id, 'request_id not set before decompose');
+ok(!$order_update->start_date, 'start_date not set before decompose');
+ok(!$order_update->end_date, 'end_date not set before decompose');
+ok(!$order_update->timing, 'timing not set before decompose');
+ok(!$order_update->expiry_time, 'expiry_time not set before decompose');
 
-    note('Decomposing composition into InformationOrder object');
-    ok($order_update->decompose_raw($composition), 'Decompose the composition');
-    is($order_update->current_state, 'scheduled', 'current_state set after decompose');
+note('Decomposing composition into InformationOrder object');
+ok($order_update->decompose_raw($composition), 'Decompose the composition');
+is($order_update->current_state, 'scheduled', 'current_state set after decompose');
+is($order_update->current_state_code, '529', 'current_state_code set after decompose');
+is(
+    $order_update->service_name,
+    'GEL Information data request',
+    'service_name set after decompose'
+);
+is( $order_update->service_type,
+    'pathology', 'service_type set after decompose' );
+ok( $order_update->request_id, 'request_id set after decompose' );
+is( $order_update->start_date, $start_date, 'start_date set after decompose' );
+is( $order_update->end_date,   $end_date,   'end_date set after decompose' );
+is( $order_update->timing,     $timing,     'timing set after decompose' );
+is( $order_update->expiry_time,
+    $expiry_time, 'expiry_time set after decompose' );
+
+note('Updating the order');
+ok($order_update->current_state('completed'), 'Update current state for retrieved composition');
+ok($order_update->composition_format('RAW'), 'Change submission format to RAW');
+ok($order_update->compose, 'Compose the updated order');
+
+note('Submitting the order update');
+ok(my $order_completion = OpenEHR::REST::Composition->new(), "Construct REST order");
+ok($order->composition($order_update), "Add composition to new order");
+ok($order->update_by_uid($composition_uid), "Submit new information order");
+ok(!$order->err_msg, "No error message returned from REST call");
+if ($order->err_msg) {
+    diag("Error occurred in submission: " . $order->err_msg);
+}
+is($order->action, "UPDATE", "Action is UPDATE");
+diag($order->compositionUid); 
+diag($order->href);
 
 SKIP: {
     skip "Not implmenented yet", 1;
 
-    is($order_update->current_state_code, '526', 'current_state_code set after decompose');
-    is($order_update->service_name, 'GEL Information data request', 'service_name set after decompose');
-    is($order_update->service_type, 'pathology', 'service_type set after decompose');
-    ok($order_update->request_id, 'request_id set after decompose');
-    is($order_update->start_date,  $start_date, 'start_date set after decompose');
-    is($order_update->end_date, $end_date, 'end_date set after decompose');
-    is($order_update->timing, $timing, 'timing set after decompose');
-    is($order_update->expiry_time, $expiry_time, 'expiry_time set after decompose');
-
 #print Dumper $composition;
-    note('Updating the order');
-    ok($order_update->current_state('completed'), 'Update current state for retrieved composition');
-    ok($order_update->composition_format('RAW'), 'Change submission format to RAW');
-    ok($order_update->compose, 'Compose the updated order');
-
-    note('Submitting the order update');
-    ok(my $order_completion = OpenEHR::REST::Composition->new(), "Construct REST order");
-    ok($order->composition($order_update), "Add composition to new order");
-    ok($order->update_by_uid($composition_uid), "Submit new information order");
-    ok(!$order->err_msg, "No error message returned from REST call");
-    if ($order->err_msg) {
-        diag("Error occurred in submission: " . $order->err_msg);
-    }
-    is($order->action, "UPDATE", "Action is UPDATE");
-    diag($order->compositionUid); 
-    diag($order->href);
 
 };
 

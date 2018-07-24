@@ -45,9 +45,11 @@ diag( "New order UID: " . $order->compositionUid );
 diag( "New order HREF: " . $order->href );
 
 my $order_retrieval = OpenEHR::REST::Composition->new();
+$order_retrieval->request_format('STRUCTURED');
 ok( $order_retrieval->find_by_uid($composition_uid), 'Find Existing order' );
+print Dumper $order_retrieval;
 
-#print Dumper $order_retrieval;
+
 is( $order_retrieval->response_format,
     'STRUCTURED', 'Default response is in STRUCTURED format' );
 is(
@@ -86,7 +88,7 @@ ok( $order_update->decompose_structured($composition),
 is( $order_update->current_state,
     'planned', 'current_state set after decompose' );
 is( $order_update->current_state_code,
-    '526', 'current_state_code set after decompose' );
+    '529', 'current_state_code set after decompose' );
 is(
     $order_update->service_name,
     'GEL Information data request',

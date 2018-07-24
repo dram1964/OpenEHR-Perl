@@ -111,11 +111,45 @@ sub decompose_structured {
 sub decompose_raw {
     my ( $self, $composition ) = @_;
     for my $content ( @{ $composition->{content} } ) {
-        if ( $content->{archetype_node_id} eq 'openEHR-EHR-ACTION.service.v0' )
-        {
+        if ( $content->{archetype_node_id} eq 'openEHR-EHR-ACTION.service.v0' ) {
             $self->current_state(
                 $content->{ism_transition}->{current_state}->{value} );
+            $self->current_state_code(
+                $content->{ism_transition}->{current_state}->{defining_code}->{code_string} );
         }
+        elsif ( $content->{archetype_node_id} eq 'openEHR-EHR-INSTRUCTION.request.v0' ) {
+            $self->request_id( $content->{protocol}->{items}->[0]->{value}->{value} );
+            my $timing = &format_datetime(
+                $content->{activities}->[0]->{timing}->{value} );
+            $self->timing( $timing );
+
+            my $expiry_time = &format_datetime(
+                $content->{expiry_time}->{value} );
+            $self->expiry_time($expiry_time);
+
+            for my $request_item (@{ $content->{activities}->[0]->{description}->{items} } ) {
+                if ($request_item->{archetype_node_id} eq 'openEHR-EHR-CLUSTER.information_request_details_gel.v0') {
+                    for my $request_date (@{ $request_item->{items} } ) {
+                        if ($request_date->{archetype_node_id} eq 'at0001') {
+                            my $start_date = &format_datetime( $request_date->{value}->{value} );
+                            $self->start_date($start_date);
+                        }
+                        elsif ($request_date->{archetype_node_id} eq 'at0002') {
+                            my $end_date = &format_datetime( $request_date->{value}->{value} );
+                            $self->end_date($end_date);
+                        }
+                    }
+                }
+                elsif ($request_item->{archetype_node_id} eq 'at0121') {
+                    $self->service_name($request_item->{value}->{value});
+                }
+                elsif ($request_item->{archetype_node_id} eq 'at0148') {
+                    $self->service_type($request_item->{value}->{value});
+                }
+            }
+        }
+
+
     }
     return 1;
 }
@@ -205,33 +239,6 @@ sub compose_structured {
     return $composition;
 }
 
-#    'ctx/participation_mode'      => 'face-to-face communication',
-#    'ctx/participation_id'        => '199',
-#    'ctx/participation_function:1'  => 'performer',
-#    'ctx/participation_name:1'      => 'Lara Markham',
-#    'ctx/participation_id:1'        => '198',
-#    'ctx/participation_name'        => 'Dr. Marcus Johnson',
-#    'ctx/participation_function'    => 'requester',
-#        'context' => [
-#            {
-#                'individual_professional_demographics_uk' => [
-#                    {
-#                        'grade'                   => [ 'Grade 46' ],
-#                        'professional_identifier' => [
-#                            {
-#                                '|id' =>
-#                                  '51c464b4-234f-447c-8c62-266af833fc06',
-#                                '|assigner' => 'Assigner',
-#                                '|issuer'   => 'Issuer',
-#                                '|type'     => 'Prescription'
-#                            }
-#                        ],
-#                        'team'               => [ 'Team 17' ],
-#                        'professional_group' => [ 'Professional group 88' ]
-#                    }
-#                ]
-#            }
-#        ],
 sub compose_raw {
     my $self        = shift;
     my $composition = {
@@ -341,6 +348,51 @@ sub compose_raw {
                                         '@class' => 'DV_TEXT'
                                     },
                                     '@class' => 'ELEMENT'
+                                },
+                                {
+                                    'archetype_node_id' => 'openEHR-EHR-CLUSTER.information_request_details_gel.v0',
+                                    'name' => {
+                                        'value' =>
+                                          'GEL information request details',
+                                        '@class' => 'DV_TEXT'
+                                    },
+                                    'archetype_details' => {
+                                        'rm_version'   => '1.0.1',
+                                        'archetype_id' => {
+                                            'value' => 'openEHR-EHR-CLUSTER.information_request_details_gel.v0',
+                                            '@class' => 'ARCHETYPE_ID'
+                                        },
+                                        '@class' => 'ARCHETYPED'
+                                    },
+                                    'items' => [
+                                        {
+                                            'archetype_node_id' => 'at0001',
+                                            'value'             => {
+                                                'value' =>
+                                                  $self->start_date->datetime,
+                                                '@class' => 'DV_DATE_TIME'
+                                            },
+                                            'name' => {
+                                                'value' => 'Patient information request start date',
+                                                '@class' => 'DV_TEXT'
+                                            },
+                                            '@class' => 'ELEMENT'
+                                        },
+                                        {
+                                            'archetype_node_id' => 'at0002',
+                                            'value'             => {
+                                                'value' =>
+                                                  $self->end_date->datetime,
+                                                '@class' => 'DV_DATE_TIME'
+                                            },
+                                            'name' => {
+                                                'value' => 'Patient information request end date',
+                                                '@class' => 'DV_TEXT'
+                                            },
+                                            '@class' => 'ELEMENT'
+                                        },
+                                    ],
+                                    '@class' => 'CLUSTER'
                                 },
                             ],
                             '@class' => 'ITEM_TREE'
@@ -487,11 +539,7 @@ sub compose_raw {
         '@class'  => 'COMPOSITION',
         'context' => {
             'start_time' => {
-                'value'  => $self->start_date->datetime,
-                '@class' => 'DV_DATE_TIME'
-            },
-            'end_time' => {
-                'value'  => $self->end_date->datetime,
+                'value'  => DateTime->now->datetime,
                 '@class' => 'DV_DATE_TIME'
             },
             'health_care_facility' => {
