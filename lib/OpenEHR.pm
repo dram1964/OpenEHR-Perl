@@ -93,6 +93,30 @@ has encoding_terminology    => (
                         || 'IANA_character-sets',
 );
 
+has id_namespace    => (
+    is          =>  'rw',
+    isa         =>  'Str',
+    default     =>  'UCLH-NS',
+);
+
+has id_scheme       => (
+    is          =>  'rw',
+    isa         =>  'Str',
+    default     =>  'UCLH-NS',
+);
+
+has facility_name   =>  (
+    is          =>  'rw',
+    isa         =>  'Str',
+    default     =>  'UCLH',
+);
+
+has facility_id     =>  (
+    is          =>  'rw',
+    isa         =>  'Str',
+    default     =>  'RRV',
+);
+
 sub _check_url {
     my $self = shift;
     my $url = shift;

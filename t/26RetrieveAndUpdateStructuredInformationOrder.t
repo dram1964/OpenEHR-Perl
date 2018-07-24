@@ -88,7 +88,7 @@ ok( $order_update->decompose_structured($composition),
 is( $order_update->current_state,
     'planned', 'current_state set after decompose' );
 is( $order_update->current_state_code,
-    '529', 'current_state_code set after decompose' );
+    '526', 'current_state_code set after decompose' );
 is(
     $order_update->service_name,
     'GEL Information data request',
