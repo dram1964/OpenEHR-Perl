@@ -4,14 +4,15 @@ use warnings;
 use strict;
 use Carp;
 use Moose;
-extends 'OpenEHR';
 use Moose::Util::TypeConstraints;
+extends 'OpenEHR';
 use Config::Simple;
 
 use version; our $VERSION = qv('0.0.2');
 
-my $config_file = 'OpenEHR.conf';
-my $cfg         = new Config::Simple($config_file)
+my $config_file =
+    ( -f 'OpenEHR-Composition.conf' ) ? 'OpenEHR-Composition.conf' : '/etc/OpenEHR-Composition.conf';
+my $cfg = new Config::Simple($config_file)
     or carp "Error reading $config_file: $!";
 
 enum 'CompositionFormat' => [qw( FLAT STRUCTURED RAW TDD )];
@@ -19,15 +20,74 @@ enum 'CompositionFormat' => [qw( FLAT STRUCTURED RAW TDD )];
 has composition_format => (
     is       => 'rw',
     isa      => 'CompositionFormat',
-    default  => $cfg->{composition_format} || 'STRUCTURED',
-    required => 1,
+    default  => $cfg->param('composition_format'),
 );
 
 has composer_name => (
     is       => 'rw',
     isa      => 'Str',
     required => 1,
-    default  => 'Aupen Ayre',
+    default  => $cfg->param('composer_name'),
+);
+
+has language_code => (
+    is      => 'rw',
+    isa     => 'Str',
+    default => $cfg->param('language_code'),
+);
+
+has language_terminology => (
+    is      => 'rw',
+    isa     => 'Str',
+    default => $cfg->param('language_terminology'),
+);
+
+has territory_code => (
+    is      => 'rw',
+    isa     => 'Str',
+    default => $cfg->param('territory_code'),
+);
+
+has territory_terminology => (
+    is      => 'rw',
+    isa     => 'Str',
+    default => $cfg->param('territory_terminology'),
+);
+
+has encoding_code => (
+    is      => 'rw',
+    isa     => 'Str',
+    default => $cfg->param('encoding_code'),
+);
+
+has encoding_terminology => (
+    is      => 'rw',
+    isa     => 'Str',
+    default => $cfg->param('encoding_terminology'),
+);
+
+has id_namespace => (
+    is      => 'rw',
+    isa     => 'Str',
+    default => $cfg->param('id_namespace'),
+);
+
+has id_scheme => (
+    is      => 'rw',
+    isa     => 'Str',
+    default => $cfg->param('id_scheme'),
+);
+
+has facility_name => (
+    is      => 'rw',
+    isa     => 'Str',
+    default => $cfg->param('facility_name'),
+);
+
+has facility_id => (
+    is      => 'rw',
+    isa     => 'Str',
+    default => $cfg->param('facility_id'),
 );
 
 no Moose;
@@ -57,7 +117,8 @@ This document describes OpenEHR::Composition version 0.0.1
 =head1 DESCRIPTION
 
 This module provides global configuration for OpenEHR::Composition::*
-objects. Default configuration is read from '/etc/OpenEHR.conf'
+objects. Default configuration is read from either OpenEHR-Composition.conf
+file in the current working directory or '/etc/OpenEHR-Composition.conf'
 
 
 =head1 INTERFACE 
@@ -69,6 +130,54 @@ objects. Default configuration is read from '/etc/OpenEHR.conf'
 Used to get or set the composition format. Valid values are one of 
 (RAW | STRUCTURED | FLAT | TDD), although TDD is not currently implemented. 
 
+=head1 composer_name($composer_name)
+
+Used to get or set the Composer Name value to be used in the composition. 
+
+=head2 language_code($language_code)
+
+Used to get or set the language_code value used in REST queries and 
+composition objects. Defaults to 'en'
+
+=head2 language_terminology($language_terminology)
+
+Used to get or set the terminology used for the language_code attribute. 
+Defaults to 'ISO_639-1'
+
+=head2 territory_code($territory_code)
+
+Used to get or set the territory_code value used in REST queries. 
+Defaults to 'GB'
+
+=head2 territory_terminology($territory_terminology)
+
+Used to get or set the terminology used for the territory_code attribute. 
+Defaults to 'ISO_3166-1'
+
+=head2 encoding_code($encoding_code)
+
+Used to get or set the encoding_code value used in REST queries. Defaults to 'UTF-8'
+
+=head2 encoding_terminology($encoding_terminology)
+
+Used to get or set the terminology used for the encoding_code attribute. 
+Defaults to 'IANA_character-sets'
+
+=head2 id_namespace($id_namespace)
+
+Used to get or set the ID Namespace used in compositions
+
+=head2 id_scheme 
+
+Used to get or set the ID scheme used in compositions 
+
+=head2 facility_name
+
+Used to get or set the Facility Name used in compositions
+
+=head2 facility_id
+
+Used to get or set the Facility ID used in compositions
 
 =head1 DIAGNOSTICS
 
@@ -76,8 +185,9 @@ None
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-OpenEHR::Composition requires no configuration files or environment 
-variables.
+Default values for attributes are configured in OpenEHR-Composition.conf 
+file which is read from either the current working directory or 
+/etc/
 
 
 =head1 DEPENDENCIES

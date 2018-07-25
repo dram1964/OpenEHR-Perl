@@ -58,66 +58,6 @@ has base_path => (
     trigger  => \&_check_url,
 );
 
-has language_code => (
-    is      => 'rw',
-    isa     => 'Str',
-    default => $cfg->param('language_code'),
-);
-
-has language_terminology => (
-    is      => 'rw',
-    isa     => 'Str',
-    default => $cfg->param('language_terminology'),
-);
-
-has territory_code => (
-    is      => 'rw',
-    isa     => 'Str',
-    default => $cfg->param('territory_code'),
-);
-
-has territory_terminology => (
-    is      => 'rw',
-    isa     => 'Str',
-    default => $cfg->param('territory_terminology'),
-);
-
-has encoding_code => (
-    is      => 'rw',
-    isa     => 'Str',
-    default => $cfg->param('encoding_code'),
-);
-
-has encoding_terminology => (
-    is      => 'rw',
-    isa     => 'Str',
-    default => $cfg->param('encoding_terminology'),
-);
-
-has id_namespace => (
-    is      => 'rw',
-    isa     => 'Str',
-    default => $cfg->param('id_namespace'),
-);
-
-has id_scheme => (
-    is      => 'rw',
-    isa     => 'Str',
-    default => $cfg->param('id_scheme'),
-);
-
-has facility_name => (
-    is      => 'rw',
-    isa     => 'Str',
-    default => $cfg->param('facility_name'),
-);
-
-has facility_id => (
-    is      => 'rw',
-    isa     => 'Str',
-    default => $cfg->param('facility_id'),
-);
-
 sub _check_url {
     my $self = shift;
     my $url  = shift;
@@ -173,86 +113,44 @@ This module looks for the configuration file either in the current
 working directory or in the '/etc/' directory. Attribute names can
 be used as both accessors and mutators. 
 
-=head1 ATTRIBUTES
+=head1 METHODS
 
-=head2 user
+=head2 user($user)
 
-User account used to authenticate to the OpenEHR server. Defaults to 'admin'
+Used to get or set the User account used to authenticate to the OpenEHR server.
+Defaults to 'admin'
 
-=head2 password
+=head2 password($password)
 
-Password used to authenticate to the OpenEHR server. Defaults to 'admin'
+Used to get or set the password used to authenticate to the OpenEHR server.
+Defaults to 'admin'
 
 =head2 url
 
-Used to specify address and port of the OpenEHR server. Defaults to 
+Used to get or set the address and port of the OpenEHR server. Defaults to 
 http://localhost:8081/'
 
-=head2 base_path
+=head2 base_path($base_path)
 
-Used to specify the base path for REST interface. Defaults to 
+Used to get or set the base path for REST interface. Defaults to 
 'http://localhost:8081/rest/v1/'. Should be specified with
 a trailing forward slash
 
-=head2 language_code
+=head2 test_ehrid($ehr_id)
 
-Used to set the language_code value used in REST queries and composition 
-objects. Defaults to 'en'
+Used to get or set a valid ehrid value for the current EHR system. 
+Used in test scripts where an EHR ID is required
 
-=head2 language_terminology
+=head2 test_uid($composition_uid)
 
-Used to specify the terminology used for the language code attribute. 
-Defaults to 'ISO_639-1'
-
-=head2 territory_code
-
-Used to set the territory_code value used in REST queries. Defaults to 'GB'
-
-=head2 territory_terminology
-
-Used to specify the terminology used for the territory_code attribute. 
-Defaults to 'ISO_3166-1'
-
-=head2 encoding_code
-
-Used to set the encoding_code value used in REST queries. Defaults to 'UTF-8'
-
-=head2 encoding_terminology
-
-Used to specify the terminology used for the encoding_code attribute. 
-Defaults to 'IANA_character-sets'
-
-=head2 test_ehrid
-
-Specifies a valid ehrid value for the current EHR system. Used in test 
-scripts where an EHR ID is required
-
-=head2 test_uid
-
-Specifies the UID of an existing composition on the current EHR system. 
+Used to get or set the UID of an existing composition on the current EHR system. 
 Used in test scripts where a Composition UID is required
 
-=head2 test_subject_id
+=head2 test_subject_id($external_identifier)
 
-Specifies the external_ref value of an existing subject on the current EHR 
-System. This is typially the identifier used in the external system for a 
-subject. Used in test scripts where an Subject ID is required
-
-=head2 id_namespace
-
-The ID Namespace used in compositions
-
-=head2 id_scheme 
-
-The ID scheme used in compositions 
-
-=head2 facility_name
-
-the Facility Name used in compositions
-
-=head2 facility_id
-
-The Facility ID used in compositions
+Used to get or set the external_ref value of an existing subject on the 
+current EHR System. This is typially the identifier used in the external 
+system for a subject. Used in test scripts where an Subject ID is required
 
 =head1 PRIVATE METHODS
 
