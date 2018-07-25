@@ -12,7 +12,7 @@ ok( my $config = OpenEHR->new(),
     'Configuration available via OpenEHR module' );
 
 my $test_ehrid     = $config->test_ehrid;
-my $test_subjectid = $config->test_subjectid;
+my $test_subject_id = $config->test_subject_id;
 
 ok( my $ehr1 = OpenEHR::REST::EHR->new(),
     'Constructor called with no parameters'
@@ -31,7 +31,7 @@ ok( $@, 'Cannot set ehr_status property directly' );
 note('Testing find_or_new method');
 eval { $ehr1->find_or_new(); };
 ok( $@, 'find_or_new fails if no parameters are provided' );
-my $ehr2 = OpenEHR::REST::EHR->new( subject_id => $test_subjectid );
+my $ehr2 = OpenEHR::REST::EHR->new( subject_id => $test_subject_id );
 eval { $ehr2->find_or_new(); };
 ok( $@, "find_or_new fails if only subject_id is specified" );
 my $ehr3 = OpenEHR::REST::EHR->new( subject_namespace => 'GEL' );
@@ -43,7 +43,7 @@ ok( $@, "find_or_new fails if only committer_name specified" );
 
 note('Testing find_or_new for existing record');
 ok( my $ehr5 = OpenEHR::REST::EHR->new(
-        {   subject_id        => $test_subjectid,
+        {   subject_id        => $test_subject_id,
             subject_namespace => 'uk.nhs.nhs_number',
         }
     ),

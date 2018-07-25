@@ -1,4 +1,4 @@
-use Test::More tests => 21;
+use Test::More tests => 23;
 
 BEGIN {
     use_ok('OpenEHR');
@@ -15,6 +15,8 @@ BEGIN {
     use_ok('OpenEHR::Composition::Requester');
     use_ok('OpenEHR::Composition::Specimen');
     use_ok('OpenEHR::Composition::TestRequestDetails');
+    use_ok('OpenEHR::Composition::InformationOrder');
+    use_ok('OpenEHR::Composition::CancerReport');
     use_ok('OpenEHR::REST');
     use_ok('OpenEHR::REST::AQL');
     use_ok('OpenEHR::REST::Demographics');

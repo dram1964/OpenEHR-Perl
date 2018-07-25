@@ -119,7 +119,7 @@ isa_ok( $query2->resultset->[0], 'HASH',  "First Result is a HashRef" );
 is( $query2->aql, $query2->statement, "AQL matches Query String" );
 
 note("Select all ehrs for a specified subject id");
-my $subject_id = $query2->test_subjectid;
+my $subject_id = $query2->test_subject_id;
 $aql =
     "select e as ehrId from Ehr e where e/ehr_status/subject/external_ref/id/value = '$subject_id'";
 ok( $query2->statement($aql), "Prepare search for ehrs by subject id" );
