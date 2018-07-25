@@ -125,7 +125,7 @@ Defaults to 'admin'
 Used to get or set the password used to authenticate to the OpenEHR server.
 Defaults to 'admin'
 
-=head2 url
+=head2 url($url)
 
 Used to get or set the address and port of the OpenEHR server. Defaults to 
 http://localhost:8081/'

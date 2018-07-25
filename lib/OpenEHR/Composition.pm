@@ -167,15 +167,15 @@ Defaults to 'IANA_character-sets'
 
 Used to get or set the ID Namespace used in compositions
 
-=head2 id_scheme 
+=head2 id_scheme($id_scheme)
 
 Used to get or set the ID scheme used in compositions 
 
-=head2 facility_name
+=head2 facility_name($facility_name)
 
 Used to get or set the Facility Name used in compositions
 
-=head2 facility_id
+=head2 facility_id($facility_id)
 
 Used to get or set the Facility ID used in compositions
 
