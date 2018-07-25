@@ -12,6 +12,7 @@ lib/OpenEHR/Composition/LabTestPanel.pm
 lib/OpenEHR/Composition/OrderingProvider.pm
 lib/OpenEHR/Composition/Placer.pm
 lib/OpenEHR/Composition/Professional.pm
+lib/OpenEHR/Composition/ProblemDiagnosis.pm
 lib/OpenEHR/Composition/RequestedTest.pm
 lib/OpenEHR/Composition/Requester.pm
 lib/OpenEHR/Composition/Specimen.pm
@@ -41,11 +42,17 @@ t/11OpenEHR-Composition-Requester.t
 t/12OpenEHR-Composition-Specimen.t
 t/13OpenEHR-Composition-TestRequestDetails.t
 t/14OpenEHR-Composition-InformationOrder.t
+t/15OpenEHR-Composition-CancerReport.t
+t/16OpenEHR-Composition-ProblemDiagnosis.t
+t/14OpenEHR-Composition-InformationOrder.t
 t/20SubmitNew-PathologyReport-From-Objects.t
 t/21SubmitNew-PathologyReport-From-Hash.t
 t/22FindByUID-PathologyReport.t
 t/23UpdateByUID-PathologyReport.t
 t/24Submit-Information-Order.t
+t/25UpdateInformationOrderByUID.t
+t/26RetrieveAndUpdateStructuredInformationOrder.t
+t/27RetrieveAndUpdateRawInformationOrder.t
 t/33OpenEHR-REST-AQL.t
 t/34OpenEHR-REST-Demographics.t
 t/35OpenEHR-REST-EHR.t

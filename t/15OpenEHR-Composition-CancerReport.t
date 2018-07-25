@@ -4,10 +4,12 @@ use Test::More;
 use Data::Dumper;
 use OpenEHR::REST::EHR;
 use OpenEHR::REST::Composition;
+use OpenEHR::Composition::ProblemDiagnosis;
 
 BEGIN { use_ok('OpenEHR::Composition::CancerReport'); }
 
 my @formats = qw( FLAT STRUCTURED); 
+@formats = qw(STRUCTURED);
 for my $format (@formats) {
     note("Testing $format format composition");
     my $ehr1 = &get_new_random_subject();
@@ -18,7 +20,8 @@ for my $format (@formats) {
     diag( 'EhrId: ' . $ehr1->ehr_id );
     diag( 'SubjectId: ' . $ehr1->subject_id );
 
-    my $diagnosis_1 = &diagnosis_1;
+    #my $diagnosis_1 = &diagnosis_1;
+    my $diagnosis_1 = OpenEHR::Composition::ProblemDiagnosis->new();
     my $context_1   = &context_1;
 
     ok( my $cancer_report = OpenEHR::Composition::CancerReport->new(

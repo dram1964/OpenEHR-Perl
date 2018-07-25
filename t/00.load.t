@@ -1,4 +1,4 @@
-use Test::More tests => 23;
+use Test::More tests => 24;
 
 BEGIN {
     use_ok('OpenEHR');
@@ -24,6 +24,7 @@ BEGIN {
     use_ok('OpenEHR::REST::Composition');
     use_ok('OpenEHR::REST::Template');
     use_ok('OpenEHR::REST::View');
+    use_ok('OpenEHR::Composition::ProblemDiagnosis');
 }
 
 diag("Testing OpenEHR $OpenEHR::VERSION");

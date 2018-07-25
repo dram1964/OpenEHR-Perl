@@ -10,9 +10,14 @@ extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
-has diagnoses => (
-    is  => 'rw',
-    isa => 'ArrayRef',
+#has diagnoses => (
+#    is  => 'rw',
+#    isa => 'ArrayRef',
+#);
+has diagnoses => ( 
+    is => 'rw', 
+    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis]',
+    default => sub { [] } 
 );
 
 has contexts => (
@@ -33,15 +38,16 @@ sub compose_structured {
     my $self        = shift;
     my $composition = {};
 
+    my $diagnoses;
     for my $diagnosis ( @{ $self->diagnoses } ) {
-        push @{ $composition->{gel_cancer_diagnosis}->{problem_diagnosis} },
-            $diagnosis;
+        push @{ $diagnoses }, $diagnosis->compose();
     }
 
     for my $context ( @{ $self->contexts } ) {
         push @{ $composition->{gel_cancer_diagnosis}->{context} }, $context;
     }
 
+    $composition->{gel_cancer_diagnosis}->{problem_diagnosis} = $diagnoses;
     $composition->{'ctx/language'}                  = $self->language_code;
     $composition->{'ctx/territory'}                 = $self->territory_code;
     $composition->{'ctx/composer_name'}             = $self->composer_name;
