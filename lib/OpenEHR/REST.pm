@@ -25,35 +25,6 @@ has     response_format => (
     isa     =>  'CompositionFormat',
 );
 
-=head2 auth
-
-base64 encoded string used in REST API authorization header. 
-Derived from combination of user and password values in the 
-OpenEHR object.
-
-=head2 base_path
-
-Set at object construction to define the base URL for REST API calls.
-Should consist of the server URL (e.g. http://example.com:8081/) and
-the path for REST calls (e.g. rest/v1/)
-
-=head2 api_path
-
-Holds the current value of the full path to be used for an REST
-API call
-
-=head2 user
-
-Holds the username that will be used for authorisation. Defaults
-to 'admin'
-
-=head2 password
-
-Holds the plaintext password that will be used for authorisation. 
-Defaults to 'admin'
-
-=cut
-
 has auth        => (
     is      =>  'rw', 
     lazy    =>  1, 
@@ -234,6 +205,35 @@ The format to be used to construct the composition. Can be one of
 [ FLAT | STRUCTURED | RAW | TDD ]. Currently, only FLAT and
 STRUCTURED formats are supported. If the request value is set to 
 anything other than 'FLAT', the STRUCTURED format is used.
+
+=head2 auth
+
+base64 encoded string used in REST API authorization header. 
+Derived from combination of user and password values in the 
+OpenEHR object.
+
+=head2 base_path
+
+Set at object construction to define the base URL for REST API calls.
+Should consist of the server URL (e.g. http://example.com:8081/) and
+the path for REST calls (e.g. rest/v1/)
+
+=head2 api_path
+
+Holds the current value of the full path to be used for an REST
+API call
+
+=head2 user
+
+Holds the username that will be used for authorisation. Defaults
+to 'admin'
+
+=head2 password
+
+Holds the plaintext password that will be used for authorisation. 
+Defaults to 'admin'
+
+=cut
 
 =head1 DEPENDENCIES
 
