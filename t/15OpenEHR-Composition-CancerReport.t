@@ -20,9 +20,9 @@ for my $format (@formats) {
     diag( 'EhrId: ' . $ehr1->ehr_id );
     diag( 'SubjectId: ' . $ehr1->subject_id );
 
-    #my $diagnosis_1 = &diagnosis_1;
-    my $diagnosis_1 = OpenEHR::Composition::ProblemDiagnosis->new();
-    my $context_1   = &context_1;
+    my $diagnosis = &diagnosis_1_structured;
+    my $diagnosis_1 = OpenEHR::Composition::ProblemDiagnosis->new($diagnosis);
+    my $context_1   = &context_1_structured;
 
     ok( my $cancer_report = OpenEHR::Composition::CancerReport->new(
             diagnoses => [$diagnosis_1],
@@ -68,7 +68,7 @@ sub get_new_random_subject {
     }
     return $ehr;
 }
-sub context_1 {
+sub context_1_structured {
     my $context = {
         'participant' => [
             {   'participant_identifier' => [
@@ -92,7 +92,7 @@ sub context_1 {
     return $context;
 }
 
-sub diagnosis_1 {
+sub diagnosis_1_structured {
     my $diagnosis = {
         'ajcc_stage' => [
             {   'ajcc_stage_version'  => ['AJCC Stage version 55'],

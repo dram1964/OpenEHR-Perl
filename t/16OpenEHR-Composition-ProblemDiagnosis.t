@@ -5,13 +5,21 @@ use Data::Dumper;
 
 BEGIN { use_ok('OpenEHR::Composition::ProblemDiagnosis'); }
 
-ok(my $problem_diagnosis = OpenEHR::Composition::ProblemDiagnosis->new(), 
-    'Problem Diagnosis Constructor');
 
-is($problem_diagnosis->composition_format, 'STRUCTURED', 'Default composition format set');
-ok($problem_diagnosis->compose, 'Compose called for STRUCTURED composition');
-print Dumper $problem_diagnosis;
+ok(my $problem_diagnosis_0 = OpenEHR::Composition::ProblemDiagnosis->new(), 
+    'Constructor with no data');
 
+is($problem_diagnosis_0->composition_format, 'STRUCTURED', 'Default composition format set');
+ok($problem_diagnosis_0->compose, 'Compose called for STRUCTURED composition using defaults');
+
+my $diagnosis_1 = &diagnosis_1();
+ok(my $problem_diagnosis_1 = OpenEHR::Composition::ProblemDiagnosis->new(
+    $diagnosis_1), 'Constructor called with hashref');
+is($problem_diagnosis_1->composition_format, 'STRUCTURED', 'Default composition format set');
+ok($problem_diagnosis_1->compose, 'Compose called for STRUCTURED composition using defaults');
+
+print Dumper $problem_diagnosis_1;
+    
 
 done_testing;
 
