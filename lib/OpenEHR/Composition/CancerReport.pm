@@ -69,7 +69,17 @@ sub compose_raw {
 
 sub compose_flat {
     my $self        = shift;
-    my $composition = {
+    my $composition;
+    $composition->{'ctx/language'}                  = $self->language_code;
+    $composition->{'ctx/territory'}                 = $self->territory_code;
+    $composition->{'ctx/composer_name'}             = $self->composer_name;
+    $composition->{'ctx/time'}                      = DateTime->now->datetime;
+    $composition->{'ctx/id_namespace'}              = $self->id_namespace;
+    $composition->{'ctx/id_scheme'}                 = $self->id_scheme;
+    $composition->{'ctx/health_care_facility|name'} = $self->facility_name;
+    $composition->{'ctx/health_care_facility|id'}   = $self->facility_id;
+
+    $composition = {
         'ctx/id_scheme'                 => $self->id_scheme,
         'ctx/composer_name'             => $self->composer_name,
         'ctx/id_namespace'              => $self->id_namespace,

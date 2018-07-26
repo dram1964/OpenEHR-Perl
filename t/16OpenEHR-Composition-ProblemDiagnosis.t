@@ -18,7 +18,12 @@ ok(my $problem_diagnosis_1 = OpenEHR::Composition::ProblemDiagnosis->new(
 is($problem_diagnosis_1->composition_format, 'STRUCTURED', 'Default composition format set');
 ok($problem_diagnosis_1->compose, 'Compose called for STRUCTURED composition using defaults');
 
-print Dumper $problem_diagnosis_1;
+ok(my $problem_diagnosis_2 = OpenEHR::Composition::ProblemDiagnosis->new(),
+    'Constructor with no data');
+ok($problem_diagnosis_2->composition_format('FLAT'), 'Set composition format to FLAT');
+ok($problem_diagnosis_2->compose, 'Compose called for FLAT composition');
+
+print Dumper $problem_diagnosis_2;
     
 
 done_testing;
