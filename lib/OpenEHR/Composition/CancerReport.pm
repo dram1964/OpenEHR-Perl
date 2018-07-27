@@ -10,14 +10,10 @@ extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
-#has diagnoses => (
-#    is  => 'rw',
-#    isa => 'ArrayRef',
-#);
-has diagnoses => ( 
-    is => 'rw', 
-    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis]',
-    default => sub { [] } 
+has diagnoses => (
+    is      => 'rw',
+    isa     => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis]',
+    default => sub { [] }
 );
 
 has contexts => (
@@ -36,154 +32,286 @@ sub compose {
 
 sub compose_structured {
     my $self        = shift;
-    my $composition = {};
-
+    my $composition = {
+        'ctx/id_namespace'              => 'HOSPITAL-NS',
+        'ctx/health_care_facility|name' => 'Hospital',
+        'ctx/id_scheme'                 => 'HOSPITAL-NS',
+        'ctx/composer_name'             => 'STRUCTURED',
+        'ctx/health_care_facility|id'   => '9091',
+        'ctx/territory'                 => 'GB',
+        'ctx/language'                  => 'en',
+        'ctx/participation_function:1'  => 'performer',
+        'ctx/participation_function'    => 'requester',
+        'ctx/participation_name:1'      => 'Lara Markham',
+        'ctx/participation_name'        => 'Dr. Marcus Johnson',
+        'ctx/participation_mode'        => 'face-to-face communication',
+        'ctx/participation_id:1'        => '198',
+        'ctx/participation_id'          => '199',
+        'gel_cancer_diagnosis'          => {
+            'context' => [
+                {   'participant' => [
+                        {   'study_identifier' => [
+                                {   '|assigner' => 'Assigner',
+                                    '|id' =>
+                                        '718ffece-da5e-4d17-8e13-470aff5e98a8',
+                                    '|issuer' => 'Issuer',
+                                    '|type'   => 'Prescription'
+                                }
+                            ],
+                            'participant_identifier' => [
+                                {   '|type'   => 'Prescription',
+                                    '|issuer' => 'Issuer',
+                                    '|id' =>
+                                        '4227c2cb-8f0c-49b6-bd93-345b6174324b',
+                                    '|assigner' => 'Assigner'
+                                }
+                            ]
+                        }
+                    ],
+                    'report_id' => ['Report ID 93']
+                }
+            ]
+        },
+    };
     my $diagnoses;
     for my $diagnosis ( @{ $self->diagnoses } ) {
-        push @{ $diagnoses }, $diagnosis->compose();
+        push @{$diagnoses}, $diagnosis->compose();
     }
-
-    for my $context ( @{ $self->contexts } ) {
-        push @{ $composition->{gel_cancer_diagnosis}->{context} }, $context;
-    }
-
     $composition->{gel_cancer_diagnosis}->{problem_diagnosis} = $diagnoses;
-    $composition->{'ctx/language'}                  = $self->language_code;
-    $composition->{'ctx/territory'}                 = $self->territory_code;
-    $composition->{'ctx/composer_name'}             = $self->composer_name;
-    $composition->{'ctx/time'}                      = DateTime->now->datetime;
-    $composition->{'ctx/id_namespace'}              = $self->id_namespace;
-    $composition->{'ctx/id_scheme'}                 = $self->id_scheme;
-    $composition->{'ctx/health_care_facility|name'} = $self->facility_name;
-    $composition->{'ctx/health_care_facility|id'}   = $self->facility_id;
 
     return $composition;
 }
 
 sub compose_raw {
     my $self        = shift;
-    my $composition = {};
+    my $composition = {
+        'category' => {
+            'value'         => 'event',
+            'defining_code' => {
+                'terminology_id' => {
+                    'value'  => 'openehr',
+                    '@class' => 'TERMINOLOGY_ID'
+                },
+                'code_string' => '433',
+                '@class'      => 'CODE_PHRASE'
+            },
+            '@class' => 'DV_CODED_TEXT'
+        },
+        'territory' => {
+            '@class'         => 'CODE_PHRASE',
+            'code_string'    => 'GB',
+            'terminology_id' => {
+                '@class' => 'TERMINOLOGY_ID',
+                'value'  => 'ISO_3166-1'
+            }
+        },
+        'archetype_node_id' => 'openEHR-EHR-COMPOSITION.report.v1',
+        'uid'               => {
+            '@class' => 'OBJECT_VERSION_ID',
+            'value'  => 'de7b024f-aba4-4401-ab73-4d18bb49d60d::default::1'
+        },
+        'composer' => {
+            '@class' => 'PARTY_IDENTIFIED',
+            'name'   => 'RAW'
+        },
+        'archetype_details' => {
+            '@class'       => 'ARCHETYPED',
+            'rm_version'   => '1.0.1',
+            'archetype_id' => {
+                '@class' => 'ARCHETYPE_ID',
+                'value'  => 'openEHR-EHR-COMPOSITION.report.v1'
+            },
+            'template_id' => {
+                'value'  => 'GEL Cancer diagnosis input.v0',
+                '@class' => 'TEMPLATE_ID'
+            }
+        },
+        'name' => {
+            '@class' => 'DV_TEXT',
+            'value'  => 'GEL Cancer diagnosis'
+        },
+        '@class'   => 'COMPOSITION',
+        'language' => {
+            '@class'         => 'CODE_PHRASE',
+            'code_string'    => 'en',
+            'terminology_id' => {
+                '@class' => 'TERMINOLOGY_ID',
+                'value'  => 'ISO_639-1'
+            }
+        },
+        'context' => {
+            'health_care_facility' => {
+                'external_ref' => {
+                    'id' => {
+                        'scheme' => 'UCLH-NS',
+                        '@class' => 'GENERIC_ID',
+                        'value'  => 'RRV'
+                    },
+                    '@class'    => 'PARTY_REF',
+                    'namespace' => 'UCLH-NS',
+                    'type'      => 'PARTY'
+                },
+                'name'   => 'UCLH NHS Foundation Trust',
+                '@class' => 'PARTY_IDENTIFIED'
+            },
+            '@class'        => 'EVENT_CONTEXT',
+            'other_context' => {
+                'name' => {
+                    '@class' => 'DV_TEXT',
+                    'value'  => 'Tree'
+                },
+                'items' => [
+                    {   'value' => {
+                            'value'  => 'Report ID 75',
+                            '@class' => 'DV_TEXT'
+                        },
+                        'name' => {
+                            '@class' => 'DV_TEXT',
+                            'value'  => 'Report ID'
+                        },
+                        '@class'            => 'ELEMENT',
+                        'archetype_node_id' => 'at0002'
+                    },
+                    {   'archetype_node_id' =>
+                            'openEHR-EHR-CLUSTER.participant_gel.v0',
+                        '@class'            => 'CLUSTER',
+                        'archetype_details' => {
+                            'rm_version'   => '1.0.1',
+                            'archetype_id' => {
+                                'value' =>
+                                    'openEHR-EHR-CLUSTER.participant_gel.v0',
+                                '@class' => 'ARCHETYPE_ID'
+                            },
+                            '@class' => 'ARCHETYPED'
+                        },
+                        'items' => [
+                            {   'name' => {
+                                    'value'  => 'Participant identifier',
+                                    '@class' => 'DV_TEXT'
+                                },
+                                'value' => {
+                                    'issuer' => 'Issuer',
+                                    'id' =>
+                                        '85e10b15-7b79-46c0-8d94-892cad063048',
+                                    'assigner' => 'Assigner',
+                                    'type'     => 'Prescription',
+                                    '@class'   => 'DV_IDENTIFIER'
+                                },
+                                'archetype_node_id' => 'at0015',
+                                '@class'            => 'ELEMENT'
+                            },
+                            {   'value' => {
+                                    'id' =>
+                                        '0a9db4b5-44cb-4254-ae23-722c1178c265',
+                                    'issuer'   => 'Issuer',
+                                    '@class'   => 'DV_IDENTIFIER',
+                                    'type'     => 'Prescription',
+                                    'assigner' => 'Assigner'
+                                },
+                                'name' => {
+                                    '@class' => 'DV_TEXT',
+                                    'value'  => 'Study identifier'
+                                },
+                                '@class'            => 'ELEMENT',
+                                'archetype_node_id' => 'at0016'
+                            }
+                        ],
+                        'name' => {
+                            'value'  => 'Participant',
+                            '@class' => 'DV_TEXT'
+                        }
+                    }
+                ],
+                '@class'            => 'ITEM_TREE',
+                'archetype_node_id' => 'at0001'
+            },
+            'start_time' => {
+                'value'  => '2018-07-27T07:44:28+01:00',
+                '@class' => 'DV_DATE_TIME'
+            },
+            'setting' => {
+                '@class'        => 'DV_CODED_TEXT',
+                'value'         => 'other care',
+                'defining_code' => {
+                    'terminology_id' => {
+                        '@class' => 'TERMINOLOGY_ID',
+                        'value'  => 'openehr'
+                    },
+                    '@class'      => 'CODE_PHRASE',
+                    'code_string' => '238'
+                }
+            }
+        }
+    };
+    for my $diagnosis (@{$self->diagnoses}) {
+        push @{ $composition->{content} }, $diagnosis->compose();
+    }
 
     return $composition;
 }
 
 sub compose_flat {
-    my $self        = shift;
-    my $composition;
-    $composition->{'ctx/language'}                  = $self->language_code;
-    $composition->{'ctx/territory'}                 = $self->territory_code;
-    $composition->{'ctx/composer_name'}             = $self->composer_name;
-    $composition->{'ctx/time'}                      = DateTime->now->datetime;
-    $composition->{'ctx/id_namespace'}              = $self->id_namespace;
-    $composition->{'ctx/id_scheme'}                 = $self->id_scheme;
-    $composition->{'ctx/health_care_facility|name'} = $self->facility_name;
-    $composition->{'ctx/health_care_facility|id'}   = $self->facility_id;
-
+    my $self = shift;
+    my $composition; 
+    my $diagnosis_index = '0';
+    my $diagnosis_comp;
+    for my $diagnosis ( @{ $self->diagnoses } ) {
+        my $composition_fragment = $diagnosis->compose();
+        for my $key ( keys %{$composition_fragment} ) {
+            my $new_key = $key;
+            $new_key =~ s/__TEST__/$diagnosis_index/;
+            $diagnosis_comp->{$new_key} = $composition_fragment->{$key};
+        }
+        $diagnosis_index++;
+    }
     $composition = {
-        'ctx/id_scheme'                 => $self->id_scheme,
-        'ctx/composer_name'             => $self->composer_name,
-        'ctx/id_namespace'              => $self->id_namespace,
-        'ctx/health_care_facility|id'   => $self->facility_id,
-        'ctx/health_care_facility|name' => $self->facility_name,
-        'ctx/language'                  => $self->language_code,
-        'ctx/territory'                 => $self->territory_code,
-        'gel_cancer_diagnosis/problem_diagnosis:0/upper_gi_staging/number_of_lesions'
-            => 888,
-        'gel_cancer_diagnosis/problem_diagnosis:0/upper_gi_staging/pancreatic_clinical_stage|code'
-            => 'at0012',
-        'gel_cancer_diagnosis/problem_diagnosis:0/upper_gi_staging/portal_invasion|code'
-            => 'at0005',
-        'gel_cancer_diagnosis/problem_diagnosis:0/upper_gi_staging/child-pugh_score:0/grade|code'
-            => 'at0027',
-        'gel_cancer_diagnosis/problem_diagnosis:0/upper_gi_staging/bclc_stage:0/bclc_stage|code'
-            => 'at0007',
-        'gel_cancer_diagnosis/problem_diagnosis:0/upper_gi_staging/transarterial_chemoembolisation|code'
-            => 'at0017',
-        'gel_cancer_diagnosis/problem_diagnosis:0/testicular_staging/extranodal_metastases|code'
-            => 'at0018',
-        'gel_cancer_diagnosis/problem_diagnosis:0/testicular_staging/stage_grouping_testicular|code'
-            => 'at0010',
-        'gel_cancer_diagnosis/problem_diagnosis:0/testicular_staging/lung_metastases_sub-stage_grouping|code'
-            => 'at0021',
-        'gel_cancer_diagnosis/problem_diagnosis:0/final_figo_stage/figo_version'
-            => 'FIGO version 63',
-        'gel_cancer_diagnosis/problem_diagnosis:0/final_figo_stage/figo_grade|code'
-            => 'at0003',
-        'gel_cancer_diagnosis/problem_diagnosis:0/cancer_diagnosis/tumour_laterality|code'
-            => 'at0030',
-        'gel_cancer_diagnosis/problem_diagnosis:0/cancer_diagnosis/topography'
-            => 'Topography 90',
-        'gel_cancer_diagnosis/problem_diagnosis:0/cancer_diagnosis/morphology:0'
-            => 'Morphology 96',
-        'gel_cancer_diagnosis/problem_diagnosis:0/cancer_diagnosis/metastatic_site|code'
-            => 'at0018',
-        'gel_cancer_diagnosis/problem_diagnosis:0/cancer_diagnosis/recurrence_indicator|code'
-            => 'at0015',
-        'gel_cancer_diagnosis/problem_diagnosis:0/colorectal_diagnosis/synchronous_tumour_indicator:0|code'
-            => 'at0002',
-        'gel_cancer_diagnosis/problem_diagnosis:0/tumour_id/tumour_identifier:0'
-            => '16567b05-9857-4b4d-aade-171f806ed875',
-        'gel_cancer_diagnosis/problem_diagnosis:0/tumour_id/tumour_identifier:0|issuer'
-            => 'Issuer',
-        'gel_cancer_diagnosis/problem_diagnosis:0/tumour_id/tumour_identifier:0|type'
-            => 'Prescription',
-        'gel_cancer_diagnosis/problem_diagnosis:0/tumour_id/tumour_identifier:0|assigner'
-            => 'Assigner',
-        'gel_cancer_diagnosis/problem_diagnosis:0/clinical_evidence:0/base_of_diagnosis'
-            => '7 Histology of primary tumour',
-        'gel_cancer_diagnosis/problem_diagnosis:0/integrated_tnm/integrated_stage_grouping'
-            => 'Integrated Stage grouping 70',
-        'gel_cancer_diagnosis/problem_diagnosis:0/integrated_tnm/integrated_m'
-            => 'Integrated M 74',
-        'gel_cancer_diagnosis/problem_diagnosis:0/integrated_tnm/integrated_n'
-            => 'Integrated N 77',
-        'gel_cancer_diagnosis/problem_diagnosis:0/integrated_tnm/integrated_t'
-            => 'Integrated T 5',
-        'gel_cancer_diagnosis/problem_diagnosis:0/integrated_tnm/integrated_tnm_edition'
-            => 'Integrated TNM Edition 55',
-        'gel_cancer_diagnosis/problem_diagnosis:0/integrated_tnm/grading_at_diagnosis'
-            => 'G3 Poorly differentiated',
-        'gel_cancer_diagnosis/problem_diagnosis:0/diagnosis' =>
-            'Diagnosis 83',
-        'gel_cancer_diagnosis/problem_diagnosis:0/inrg_staging:0/inrg_stage|code'
-            => 'at0004',
-        'gel_cancer_diagnosis/problem_diagnosis:0/ajcc_stage/ajcc_stage_grouping'
-            => 'Stage IIA',
-        'gel_cancer_diagnosis/problem_diagnosis:0/ajcc_stage/ajcc_stage_version'
-            => 'AJCC Stage version 32',
-        'gel_cancer_diagnosis/problem_diagnosis:0/modified_dukes_stage:0/modified_dukes_stage|code'
-            => 'at0003',
-        'gel_cancer_diagnosis/problem_diagnosis:0/event_date' =>
-            '2018-07-24T14:06:41.753+01:00',
-        'gel_cancer_diagnosis/context/report_id' => 'Report ID 17',
+        'gel_cancer_diagnosis/category|terminology' => 'openehr',
+        'gel_cancer_diagnosis/_uid' =>
+            'de7b024f-aba4-4401-ab73-4d18bb49d60d::default::1',
+        'gel_cancer_diagnosis/language|terminology'  => 'ISO_639-1',
+        'gel_cancer_diagnosis/composer|name'         => 'FLAT',
+        'gel_cancer_diagnosis/territory|terminology' => 'ISO_3166-1',
+        'gel_cancer_diagnosis/language|code'         => 'en',
+        'gel_cancer_diagnosis/territory|code'        => 'GB',
+        'gel_cancer_diagnosis/category|code'         => '433',
+        'gel_cancer_diagnosis/category|value'        => 'event',
+
+        # Context
+        'gel_cancer_diagnosis/context/start_time' =>
+            '2018-07-27T07:44:28+01:00',
+        'gel_cancer_diagnosis/context/setting|value' => 'other care',
         'gel_cancer_diagnosis/context/participant/participant_identifier|type'
             => 'Prescription',
-        'gel_cancer_diagnosis/context/participant/participant_identifier|issuer'
-            => 'Issuer',
-        'gel_cancer_diagnosis/context/participant/participant_identifier|assigner'
-            => 'Assigner',
-        'gel_cancer_diagnosis/context/participant/participant_identifier' =>
-            '61b07166-fb83-4e42-8670-e07623a70285',
-        'gel_cancer_diagnosis/context/participant/study_identifier|issuer' =>
-            'Issuer',
         'gel_cancer_diagnosis/context/participant/study_identifier|type' =>
             'Prescription',
+        'gel_cancer_diagnosis/context/participant/participant_identifier|assigner'
+            => 'Assigner',
+        'gel_cancer_diagnosis/context/_health_care_facility|id' => 'RRV',
+        'gel_cancer_diagnosis/context/participant/participant_identifier' =>
+            '85e10b15-7b79-46c0-8d94-892cad063048',
+        'gel_cancer_diagnosis/context/setting|code' => '238',
+        'gel_cancer_diagnosis/context/_health_care_facility|name' =>
+            'UCLH NHS Foundation Trust',
+        'gel_cancer_diagnosis/context/_health_care_facility|id_namespace' =>
+            'UCLH-NS',
+        'gel_cancer_diagnosis/context/setting|terminology' => 'openehr',
         'gel_cancer_diagnosis/context/participant/study_identifier|assigner'
             => 'Assigner',
         'gel_cancer_diagnosis/context/participant/study_identifier' =>
-            'c5385c3d-6d38-4092-be7e-e29da08aabaf',
-    };
+            '0a9db4b5-44cb-4254-ae23-722c1178c265',
+        'gel_cancer_diagnosis/context/_health_care_facility|id_scheme' =>
+            'UCLH-NS',
+        'gel_cancer_diagnosis/context/participant/participant_identifier|issuer'
+            => 'Issuer',
+        'gel_cancer_diagnosis/context/report_id' => 'Report ID 75',
+        'gel_cancer_diagnosis/context/participant/study_identifier|issuer' =>
+            'Issuer',
 
+        %{$diagnosis_comp},
+
+    };
     return $composition;
 }
-
-#    'ctx/participation_function:1'  => 'performer',
-#    'ctx/participation_name'        => 'Dr. Marcus Johnson',
-#    'ctx/participation_id'          => '199',
-#    'ctx/participation_function'    => 'requester',
-#    'ctx/participation_id:1'        => '198',
-#    'ctx/participation_name:1'      => 'Lara Markham',
-#    'ctx/participation_mode'        => 'face-to-face communication',
 
 no Moose;
 

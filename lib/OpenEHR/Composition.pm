@@ -11,7 +11,7 @@ use Config::Simple;
 use version; our $VERSION = qv('0.0.2');
 
 my $config_file =
-    ( -f 'OpenEHR-Composition.conf' ) ? 'OpenEHR-Composition.conf' : '/etc/OpenEHR-Composition.conf';
+    ( -f 'OpenEHR_Composition.conf' ) ? 'OpenEHR_Composition.conf' : '/etc/OpenEHR_Composition.conf';
 my $cfg = new Config::Simple($config_file)
     or carp "Error reading $config_file: $!";
 

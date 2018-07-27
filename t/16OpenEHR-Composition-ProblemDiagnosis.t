@@ -2,32 +2,26 @@ use strict;
 use warnings;
 use Test::More;
 use Data::Dumper;
+use OpenEHR::Composition::ProblemDiagnosis::AJCC_Stage;
 
 BEGIN { use_ok('OpenEHR::Composition::ProblemDiagnosis'); }
 
+my @formats = qw[FLAT STRUCTURED RAW];
+@formats = qw[RAW];
 
-ok(my $problem_diagnosis_0 = OpenEHR::Composition::ProblemDiagnosis->new(), 
-    'Constructor with no data');
+for my $format (@formats) {
+    ok(my $ajcc_stage = OpenEHR::Composition::ProblemDiagnosis::AJCC_Stage->new(), 'Create new AJCC Stage object');
+    ok($ajcc_stage->composition_format($format), "Set $format format for AJCC Stage");
+    ok(my $problem_diagnosis = OpenEHR::Composition::ProblemDiagnosis->new(
+        ajcc_stage => $ajcc_stage,
+        ), 
+        'Constructor with AJCC Stage Data');
 
-is($problem_diagnosis_0->composition_format, 'STRUCTURED', 'Default composition format set');
-ok(!$problem_diagnosis_0->compose, 'Compose failed for STRUCTURED composition with no data');
+    ok($problem_diagnosis->composition_format($format),  "Set $format composition format");
+    ok(my $composition = $problem_diagnosis->compose, "Compose called for $format format composition");
+    #print Dumper $composition;
+}
 
-my $diagnosis_1 = &diagnosis_1();
-ok(my $problem_diagnosis_1 = OpenEHR::Composition::ProblemDiagnosis->new(
-    $diagnosis_1), 'Constructor called with hashref');
-is($problem_diagnosis_1->composition_format, 'STRUCTURED', 'Default composition format set');
-ok($problem_diagnosis_1->compose, 'Compose called for STRUCTURED composition using defaults');
-
-SKIP: {
-    skip "Not implemented yet", 1;
-    ok(my $problem_diagnosis_2 = OpenEHR::Composition::ProblemDiagnosis->new(),
-        'Constructor with no data');
-    ok($problem_diagnosis_2->composition_format('FLAT'), 'Set composition format to FLAT');
-    ok($problem_diagnosis_2->compose, 'Compose called for FLAT composition');
-    print Dumper $problem_diagnosis_2;
-};
-
-    
 
 done_testing;
 

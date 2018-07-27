@@ -7,7 +7,7 @@ BEGIN { use_ok('OpenEHR::Composition') }
 diag("Testing OpenEHR::Composition $OpenEHR::Composition::VERSION");
 
 note('Testing Local Configuration file settings');
-my $local_config_file = 'OpenEHR-Composition.conf';
+my $local_config_file = 'OpenEHR_Composition.conf';
 ok( -f $local_config_file, 'Local Configuration file exists' );
 ok( open( my $fh, '<', $local_config_file ), 'Local Configuration file is readable' );
 my %local_config;
