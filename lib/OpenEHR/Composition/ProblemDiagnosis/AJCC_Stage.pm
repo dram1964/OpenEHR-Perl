@@ -6,9 +6,30 @@ use Carp;
 use Moose;
 use DateTime;
 use Data::Dumper;
+use Moose::Util::TypeConstraints;
 extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
+
+enum 'stage_grouping' => [
+    'Stage l',
+    'Stage IA',
+    'Stage IB',
+    'Stage ll',
+    'Stage IIA',
+    'Stage IIB',
+    'Stage IIC',
+    'Stage III',
+    'Stage IIIA',
+    'Stage IIIB',
+    'Stage IIIC',
+    'Stage 4'
+];
+
+has ajcc_stage_grouping => (
+    is  => 'rw',
+    isa => 'stage_grouping',
+);
 
 sub compose {
     my $self = shift;
@@ -22,14 +43,15 @@ sub compose {
 sub compose_structured {
     my $self        = shift;
     my $composition = {
-        'ajcc_stage_version'  => ['AJCC Stage version 778'],
-        'ajcc_stage_grouping' => ['Stage IIA']
+        ajcc_stage_version  => ['AJCC Stage version 55'],
+        ajcc_stage_grouping => [ $self->ajcc_stage_grouping ],
     };
     return $composition;
 }
 
 sub compose_raw {
     my $self        = shift;
+    print Dumper ;
     my $composition = {
         '@class'            => 'CLUSTER',
         'archetype_node_id' => 'openEHR-EHR-CLUSTER.tnm_stage_clinical.v0',
@@ -38,7 +60,7 @@ sub compose_raw {
                 'archetype_node_id' => 'at0007',
                 'value'             => {
                     '@class' => 'DV_TEXT',
-                    'value'  => 'Stage IB'
+                    'value'  => $self->ajcc_stage_grouping,
                 },
                 'name' => {
                     '@class' => 'DV_TEXT',
@@ -53,7 +75,7 @@ sub compose_raw {
                 },
                 'value' => {
                     '@class' => 'DV_TEXT',
-                    'value'  => 'AJCC Stage RAW version 755'
+                    'value'  => 'AJCC Stage version 55'
                 }
             }
         ],
@@ -77,9 +99,9 @@ sub compose_flat {
     my $self        = shift;
     my $composition = {
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/ajcc_stage/ajcc_stage_version'
-            => 'AJCC Stage version 555',
+            => 'AJCC Stage version 55',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/ajcc_stage/ajcc_stage_grouping'
-            => 'Stage IB',
+            => $self->ajcc_stage_grouping,
     };
     return $composition;
 }

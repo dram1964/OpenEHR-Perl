@@ -10,7 +10,8 @@ my @formats = qw[FLAT STRUCTURED RAW];
 @formats = qw[RAW];
 
 for my $format (@formats) {
-    ok(my $ajcc_stage = OpenEHR::Composition::ProblemDiagnosis::AJCC_Stage->new(), 'Create new AJCC Stage object');
+    ok(my $ajcc_stage = OpenEHR::Composition::ProblemDiagnosis::AJCC_Stage->new(
+        stage_group => 'Stage IIA'), 'Create new AJCC Stage object');
     ok($ajcc_stage->composition_format($format), "Set $format format for AJCC Stage");
     ok(my $problem_diagnosis = OpenEHR::Composition::ProblemDiagnosis->new(
         ajcc_stage => $ajcc_stage,

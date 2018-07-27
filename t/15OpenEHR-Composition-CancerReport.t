@@ -21,10 +21,16 @@ for my $format (@formats) {
     diag( 'EhrId: ' . $ehr1->ehr_id );
     diag( 'SubjectId: ' . $ehr1->subject_id );
 
-    ok(my $ajcc_stage = OpenEHR::Composition::ProblemDiagnosis::AJCC_Stage->new(),'Create new AJCC Stage object');
+    ok(my $ajcc_stage = OpenEHR::Composition::ProblemDiagnosis::AJCC_Stage->new(
+            ajcc_stage_grouping => 'Stage IB',
+        ),'Create new AJCC Stage object'
+    );
     ok( $ajcc_stage->composition_format($format), "Set $format format for AJCC Stage");
 
-    ok( my $diagnosis = OpenEHR::Composition::ProblemDiagnosis->new(), 'Create new ProblemDiagnosis object');
+    ok( my $diagnosis = OpenEHR::Composition::ProblemDiagnosis->new(
+            ajcc_stage => $ajcc_stage,
+        ), 'Create new ProblemDiagnosis object'
+    );
     ok( $diagnosis->composition_format($format), "Set $format composition format for ProblemDiagnosis");
 
     ok( my $cancer_report = OpenEHR::Composition::CancerReport->new(
