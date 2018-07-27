@@ -6,6 +6,7 @@ use OpenEHR::REST::EHR;
 use OpenEHR::REST::Composition;
 use OpenEHR::Composition::ProblemDiagnosis;
 use OpenEHR::Composition::ProblemDiagnosis::AJCC_Stage;
+use OpenEHR::Composition::ProblemDiagnosis::Diagnosis;
 
 BEGIN { use_ok('OpenEHR::Composition::CancerReport'); }
 
@@ -27,8 +28,14 @@ for my $format (@formats) {
     );
     ok( $ajcc_stage->composition_format($format), "Set $format format for AJCC Stage");
 
+
+    ok(my $diagnosis = OpenEHR::Composition::ProblemDiagnosis::Diagnosis->new(
+        diagnosis => 'Colorectal Cancer'),  'Create new Diagnosis object');
+    ok($diagnosis->composition_format($format), "Set $format format for Diagnosis Stage");
+
     ok( my $diagnosis = OpenEHR::Composition::ProblemDiagnosis->new(
             ajcc_stage => $ajcc_stage,
+            diagnosis   => $diagnosis,
         ), 'Create new ProblemDiagnosis object'
     );
     ok( $diagnosis->composition_format($format), "Set $format composition format for ProblemDiagnosis");

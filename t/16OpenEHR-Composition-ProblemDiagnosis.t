@@ -3,18 +3,25 @@ use warnings;
 use Test::More;
 use Data::Dumper;
 use OpenEHR::Composition::ProblemDiagnosis::AJCC_Stage;
+use OpenEHR::Composition::ProblemDiagnosis::Diagnosis;
 
 BEGIN { use_ok('OpenEHR::Composition::ProblemDiagnosis'); }
 
 my @formats = qw[FLAT STRUCTURED RAW];
 @formats = qw[RAW];
-
 for my $format (@formats) {
     ok(my $ajcc_stage = OpenEHR::Composition::ProblemDiagnosis::AJCC_Stage->new(
         stage_group => 'Stage IIA'), 'Create new AJCC Stage object');
     ok($ajcc_stage->composition_format($format), "Set $format format for AJCC Stage");
+
+    ok(my $diagnosis = OpenEHR::Composition::ProblemDiagnosis::Diagnosis->new(
+        diagnosis => 'Colorectal Cancer'),  'Create new Diagnosis object');
+    ok($diagnosis->composition_format($format), "Set $format format for Diagnosis Stage");
+
+
     ok(my $problem_diagnosis = OpenEHR::Composition::ProblemDiagnosis->new(
         ajcc_stage => $ajcc_stage,
+        diagnosis => $diagnosis
         ), 
         'Constructor with AJCC Stage Data');
 

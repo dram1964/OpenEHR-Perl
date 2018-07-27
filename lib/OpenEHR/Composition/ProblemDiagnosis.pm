@@ -10,6 +10,12 @@ extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
+=head2 ajcc_stage($ajcc_stage_object)
+
+Used to get or set the AJCC Stage item for the Problem Diagnosis
+
+=cut
+
 has ajcc_stage => (
     is  => 'rw',
     isa => 'OpenEHR::Composition::ProblemDiagnosis::AJCC_Stage',
@@ -18,9 +24,16 @@ has colorectal_diagnosis => (
     is  => 'rw',
     isa => 'ArrayRef',
 );
+
+=head2 diagnosis($diagnosis_object)
+
+Used to get or set the diagnosis item for the Problem Diagnosis
+
+=cut 
+
 has diagnosis => (
     is  => 'rw',
-    isa => 'ArrayRef',
+    isa => 'OpenEHR::Composition::ProblemDiagnosis::Diagnosis',
 );
 has modified_dukes_stage => (
     is  => 'rw',
@@ -106,20 +119,11 @@ sub compose_structured {
             }
         ],
         'event_date'         => ['2018-07-27T08:21:34.077+01:00'],
-        'diagnosis'          => ['Diagnosis 33'],
         'testicular_staging' => [
             {   'lung_metastases_sub-stage_grouping' =>
                     [ { '|code' => 'at0021' } ],
                 'extranodal_metastases'     => [ { '|code' => 'at0019' } ],
                 'stage_grouping_testicular' => [ { '|code' => 'at0007' } ]
-            }
-        ],
-        'cancer_diagnosis' => [
-            {   'morphology'           => ['Morphology 86'],
-                'tumour_laterality'    => [ { '|code' => 'at0029' } ],
-                'metastatic_site'      => [ { '|code' => 'at0023' } ],
-                'topography'           => ['Topography 90'],
-                'recurrence_indicator' => [ { '|code' => 'at0014' } ]
             }
         ],
         'upper_gi_staging' => [
@@ -141,59 +145,23 @@ sub compose_structured {
                 ]
             }
         ],
-        'ajcc_stage' => [
-            {   'ajcc_stage_version'  => ['AJCC Stage version 78'],
-                'ajcc_stage_grouping' => ['Stage IIA']
+        'cancer_diagnosis' => [
+            {   'morphology'           => ['Morphology 86'],
+                'tumour_laterality'    => [ { '|code' => 'at0029' } ],
+                'metastatic_site'      => [ { '|code' => 'at0023' } ],
+                'topography'           => ['Topography 90'],
+                'recurrence_indicator' => [ { '|code' => 'at0014' } ]
             }
-        ]
+        ],
     };
+    if ( $self->diagnosis ) {
+        $composition->{diagnosis} = [ $self->diagnosis->compose ];
+    }
     if ( $self->ajcc_stage ) {
         $composition->{ajcc_stage} = [ $self->ajcc_stage->compose ];
     }
     return $composition;
 }
-
-=head1 comment
-    if ($self->ajcc_stage) {
-        $composition->{ajcc_stage} = $self->ajcc_stage;
-    }
-    if ($self->colorectal_diagnosis) {
-        $composition->{colorectal_diagnosis} = $self->colorectal_diagnosis;
-    }
-    if ($self->diagnosis) {
-        $composition->{diagnosis} = $self->diagnosis;
-    }
-    if ($self->modified_dukes_stage) {
-        $composition->{modified_dukes_stage} = $self->modified_dukes_stage;
-    }
-    if ($self->tumour_id) {
-        $composition->{tumour_id} = $self->tumour_id;
-    }
-    if ($self->clinical_evidence) {
-        $composition->{clinical_evidence} = $self->clinical_evidence;
-    }
-    if ($self->upper_gi_staging) {
-        $composition->{upper_gi_staging} = $self->upper_gi_staging;
-    }
-    if ($self->integrated_tnm) {
-        $composition->{integrated_tnm} = $self->integrated_tnm;
-    }
-    if ($self->inrg_staging) {
-        $composition->{inrg_staging} = $self->inrg_staging;
-    }
-    if ($self->cancer_diagnosis) {
-        $composition->{cancer_diagnosis} = $self->cancer_diagnosis;
-    }
-    if ($self->final_figo_stage) {
-        $composition->{final_figo_stage} = $self->final_figo_stage;
-    }
-    if ($self->event_date) {
-        $composition->{event_date} = $self->event_date;
-    }
-    if ($self->testicular_staging) {
-        $composition->{testicular_staging} = $self->testicular_staging;
-    }
-=cut
 
 sub compose_raw {
     my $self        = shift;
@@ -205,17 +173,6 @@ sub compose_raw {
                 '@class' => 'DV_TEXT'
             },
             'items' => [
-                {   'name' => {
-                        '@class' => 'DV_TEXT',
-                        'value'  => 'Diagnosis'
-                    },
-                    'value' => {
-                        '@class' => 'DV_TEXT',
-                        'value'  => 'Diagnosis 589'
-                    },
-                    'archetype_node_id' => 'at0002',
-                    '@class'            => 'ELEMENT'
-                },
                 {   'name' => {
                         'value'  => 'Tumour ID',
                         '@class' => 'DV_TEXT'
@@ -920,55 +877,14 @@ sub compose_raw {
         '@class'  => 'EVALUATION',
         'subject' => { '@class' => 'PARTY_SELF' }
     };
+    if ( $self->diagnosis ) {
+        push @{ $composition->{data}->{items} }, $self->diagnosis->compose;
+    }
     if ( $self->ajcc_stage ) {
         push @{ $composition->{data}->{items} }, $self->ajcc_stage->compose;
     }
     return $composition;
 }
-
-=head1 AJCC_Stage
-                {   '@class' => 'CLUSTER',
-                    'archetype_node_id' =>
-                        'openEHR-EHR-CLUSTER.tnm_stage_clinical.v0',
-                    'items' => [
-                        {   '@class'            => 'ELEMENT',
-                            'archetype_node_id' => 'at0007',
-                            'value'             => {
-                                '@class' => 'DV_TEXT',
-                                'value'  => 'Stage IB'
-                            },
-                            'name' => {
-                                '@class' => 'DV_TEXT',
-                                'value'  => 'AJCC Stage grouping'
-                            }
-                        },
-                        {   'archetype_node_id' => 'at0017',
-                            '@class'            => 'ELEMENT',
-                            'name'              => {
-                                'value'  => 'AJCC Stage version',
-                                '@class' => 'DV_TEXT'
-                            },
-                            'value' => {
-                                '@class' => 'DV_TEXT',
-                                'value'  => 'AJCC Stage version 55'
-                            }
-                        }
-                    ],
-                    'name' => {
-                        'value'  => 'AJCC stage',
-                        '@class' => 'DV_TEXT'
-                    },
-                    'archetype_details' => {
-                        '@class'       => 'ARCHETYPED',
-                        'archetype_id' => {
-                            '@class' => 'ARCHETYPE_ID',
-                            'value' =>
-                                'openEHR-EHR-CLUSTER.tnm_stage_clinical.v0'
-                        },
-                        'rm_version' => '1.0.1'
-                    }
-                },
-=cut
 
 sub compose_flat {
     my $self        = shift;
@@ -1126,10 +1042,10 @@ sub compose_flat {
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/modified_dukes_stage:0/modified_dukes_stage|code'
             => 'at0006',
 
-        # Diagnosis
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/diagnosis' =>
-            'Diagnosis 59',
     };
+    if ( $self->diagnosis ) {
+        $composition = { ( %$composition, %{ $self->diagnosis->compose } ) };
+    }
     if ( $self->ajcc_stage ) {
         $composition = { ( %$composition, %{ $self->ajcc_stage->compose } ) };
     }

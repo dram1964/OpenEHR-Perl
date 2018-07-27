@@ -1,4 +1,4 @@
-package OpenEHR::Composition::ProblemDiagnosis::AJCC_Stage;
+package OpenEHR::Composition::ProblemDiagnosis::Diagnosis;
 
 use warnings;
 use strict;
@@ -6,29 +6,13 @@ use Carp;
 use Moose;
 use DateTime;
 use Data::Dumper;
-use Moose::Util::TypeConstraints;
 extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
-enum 'stage_grouping' => [
-    'Stage l',
-    'Stage IA',
-    'Stage IB',
-    'Stage ll',
-    'Stage IIA',
-    'Stage IIB',
-    'Stage IIC',
-    'Stage III',
-    'Stage IIIA',
-    'Stage IIIB',
-    'Stage IIIC',
-    'Stage 4'
-];
-
-has ajcc_stage_grouping => (
+has diagnosis => (
     is  => 'rw',
-    isa => 'stage_grouping',
+    isa => 'Str',
 );
 
 sub compose {
@@ -42,66 +26,32 @@ sub compose {
 
 sub compose_structured {
     my $self        = shift;
-    my $composition = {
-        ajcc_stage_version  => ['AJCC Stage version 55'],
-        ajcc_stage_grouping => [ $self->ajcc_stage_grouping ],
-    };
+    my $composition = $self->diagnosis; # 'Diagnosis 33'
     return $composition;
 }
 
 sub compose_raw {
     my $self        = shift;
-    print Dumper ;
-    my $composition = {
-        '@class'            => 'CLUSTER',
-        'archetype_node_id' => 'openEHR-EHR-CLUSTER.tnm_stage_clinical.v0',
-        'items'             => [
-            {   '@class'            => 'ELEMENT',
-                'archetype_node_id' => 'at0007',
-                'value'             => {
-                    '@class' => 'DV_TEXT',
-                    'value'  => $self->ajcc_stage_grouping,
-                },
-                'name' => {
-                    '@class' => 'DV_TEXT',
-                    'value'  => 'AJCC Stage grouping'
-                }
-            },
-            {   'archetype_node_id' => 'at0017',
-                '@class'            => 'ELEMENT',
-                'name'              => {
-                    'value'  => 'AJCC Stage version',
-                    '@class' => 'DV_TEXT'
-                },
-                'value' => {
-                    '@class' => 'DV_TEXT',
-                    'value'  => 'AJCC Stage version 55'
-                }
-            }
-        ],
+    my $composition = {   
         'name' => {
-            'value'  => 'AJCC stage',
-            '@class' => 'DV_TEXT'
-        },
-        'archetype_details' => {
-            '@class'       => 'ARCHETYPED',
-            'archetype_id' => {
-                '@class' => 'ARCHETYPE_ID',
-                'value'  => 'openEHR-EHR-CLUSTER.tnm_stage_clinical.v0'
-            },
-            'rm_version' => '1.0.1'
-        }
-    };
+                        '@class' => 'DV_TEXT',
+                        'value'  => 'Diagnosis'
+                    },
+                    'value' => {
+                        '@class' => 'DV_TEXT',
+                        'value'  => $self->diagnosis,    #'Diagnosis 589'
+                    },
+                    'archetype_node_id' => 'at0002',
+                    '@class'            => 'ELEMENT'
+                };
     return $composition;
 }
 
 sub compose_flat {
     my $self        = shift;
     my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/ajcc_stage/ajcc_stage_version'
-            => 'AJCC Stage version 55',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/ajcc_stage/ajcc_stage_grouping'
-            => $self->ajcc_stage_grouping,
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/diagnosis' =>
+            $self->diagnosis,
     };
     return $composition;
 }
@@ -114,18 +64,18 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::ProblemDiagnosis::AJCC_Stage - composition element
+OpenEHR::Composition::ProblemDiagnosis::Diagnosis - composition element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::ProblemDiagnosis::AJCC_Stage version 0.0.2
+This document describes OpenEHR::Composition::ProblemDiagnosis::Diagnosis version 0.0.2
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::ProblemDiagnosis::AJCC_Stage;
-    my $template = OpenEHR::Composition::ProblemDiagnosis::AJCC_Stage->new(
+    use OpenEHR::Composition::ProblemDiagnosis::Diagnosis;
+    my $template = OpenEHR::Composition::ProblemDiagnosis::Diagnosis->new(
     );
     my $template_hash = $template->compose();
 
@@ -139,14 +89,11 @@ Used to create a template element for adding to a Problem Diagnosis composition 
 
 =head1 ATTRIBUTES
 
-=head2 ajcc_stage_grouping
-
-The AJCC Stage grouping. Must be one of the following: 
-    'Stage l', 'Stage IA', 'Stage IB', 'Stage ll', 'Stage IIA',
-    'Stage IIB', 'Stage IIC', 'Stage III', 'Stage IIIA', 'Stage IIIB',
-    'Stage IIIC', 'Stage 4' 
-
 =head1 METHODS
+
+=head2 diagnosis($diagnosis)
+
+Used to get or set the text value for the diagnosis.
 
 =head2 compose
 
@@ -170,7 +117,7 @@ None
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-OpenEHR::Composition::ProblemDiagnosis::AJCC_Stage requires no configuration files or 
+OpenEHR::Composition::ProblemDiagnosis::Diagnosis requires no configuration files or 
 environment variables.
 
 
