@@ -1,4 +1,4 @@
-package OpenEHR::Composition::ProblemDiagnosis::Diagnosis;
+package OpenEHR::Composition::ProblemDiagnosis::ModifiedDukes;
 
 use warnings;
 use strict;
@@ -10,7 +10,15 @@ extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
-has diagnosis => (
+has code => (
+    is  => 'rw',
+    isa => 'Str',
+);
+has value => (
+    is  => 'rw',
+    isa => 'Str',
+);
+has terminology => (
     is  => 'rw',
     isa => 'Str',
 );
@@ -26,32 +34,69 @@ sub compose {
 
 sub compose_structured {
     my $self        = shift;
-    my $composition = $self->diagnosis;    # 'Diagnosis 33'
+    my $composition = {
+        'modified_dukes_stage' => [
+            {   '|code'        => $self->code,
+                '|value'       => $self->value,
+                '|terminology' => $self->terminology,
+            }
+        ]
+    };
     return $composition;
 }
 
 sub compose_raw {
     my $self        = shift;
     my $composition = {
+        'archetype_node_id' => 'openEHR-EHR-CLUSTER.modified_dukes_stage.v0',
+        '@class'            => 'CLUSTER',
+        'archetype_details' => {
+            '@class'       => 'ARCHETYPED',
+            'archetype_id' => {
+                'value'  => 'openEHR-EHR-CLUSTER.modified_dukes_stage.v0',
+                '@class' => 'ARCHETYPE_ID'
+            },
+            'rm_version' => '1.0.1'
+        },
         'name' => {
             '@class' => 'DV_TEXT',
-            'value'  => 'Diagnosis'
+            'value'  => 'Modified Dukes stage'
         },
-        'value' => {
-            '@class' => 'DV_TEXT',
-            'value'  => $self->diagnosis,    #'Diagnosis 589'
-        },
-        'archetype_node_id' => 'at0002',
-        '@class'            => 'ELEMENT'
+        'items' => [
+            {   'value' => {
+                    '@class'        => 'DV_CODED_TEXT',
+                    'defining_code' => {
+                        'code_string'    => $self->code,     #'at0006',
+                        '@class'         => 'CODE_PHRASE',
+                        'terminology_id' => {
+                            'value'  => $self->terminology,    #'local',
+                            '@class' => 'TERMINOLOGY_ID'
+                        }
+                    },
+                    'value' => $self->value,    #'Dukes Stage D'
+                },
+                'name' => {
+                    '@class' => 'DV_TEXT',
+                    'value'  => 'Modified Dukes stage'
+                },
+                '@class'            => 'ELEMENT',
+                'archetype_node_id' => 'at0001'
+            }
+        ]
     };
     return $composition;
 }
 
 sub compose_flat {
-    my $self = shift;
-    my $composition =
-        { 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/diagnosis:__DIAG__'
-            => $self->diagnosis, };
+    my $self        = shift;
+    my $composition = {
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/modified_dukes_stage:__DIAG__/modified_dukes_stage|value'
+            => $self->value,    #'Dukes Stage D',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/modified_dukes_stage:__DIAG__/modified_dukes_stage|terminology'
+            => $self->terminology,    #'local',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/modified_dukes_stage:__DIAG__/modified_dukes_stage|code'
+            => $self->code,           #'at0006',
+    };
     return $composition;
 }
 
@@ -63,18 +108,18 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::ProblemDiagnosis::Diagnosis - composition element
+OpenEHR::Composition::ProblemDiagnosis::ModifiedDukes - composition element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::ProblemDiagnosis::Diagnosis version 0.0.2
+This document describes OpenEHR::Composition::ProblemDiagnosis::ModifiedDukes version 0.0.2
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::ProblemDiagnosis::Diagnosis;
-    my $template = OpenEHR::Composition::ProblemDiagnosis::Diagnosis->new(
+    use OpenEHR::Composition::ProblemDiagnosis::ModifiedDukes;
+    my $template = OpenEHR::Composition::ProblemDiagnosis::ModifiedDukes->new(
     );
     my $template_hash = $template->compose();
 
@@ -90,9 +135,17 @@ Used to create a template element for adding to a Problem Diagnosis composition 
 
 =head1 METHODS
 
-=head2 diagnosis($diagnosis)
+=head2 code($code)
 
-Used to get or set the text value for the diagnosis.
+Used to get or set the modified dukes stage code
+
+=head2 value($value)
+
+Used to get or set the modified dukes stage value
+
+=head2 terminology($terminology)
+
+Used to get or set the modified dukes stage terminology
 
 =head2 compose
 
@@ -116,7 +169,7 @@ None
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-OpenEHR::Composition::ProblemDiagnosis::Diagnosis requires no configuration files or 
+OpenEHR::Composition::ProblemDiagnosis::ModifiedDukes requires no configuration files or 
 environment variables.
 
 

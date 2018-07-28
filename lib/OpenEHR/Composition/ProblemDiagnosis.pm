@@ -20,9 +20,17 @@ has ajcc_stage => (
     is  => 'rw',
     isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::AJCC_Stage]',
 );
+
+=head2 colorectal_diagnosis($colorectal_diagnosis_object)
+
+Used to get or set the Colorectal Diagnosis item for the Problem Diagnosis
+
+=cut 
+
 has colorectal_diagnosis => (
-    is  => 'rw',
-    isa => 'ArrayRef',
+    is => 'rw',
+    isa =>
+        'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::ColorectalDiagnosis]',
 );
 
 =head2 diagnosis($diagnosis_object)
@@ -35,9 +43,16 @@ has diagnosis => (
     is  => 'rw',
     isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::Diagnosis]',
 );
-has modified_dukes_stage => (
+
+=head2 modified_dukes($modified_dukes_object)
+
+Used to get or set the modified_dukes item for the Problem Diagnosis
+
+=cut 
+
+has modified_dukes => (
     is  => 'rw',
-    isa => 'ArrayRef',
+    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::ModifiedDukes]',
 );
 has tumour_id => (
     is  => 'rw',
@@ -98,8 +113,6 @@ sub compose_structured {
                 ]
             }
         ],
-        'modified_dukes_stage' =>
-            [ { 'modified_dukes_stage' => [ { '|code' => 'at0007' } ] } ],
         'integrated_tnm' => [
             {   'integrated_m' => ['Integrated M 80'],
                 'integrated_t' => ['Integrated T 28'],
@@ -109,9 +122,6 @@ sub compose_structured {
                 'grading_at_diagnosis'   => ['G3 Poorly differentiated'],
                 'integrated_tnm_edition' => ['Integrated TNM Edition 41']
             }
-        ],
-        'colorectal_diagnosis' => [
-            { 'synchronous_tumour_indicator' => [ { '|code' => 'at0002' } ] }
         ],
         'final_figo_stage' => [
             {   'figo_version' => ['FIGO version 46'],
@@ -154,6 +164,17 @@ sub compose_structured {
             }
         ],
     };
+    if ( $self->modified_dukes ) {
+        for my $modified_dukes ( @{ $self->modified_dukes } ) {
+            push @{ $composition->{modified_dukes_stage} }, $modified_dukes->compose;
+        }
+    }
+    if ( $self->colorectal_diagnosis ) {
+        for my $colorectal_diagnosis ( @{ $self->colorectal_diagnosis } ) {
+            push @{ $composition->{colorectal_diagnosis} },
+                $colorectal_diagnosis->compose;
+        }
+    }
     if ( $self->diagnosis ) {
         for my $diagnosis ( @{ $self->diagnosis } ) {
             push @{ $composition->{diagnosis} }, $diagnosis->compose;
@@ -460,44 +481,6 @@ sub compose_raw {
                     'archetype_node_id' =>
                         'openEHR-EHR-CLUSTER.inrg_staging.v0'
                 },
-                {   'archetype_node_id' =>
-                        'openEHR-EHR-CLUSTER.modified_dukes_stage.v0',
-                    '@class'            => 'CLUSTER',
-                    'archetype_details' => {
-                        '@class'       => 'ARCHETYPED',
-                        'archetype_id' => {
-                            'value' =>
-                                'openEHR-EHR-CLUSTER.modified_dukes_stage.v0',
-                            '@class' => 'ARCHETYPE_ID'
-                        },
-                        'rm_version' => '1.0.1'
-                    },
-                    'name' => {
-                        '@class' => 'DV_TEXT',
-                        'value'  => 'Modified Dukes stage'
-                    },
-                    'items' => [
-                        {   'value' => {
-                                '@class'        => 'DV_CODED_TEXT',
-                                'defining_code' => {
-                                    'code_string'    => 'at0006',
-                                    '@class'         => 'CODE_PHRASE',
-                                    'terminology_id' => {
-                                        'value'  => 'local',
-                                        '@class' => 'TERMINOLOGY_ID'
-                                    }
-                                },
-                                'value' => 'Dukes Stage D'
-                            },
-                            'name' => {
-                                '@class' => 'DV_TEXT',
-                                'value'  => 'Modified Dukes stage'
-                            },
-                            '@class'            => 'ELEMENT',
-                            'archetype_node_id' => 'at0001'
-                        }
-                    ]
-                },
                 {   '@class' => 'CLUSTER',
                     'archetype_node_id' =>
                         'openEHR-EHR-CLUSTER.figo_grade.v0',
@@ -787,44 +770,7 @@ sub compose_raw {
                     'archetype_node_id' =>
                         'openEHR-EHR-CLUSTER.testicular_staging_gel.v0'
                 },
-                {   'name' => {
-                        '@class' => 'DV_TEXT',
-                        'value'  => 'Colorectal diagnosis'
-                    },
-                    'items' => [
-                        {   '@class'            => 'ELEMENT',
-                            'archetype_node_id' => 'at0001',
-                            'value'             => {
-                                'value'         => '2 Appendix',
-                                'defining_code' => {
-                                    '@class'         => 'CODE_PHRASE',
-                                    'code_string'    => 'at0003',
-                                    'terminology_id' => {
-                                        'value'  => 'local',
-                                        '@class' => 'TERMINOLOGY_ID'
-                                    }
-                                },
-                                '@class' => 'DV_CODED_TEXT'
-                            },
-                            'name' => {
-                                'value'  => 'Synchronous tumour indicator',
-                                '@class' => 'DV_TEXT'
-                            }
-                        }
-                    ],
-                    'archetype_details' => {
-                        '@class'       => 'ARCHETYPED',
-                        'rm_version'   => '1.0.1',
-                        'archetype_id' => {
-                            '@class' => 'ARCHETYPE_ID',
-                            'value' =>
-                                'openEHR-EHR-CLUSTER.colorectal_diagnosis_gel.v0'
-                        }
-                    },
-                    '@class' => 'CLUSTER',
-                    'archetype_node_id' =>
-                        'openEHR-EHR-CLUSTER.colorectal_diagnosis_gel.v0'
-                }
+
             ],
             '@class'            => 'ITEM_TREE',
             'archetype_node_id' => 'at0001'
@@ -881,6 +827,17 @@ sub compose_raw {
         '@class'  => 'EVALUATION',
         'subject' => { '@class' => 'PARTY_SELF' }
     };
+    if ( $self->modified_dukes ) {
+        for my $modified_dukes ( @{ $self->modified_dukes } ) {
+            push @{ $composition->{data}->{items} }, $modified_dukes->compose;
+        }
+    }
+    if ( $self->colorectal_diagnosis ) {
+        for my $colorectal_diagnosis ( @{ $self->colorectal_diagnosis } ) {
+            push @{ $composition->{data}->{items} },
+                $colorectal_diagnosis->compose;
+        }
+    }
     if ( $self->diagnosis ) {
         for my $diagnosis ( @{ $self->diagnosis } ) {
             push @{ $composition->{data}->{items} }, $diagnosis->compose;
@@ -1034,14 +991,8 @@ sub compose_flat {
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/tumour_id/tumour_identifier:0|type'
             => 'Prescription',
 
-        # Colorectal Diagnosis
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/colorectal_diagnosis/synchronous_tumour_indicator:0|value'
-            => '2 Appendix',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/colorectal_diagnosis/synchronous_tumour_indicator:0|code'
-            => 'at0003',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/colorectal_diagnosis/synchronous_tumour_indicator:0|terminology'
-            => 'local',
-
+    };
+=head1
         # Modified Dukes Stage
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/modified_dukes_stage:0/modified_dukes_stage|value'
             => 'Dukes Stage D',
@@ -1049,21 +1000,50 @@ sub compose_flat {
             => 'local',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/modified_dukes_stage:0/modified_dukes_stage|code'
             => 'at0006',
+=cut
 
-    };
-
+    if ( $self->modified_dukes ) {
+        my $modified_dukes_index = '0';
+        my $modified_dukes_comp;
+        for my $modified_dukes ( @{ $self->modified_dukes } ) {
+            my $composition_fragment = $modified_dukes->compose;
+            for my $key ( keys %{$composition_fragment} ) {
+                my $new_key = $key;
+                $new_key =~ s/__DIAG__/$modified_dukes_index/;
+                $modified_dukes_comp->{$new_key} = $composition_fragment->{$key};
+            }
+            $modified_dukes_index++;
+            $composition = { ( %$composition, %{$modified_dukes_comp} ) };
+        }
+    }
+    if ( $self->colorectal_diagnosis ) {
+        my $colorectal_diagnosis_index = '0';
+        my $colorectal_diagnosis_comp;
+        for my $colorectal_diagnosis ( @{ $self->colorectal_diagnosis } ) {
+            my $composition_fragment = $colorectal_diagnosis->compose;
+            for my $key ( keys %{$composition_fragment} ) {
+                my $new_key = $key;
+                $new_key =~ s/__DIAG__/$colorectal_diagnosis_index/;
+                $colorectal_diagnosis_comp->{$new_key} =
+                    $composition_fragment->{$key};
+            }
+            $colorectal_diagnosis_index++;
+            $composition =
+                { ( %$composition, %{$colorectal_diagnosis_comp} ) };
+        }
+    }
     if ( $self->diagnosis ) {
         my $diagnosis_index = '0';
         my $diagnosis_comp;
         for my $diagnosis ( @{ $self->diagnosis } ) {
             my $composition_fragment = $diagnosis->compose;
-            for my $key ( keys %{ $composition_fragment } ) {
-                my $new_key = $key; 
+            for my $key ( keys %{$composition_fragment} ) {
+                my $new_key = $key;
                 $new_key =~ s/__DIAG__/$diagnosis_index/;
                 $diagnosis_comp->{$new_key} = $composition_fragment->{$key};
             }
             $diagnosis_index++;
-            $composition = { ( %$composition, %{ $diagnosis_comp } ) };
+            $composition = { ( %$composition, %{$diagnosis_comp} ) };
         }
     }
     if ( $self->ajcc_stage ) {
@@ -1071,13 +1051,13 @@ sub compose_flat {
         my $ajcc_comp;
         for my $ajcc ( @{ $self->ajcc_stage } ) {
             my $composition_fragment = $ajcc->compose;
-            for my $key ( keys %{ $composition_fragment } ) {
-                my $new_key = $key; 
+            for my $key ( keys %{$composition_fragment} ) {
+                my $new_key = $key;
                 $new_key =~ s/__AJCC__/$ajcc_index/;
                 $ajcc_comp->{$new_key} = $composition_fragment->{$key};
             }
             $ajcc_index++;
-            $composition = { ( %$composition, %{ $ajcc_comp } ) };
+            $composition = { ( %$composition, %{$ajcc_comp} ) };
         }
     }
 

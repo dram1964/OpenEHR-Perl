@@ -1,4 +1,4 @@
-package OpenEHR::Composition::ProblemDiagnosis::Diagnosis;
+package OpenEHR::Composition::ProblemDiagnosis::ColorectalDiagnosis;
 
 use warnings;
 use strict;
@@ -10,7 +10,15 @@ extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
-has diagnosis => (
+has code => (
+    is  => 'rw',
+    isa => 'Str',
+);
+has value => (
+    is  => 'rw',
+    isa => 'Str',
+);
+has terminology => (
     is  => 'rw',
     isa => 'Str',
 );
@@ -26,7 +34,14 @@ sub compose {
 
 sub compose_structured {
     my $self        = shift;
-    my $composition = $self->diagnosis;    # 'Diagnosis 33'
+    my $composition = {
+        'synchronous_tumour_indicator' => [
+            {   '|code'        => $self->code,           #'at0002',
+                '|value'       => $self->value,          #'value',
+                '|terminology' => $self->terminology,    #'terminology',
+            }
+        ],
+    };
     return $composition;
 }
 
@@ -35,23 +50,54 @@ sub compose_raw {
     my $composition = {
         'name' => {
             '@class' => 'DV_TEXT',
-            'value'  => 'Diagnosis'
+            'value'  => 'Colorectal diagnosis'
         },
-        'value' => {
-            '@class' => 'DV_TEXT',
-            'value'  => $self->diagnosis,    #'Diagnosis 589'
+        'items' => [
+            {   '@class'            => 'ELEMENT',
+                'archetype_node_id' => 'at0001',
+                'value'             => {
+                    'value'         => $self->value,    #'2 Appendix',
+                    'defining_code' => {
+                        '@class'         => 'CODE_PHRASE',
+                        'code_string'    => $self->code,     #'at0003',
+                        'terminology_id' => {
+                            'value'  => $self->terminology,    #'local',
+                            '@class' => 'TERMINOLOGY_ID'
+                        }
+                    },
+                    '@class' => 'DV_CODED_TEXT'
+                },
+                'name' => {
+                    'value'  => 'Synchronous tumour indicator',
+                    '@class' => 'DV_TEXT'
+                }
+            }
+        ],
+        'archetype_details' => {
+            '@class'       => 'ARCHETYPED',
+            'rm_version'   => '1.0.1',
+            'archetype_id' => {
+                '@class' => 'ARCHETYPE_ID',
+                'value'  => 'openEHR-EHR-CLUSTER.colorectal_diagnosis_gel.v0'
+            }
         },
-        'archetype_node_id' => 'at0002',
-        '@class'            => 'ELEMENT'
+        '@class' => 'CLUSTER',
+        'archetype_node_id' =>
+            'openEHR-EHR-CLUSTER.colorectal_diagnosis_gel.v0'
     };
     return $composition;
 }
 
 sub compose_flat {
-    my $self = shift;
-    my $composition =
-        { 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/diagnosis:__DIAG__'
-            => $self->diagnosis, };
+    my $self        = shift;
+    my $composition = {
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/colorectal_diagnosis:__DIAG__/synchronous_tumour_indicator:0|value'
+            => '2 Appendix',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/colorectal_diagnosis:__DIAG__/synchronous_tumour_indicator:0|code'
+            => 'at0003',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/colorectal_diagnosis:__DIAG__/synchronous_tumour_indicator:0|terminology'
+            => 'local',
+    };
     return $composition;
 }
 
@@ -63,18 +109,18 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::ProblemDiagnosis::Diagnosis - composition element
+OpenEHR::Composition::ProblemDiagnosis::ColorectalDiagnosis - composition element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::ProblemDiagnosis::Diagnosis version 0.0.2
+This document describes OpenEHR::Composition::ProblemDiagnosis::ColorectalDiagnosis version 0.0.2
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::ProblemDiagnosis::Diagnosis;
-    my $template = OpenEHR::Composition::ProblemDiagnosis::Diagnosis->new(
+    use OpenEHR::Composition::ProblemDiagnosis::ColorectalDiagnosis;
+    my $template = OpenEHR::Composition::ProblemDiagnosis::ColorectalDiagnosis->new(
     );
     my $template_hash = $template->compose();
 
@@ -90,9 +136,17 @@ Used to create a template element for adding to a Problem Diagnosis composition 
 
 =head1 METHODS
 
-=head2 diagnosis($diagnosis)
+=head2 code($code)
 
-Used to get or set the text value for the diagnosis.
+Used to get or set the tumour indicator code
+
+=head2 value($value)
+
+Used to get or set the tumour indicator value
+
+=head2 terminology($terminology)
+
+Used to get or set the tumour indicator terminology
 
 =head2 compose
 
@@ -116,7 +170,7 @@ None
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-OpenEHR::Composition::ProblemDiagnosis::Diagnosis requires no configuration files or 
+OpenEHR::Composition::ProblemDiagnosis::ColorectalDiagnosis requires no configuration files or 
 environment variables.
 
 

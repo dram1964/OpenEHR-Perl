@@ -7,6 +7,8 @@ use OpenEHR::REST::Composition;
 use OpenEHR::Composition::ProblemDiagnosis;
 use OpenEHR::Composition::ProblemDiagnosis::AJCC_Stage;
 use OpenEHR::Composition::ProblemDiagnosis::Diagnosis;
+use OpenEHR::Composition::ProblemDiagnosis::ColorectalDiagnosis;
+use OpenEHR::Composition::ProblemDiagnosis::ModifiedDukes;
 
 BEGIN { use_ok('OpenEHR::Composition::CancerReport'); }
 
@@ -31,11 +33,27 @@ for my $format (@formats) {
 
     ok(my $diagnosis = OpenEHR::Composition::ProblemDiagnosis::Diagnosis->new(
         diagnosis => 'Colorectal Cancer'),  'Create new Diagnosis object');
-    ok($diagnosis->composition_format($format), "Set $format format for Diagnosis Stage");
+    ok($diagnosis->composition_format($format), "Set $format format for Diagnosis");
+
+    ok(my $colorectal_diagnosis = OpenEHR::Composition::ProblemDiagnosis::ColorectalDiagnosis->new(
+        code => 'at0003',
+        value => '2 Appendix',
+        terminology => 'local',
+        ),  'Create new Diagnosis object');
+    ok($colorectal_diagnosis->composition_format($format), "Set $format format for Colorectal Diagnosis");
+
+    ok(my $modified_dukes = OpenEHR::Composition::ProblemDiagnosis::ModifiedDukes->new(
+        code => 'at0006',
+        value => 'Dukes Stage D',
+        terminology => 'local',
+        ),  'Create new Modified Dukes object');
+    ok($modified_dukes->composition_format($format), "Set $format format for Modified Dukes");
 
     ok( my $problem_diagnosis = OpenEHR::Composition::ProblemDiagnosis->new(
             ajcc_stage => [$ajcc_stage],
             diagnosis   => [$diagnosis],
+            colorectal_diagnosis   => [$colorectal_diagnosis],
+            modified_dukes  => [$modified_dukes],
         ), 'Create new ProblemDiagnosis object'
     );
     ok( $problem_diagnosis->composition_format($format), "Set $format composition format for ProblemDiagnosis");
