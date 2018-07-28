@@ -18,7 +18,7 @@ Used to get or set the AJCC Stage item for the Problem Diagnosis
 
 has ajcc_stage => (
     is  => 'rw',
-    isa => 'OpenEHR::Composition::ProblemDiagnosis::AJCC_Stage',
+    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::AJCC_Stage]',
 );
 has colorectal_diagnosis => (
     is  => 'rw',
@@ -33,7 +33,7 @@ Used to get or set the diagnosis item for the Problem Diagnosis
 
 has diagnosis => (
     is  => 'rw',
-    isa => 'OpenEHR::Composition::ProblemDiagnosis::Diagnosis',
+    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::Diagnosis]',
 );
 has modified_dukes_stage => (
     is  => 'rw',
@@ -155,10 +155,14 @@ sub compose_structured {
         ],
     };
     if ( $self->diagnosis ) {
-        $composition->{diagnosis} = [ $self->diagnosis->compose ];
+        for my $diagnosis ( @{ $self->diagnosis } ) {
+            push @{ $composition->{diagnosis} }, $diagnosis->compose;
+        }
     }
     if ( $self->ajcc_stage ) {
-        $composition->{ajcc_stage} = [ $self->ajcc_stage->compose ];
+        for my $ajcc_stage ( @{ $self->ajcc_stage } ) {
+            push @{ $composition->{ajcc_stage} }, $ajcc_stage->compose;
+        }
     }
     return $composition;
 }
@@ -878,10 +882,14 @@ sub compose_raw {
         'subject' => { '@class' => 'PARTY_SELF' }
     };
     if ( $self->diagnosis ) {
-        push @{ $composition->{data}->{items} }, $self->diagnosis->compose;
+        for my $diagnosis ( @{ $self->diagnosis } ) {
+            push @{ $composition->{data}->{items} }, $diagnosis->compose;
+        }
     }
     if ( $self->ajcc_stage ) {
-        push @{ $composition->{data}->{items} }, $self->ajcc_stage->compose;
+        for my $ajcc ( @{ $self->ajcc_stage } ) {
+            push @{ $composition->{data}->{items} }, $ajcc->compose;
+        }
     }
     return $composition;
 }
@@ -1043,11 +1051,34 @@ sub compose_flat {
             => 'at0006',
 
     };
+
     if ( $self->diagnosis ) {
-        $composition = { ( %$composition, %{ $self->diagnosis->compose } ) };
+        my $diagnosis_index = '0';
+        my $diagnosis_comp;
+        for my $diagnosis ( @{ $self->diagnosis } ) {
+            my $composition_fragment = $diagnosis->compose;
+            for my $key ( keys %{ $composition_fragment } ) {
+                my $new_key = $key; 
+                $new_key =~ s/__DIAG__/$diagnosis_index/;
+                $diagnosis_comp->{$new_key} = $composition_fragment->{$key};
+            }
+            $diagnosis_index++;
+            $composition = { ( %$composition, %{ $diagnosis_comp } ) };
+        }
     }
     if ( $self->ajcc_stage ) {
-        $composition = { ( %$composition, %{ $self->ajcc_stage->compose } ) };
+        my $ajcc_index = '0';
+        my $ajcc_comp;
+        for my $ajcc ( @{ $self->ajcc_stage } ) {
+            my $composition_fragment = $ajcc->compose;
+            for my $key ( keys %{ $composition_fragment } ) {
+                my $new_key = $key; 
+                $new_key =~ s/__AJCC__/$ajcc_index/;
+                $ajcc_comp->{$new_key} = $composition_fragment->{$key};
+            }
+            $ajcc_index++;
+            $composition = { ( %$composition, %{ $ajcc_comp } ) };
+        }
     }
 
     return $composition;

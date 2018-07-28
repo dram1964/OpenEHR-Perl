@@ -98,9 +98,9 @@ sub compose_raw {
 sub compose_flat {
     my $self        = shift;
     my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/ajcc_stage/ajcc_stage_version'
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/ajcc_stage:__AJCC__/ajcc_stage_version'
             => 'AJCC Stage version 55',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/ajcc_stage/ajcc_stage_grouping'
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/ajcc_stage:__AJCC__/ajcc_stage_grouping'
             => $self->ajcc_stage_grouping,
     };
     return $composition;

@@ -33,15 +33,15 @@ for my $format (@formats) {
         diagnosis => 'Colorectal Cancer'),  'Create new Diagnosis object');
     ok($diagnosis->composition_format($format), "Set $format format for Diagnosis Stage");
 
-    ok( my $diagnosis = OpenEHR::Composition::ProblemDiagnosis->new(
-            ajcc_stage => $ajcc_stage,
-            diagnosis   => $diagnosis,
+    ok( my $problem_diagnosis = OpenEHR::Composition::ProblemDiagnosis->new(
+            ajcc_stage => [$ajcc_stage],
+            diagnosis   => [$diagnosis],
         ), 'Create new ProblemDiagnosis object'
     );
-    ok( $diagnosis->composition_format($format), "Set $format composition format for ProblemDiagnosis");
+    ok( $problem_diagnosis->composition_format($format), "Set $format composition format for ProblemDiagnosis");
 
     ok( my $cancer_report = OpenEHR::Composition::CancerReport->new(
-        diagnoses => [$diagnosis],
+        problem_diagnoses => [$problem_diagnosis],
         ),
         'Create New Cancer Report Object'
     );

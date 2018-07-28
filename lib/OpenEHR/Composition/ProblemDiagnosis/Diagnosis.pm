@@ -50,7 +50,7 @@ sub compose_raw {
 sub compose_flat {
     my $self        = shift;
     my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/diagnosis' =>
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/diagnosis:__DIAG__' =>
             $self->diagnosis,
     };
     return $composition;

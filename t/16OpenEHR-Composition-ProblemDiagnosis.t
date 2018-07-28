@@ -20,8 +20,8 @@ for my $format (@formats) {
 
 
     ok(my $problem_diagnosis = OpenEHR::Composition::ProblemDiagnosis->new(
-        ajcc_stage => $ajcc_stage,
-        diagnosis => $diagnosis
+        ajcc_stage => [$ajcc_stage],
+        diagnosis => [$diagnosis],
         ), 
         'Constructor with AJCC Stage Data');
 

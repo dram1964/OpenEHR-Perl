@@ -10,7 +10,7 @@ extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
-has diagnoses => (
+has problem_diagnoses => (
     is      => 'rw',
     isa     => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis]',
     default => sub { [] }
@@ -73,11 +73,11 @@ sub compose_structured {
             ]
         },
     };
-    my $diagnoses;
-    for my $diagnosis ( @{ $self->diagnoses } ) {
-        push @{$diagnoses}, $diagnosis->compose();
+    my $problem_diagnoses;
+    for my $problem_diagnosis ( @{ $self->problem_diagnoses } ) {
+        push @{$problem_diagnoses}, $problem_diagnosis->compose;
     }
-    $composition->{gel_cancer_diagnosis}->{problem_diagnosis} = $diagnoses;
+    $composition->{gel_cancer_diagnosis}->{problem_diagnosis} = $problem_diagnoses;
 
     return $composition;
 }
@@ -243,8 +243,8 @@ sub compose_raw {
             }
         }
     };
-    for my $diagnosis (@{$self->diagnoses}) {
-        push @{ $composition->{content} }, $diagnosis->compose();
+    for my $problem_diagnosis (@{$self->problem_diagnoses}) {
+        push @{ $composition->{content} }, $problem_diagnosis->compose;
     }
 
     return $composition;
@@ -253,17 +253,19 @@ sub compose_raw {
 sub compose_flat {
     my $self = shift;
     my $composition; 
-    my $diagnosis_index = '0';
-    my $diagnosis_comp;
-    for my $diagnosis ( @{ $self->diagnoses } ) {
-        my $composition_fragment = $diagnosis->compose();
+
+    my $problem_diagnosis_index = '0';
+    my $problem_diagnosis_comp;
+    for my $problem_diagnosis ( @{ $self->problem_diagnoses } ) {
+        my $composition_fragment = $problem_diagnosis->compose;
         for my $key ( keys %{$composition_fragment} ) {
             my $new_key = $key;
-            $new_key =~ s/__TEST__/$diagnosis_index/;
-            $diagnosis_comp->{$new_key} = $composition_fragment->{$key};
+            $new_key =~ s/__TEST__/$problem_diagnosis_index/;
+            $problem_diagnosis_comp->{$new_key} = $composition_fragment->{$key};
         }
-        $diagnosis_index++;
+        $problem_diagnosis_index++;
     }
+
     $composition = {
         'gel_cancer_diagnosis/category|terminology' => 'openehr',
         'gel_cancer_diagnosis/_uid' =>
@@ -307,7 +309,7 @@ sub compose_flat {
         'gel_cancer_diagnosis/context/participant/study_identifier|issuer' =>
             'Issuer',
 
-        %{$diagnosis_comp},
+        %{$problem_diagnosis_comp},
 
     };
     return $composition;
