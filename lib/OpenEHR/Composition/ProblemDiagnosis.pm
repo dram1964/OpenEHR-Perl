@@ -54,9 +54,16 @@ has modified_dukes => (
     is  => 'rw',
     isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::ModifiedDukes]',
 );
+
+=head2 tumour_id($tumour_id_object)
+
+Used to get or set the tumour_id item for the Problem Diagnosis
+
+=cut 
+
 has tumour_id => (
     is  => 'rw',
-    isa => 'ArrayRef',
+    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::TumourID]',
 );
 has clinical_evidence => (
     is  => 'rw',
@@ -103,16 +110,6 @@ sub compose {
 sub compose_structured {
     my $self        = shift;
     my $composition = {
-        'tumour_id' => [
-            {   'tumour_identifier' => [
-                    {   '|type'     => 'Prescription',
-                        '|issuer'   => 'Issuer',
-                        '|id'       => '5f51555a-249c-4f3e-9e98-5ca555839a9f',
-                        '|assigner' => 'Assigner'
-                    }
-                ]
-            }
-        ],
         'integrated_tnm' => [
             {   'integrated_m' => ['Integrated M 80'],
                 'integrated_t' => ['Integrated T 28'],
@@ -164,9 +161,19 @@ sub compose_structured {
             }
         ],
     };
+
+=head1 comment
+=cut
+
+    if ( $self->tumour_id ) {
+        for my $tumour_id ( @{ $self->tumour_id } ) {
+            push @{ $composition->{tumour_id} }, $tumour_id->compose;
+        }
+    }
     if ( $self->modified_dukes ) {
         for my $modified_dukes ( @{ $self->modified_dukes } ) {
-            push @{ $composition->{modified_dukes_stage} }, $modified_dukes->compose;
+            push @{ $composition->{modified_dukes_stage} },
+                $modified_dukes->compose;
         }
     }
     if ( $self->colorectal_diagnosis ) {
@@ -198,39 +205,6 @@ sub compose_raw {
                 '@class' => 'DV_TEXT'
             },
             'items' => [
-                {   'name' => {
-                        'value'  => 'Tumour ID',
-                        '@class' => 'DV_TEXT'
-                    },
-                    'items' => [
-                        {   'value' => {
-                                'id' =>
-                                    '1b85693c-a17a-426c-ad74-0fb086375da3',
-                                'issuer'   => 'Issuer',
-                                '@class'   => 'DV_IDENTIFIER',
-                                'assigner' => 'Assigner',
-                                'type'     => 'Prescription'
-                            },
-                            'name' => {
-                                '@class' => 'DV_TEXT',
-                                'value'  => 'Tumour identifier'
-                            },
-                            '@class'            => 'ELEMENT',
-                            'archetype_node_id' => 'at0001'
-                        }
-                    ],
-                    'archetype_details' => {
-                        'archetype_id' => {
-                            'value' => 'openEHR-EHR-CLUSTER.tumour_id_gel.v0',
-                            '@class' => 'ARCHETYPE_ID'
-                        },
-                        'rm_version' => '1.0.1',
-                        '@class'     => 'ARCHETYPED'
-                    },
-                    'archetype_node_id' =>
-                        'openEHR-EHR-CLUSTER.tumour_id_gel.v0',
-                    '@class' => 'CLUSTER'
-                },
                 {   'archetype_details' => {
                         '@class'       => 'ARCHETYPED',
                         'rm_version'   => '1.0.1',
@@ -827,6 +801,15 @@ sub compose_raw {
         '@class'  => 'EVALUATION',
         'subject' => { '@class' => 'PARTY_SELF' }
     };
+
+=head1 comment
+=cut
+
+    if ( $self->tumour_id ) {
+        for my $tumour_id ( @{ $self->tumour_id } ) {
+            push @{ $composition->{data}->{items} }, $tumour_id->compose;
+        }
+    }
     if ( $self->modified_dukes ) {
         for my $modified_dukes ( @{ $self->modified_dukes } ) {
             push @{ $composition->{data}->{items} }, $modified_dukes->compose;
@@ -981,27 +964,22 @@ sub compose_flat {
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging/lung_metastases_sub-stage_grouping|terminology'
             => 'local',
 
-        # Tumour ID
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/tumour_id/tumour_identifier:0|issuer'
-            => 'Issuer',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/tumour_id/tumour_identifier:0'
-            => '1b85693c-a17a-426c-ad74-0fb086375da3',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/tumour_id/tumour_identifier:0|assigner'
-            => 'Assigner',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/tumour_id/tumour_identifier:0|type'
-            => 'Prescription',
-
     };
-=head1
-        # Modified Dukes Stage
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/modified_dukes_stage:0/modified_dukes_stage|value'
-            => 'Dukes Stage D',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/modified_dukes_stage:0/modified_dukes_stage|terminology'
-            => 'local',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/modified_dukes_stage:0/modified_dukes_stage|code'
-            => 'at0006',
-=cut
 
+    if ( $self->tumour_id ) {
+        my $tumour_id_index = '0';
+        my $tumour_id_comp;
+        for my $tumour_id ( @{ $self->tumour_id } ) {
+            my $composition_fragment = $tumour_id->compose;
+            for my $key ( keys %{$composition_fragment} ) {
+                my $new_key = $key;
+                $new_key =~ s/__DIAG__/$tumour_id_index/;
+                $tumour_id_comp->{$new_key} = $composition_fragment->{$key};
+            }
+            $tumour_id_index++;
+            $composition = { ( %$composition, %{$tumour_id_comp} ) };
+        }
+    }
     if ( $self->modified_dukes ) {
         my $modified_dukes_index = '0';
         my $modified_dukes_comp;
@@ -1010,7 +988,8 @@ sub compose_flat {
             for my $key ( keys %{$composition_fragment} ) {
                 my $new_key = $key;
                 $new_key =~ s/__DIAG__/$modified_dukes_index/;
-                $modified_dukes_comp->{$new_key} = $composition_fragment->{$key};
+                $modified_dukes_comp->{$new_key} =
+                    $composition_fragment->{$key};
             }
             $modified_dukes_index++;
             $composition = { ( %$composition, %{$modified_dukes_comp} ) };

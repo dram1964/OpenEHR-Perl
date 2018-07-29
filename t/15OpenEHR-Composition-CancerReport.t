@@ -9,6 +9,7 @@ use OpenEHR::Composition::ProblemDiagnosis::AJCC_Stage;
 use OpenEHR::Composition::ProblemDiagnosis::Diagnosis;
 use OpenEHR::Composition::ProblemDiagnosis::ColorectalDiagnosis;
 use OpenEHR::Composition::ProblemDiagnosis::ModifiedDukes;
+use OpenEHR::Composition::ProblemDiagnosis::TumourID;
 
 BEGIN { use_ok('OpenEHR::Composition::CancerReport'); }
 
@@ -49,11 +50,20 @@ for my $format (@formats) {
         ),  'Create new Modified Dukes object');
     ok($modified_dukes->composition_format($format), "Set $format format for Modified Dukes");
 
+    ok(my $tumour_id = OpenEHR::Composition::ProblemDiagnosis::TumourID->new(
+        id => 'aassdddffee',
+        issuer => 'uclh',
+        assigner => 'cancer care',
+        type    => 'local',
+        ),  'Create new Tumour ID object');
+    ok($tumour_id->composition_format($format), "Set $format format for Tumour ID");
+
     ok( my $problem_diagnosis = OpenEHR::Composition::ProblemDiagnosis->new(
             ajcc_stage => [$ajcc_stage],
             diagnosis   => [$diagnosis],
             colorectal_diagnosis   => [$colorectal_diagnosis],
             modified_dukes  => [$modified_dukes],
+            tumour_id => [$tumour_id],
         ), 'Create new ProblemDiagnosis object'
     );
     ok( $problem_diagnosis->composition_format($format), "Set $format composition format for ProblemDiagnosis");
