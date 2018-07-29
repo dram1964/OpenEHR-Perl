@@ -77,9 +77,16 @@ has clinical_evidence => (
     isa =>
         'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::ClinicalEvidence]',
 );
+
+=head2 upper_gi_staging($upper_gi_object)
+
+Used to get or set the upper_gi item for the Problem Diagnosis
+
+=cut 
+
 has upper_gi_staging => (
     is  => 'rw',
-    isa => 'ArrayRef',
+    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::UpperGI]',
 );
 has integrated_tnm => (
     is  => 'rw',
@@ -141,18 +148,6 @@ sub compose_structured {
                 'stage_grouping_testicular' => [ { '|code' => 'at0007' } ]
             }
         ],
-        'upper_gi_staging' => [
-            {   'bclc_stage' =>
-                    [ { 'bclc_stage' => [ { '|code' => 'at0005' } ] } ],
-                'number_of_lesions' => [578],
-                'child-pugh_score' =>
-                    [ { 'grade' => [ { '|code' => 'at0028' } ] } ],
-                'transarterial_chemoembolisation' =>
-                    [ { '|code' => 'at0015' } ],
-                'pancreatic_clinical_stage' => [ { '|code' => 'at0009' } ],
-                'portal_invasion'           => [ { '|code' => 'at0004' } ]
-            }
-        ],
         'inrg_staging' => [ { 'inrg_stage' => [ { '|code' => 'at0005' } ] } ],
         'cancer_diagnosis' => [
             {   'morphology'           => ['Morphology 86'],
@@ -167,6 +162,12 @@ sub compose_structured {
 =head1 comment
 =cut
 
+    if ( $self->upper_gi_staging ) {
+        for my $upper_gi_staging ( @{ $self->upper_gi_staging } ) {
+            push @{ $composition->{upper_gi_staging} },
+                $upper_gi_staging->compose;
+        }
+    }
     if ( $self->clinical_evidence ) {
         for my $clinical_evidence ( @{ $self->clinical_evidence } ) {
             push @{ $composition->{clinical_evidence} },
@@ -481,169 +482,6 @@ sub compose_raw {
                         }
                     }
                 },
-                {   'archetype_node_id' =>
-                        'openEHR-EHR-CLUSTER.upper_gi_staging_gel.v0',
-                    '@class' => 'CLUSTER',
-                    'name'   => {
-                        '@class' => 'DV_TEXT',
-                        'value'  => 'Upper GI staging'
-                    },
-                    'items' => [
-                        {   'archetype_node_id' =>
-                                'openEHR-EHR-CLUSTER.bclc_stage.v0',
-                            '@class' => 'CLUSTER',
-                            'items'  => [
-                                {   'value' => {
-                                        '@class'        => 'DV_CODED_TEXT',
-                                        'defining_code' => {
-                                            'terminology_id' => {
-                                                'value'  => 'local',
-                                                '@class' => 'TERMINOLOGY_ID'
-                                            },
-                                            '@class'      => 'CODE_PHRASE',
-                                            'code_string' => 'at0007'
-                                        },
-                                        'value' => 'D'
-                                    },
-                                    'name' => {
-                                        '@class' => 'DV_TEXT',
-                                        'value'  => 'BCLC stage'
-                                    },
-                                    '@class'            => 'ELEMENT',
-                                    'archetype_node_id' => 'at0001'
-                                }
-                            ],
-                            'name' => {
-                                'value'  => 'BCLC stage',
-                                '@class' => 'DV_TEXT'
-                            },
-                            'archetype_details' => {
-                                'archetype_id' => {
-                                    '@class' => 'ARCHETYPE_ID',
-                                    'value' =>
-                                        'openEHR-EHR-CLUSTER.bclc_stage.v0'
-                                },
-                                'rm_version' => '1.0.1',
-                                '@class'     => 'ARCHETYPED'
-                            }
-                        },
-                        {   'archetype_details' => {
-                                'rm_version'   => '1.0.1',
-                                'archetype_id' => {
-                                    '@class' => 'ARCHETYPE_ID',
-                                    'value' =>
-                                        'openEHR-EHR-CLUSTER.child_pugh_score.v0'
-                                },
-                                '@class' => 'ARCHETYPED'
-                            },
-                            'items' => [
-                                {   '@class'            => 'ELEMENT',
-                                    'archetype_node_id' => 'at0026',
-                                    'value'             => {
-                                        '@class' => 'DV_CODED_TEXT',
-                                        'value'  => 'Class A 5 to 6 points.',
-                                        'defining_code' => {
-                                            'terminology_id' => {
-                                                'value'  => 'local',
-                                                '@class' => 'TERMINOLOGY_ID'
-                                            },
-                                            'code_string' => 'at0027',
-                                            '@class'      => 'CODE_PHRASE'
-                                        }
-                                    },
-                                    'name' => {
-                                        '@class' => 'DV_TEXT',
-                                        'value'  => 'Grade'
-                                    }
-                                }
-                            ],
-                            'name' => {
-                                '@class' => 'DV_TEXT',
-                                'value'  => 'Child-Pugh score'
-                            },
-                            '@class' => 'CLUSTER',
-                            'archetype_node_id' =>
-                                'openEHR-EHR-CLUSTER.child_pugh_score.v0'
-                        },
-                        {   'name' => {
-                                'value'  => 'Portal invasion',
-                                '@class' => 'DV_TEXT'
-                            },
-                            'value' => {
-                                'value'         => 'N Not present',
-                                'defining_code' => {
-                                    'terminology_id' => {
-                                        'value'  => 'local',
-                                        '@class' => 'TERMINOLOGY_ID'
-                                    },
-                                    '@class'      => 'CODE_PHRASE',
-                                    'code_string' => 'at0005'
-                                },
-                                '@class' => 'DV_CODED_TEXT'
-                            },
-                            'archetype_node_id' => 'at0003',
-                            '@class'            => 'ELEMENT'
-                        },
-                        {   '@class'            => 'ELEMENT',
-                            'archetype_node_id' => 'at0007',
-                            'value'             => {
-                                'magnitude' => 96,
-                                '@class'    => 'DV_COUNT'
-                            },
-                            'name' => {
-                                '@class' => 'DV_TEXT',
-                                'value'  => 'Number of lesions'
-                            }
-                        },
-                        {   '@class'            => 'ELEMENT',
-                            'archetype_node_id' => 'at0008',
-                            'value'             => {
-                                '@class'        => 'DV_CODED_TEXT',
-                                'defining_code' => {
-                                    'code_string'    => 'at0012',
-                                    '@class'         => 'CODE_PHRASE',
-                                    'terminology_id' => {
-                                        '@class' => 'TERMINOLOGY_ID',
-                                        'value'  => 'local'
-                                    }
-                                },
-                                'value' => '31 Unresectable locally advanced'
-                            },
-                            'name' => {
-                                '@class' => 'DV_TEXT',
-                                'value'  => 'Pancreatic clinical stage'
-                            }
-                        },
-                        {   'value' => {
-                                'value'         => 'Y Yes',
-                                'defining_code' => {
-                                    'terminology_id' => {
-                                        'value'  => 'local',
-                                        '@class' => 'TERMINOLOGY_ID'
-                                    },
-                                    '@class'      => 'CODE_PHRASE',
-                                    'code_string' => 'at0015'
-                                },
-                                '@class' => 'DV_CODED_TEXT'
-                            },
-                            'name' => {
-                                '@class' => 'DV_TEXT',
-                                'value'  => 'Transarterial chemoembolisation'
-                            },
-                            '@class'            => 'ELEMENT',
-                            'archetype_node_id' => 'at0014'
-                        }
-                    ],
-                    'archetype_details' => {
-                        'archetype_id' => {
-                            '@class' => 'ARCHETYPE_ID',
-                            'value' =>
-                                'openEHR-EHR-CLUSTER.upper_gi_staging_gel.v0'
-                        },
-                        'rm_version' => '1.0.1',
-                        '@class'     => 'ARCHETYPED'
-                    }
-                },
                 {   'items' => [
                         {   'value' => {
                                 '@class'        => 'DV_CODED_TEXT',
@@ -783,6 +621,12 @@ sub compose_raw {
 =head1 comment
 =cut
 
+    if ( $self->upper_gi_staging ) {
+        for my $upper_gi_staging ( @{ $self->upper_gi_staging } ) {
+            push @{ $composition->{data}->{items} },
+                $upper_gi_staging->compose;
+        }
+    }
     if ( $self->clinical_evidence ) {
         for my $clinical_evidence ( @{ $self->clinical_evidence } ) {
             push @{ $composition->{data}->{items} },
@@ -833,40 +677,6 @@ sub compose_flat {
             '2018-07-24T14:05:01.806+01:00',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/encoding|terminology'
             => 'IANA_character-sets',
-
-        # Upper GI Staging
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging/portal_invasion|terminology'
-            => 'local',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging/pancreatic_clinical_stage|value'
-            => '31 Unresectable locally advanced',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging/number_of_lesions'
-            => 97,
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging/child-pugh_score:0/grade|code'
-            => 'at0027',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging/bclc_stage:0/bclc_stage|value'
-            => 'D',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging/transarterial_chemoembolisation|terminology'
-            => 'local',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging/bclc_stage:0/bclc_stage|code'
-            => 'at0007',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging/pancreatic_clinical_stage|terminology'
-            => 'local',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging/child-pugh_score:0/grade|terminology'
-            => 'local',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging/pancreatic_clinical_stage|code'
-            => 'at0012',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging/transarterial_chemoembolisation|value'
-            => 'Y Yes',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging/transarterial_chemoembolisation|code'
-            => 'at0015',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging/bclc_stage:0/bclc_stage|terminology'
-            => 'local',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging/portal_invasion|value'
-            => 'N Not present',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging/child-pugh_score:0/grade|value'
-            => 'Class A 5 to 6 points.',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging/portal_invasion|code'
-            => 'at0005',
 
         # Cancer Diagnosis
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis/tumour_laterality|terminology'
@@ -947,9 +757,23 @@ sub compose_flat {
     };
 
 =head1 comment 
-        # Clinical Evidence
 =cut
 
+    if ( $self->upper_gi_staging ) {
+        my $upper_gi_staging_index = '0';
+        my $upper_gi_staging_comp;
+        for my $upper_gi_staging ( @{ $self->upper_gi_staging } ) {
+            my $composition_fragment = $upper_gi_staging->compose;
+            for my $key ( keys %{$composition_fragment} ) {
+                my $new_key = $key;
+                $new_key =~ s/__DIAG__/$upper_gi_staging_index/;
+                $upper_gi_staging_comp->{$new_key} =
+                    $composition_fragment->{$key};
+            }
+            $upper_gi_staging_index++;
+            $composition = { ( %$composition, %{$upper_gi_staging_comp} ) };
+        }
+    }
     if ( $self->clinical_evidence ) {
         my $clinical_evidence_index = '0';
         my $clinical_evidence_comp;
@@ -1041,104 +865,6 @@ sub compose_flat {
 
     return $composition;
 }
-
-=head1
-    if ($self->ajcc_stage) {
-        $composition->{'gel_cancer_diagnosis/problem_diagnosis__TEST__/ajcc_stage/ajcc_stage_grouping'} = 
-            'Stage IIA';
-        $composition->{'gel_cancer_diagnosis/problem_diagnosis__TEST__/ajcc_stage/ajcc_stage_version'} = 
-            'AJCC Stage version 32';
-    }
-    if ($self->colorectal_diagnosis) {
-        $composition->{'gel_cancer_diagnosis/problem_diagnosis__TEST__/colorectal_diagnosis/synchronous_tumour_indicator:0|code'} = 
-            'at0002';
-    }
-    if ($self->diagnosis) {
-        $composition->{'gel_cancer_diagnosis/problem_diagnosis__TEST__/diagnosis'} = 'Diagnosis 83';
-    }
-    if ($self->modified_dukes_stage) {
-        $composition->{'gel_cancer_diagnosis/problem_diagnosis__TEST__/modified_dukes_stage:0/modified_dukes_stage|code'} 
-            = 'at0003';
-    }
-    if ($self->tumour_id) {
-        $composition->{'gel_cancer_diagnosis/problem_diagnosis__TEST__/tumour_id/tumour_identifier:0'}
-            = '16567b05-9857-4b4d-aade-171f806ed875';
-        $composition->{'gel_cancer_diagnosis/problem_diagnosis__TEST__/tumour_id/tumour_identifier:0|issuer'}
-            = 'Issuer';
-        $composition->{'gel_cancer_diagnosis/problem_diagnosis__TEST__/tumour_id/tumour_identifier:0|type'}
-            = 'Prescription';
-        $composition->{'gel_cancer_diagnosis/problem_diagnosis__TEST__/tumour_id/tumour_identifier:0|assigner'}
-            = 'Assigner';
-    }
-    if ($self->clinical_evidence) {
-        $composition->{'gel_cancer_diagnosis/problem_diagnosis__TEST__/clinical_evidence:0/base_of_diagnosis'}
-            = '7 Histology of primary tumour';
-    }
-    if ($self->upper_gi_staging) {
-        $composition->{'gel_cancer_diagnosis/problem_diagnosis__TEST__/upper_gi_staging/number_of_lesions'}
-            = 888;
-        $composition->{'gel_cancer_diagnosis/problem_diagnosis__TEST__/upper_gi_staging/pancreatic_clinical_stage|code'}
-            = 'at0012';
-        $composition->{'gel_cancer_diagnosis/problem_diagnosis__TEST__/upper_gi_staging/portal_invasion|code'}
-            = 'at0005';
-        $composition->{'gel_cancer_diagnosis/problem_diagnosis__TEST__/upper_gi_staging/child-pugh_score:0/grade|code'}
-            = 'at0027';
-        $composition->{'gel_cancer_diagnosis/problem_diagnosis__TEST__/upper_gi_staging/bclc_stage:0/bclc_stage|code'}
-            = 'at0007';
-        $composition->{'gel_cancer_diagnosis/problem_diagnosis__TEST__/upper_gi_staging/transarterial_chemoembolisation|code'}
-            = 'at0017';
-    }
-    if ($self->integrated_tnm) {
-        $composition->{'gel_cancer_diagnosis/problem_diagnosis__TEST__/integrated_tnm/integrated_stage_grouping'}
-            = 'Integrated Stage grouping 70';
-        $composition->{'gel_cancer_diagnosis/problem_diagnosis__TEST__/integrated_tnm/integrated_m'}
-            = 'Integrated M 74';
-        $composition->{'gel_cancer_diagnosis/problem_diagnosis__TEST__/integrated_tnm/integrated_n'}
-            = 'Integrated N 77';
-        $composition->{'gel_cancer_diagnosis/problem_diagnosis__TEST__/integrated_tnm/integrated_t'}
-            = 'Integrated T 5';
-        $composition->{'gel_cancer_diagnosis/problem_diagnosis__TEST__/integrated_tnm/integrated_tnm_edition'}
-            = 'Integrated TNM Edition 55';
-        $composition->{'gel_cancer_diagnosis/problem_diagnosis__TEST__/integrated_tnm/grading_at_diagnosis'}
-            = 'G3 Poorly differentiated';
-    }
-    if ($self->inrg_staging) {
-        $composition->{'gel_cancer_diagnosis/problem_diagnosis__TEST__/inrg_staging:0/inrg_stage|code'}
-            = 'at0004';
-    }
-    if ($self->cancer_diagnosis) {
-        $composition->{'gel_cancer_diagnosis/problem_diagnosis__TEST__/cancer_diagnosis/tumour_laterality|code'}
-            = 'at0030';
-        $composition->{'gel_cancer_diagnosis/problem_diagnosis__TEST__/cancer_diagnosis/topography'}
-            = 'Topography 90';
-        $composition->{'gel_cancer_diagnosis/problem_diagnosis__TEST__/cancer_diagnosis/morphology:0'}
-            = 'Morphology 96';
-        $composition->{'gel_cancer_diagnosis/problem_diagnosis__TEST__/cancer_diagnosis/metastatic_site|code'}
-            = 'at0018';
-        $composition->{'gel_cancer_diagnosis/problem_diagnosis__TEST__/cancer_diagnosis/recurrence_indicator|code'}
-            = 'at0015';
-    }
-    if ($self->final_figo_stage) {
-        $composition->{'gel_cancer_diagnosis/problem_diagnosis__TEST__/final_figo_stage/figo_version'}
-            = 'FIGO version 63';
-        $composition->{'gel_cancer_diagnosis/problem_diagnosis__TEST__/final_figo_stage/figo_grade|code'}
-            = 'at0003';
-    }
-    if ($self->event_date) {
-        $composition->{'gel_cancer_diagnosis/problem_diagnosis__TEST__/event_date'} = '2018-07-24T14:06:41.753+01:00';
-    }
-    if ($self->testicular_staging) {
-        $composition->{'gel_cancer_diagnosis/problem_diagnosis__TEST__/testicular_staging/extranodal_metastases|code'}
-            = 'at0018';
-        $composition->{'gel_cancer_diagnosis/problem_diagnosis__TEST__/testicular_staging/stage_grouping_testicular|code'}
-            = 'at0010';
-        $composition->{'gel_cancer_diagnosis/problem_diagnosis__TEST__/testicular_staging/lung_metastases_sub-stage_grouping|code'}
-            = 'at0021';
-    }
-=cut
-
-=head1
-=cut
 
 no Moose;
 

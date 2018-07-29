@@ -11,11 +11,13 @@ use OpenEHR::Composition::ProblemDiagnosis::ColorectalDiagnosis;
 use OpenEHR::Composition::ProblemDiagnosis::ModifiedDukes;
 use OpenEHR::Composition::ProblemDiagnosis::TumourID;
 use OpenEHR::Composition::ProblemDiagnosis::ClinicalEvidence;
+use OpenEHR::Composition::ProblemDiagnosis::UpperGI;
+use OpenEHR::Composition::ProblemDiagnosis::UpperGI::BCLC_Stage;
 
 BEGIN { use_ok('OpenEHR::Composition::CancerReport'); }
 
 my @formats = qw( FLAT STRUCTURED RAW); 
-#@formats = qw(RAW);
+#@formats = qw(STRUCTURED);
 for my $format (@formats) {
     note("Testing $format format composition");
     my $ehr1 = &get_new_random_subject();
@@ -64,6 +66,18 @@ for my $format (@formats) {
         ),  'Create new Clinical Evidence object');
     ok($clinical_evidence->composition_format($format), "Set $format format for Clinical Evidence");
 
+    ok(my $bclc_stage = OpenEHR::Composition::ProblemDiagnosis::UpperGI::BCLC_Stage->new(
+        code => 'at0007',
+        value => 'D', 
+        terminology => 'local',
+        ),  'Create new BCLC Stage object');
+    ok($bclc_stage->composition_format($format), "Set $format format for BCLC Stage");
+
+    ok(my $upper_gi = OpenEHR::Composition::ProblemDiagnosis::UpperGI->new(
+        bclc_stage => [$bclc_stage],
+        ),  'Create new Upper GI object');
+    ok($upper_gi->composition_format($format), "Set $format format for Upper GI");
+
     ok( my $problem_diagnosis = OpenEHR::Composition::ProblemDiagnosis->new(
             ajcc_stage => [$ajcc_stage],
             diagnosis   => [$diagnosis],
@@ -71,6 +85,7 @@ for my $format (@formats) {
             modified_dukes  => [$modified_dukes],
             tumour_id => [$tumour_id],
             clinical_evidence => [$clinical_evidence],
+            upper_gi_staging    => [$upper_gi],
         ), 'Create new ProblemDiagnosis object'
     );
     ok( $problem_diagnosis->composition_format($format), "Set $format composition format for ProblemDiagnosis");
@@ -86,7 +101,7 @@ for my $format (@formats) {
     ok( $query->composition($cancer_report), "Add composition to new query" );
     ok( $query->template_id('GEL Cancer diagnosis input.v0'),
        "Added template for $format composition");
-    ok( $query->submit_new( $ehr1->ehr_id ), "Submit new information order" );
+    ok( $query->submit_new( $ehr1->ehr_id ), "Submit new composition" );
     ok( !$query->err_msg, "No error message returned from REST call" );
     if ( $query->err_msg ) {
             diag( "Error occurred in submission: " . $query->err_msg );
