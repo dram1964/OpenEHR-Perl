@@ -10,6 +10,7 @@ use OpenEHR::Composition::ProblemDiagnosis::Diagnosis;
 use OpenEHR::Composition::ProblemDiagnosis::ColorectalDiagnosis;
 use OpenEHR::Composition::ProblemDiagnosis::ModifiedDukes;
 use OpenEHR::Composition::ProblemDiagnosis::TumourID;
+use OpenEHR::Composition::ProblemDiagnosis::ClinicalEvidence;
 
 BEGIN { use_ok('OpenEHR::Composition::CancerReport'); }
 
@@ -58,12 +59,18 @@ for my $format (@formats) {
         ),  'Create new Tumour ID object');
     ok($tumour_id->composition_format($format), "Set $format format for Tumour ID");
 
+    ok(my $clinical_evidence = OpenEHR::Composition::ProblemDiagnosis::ClinicalEvidence->new(
+        evidence => '2 Clinical investigation including all diagnostic techniques',
+        ),  'Create new Clinical Evidence object');
+    ok($clinical_evidence->composition_format($format), "Set $format format for Clinical Evidence");
+
     ok( my $problem_diagnosis = OpenEHR::Composition::ProblemDiagnosis->new(
             ajcc_stage => [$ajcc_stage],
             diagnosis   => [$diagnosis],
             colorectal_diagnosis   => [$colorectal_diagnosis],
             modified_dukes  => [$modified_dukes],
             tumour_id => [$tumour_id],
+            clinical_evidence => [$clinical_evidence],
         ), 'Create new ProblemDiagnosis object'
     );
     ok( $problem_diagnosis->composition_format($format), "Set $format composition format for ProblemDiagnosis");

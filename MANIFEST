@@ -14,6 +14,7 @@ lib/OpenEHR/Composition/Placer.pm
 lib/OpenEHR/Composition/ProblemDiagnosis.pm
 lib/OpenEHR/Composition/ProblemDiagnosis/AJCC_Stage.pm
 lib/OpenEHR/Composition/ProblemDiagnosis/ColorectalDiagnosis.pm
+lib/OpenEHR/Composition/ProblemDiagnosis/ClinicalEvidence.pm
 lib/OpenEHR/Composition/ProblemDiagnosis/Diagnosis.pm
 lib/OpenEHR/Composition/ProblemDiagnosis/ModifiedDukes.pm
 lib/OpenEHR/Composition/ProblemDiagnosis/TumourID.pm

@@ -65,9 +65,17 @@ has tumour_id => (
     is  => 'rw',
     isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::TumourID]',
 );
+
+=head2 clinical_evidence($clinical_evidence_object)
+
+Used to get or set the clinical_evidence item for the Problem Diagnosis
+
+=cut 
+
 has clinical_evidence => (
-    is  => 'rw',
-    isa => 'ArrayRef',
+    is => 'rw',
+    isa =>
+        'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::ClinicalEvidence]',
 );
 has upper_gi_staging => (
     is  => 'rw',
@@ -146,12 +154,6 @@ sub compose_structured {
             }
         ],
         'inrg_staging' => [ { 'inrg_stage' => [ { '|code' => 'at0005' } ] } ],
-        'clinical_evidence' => [
-            {   'base_of_diagnosis' => [
-                    '2 Clinical investigation including all diagnostic techniques'
-                ]
-            }
-        ],
         'cancer_diagnosis' => [
             {   'morphology'           => ['Morphology 86'],
                 'tumour_laterality'    => [ { '|code' => 'at0029' } ],
@@ -165,6 +167,12 @@ sub compose_structured {
 =head1 comment
 =cut
 
+    if ( $self->clinical_evidence ) {
+        for my $clinical_evidence ( @{ $self->clinical_evidence } ) {
+            push @{ $composition->{clinical_evidence} },
+                $clinical_evidence->compose;
+        }
+    }
     if ( $self->tumour_id ) {
         for my $tumour_id ( @{ $self->tumour_id } ) {
             push @{ $composition->{tumour_id} }, $tumour_id->compose;
@@ -205,36 +213,6 @@ sub compose_raw {
                 '@class' => 'DV_TEXT'
             },
             'items' => [
-                {   'archetype_details' => {
-                        '@class'       => 'ARCHETYPED',
-                        'rm_version'   => '1.0.1',
-                        'archetype_id' => {
-                            '@class' => 'ARCHETYPE_ID',
-                            'value' =>
-                                'openEHR-EHR-CLUSTER.clinical_evidence.v1'
-                        }
-                    },
-                    'name' => {
-                        '@class' => 'DV_TEXT',
-                        'value'  => 'Clinical evidence'
-                    },
-                    'items' => [
-                        {   'value' => {
-                                '@class' => 'DV_TEXT',
-                                'value'  => '6 Histology of metastasis'
-                            },
-                            'name' => {
-                                '@class' => 'DV_TEXT',
-                                'value'  => 'Base of diagnosis'
-                            },
-                            '@class'            => 'ELEMENT',
-                            'archetype_node_id' => 'at0003'
-                        }
-                    ],
-                    'archetype_node_id' =>
-                        'openEHR-EHR-CLUSTER.clinical_evidence.v1',
-                    '@class' => 'CLUSTER'
-                },
                 {   '@class' => 'CLUSTER',
                     'archetype_node_id' =>
                         'openEHR-EHR-CLUSTER.cancer_diagnosis_gel.v0',
@@ -805,6 +783,12 @@ sub compose_raw {
 =head1 comment
 =cut
 
+    if ( $self->clinical_evidence ) {
+        for my $clinical_evidence ( @{ $self->clinical_evidence } ) {
+            push @{ $composition->{data}->{items} },
+                $clinical_evidence->compose;
+        }
+    }
     if ( $self->tumour_id ) {
         for my $tumour_id ( @{ $self->tumour_id } ) {
             push @{ $composition->{data}->{items} }, $tumour_id->compose;
@@ -940,10 +924,6 @@ sub compose_flat {
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/inrg_staging:0/inrg_stage|terminology'
             => 'local',
 
-        # Clinical Evidence
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/clinical_evidence:0/base_of_diagnosis'
-            => '6 Histology of metastasis',
-
         # Testicular Staging
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging/extranodal_metastases|terminology'
             => 'local',
@@ -966,6 +946,25 @@ sub compose_flat {
 
     };
 
+=head1 comment 
+        # Clinical Evidence
+=cut
+
+    if ( $self->clinical_evidence ) {
+        my $clinical_evidence_index = '0';
+        my $clinical_evidence_comp;
+        for my $clinical_evidence ( @{ $self->clinical_evidence } ) {
+            my $composition_fragment = $clinical_evidence->compose;
+            for my $key ( keys %{$composition_fragment} ) {
+                my $new_key = $key;
+                $new_key =~ s/__DIAG__/$clinical_evidence_index/;
+                $clinical_evidence_comp->{$new_key} =
+                    $composition_fragment->{$key};
+            }
+            $clinical_evidence_index++;
+            $composition = { ( %$composition, %{$clinical_evidence_comp} ) };
+        }
+    }
     if ( $self->tumour_id ) {
         my $tumour_id_index = '0';
         my $tumour_id_comp;
