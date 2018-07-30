@@ -21,11 +21,11 @@ use OpenEHR::Composition::ProblemDiagnosis::UpperGI::TACE;
 use OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis;
 use OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::TumourLaterality;
 use OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::MetastaticSite;
-use
-    OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::RecurrenceIndicator;
+use OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::RecurrenceIndicator;
 use OpenEHR::Composition::ProblemDiagnosis::Integrated_TNM;
 use OpenEHR::Composition::ProblemDiagnosis::INRG_Staging;
 use OpenEHR::Composition::ProblemDiagnosis::TesticularStaging;
+use OpenEHR::Composition::ProblemDiagnosis::TesticularStaging::LungMetastases;
 
 BEGIN { use_ok('OpenEHR::Composition::CancerReport'); }
 
@@ -277,8 +277,21 @@ for my $format (@formats) {
         "Set $format format for INRG Staging"
     );
 
+    ok( my $lung_metastases =
+            OpenEHR::Composition::ProblemDiagnosis::TesticularStaging::LungMetastases->new(
+            code =>  'at0021',
+            value =>  'L1 less than or equal to 4 metastases',
+            terminology =>  'local',
+            ),
+        'Create new Lung Metastases object'
+    );
+    ok( $lung_metastases->composition_format($format),
+        "Set $format format for Lung Metastases"
+    );
+
     ok( my $testicular_staging =
             OpenEHR::Composition::ProblemDiagnosis::TesticularStaging->new(
+            lung_metastases => [$lung_metastases],
             ),
         'Create new Testicular Staging object'
     );

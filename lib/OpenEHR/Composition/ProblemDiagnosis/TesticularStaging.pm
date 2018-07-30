@@ -10,6 +10,17 @@ extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
+=head1 lung_metastases($lung_metastases_object)
+
+Used to get or set the Lung Metastases item of the Testicular Staging item
+
+=cut
+
+has lung_metastases => (
+    is  => 'rw',
+    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::TesticularStaging::LungMetastases]',
+);
+
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')
@@ -22,11 +33,15 @@ sub compose {
 sub compose_structured {
     my $self        = shift;
     my $composition = {   
-        'lung_metastases_sub-stage_grouping' =>
-                    [ { '|code' => 'at0021' } ],
                 'extranodal_metastases'     => [ { '|code' => 'at0019' } ],
                 'stage_grouping_testicular' => [ { '|code' => 'at0007' } ]
             };
+    if ( $self->lung_metastases ) {
+        for my $lung_metastases ( @{ $self->lung_metastases } ) {
+            push @{ $composition->{'lung_metastases_sub-stage_grouping'} },
+                $lung_metastases->compose;
+        }
+    }
     return $composition;
 }
 
@@ -72,27 +87,6 @@ sub compose_raw {
                                 'value' => 'L Lung involvement'
                             }
                         },
-                        {   'name' => {
-                                'value' =>
-                                    'Lung metastases sub-stage grouping',
-                                '@class' => 'DV_TEXT'
-                            },
-                            'value' => {
-                                'value' =>
-                                    'L1 less than or equal to 3 metastases',
-                                'defining_code' => {
-                                    'terminology_id' => {
-                                        '@class' => 'TERMINOLOGY_ID',
-                                        'value'  => 'local'
-                                    },
-                                    'code_string' => 'at0021',
-                                    '@class'      => 'CODE_PHRASE'
-                                },
-                                '@class' => 'DV_CODED_TEXT'
-                            },
-                            'archetype_node_id' => 'at0020',
-                            '@class'            => 'ELEMENT'
-                        }
                     ],
                     'name' => {
                         '@class' => 'DV_TEXT',
@@ -111,6 +105,12 @@ sub compose_raw {
                     'archetype_node_id' =>
                         'openEHR-EHR-CLUSTER.testicular_staging_gel.v0'
                 };
+    if ( $self->lung_metastases ) {
+        for my $lung_metastases ( @{ $self->lung_metastases } ) {
+            push @{ $composition->{items} },
+                $lung_metastases->compose;
+        }
+    }
     return $composition;
 }
 
@@ -129,13 +129,22 @@ sub compose_flat {
             => 'at0010',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/stage_grouping_testicular|value'
             => '3C',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/lung_metastases_sub-stage_grouping|code'
-            => 'at0021',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/lung_metastases_sub-stage_grouping|value'
-            => 'L1 less than or equal to 3 metastases',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/lung_metastases_sub-stage_grouping|terminology'
-            => 'local',
     };
+    if ( $self->lung_metastases ) {
+        my $lung_metastases_index = '0';
+        my $lung_metastases_comp;
+        for my $lung_metastases ( @{ $self->lung_metastases } ) {
+            my $composition_fragment = $lung_metastases->compose;
+            for my $key ( keys %{$composition_fragment} ) {
+                my $new_key = $key;
+                $new_key =~ s/__DIAG2__/$lung_metastases_index/;
+                $lung_metastases_comp->{$new_key} =
+                    $composition_fragment->{$key};
+            }
+            $lung_metastases_index++;
+            $composition = { ( %$composition, %{$lung_metastases_comp} ) };
+        }
+    }
     return $composition;
 }
 
