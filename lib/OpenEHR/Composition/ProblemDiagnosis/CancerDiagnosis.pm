@@ -32,6 +32,17 @@ has metastatic_site => (
     isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::MetastaticSite]',
 );
 
+=head1 recurrence_indicator($recurrence_indicator_object)
+
+Used to get or set the Metastatic Site item of the Cancer Diagnosis item
+
+=cut
+
+has recurrence_indicator => (
+    is  => 'rw',
+    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::RecurrenceIndicator]',
+);
+
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')
@@ -46,8 +57,13 @@ sub compose_structured {
     my $composition = {
         'morphology'           => ['Morphology 86'],
         'topography'           => ['Topography 90'],
-        'recurrence_indicator' => [ { '|code' => 'at0014' } ]
     };
+    if ( $self->recurrence_indicator ) {
+        for my $recurrence_indicator ( @{ $self->recurrence_indicator } ) {
+            push @{ $composition->{'recurrence_indicator'} },
+                $recurrence_indicator->compose;
+        }
+    }
     if ( $self->metastatic_site ) {
         for my $metastatic_site ( @{ $self->metastatic_site } ) {
             push @{ $composition->{'metastatic_site'} },
@@ -73,25 +89,6 @@ sub compose_raw {
             '@class' => 'DV_TEXT'
         },
         'items' => [
-            {   'value' => {
-                    '@class'        => 'DV_CODED_TEXT',
-                    'defining_code' => {
-                        'terminology_id' => {
-                            '@class' => 'TERMINOLOGY_ID',
-                            'value'  => 'local'
-                        },
-                        '@class'      => 'CODE_PHRASE',
-                        'code_string' => 'at0016'
-                    },
-                    'value' => 'NN'
-                },
-                'name' => {
-                    'value'  => 'Recurrence indicator',
-                    '@class' => 'DV_TEXT'
-                },
-                '@class'            => 'ELEMENT',
-                'archetype_node_id' => 'at0013'
-            },
             {   'value' => {
                     'value'  => 'Morphology 46',
                     '@class' => 'DV_TEXT'
@@ -124,6 +121,12 @@ sub compose_raw {
             'rm_version' => '1.0.1'
         }
     };
+    if ( $self->recurrence_indicator ) {
+        for my $recurrence_indicator ( @{ $self->recurrence_indicator } ) {
+            push @{ $composition->{items} },
+                $recurrence_indicator->compose;
+        }
+    }
     if ( $self->metastatic_site ) {
         for my $metastatic_site ( @{ $self->metastatic_site } ) {
             push @{ $composition->{items} },
@@ -144,17 +147,26 @@ sub compose_flat {
     my $composition = {
 
         # Cancer Diagnosis
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/recurrence_indicator|value'
-            => 'NN',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/recurrence_indicator|code'
-            => 'at0016',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/recurrence_indicator|terminology'
-            => 'local',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/morphology:0'
             => 'Morphology 46',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/topography'
             => 'Topography 75',
     };
+    if ( $self->recurrence_indicator ) {
+        my $recurrence_indicator_index = '0';
+        my $recurrence_indicator_comp;
+        for my $recurrence_indicator ( @{ $self->recurrence_indicator } ) {
+            my $composition_fragment = $recurrence_indicator->compose;
+            for my $key ( keys %{$composition_fragment} ) {
+                my $new_key = $key;
+                $new_key =~ s/__DIAG2__/$recurrence_indicator_index/;
+                $recurrence_indicator_comp->{$new_key} =
+                    $composition_fragment->{$key};
+            }
+            $recurrence_indicator_index++;
+            $composition = { ( %$composition, %{$recurrence_indicator_comp} ) };
+        }
+    }
     if ( $self->metastatic_site ) {
         my $metastatic_site_index = '0';
         my $metastatic_site_comp;

@@ -20,6 +20,7 @@ use OpenEHR::Composition::ProblemDiagnosis::UpperGI::TACE;
 use OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis;
 use OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::TumourLaterality;
 use OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::MetastaticSite;
+use OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::RecurrenceIndicator;
 use OpenEHR::Composition::ProblemDiagnosis::Integrated_TNM;
 use OpenEHR::Composition::ProblemDiagnosis::INRG_Staging;
 
@@ -134,9 +135,17 @@ for my $format (@formats) {
         ),  'Create new Metastatic Site object');
     ok($metastatic_site->composition_format($format), "Set $format format for Metastatic Site");
 
+    ok(my $recurrence_indicator = OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::RecurrenceIndicator->new(
+        code => 'at0016',
+        value => 'NN', 
+        terminology => 'local',
+        ),  'Create new Recurrence Indicator object');
+    ok($recurrence_indicator->composition_format($format), "Set $format format for Recurrence Indicator");
+
     ok(my $cancer_diagnosis = OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis->new(
         tumour_laterality => [$tumour_laterality],
         metastatic_site => [$metastatic_site],
+        recurrence_indicator => [$recurrence_indicator],
         ),  'Create new Cancer Diagnosis object');
     ok($cancer_diagnosis->composition_format($format), "Set $format format for Cancer Diagnosis");
 
