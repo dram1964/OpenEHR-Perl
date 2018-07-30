@@ -132,13 +132,27 @@ has final_figo_stage => (
     is  => 'rw',
     isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::FinalFigoStage]',
 );
+
+=head2 event_date($datetime_object)
+
+Used to get or set the event date item for the Problem Diagnosis
+
+=cut 
+
 has event_date => (
     is  => 'rw',
-    isa => 'ArrayRef',
+    isa => 'DateTime',
 );
+
+=head2 testicular_staging($upper_gi_object)
+
+Used to get or set the testicular staging item for the Problem Diagnosis
+
+=cut 
+
 has testicular_staging => (
     is  => 'rw',
-    isa => 'ArrayRef',
+    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::TesticularStaging]',
 );
 
 sub compose {
@@ -153,21 +167,18 @@ sub compose {
 sub compose_structured {
     my $self        = shift;
     my $composition = {
-        'event_date'         => ['2018-07-27T08:21:34.077+01:00'],
-        'testicular_staging' => [
-            {   'lung_metastases_sub-stage_grouping' =>
-                    [ { '|code' => 'at0021' } ],
-                'extranodal_metastases'     => [ { '|code' => 'at0019' } ],
-                'stage_grouping_testicular' => [ { '|code' => 'at0007' } ]
-            }
-        ],
+        'event_date'         => [ DateTime->now->datetime ],
     };
 
 =head1 comment
-        'final_figo_stage' => [
-        ],
 =cut
 
+    if ( $self->testicular_staging ) {
+        for my $testicular_staging ( @{ $self->testicular_staging } ) {
+            push @{ $composition->{testicular_staging} },
+                $testicular_staging->compose;
+        }
+    }
     if ( $self->final_figo_stage ) {
         for my $final_figo_stage ( @{ $self->final_figo_stage } ) {
             push @{ $composition->{final_figo_stage} },
@@ -238,84 +249,6 @@ sub compose_raw {
                 '@class' => 'DV_TEXT'
             },
             'items' => [
-                {   'items' => [
-                        {   'value' => {
-                                '@class'        => 'DV_CODED_TEXT',
-                                'value'         => '3C',
-                                'defining_code' => {
-                                    'terminology_id' => {
-                                        '@class' => 'TERMINOLOGY_ID',
-                                        'value'  => 'local'
-                                    },
-                                    'code_string' => 'at0010',
-                                    '@class'      => 'CODE_PHRASE'
-                                }
-                            },
-                            'name' => {
-                                'value'  => 'Stage grouping testicular',
-                                '@class' => 'DV_TEXT'
-                            },
-                            '@class'            => 'ELEMENT',
-                            'archetype_node_id' => 'at0001'
-                        },
-                        {   'archetype_node_id' => 'at0014',
-                            '@class'            => 'ELEMENT',
-                            'name'              => {
-                                '@class' => 'DV_TEXT',
-                                'value'  => 'Extranodal metastases'
-                            },
-                            'value' => {
-                                '@class'        => 'DV_CODED_TEXT',
-                                'defining_code' => {
-                                    'code_string'    => 'at0019',
-                                    '@class'         => 'CODE_PHRASE',
-                                    'terminology_id' => {
-                                        'value'  => 'local',
-                                        '@class' => 'TERMINOLOGY_ID'
-                                    }
-                                },
-                                'value' => 'L Lung involvement'
-                            }
-                        },
-                        {   'name' => {
-                                'value' =>
-                                    'Lung metastases sub-stage grouping',
-                                '@class' => 'DV_TEXT'
-                            },
-                            'value' => {
-                                'value' =>
-                                    'L1 less than or equal to 3 metastases',
-                                'defining_code' => {
-                                    'terminology_id' => {
-                                        '@class' => 'TERMINOLOGY_ID',
-                                        'value'  => 'local'
-                                    },
-                                    'code_string' => 'at0021',
-                                    '@class'      => 'CODE_PHRASE'
-                                },
-                                '@class' => 'DV_CODED_TEXT'
-                            },
-                            'archetype_node_id' => 'at0020',
-                            '@class'            => 'ELEMENT'
-                        }
-                    ],
-                    'name' => {
-                        '@class' => 'DV_TEXT',
-                        'value'  => 'Testicular staging'
-                    },
-                    'archetype_details' => {
-                        '@class'       => 'ARCHETYPED',
-                        'archetype_id' => {
-                            'value' =>
-                                'openEHR-EHR-CLUSTER.testicular_staging_gel.v0',
-                            '@class' => 'ARCHETYPE_ID'
-                        },
-                        'rm_version' => '1.0.1'
-                    },
-                    '@class' => 'CLUSTER',
-                    'archetype_node_id' =>
-                        'openEHR-EHR-CLUSTER.testicular_staging_gel.v0'
-                },
 
             ],
             '@class'            => 'ITEM_TREE',
@@ -341,7 +274,7 @@ sub compose_raw {
                     'archetype_node_id' => 'at0070',
                     'value'             => {
                         '@class' => 'DV_DATE_TIME',
-                        'value'  => '2018-07-24T14:05:01.806+01:00'
+                        'value'  => DateTime->now->datetime, #'2018-07-24T14:05:01.806+01:00'
                     },
                     'name' => {
                         '@class' => 'DV_TEXT',
@@ -377,6 +310,12 @@ sub compose_raw {
 =head1 comment
 =cut
 
+    if ( $self->testicular_staging ) {
+        for my $testicular_staging ( @{ $self->testicular_staging } ) {
+            push @{ $composition->{data}->{items} },
+                $testicular_staging->compose;
+        }
+    }
     if ( $self->final_figo_stage ) {
         for my $final_figo_stage ( @{ $self->final_figo_stage } ) {
             push @{ $composition->{data}->{items} },
@@ -454,35 +393,32 @@ sub compose_flat {
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/encoding|code' =>
             'UTF-8',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/event_date' =>
-            '2018-07-24T14:05:01.806+01:00',
+            DateTime->now->datetime, #'2018-07-24T14:05:01.806+01:00',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/encoding|terminology'
             => 'IANA_character-sets',
-
-        # Testicular Staging
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging/extranodal_metastases|terminology'
-            => 'local',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging/stage_grouping_testicular|terminology'
-            => 'local',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging/stage_grouping_testicular|code'
-            => 'at0010',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging/extranodal_metastases|code'
-            => 'at0019',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging/stage_grouping_testicular|value'
-            => '3C',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging/lung_metastases_sub-stage_grouping|code'
-            => 'at0021',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging/lung_metastases_sub-stage_grouping|value'
-            => 'L1 less than or equal to 3 metastases',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging/extranodal_metastases|value'
-            => 'L Lung involvement',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging/lung_metastases_sub-stage_grouping|terminology'
-            => 'local',
-
     };
 
 =head1 comment 
+
+        # Testicular Staging
+
 =cut
 
+    if ( $self->testicular_staging ) {
+        my $testicular_staging_index = '0';
+        my $testicular_staging_comp;
+        for my $testicular_staging ( @{ $self->testicular_staging } ) {
+            my $composition_fragment = $testicular_staging->compose;
+            for my $key ( keys %{$composition_fragment} ) {
+                my $new_key = $key;
+                $new_key =~ s/__DIAG__/$testicular_staging_index/;
+                $testicular_staging_comp->{$new_key} =
+                    $composition_fragment->{$key};
+            }
+            $testicular_staging_index++;
+            $composition = { ( %$composition, %{$testicular_staging_comp} ) };
+        }
+    }
     if ( $self->final_figo_stage ) {
         my $final_figo_stage_index = '0';
         my $final_figo_stage_comp;

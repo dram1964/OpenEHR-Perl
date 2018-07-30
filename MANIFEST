@@ -24,6 +24,7 @@ lib/OpenEHR/Composition/ProblemDiagnosis/FinalFigoGrade.pm
 lib/OpenEHR/Composition/ProblemDiagnosis/INRG_Staging.pm
 lib/OpenEHR/Composition/ProblemDiagnosis/Integrated_TNM.pm
 lib/OpenEHR/Composition/ProblemDiagnosis/ModifiedDukes.pm
+lib/OpenEHR/Composition/ProblemDiagnosis/TesticularStaging.pm
 lib/OpenEHR/Composition/ProblemDiagnosis/TumourID.pm
 lib/OpenEHR/Composition/ProblemDiagnosis/UpperGI.pm
 lib/OpenEHR/Composition/ProblemDiagnosis/UpperGI/BCLC_Stage.pm
