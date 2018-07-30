@@ -99,6 +99,13 @@ has integrated_tnm => (
     is  => 'rw',
     isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::Integrated_TNM]',
 );
+
+=head2 inrg_staging($upper_gi_object)
+
+Used to get or set the inrg staging item for the Problem Diagnosis
+
+=cut 
+
 has inrg_staging => (
     is  => 'rw',
     isa => 'ArrayRef',
@@ -145,7 +152,6 @@ sub compose_structured {
                 'stage_grouping_testicular' => [ { '|code' => 'at0007' } ]
             }
         ],
-        'inrg_staging' => [ { 'inrg_stage' => [ { '|code' => 'at0005' } ] } ],
         'cancer_diagnosis' => [
             {   'morphology'           => ['Morphology 86'],
                 'tumour_laterality'    => [ { '|code' => 'at0029' } ],
@@ -159,10 +165,10 @@ sub compose_structured {
 =head1 comment
 =cut
 
-    if ( $self->integrated_tnm ) {
-        for my $integrated_tnm ( @{ $self->integrated_tnm } ) {
-            push @{ $composition->{integrated_tnm} },
-                $integrated_tnm->compose;
+    if ( $self->inrg_staging ) {
+        for my $inrg_staging ( @{ $self->inrg_staging } ) {
+            push @{ $composition->{inrg_staging} },
+                $inrg_staging->compose;
         }
     }
     if ( $self->upper_gi_staging ) {
@@ -314,43 +320,6 @@ sub compose_raw {
                         },
                         'rm_version' => '1.0.1'
                     }
-                },
-                {   'archetype_details' => {
-                        '@class'       => 'ARCHETYPED',
-                        'archetype_id' => {
-                            '@class' => 'ARCHETYPE_ID',
-                            'value'  => 'openEHR-EHR-CLUSTER.inrg_staging.v0'
-                        },
-                        'rm_version' => '1.0.1'
-                    },
-                    'name' => {
-                        '@class' => 'DV_TEXT',
-                        'value'  => 'INRG staging'
-                    },
-                    'items' => [
-                        {   'value' => {
-                                '@class'        => 'DV_CODED_TEXT',
-                                'defining_code' => {
-                                    'code_string'    => 'at0004',
-                                    '@class'         => 'CODE_PHRASE',
-                                    'terminology_id' => {
-                                        'value'  => 'local',
-                                        '@class' => 'TERMINOLOGY_ID'
-                                    }
-                                },
-                                'value' => 'M'
-                            },
-                            'name' => {
-                                '@class' => 'DV_TEXT',
-                                'value'  => 'INRG stage'
-                            },
-                            '@class'            => 'ELEMENT',
-                            'archetype_node_id' => 'at0001'
-                        }
-                    ],
-                    '@class' => 'CLUSTER',
-                    'archetype_node_id' =>
-                        'openEHR-EHR-CLUSTER.inrg_staging.v0'
                 },
                 {   '@class' => 'CLUSTER',
                     'archetype_node_id' =>
@@ -539,6 +508,12 @@ sub compose_raw {
 =head1 comment
 =cut
 
+    if ( $self->inrg_staging ) {
+        for my $inrg_staging ( @{ $self->inrg_staging } ) {
+            push @{ $composition->{data}->{items} },
+                $inrg_staging->compose;
+        }
+    }
     if ( $self->integrated_tnm ) {
         for my $integrated_tnm ( @{ $self->integrated_tnm } ) {
             push @{ $composition->{data}->{items} },
@@ -636,14 +611,6 @@ sub compose_flat {
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/final_figo_stage/figo_grade|terminology'
             => 'local',
 
-        # INRG Staging
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/inrg_staging:0/inrg_stage|code'
-            => 'at0004',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/inrg_staging:0/inrg_stage|value'
-            => 'M',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/inrg_staging:0/inrg_stage|terminology'
-            => 'local',
-
         # Testicular Staging
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging/extranodal_metastases|terminology'
             => 'local',
@@ -669,19 +636,19 @@ sub compose_flat {
 =head1 comment 
 =cut
 
-    if ( $self->integrated_tnm ) {
-        my $integrated_tnm_index = '0';
-        my $integrated_tnm_comp;
-        for my $integrated_tnm ( @{ $self->integrated_tnm } ) {
-            my $composition_fragment = $integrated_tnm->compose;
+    if ( $self->inrg_staging ) {
+        my $inrg_staging_index = '0';
+        my $inrg_staging_comp;
+        for my $inrg_staging ( @{ $self->inrg_staging } ) {
+            my $composition_fragment = $inrg_staging->compose;
             for my $key ( keys %{$composition_fragment} ) {
                 my $new_key = $key;
-                $new_key =~ s/__DIAG__/$integrated_tnm_index/;
-                $integrated_tnm_comp->{$new_key} =
+                $new_key =~ s/__DIAG__/$inrg_staging_index/;
+                $inrg_staging_comp->{$new_key} =
                     $composition_fragment->{$key};
             }
-            $integrated_tnm_index++;
-            $composition = { ( %$composition, %{$integrated_tnm_comp} ) };
+            $inrg_staging_index++;
+            $composition = { ( %$composition, %{$inrg_staging_comp} ) };
         }
     }
     if ( $self->upper_gi_staging ) {

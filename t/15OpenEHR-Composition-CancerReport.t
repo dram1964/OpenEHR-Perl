@@ -14,6 +14,7 @@ use OpenEHR::Composition::ProblemDiagnosis::ClinicalEvidence;
 use OpenEHR::Composition::ProblemDiagnosis::UpperGI;
 use OpenEHR::Composition::ProblemDiagnosis::UpperGI::BCLC_Stage;
 use OpenEHR::Composition::ProblemDiagnosis::Integrated_TNM;
+use OpenEHR::Composition::ProblemDiagnosis::INRG_Staging;
 
 BEGIN { use_ok('OpenEHR::Composition::CancerReport'); }
 
@@ -89,6 +90,13 @@ for my $format (@formats) {
         ),  'Create new Integrated TNM object');
     ok($integrated_tnm->composition_format($format), "Set $format format for Integrated TNM");
 
+    ok(my $inrg_staging = OpenEHR::Composition::ProblemDiagnosis::INRG_Staging->new(
+            code =>  'at0004',
+            value =>  'M',
+            terminology =>  'local',
+        ),  'Create new INRG Staging object');
+    ok($inrg_staging->composition_format($format), "Set $format format for INRG Staging");
+
     ok( my $problem_diagnosis = OpenEHR::Composition::ProblemDiagnosis->new(
             ajcc_stage => [$ajcc_stage],
             diagnosis   => [$diagnosis],
@@ -98,6 +106,7 @@ for my $format (@formats) {
             clinical_evidence => [$clinical_evidence],
             upper_gi_staging    => [$upper_gi],
             integrated_tnm      => [$integrated_tnm],
+            inrg_staging        => [$inrg_staging],
         ), 'Create new ProblemDiagnosis object'
     );
     ok( $problem_diagnosis->composition_format($format), "Set $format composition format for ProblemDiagnosis");
