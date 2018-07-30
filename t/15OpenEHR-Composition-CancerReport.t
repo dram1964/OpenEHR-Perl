@@ -15,6 +15,7 @@ use OpenEHR::Composition::ProblemDiagnosis::UpperGI;
 use OpenEHR::Composition::ProblemDiagnosis::UpperGI::BCLC_Stage;
 use OpenEHR::Composition::ProblemDiagnosis::UpperGI::PortalInvasion;
 use OpenEHR::Composition::ProblemDiagnosis::UpperGI::PancreaticClinicalStage;
+use OpenEHR::Composition::ProblemDiagnosis::UpperGI::ChildPughScore;
 use OpenEHR::Composition::ProblemDiagnosis::Integrated_TNM;
 use OpenEHR::Composition::ProblemDiagnosis::INRG_Staging;
 
@@ -91,10 +92,18 @@ for my $format (@formats) {
         ),  'Create new Pancreatic Clinical Stage object');
     ok($pancreatic_clinical_stage->composition_format($format), "Set $format format for Pancreatic Clinical Stage");
 
+    ok(my $child_pugh_score = OpenEHR::Composition::ProblemDiagnosis::UpperGI::ChildPughScore->new(
+        code => 'at0027',
+        value => 'Class B 7 to 8 points', 
+        terminology => 'local',
+        ),  'Create new Child-Pugh Score object');
+    ok($child_pugh_score->composition_format($format), "Set $format format for Child-Pugh Score");
+
     ok(my $upper_gi = OpenEHR::Composition::ProblemDiagnosis::UpperGI->new(
         bclc_stage => [$bclc_stage],
         portal_invasion => [$portal_invasion],
         pancreatic_clinical_stage => [$pancreatic_clinical_stage],
+        child_pugh_score => [$child_pugh_score],
         ),  'Create new Upper GI object');
     ok($upper_gi->composition_format($format), "Set $format format for Upper GI");
 

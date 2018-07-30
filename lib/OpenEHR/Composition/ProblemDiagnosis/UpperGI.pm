@@ -52,13 +52,29 @@ has pancreatic_clinical_stage => (
     isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::UpperGI::PancreaticClinicalStage]',
 );
 
+=head2 child_pugh_score($child_pugh_score_obj)
+
+Used to get or set the Child-Pugh Score item in an Upper GI Staging item
+
+=cut 
+
+has child_pugh_score => (
+    is  => 'rw',
+    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::UpperGI::ChildPughScore]',
+);
+
 sub compose_structured {
     my $self        = shift;
     my $composition = {
-        'child-pugh_score'  => [ { 'grade' => [ { '|code' => 'at0028' } ] } ],
         'transarterial_chemoembolisation' => [ { '|code' => 'at0015' } ],
         'number_of_lesions' => [578],
     };
+    if ( $self->child_pugh_score ) {
+        for my $child_pugh_score ( @{ $self->child_pugh_score } ) {
+            push @{ $composition->{'child-pugh_score'} },
+                $child_pugh_score->compose;
+        }
+    }
     if ( $self->pancreatic_clinical_stage ) {
         for my $pancreatic_clinical_stage ( @{ $self->pancreatic_clinical_stage } ) {
             push @{ $composition->{pancreatic_clinical_stage} },
@@ -90,43 +106,6 @@ sub compose_raw {
             'value'  => 'Upper GI staging'
         },
         'items' => [
-            {   'archetype_details' => {
-                    'rm_version'   => '1.0.1',
-                    'archetype_id' => {
-                        '@class' => 'ARCHETYPE_ID',
-                        'value'  => 'openEHR-EHR-CLUSTER.child_pugh_score.v0'
-                    },
-                    '@class' => 'ARCHETYPED'
-                },
-                'items' => [
-                    {   '@class'            => 'ELEMENT',
-                        'archetype_node_id' => 'at0026',
-                        'value'             => {
-                            '@class'        => 'DV_CODED_TEXT',
-                            'value'         => 'Class A 5 to 6 points.',
-                            'defining_code' => {
-                                'terminology_id' => {
-                                    'value'  => 'local',
-                                    '@class' => 'TERMINOLOGY_ID'
-                                },
-                                'code_string' => 'at0027',
-                                '@class'      => 'CODE_PHRASE'
-                            }
-                        },
-                        'name' => {
-                            '@class' => 'DV_TEXT',
-                            'value'  => 'Grade'
-                        }
-                    }
-                ],
-                'name' => {
-                    '@class' => 'DV_TEXT',
-                    'value'  => 'Child-Pugh score'
-                },
-                '@class' => 'CLUSTER',
-                'archetype_node_id' =>
-                    'openEHR-EHR-CLUSTER.child_pugh_score.v0'
-            },
             {   '@class'            => 'ELEMENT',
                 'archetype_node_id' => 'at0007',
                 'value'             => {
@@ -167,6 +146,12 @@ sub compose_raw {
             '@class'     => 'ARCHETYPED'
         }
     };
+    if ( $self->child_pugh_score ) {
+        for my $child_pugh_score ( @{ $self->child_pugh_score } ) {
+            push @{ $composition->{items} },
+                $child_pugh_score->compose;
+        }
+    }
     if ( $self->pancreatic_clinical_stage ) {
         for my $pancreatic_clinical_stage ( @{ $self->pancreatic_clinical_stage } ) {
             push @{ $composition->{items} },
@@ -191,12 +176,6 @@ sub compose_raw {
 sub compose_flat {
     my $self        = shift;
     my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/child-pugh_score:0/grade|code'
-            => 'at0027',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/child-pugh_score:0/grade|value'
-            => 'Class A 5 to 6 points.',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/child-pugh_score:0/grade|terminology'
-            => 'local',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/transarterial_chemoembolisation|terminology'
             => 'local',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/transarterial_chemoembolisation|value'
@@ -206,6 +185,21 @@ sub compose_flat {
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/number_of_lesions'
             => 97,
     };
+    if ( $self->child_pugh_score ) {
+        my $child_pugh_score_index = '0';
+        my $child_pugh_score_comp;
+        for my $child_pugh_score ( @{ $self->child_pugh_score } ) {
+            my $composition_fragment = $child_pugh_score->compose;
+            for my $key ( keys %{$composition_fragment} ) {
+                my $new_key = $key;
+                $new_key =~ s/__DIAG2__/$child_pugh_score_index/;
+                $child_pugh_score_comp->{$new_key} =
+                    $composition_fragment->{$key};
+            }
+            $child_pugh_score_index++;
+            $composition = { ( %$composition, %{$child_pugh_score_comp} ) };
+        }
+    }
     if ( $self->pancreatic_clinical_stage ) {
         my $pancreatic_clinical_stage_index = '0';
         my $pancreatic_clinical_stage_comp;
