@@ -121,9 +121,16 @@ has cancer_diagnosis => (
     is  => 'rw',
     isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis]',
 );
+
+=head2 final_figo_stage($final_figo_stage_object)
+
+Used to get or set the final figo stage item for the Problem Diagnosis
+
+=cut 
+
 has final_figo_stage => (
     is  => 'rw',
-    isa => 'ArrayRef',
+    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::FinalFigoStage]',
 );
 has event_date => (
     is  => 'rw',
@@ -146,11 +153,6 @@ sub compose {
 sub compose_structured {
     my $self        = shift;
     my $composition = {
-        'final_figo_stage' => [
-            {   'figo_version' => ['FIGO version 46'],
-                'figo_grade'   => [ { '|code' => 'at0017' } ]
-            }
-        ],
         'event_date'         => ['2018-07-27T08:21:34.077+01:00'],
         'testicular_staging' => [
             {   'lung_metastases_sub-stage_grouping' =>
@@ -162,8 +164,16 @@ sub compose_structured {
     };
 
 =head1 comment
+        'final_figo_stage' => [
+        ],
 =cut
 
+    if ( $self->final_figo_stage ) {
+        for my $final_figo_stage ( @{ $self->final_figo_stage } ) {
+            push @{ $composition->{final_figo_stage} },
+                $final_figo_stage->compose;
+        }
+    }
     if ( $self->cancer_diagnosis ) {
         for my $cancer_diagnosis ( @{ $self->cancer_diagnosis } ) {
             push @{ $composition->{cancer_diagnosis} },
@@ -228,54 +238,6 @@ sub compose_raw {
                 '@class' => 'DV_TEXT'
             },
             'items' => [
-                {   '@class' => 'CLUSTER',
-                    'archetype_node_id' =>
-                        'openEHR-EHR-CLUSTER.figo_grade.v0',
-                    'items' => [
-                        {   'archetype_node_id' => 'at0001',
-                            '@class'            => 'ELEMENT',
-                            'name'              => {
-                                '@class' => 'DV_TEXT',
-                                'value'  => 'FIGO grade'
-                            },
-                            'value' => {
-                                'value'         => 'ib',
-                                'defining_code' => {
-                                    'code_string'    => 'at0008',
-                                    '@class'         => 'CODE_PHRASE',
-                                    'terminology_id' => {
-                                        '@class' => 'TERMINOLOGY_ID',
-                                        'value'  => 'local'
-                                    }
-                                },
-                                '@class' => 'DV_CODED_TEXT'
-                            }
-                        },
-                        {   'archetype_node_id' => 'at0005',
-                            '@class'            => 'ELEMENT',
-                            'name'              => {
-                                'value'  => 'FIGO version',
-                                '@class' => 'DV_TEXT'
-                            },
-                            'value' => {
-                                'value'  => 'FIGO version 99',
-                                '@class' => 'DV_TEXT'
-                            }
-                        }
-                    ],
-                    'name' => {
-                        'value'  => 'Final FIGO stage',
-                        '@class' => 'DV_TEXT'
-                    },
-                    'archetype_details' => {
-                        '@class'       => 'ARCHETYPED',
-                        'rm_version'   => '1.0.1',
-                        'archetype_id' => {
-                            'value'  => 'openEHR-EHR-CLUSTER.figo_grade.v0',
-                            '@class' => 'ARCHETYPE_ID'
-                        }
-                    }
-                },
                 {   'items' => [
                         {   'value' => {
                                 '@class'        => 'DV_CODED_TEXT',
@@ -415,6 +377,12 @@ sub compose_raw {
 =head1 comment
 =cut
 
+    if ( $self->final_figo_stage ) {
+        for my $final_figo_stage ( @{ $self->final_figo_stage } ) {
+            push @{ $composition->{data}->{items} },
+                $final_figo_stage->compose;
+        }
+    }
     if ( $self->cancer_diagnosis ) {
         for my $cancer_diagnosis ( @{ $self->cancer_diagnosis } ) {
             push @{ $composition->{data}->{items} },
@@ -490,16 +458,6 @@ sub compose_flat {
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/encoding|terminology'
             => 'IANA_character-sets',
 
-        # Final Figo Stage
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/final_figo_stage/figo_grade|code'
-            => 'at0008',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/final_figo_stage/figo_grade|value'
-            => 'ib',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/final_figo_stage/figo_version'
-            => 'FIGO version 99',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/final_figo_stage/figo_grade|terminology'
-            => 'local',
-
         # Testicular Staging
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging/extranodal_metastases|terminology'
             => 'local',
@@ -525,6 +483,21 @@ sub compose_flat {
 =head1 comment 
 =cut
 
+    if ( $self->final_figo_stage ) {
+        my $final_figo_stage_index = '0';
+        my $final_figo_stage_comp;
+        for my $final_figo_stage ( @{ $self->final_figo_stage } ) {
+            my $composition_fragment = $final_figo_stage->compose;
+            for my $key ( keys %{$composition_fragment} ) {
+                my $new_key = $key;
+                $new_key =~ s/__DIAG__/$final_figo_stage_index/;
+                $final_figo_stage_comp->{$new_key} =
+                    $composition_fragment->{$key};
+            }
+            $final_figo_stage_index++;
+            $composition = { ( %$composition, %{$final_figo_stage_comp} ) };
+        }
+    }
     if ( $self->cancer_diagnosis ) {
         my $cancer_diagnosis_index = '0';
         my $cancer_diagnosis_comp;

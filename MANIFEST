@@ -20,6 +20,7 @@ lib/OpenEHR/Composition/ProblemDiagnosis/CancerDiagnosis/RecurrenceIndicator.pm
 lib/OpenEHR/Composition/ProblemDiagnosis/ColorectalDiagnosis.pm
 lib/OpenEHR/Composition/ProblemDiagnosis/ClinicalEvidence.pm
 lib/OpenEHR/Composition/ProblemDiagnosis/Diagnosis.pm
+lib/OpenEHR/Composition/ProblemDiagnosis/FinalFigoGrade.pm
 lib/OpenEHR/Composition/ProblemDiagnosis/INRG_Staging.pm
 lib/OpenEHR/Composition/ProblemDiagnosis/Integrated_TNM.pm
 lib/OpenEHR/Composition/ProblemDiagnosis/ModifiedDukes.pm

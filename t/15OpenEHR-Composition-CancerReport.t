@@ -8,6 +8,7 @@ use OpenEHR::Composition::ProblemDiagnosis;
 use OpenEHR::Composition::ProblemDiagnosis::AJCC_Stage;
 use OpenEHR::Composition::ProblemDiagnosis::Diagnosis;
 use OpenEHR::Composition::ProblemDiagnosis::ColorectalDiagnosis;
+use OpenEHR::Composition::ProblemDiagnosis::FinalFigoStage;
 use OpenEHR::Composition::ProblemDiagnosis::ModifiedDukes;
 use OpenEHR::Composition::ProblemDiagnosis::TumourID;
 use OpenEHR::Composition::ProblemDiagnosis::ClinicalEvidence;
@@ -55,6 +56,14 @@ for my $format (@formats) {
         terminology => 'local',
         ),  'Create new Diagnosis object');
     ok($colorectal_diagnosis->composition_format($format), "Set $format format for Colorectal Diagnosis");
+
+    ok(my $final_figo_stage = OpenEHR::Composition::ProblemDiagnosis::FinalFigoStage->new(
+        code => 'at0008',
+        value => 'ib',
+        terminology => 'local',
+        version => 'Figo Version 89',
+        ),  'Create new Final Figo object');
+    ok($final_figo_stage->composition_format($format), "Set $format format for Final Figo");
 
     ok(my $modified_dukes = OpenEHR::Composition::ProblemDiagnosis::ModifiedDukes->new(
         code => 'at0006',
@@ -179,6 +188,7 @@ for my $format (@formats) {
             integrated_tnm      => [$integrated_tnm],
             inrg_staging        => [$inrg_staging],
             cancer_diagnosis        => [$cancer_diagnosis],
+            final_figo_stage        => [$final_figo_stage],
         ), 'Create new ProblemDiagnosis object'
     );
     ok( $problem_diagnosis->composition_format($format), "Set $format composition format for ProblemDiagnosis");
