@@ -25,6 +25,7 @@ lib/OpenEHR/Composition/ProblemDiagnosis/UpperGI/BCLC_Stage.pm
 lib/OpenEHR/Composition/ProblemDiagnosis/UpperGI/ChildPughScore.pm
 lib/OpenEHR/Composition/ProblemDiagnosis/UpperGI/PancreaticClinicalStage.pm
 lib/OpenEHR/Composition/ProblemDiagnosis/UpperGI/PortalInvasion.pm
+lib/OpenEHR/Composition/ProblemDiagnosis/UpperGI/TACE.pm
 lib/OpenEHR/Composition/Professional.pm
 lib/OpenEHR/Composition/RequestedTest.pm
 lib/OpenEHR/Composition/Requester.pm

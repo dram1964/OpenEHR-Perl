@@ -63,12 +63,39 @@ has child_pugh_score => (
     isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::UpperGI::ChildPughScore]',
 );
 
+=head2 tace($tace_obj)
+
+Used to get or set the Transarterial Chemoembolisation (TACE) item in an Upper GI Staging item
+
+=cut 
+
+has tace => (
+    is  => 'rw',
+    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::UpperGI::TACE]',
+);
+
+=head2 lesions($lesions)
+
+Used to get or set the number of lesions item in an Upper GI Staging item
+
+=cut 
+
+has lesions => (
+    is  => 'rw',
+    isa => 'Str',
+);
+
 sub compose_structured {
     my $self        = shift;
     my $composition = {
-        'transarterial_chemoembolisation' => [ { '|code' => 'at0015' } ],
-        'number_of_lesions' => [578],
+        'number_of_lesions' => [$self->lesions],
     };
+    if ( $self->tace ) {
+        for my $tace ( @{ $self->tace } ) {
+            push @{ $composition->{'transarterial_chemoembolisation'} },
+                $tace->compose;
+        }
+    }
     if ( $self->child_pugh_score ) {
         for my $child_pugh_score ( @{ $self->child_pugh_score } ) {
             push @{ $composition->{'child-pugh_score'} },
@@ -109,7 +136,7 @@ sub compose_raw {
             {   '@class'            => 'ELEMENT',
                 'archetype_node_id' => 'at0007',
                 'value'             => {
-                    'magnitude' => 96,
+                    'magnitude' => $self->lesions,
                     '@class'    => 'DV_COUNT'
                 },
                 'name' => {
@@ -117,25 +144,6 @@ sub compose_raw {
                     'value'  => 'Number of lesions'
                 }
             },
-            {   'value' => {
-                    'value'         => 'Y Yes',
-                    'defining_code' => {
-                        'terminology_id' => {
-                            'value'  => 'local',
-                            '@class' => 'TERMINOLOGY_ID'
-                        },
-                        '@class'      => 'CODE_PHRASE',
-                        'code_string' => 'at0015'
-                    },
-                    '@class' => 'DV_CODED_TEXT'
-                },
-                'name' => {
-                    '@class' => 'DV_TEXT',
-                    'value'  => 'Transarterial chemoembolisation'
-                },
-                '@class'            => 'ELEMENT',
-                'archetype_node_id' => 'at0014'
-            }
         ],
         'archetype_details' => {
             'archetype_id' => {
@@ -146,6 +154,12 @@ sub compose_raw {
             '@class'     => 'ARCHETYPED'
         }
     };
+    if ( $self->tace ) {
+        for my $tace ( @{ $self->tace } ) {
+            push @{ $composition->{items} },
+                $tace->compose;
+        }
+    }
     if ( $self->child_pugh_score ) {
         for my $child_pugh_score ( @{ $self->child_pugh_score } ) {
             push @{ $composition->{items} },
@@ -176,15 +190,24 @@ sub compose_raw {
 sub compose_flat {
     my $self        = shift;
     my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/transarterial_chemoembolisation|terminology'
-            => 'local',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/transarterial_chemoembolisation|value'
-            => 'Y Yes',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/transarterial_chemoembolisation|code'
-            => 'at0015',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/number_of_lesions'
-            => 97,
+            => $self->lesions,
     };
+    if ( $self->tace ) {
+        my $tace_index = '0';
+        my $tace_comp;
+        for my $tace ( @{ $self->tace } ) {
+            my $composition_fragment = $tace->compose;
+            for my $key ( keys %{$composition_fragment} ) {
+                my $new_key = $key;
+                $new_key =~ s/__DIAG2__/$tace_index/;
+                $tace_comp->{$new_key} =
+                    $composition_fragment->{$key};
+            }
+            $tace_index++;
+            $composition = { ( %$composition, %{$tace_comp} ) };
+        }
+    }
     if ( $self->child_pugh_score ) {
         my $child_pugh_score_index = '0';
         my $child_pugh_score_comp;
