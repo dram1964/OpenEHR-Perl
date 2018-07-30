@@ -21,6 +21,17 @@ has lung_metastases => (
     isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::TesticularStaging::LungMetastases]',
 );
 
+=head1 stage_grouping_testicular($stage_grouping_testicular_object)
+
+Used to get or set the Testicular Stage Grouping item of the Testicular Staging item
+
+=cut
+
+has stage_group_testicular => (
+    is  => 'rw',
+    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::TesticularStaging::StageGroupTesticular]',
+);
+
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')
@@ -34,8 +45,13 @@ sub compose_structured {
     my $self        = shift;
     my $composition = {   
                 'extranodal_metastases'     => [ { '|code' => 'at0019' } ],
-                'stage_grouping_testicular' => [ { '|code' => 'at0007' } ]
             };
+    if ( $self->stage_group_testicular ) {
+        for my $stage_group_testicular ( @{ $self->stage_group_testicular } ) {
+            push @{ $composition->{'stage_grouping_testicular'} },
+                $stage_group_testicular->compose;
+        }
+    }
     if ( $self->lung_metastases ) {
         for my $lung_metastases ( @{ $self->lung_metastases } ) {
             push @{ $composition->{'lung_metastases_sub-stage_grouping'} },
@@ -49,25 +65,6 @@ sub compose_raw {
     my $self        = shift;
     my $composition =  {   
         'items' => [
-                        {   'value' => {
-                                '@class'        => 'DV_CODED_TEXT',
-                                'value'         => '3C',
-                                'defining_code' => {
-                                    'terminology_id' => {
-                                        '@class' => 'TERMINOLOGY_ID',
-                                        'value'  => 'local'
-                                    },
-                                    'code_string' => 'at0010',
-                                    '@class'      => 'CODE_PHRASE'
-                                }
-                            },
-                            'name' => {
-                                'value'  => 'Stage grouping testicular',
-                                '@class' => 'DV_TEXT'
-                            },
-                            '@class'            => 'ELEMENT',
-                            'archetype_node_id' => 'at0001'
-                        },
                         {   'archetype_node_id' => 'at0014',
                             '@class'            => 'ELEMENT',
                             'name'              => {
@@ -105,6 +102,12 @@ sub compose_raw {
                     'archetype_node_id' =>
                         'openEHR-EHR-CLUSTER.testicular_staging_gel.v0'
                 };
+    if ( $self->stage_group_testicular ) {
+        for my $stage_group_testicular ( @{ $self->stage_group_testicular } ) {
+            push @{ $composition->{items} },
+                $stage_group_testicular->compose;
+        }
+    }
     if ( $self->lung_metastases ) {
         for my $lung_metastases ( @{ $self->lung_metastases } ) {
             push @{ $composition->{items} },
@@ -123,13 +126,22 @@ sub compose_flat {
             => 'at0019',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/extranodal_metastases|value'
             => 'L Lung involvement',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/stage_grouping_testicular|terminology'
-            => 'local',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/stage_grouping_testicular|code'
-            => 'at0010',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/stage_grouping_testicular|value'
-            => '3C',
     };
+    if ( $self->stage_group_testicular ) {
+        my $stage_group_testicular_index = '0';
+        my $stage_group_testicular_comp;
+        for my $stage_group_testicular ( @{ $self->stage_group_testicular } ) {
+            my $composition_fragment = $stage_group_testicular->compose;
+            for my $key ( keys %{$composition_fragment} ) {
+                my $new_key = $key;
+                $new_key =~ s/__DIAG2__/$stage_group_testicular_index/;
+                $stage_group_testicular_comp->{$new_key} =
+                    $composition_fragment->{$key};
+            }
+            $stage_group_testicular_index++;
+            $composition = { ( %$composition, %{$stage_group_testicular_comp} ) };
+        }
+    }
     if ( $self->lung_metastases ) {
         my $lung_metastases_index = '0';
         my $lung_metastases_comp;

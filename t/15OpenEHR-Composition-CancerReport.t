@@ -26,6 +26,7 @@ use OpenEHR::Composition::ProblemDiagnosis::Integrated_TNM;
 use OpenEHR::Composition::ProblemDiagnosis::INRG_Staging;
 use OpenEHR::Composition::ProblemDiagnosis::TesticularStaging;
 use OpenEHR::Composition::ProblemDiagnosis::TesticularStaging::LungMetastases;
+use OpenEHR::Composition::ProblemDiagnosis::TesticularStaging::StageGroupTesticular;
 
 BEGIN { use_ok('OpenEHR::Composition::CancerReport'); }
 
@@ -289,9 +290,22 @@ for my $format (@formats) {
         "Set $format format for Lung Metastases"
     );
 
+    ok( my $stage_group_testicular =
+            OpenEHR::Composition::ProblemDiagnosis::TesticularStaging::StageGroupTesticular->new(
+            terminology =>  'local',
+            code =>  'at0010',
+            value =>  '3C adjusted',
+            ),
+        'Create new Lung Metastases object'
+    );
+    ok( $stage_group_testicular->composition_format($format),
+        "Set $format format for Lung Metastases"
+    );
+
     ok( my $testicular_staging =
             OpenEHR::Composition::ProblemDiagnosis::TesticularStaging->new(
             lung_metastases => [$lung_metastases],
+            stage_group_testicular => [$stage_group_testicular],
             ),
         'Create new Testicular Staging object'
     );
