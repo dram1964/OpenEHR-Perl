@@ -10,9 +10,26 @@ extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
+=head1 tumour_laterality($tumour_laterality_object)
+
+Used to get or set the Tumour Laterality item of the Cancer Diagnosis item
+
+=cut
+
 has tumour_laterality => (
     is  => 'rw',
     isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::TumourLaterality]',
+);
+
+=head1 metastatic_site($metastatic_site_object)
+
+Used to get or set the Metastatic Site item of the Cancer Diagnosis item
+
+=cut
+
+has metastatic_site => (
+    is  => 'rw',
+    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::MetastaticSite]',
 );
 
 sub compose {
@@ -28,10 +45,15 @@ sub compose_structured {
     my $self        = shift;
     my $composition = {
         'morphology'           => ['Morphology 86'],
-        'metastatic_site'      => [ { '|code' => 'at0023' } ],
         'topography'           => ['Topography 90'],
         'recurrence_indicator' => [ { '|code' => 'at0014' } ]
     };
+    if ( $self->metastatic_site ) {
+        for my $metastatic_site ( @{ $self->metastatic_site } ) {
+            push @{ $composition->{'metastatic_site'} },
+                $metastatic_site->compose;
+        }
+    }
     if ( $self->tumour_laterality ) {
         for my $tumour_laterality ( @{ $self->tumour_laterality } ) {
             push @{ $composition->{'tumour_laterality'} },
@@ -92,25 +114,6 @@ sub compose_raw {
                     'value'  => 'Topography 75'
                 }
             },
-            {   'value' => {
-                    '@class'        => 'DV_CODED_TEXT',
-                    'value'         => '08 Skin',
-                    'defining_code' => {
-                        'terminology_id' => {
-                            '@class' => 'TERMINOLOGY_ID',
-                            'value'  => 'local'
-                        },
-                        'code_string' => 'at0023',
-                        '@class'      => 'CODE_PHRASE'
-                    }
-                },
-                'name' => {
-                    '@class' => 'DV_TEXT',
-                    'value'  => 'Metastatic site'
-                },
-                '@class'            => 'ELEMENT',
-                'archetype_node_id' => 'at0017'
-            },
         ],
         'archetype_details' => {
             '@class'       => 'ARCHETYPED',
@@ -121,6 +124,12 @@ sub compose_raw {
             'rm_version' => '1.0.1'
         }
     };
+    if ( $self->metastatic_site ) {
+        for my $metastatic_site ( @{ $self->metastatic_site } ) {
+            push @{ $composition->{items} },
+                $metastatic_site->compose;
+        }
+    }
     if ( $self->tumour_laterality ) {
         for my $tumour_laterality ( @{ $self->tumour_laterality } ) {
             push @{ $composition->{items} },
@@ -141,17 +150,26 @@ sub compose_flat {
             => 'at0016',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/recurrence_indicator|terminology'
             => 'local',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/metastatic_site|terminology'
-            => 'local',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/metastatic_site|code'
-            => 'at0023',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/metastatic_site|value'
-            => '08 Skin',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/morphology:0'
             => 'Morphology 46',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/topography'
             => 'Topography 75',
     };
+    if ( $self->metastatic_site ) {
+        my $metastatic_site_index = '0';
+        my $metastatic_site_comp;
+        for my $metastatic_site ( @{ $self->metastatic_site } ) {
+            my $composition_fragment = $metastatic_site->compose;
+            for my $key ( keys %{$composition_fragment} ) {
+                my $new_key = $key;
+                $new_key =~ s/__DIAG2__/$metastatic_site_index/;
+                $metastatic_site_comp->{$new_key} =
+                    $composition_fragment->{$key};
+            }
+            $metastatic_site_index++;
+            $composition = { ( %$composition, %{$metastatic_site_comp} ) };
+        }
+    }
     if ( $self->tumour_laterality ) {
         my $tumour_laterality_index = '0';
         my $tumour_laterality_comp;

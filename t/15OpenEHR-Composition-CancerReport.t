@@ -19,6 +19,7 @@ use OpenEHR::Composition::ProblemDiagnosis::UpperGI::ChildPughScore;
 use OpenEHR::Composition::ProblemDiagnosis::UpperGI::TACE;
 use OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis;
 use OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::TumourLaterality;
+use OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::MetastaticSite;
 use OpenEHR::Composition::ProblemDiagnosis::Integrated_TNM;
 use OpenEHR::Composition::ProblemDiagnosis::INRG_Staging;
 
@@ -126,8 +127,16 @@ for my $format (@formats) {
         ),  'Create new Tumour Laterality object');
     ok($tumour_laterality->composition_format($format), "Set $format format for Tumour Laterality");
 
+    ok(my $metastatic_site = OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::MetastaticSite->new(
+        code => 'at0023',
+        value => '08 Skin', 
+        terminology => 'local',
+        ),  'Create new Metastatic Site object');
+    ok($metastatic_site->composition_format($format), "Set $format format for Metastatic Site");
+
     ok(my $cancer_diagnosis = OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis->new(
         tumour_laterality => [$tumour_laterality],
+        metastatic_site => [$metastatic_site],
         ),  'Create new Cancer Diagnosis object');
     ok($cancer_diagnosis->composition_format($format), "Set $format format for Cancer Diagnosis");
 
