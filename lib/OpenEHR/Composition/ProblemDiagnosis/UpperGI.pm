@@ -30,15 +30,47 @@ has bclc_stage => (
     isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::UpperGI::BCLC_Stage]',
 );
 
+=head2 portal_invasion($portal_invasion_obj)
+
+Used to get or set the Portal Invasion item in an Upper GI Staging item
+
+=cut 
+
+has portal_invasion => (
+    is  => 'rw',
+    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::UpperGI::PortalInvasion]',
+);
+
+=head2 pancreatic_clinical_stage($pancreatic_clinical_stage_obj)
+
+Used to get or set the Pancreatic Clinical Stage item in an Upper GI Staging item
+
+=cut 
+
+has pancreatic_clinical_stage => (
+    is  => 'rw',
+    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::UpperGI::PancreaticClinicalStage]',
+);
+
 sub compose_structured {
     my $self        = shift;
     my $composition = {
         'child-pugh_score'  => [ { 'grade' => [ { '|code' => 'at0028' } ] } ],
         'transarterial_chemoembolisation' => [ { '|code' => 'at0015' } ],
-        'pancreatic_clinical_stage'       => [ { '|code' => 'at0009' } ],
-        'portal_invasion'                 => [ { '|code' => 'at0004' } ],
         'number_of_lesions' => [578],
     };
+    if ( $self->pancreatic_clinical_stage ) {
+        for my $pancreatic_clinical_stage ( @{ $self->pancreatic_clinical_stage } ) {
+            push @{ $composition->{pancreatic_clinical_stage} },
+                $pancreatic_clinical_stage->compose;
+        }
+    }
+    if ( $self->portal_invasion ) {
+        for my $portal_invasion ( @{ $self->portal_invasion } ) {
+            push @{ $composition->{portal_invasion} },
+                $portal_invasion->compose;
+        }
+    }
     if ( $self->bclc_stage ) {
         for my $bclc_stage ( @{ $self->bclc_stage } ) {
             push @{ $composition->{bclc_stage} },
@@ -95,25 +127,6 @@ sub compose_raw {
                 'archetype_node_id' =>
                     'openEHR-EHR-CLUSTER.child_pugh_score.v0'
             },
-            {   'name' => {
-                    'value'  => 'Portal invasion',
-                    '@class' => 'DV_TEXT'
-                },
-                'value' => {
-                    'value'         => 'N Not present',
-                    'defining_code' => {
-                        'terminology_id' => {
-                            'value'  => 'local',
-                            '@class' => 'TERMINOLOGY_ID'
-                        },
-                        '@class'      => 'CODE_PHRASE',
-                        'code_string' => 'at0005'
-                    },
-                    '@class' => 'DV_CODED_TEXT'
-                },
-                'archetype_node_id' => 'at0003',
-                '@class'            => 'ELEMENT'
-            },
             {   '@class'            => 'ELEMENT',
                 'archetype_node_id' => 'at0007',
                 'value'             => {
@@ -123,25 +136,6 @@ sub compose_raw {
                 'name' => {
                     '@class' => 'DV_TEXT',
                     'value'  => 'Number of lesions'
-                }
-            },
-            {   '@class'            => 'ELEMENT',
-                'archetype_node_id' => 'at0008',
-                'value'             => {
-                    '@class'        => 'DV_CODED_TEXT',
-                    'defining_code' => {
-                        'code_string'    => 'at0012',
-                        '@class'         => 'CODE_PHRASE',
-                        'terminology_id' => {
-                            '@class' => 'TERMINOLOGY_ID',
-                            'value'  => 'local'
-                        }
-                    },
-                    'value' => '31 Unresectable locally advanced'
-                },
-                'name' => {
-                    '@class' => 'DV_TEXT',
-                    'value'  => 'Pancreatic clinical stage'
                 }
             },
             {   'value' => {
@@ -173,6 +167,18 @@ sub compose_raw {
             '@class'     => 'ARCHETYPED'
         }
     };
+    if ( $self->pancreatic_clinical_stage ) {
+        for my $pancreatic_clinical_stage ( @{ $self->pancreatic_clinical_stage } ) {
+            push @{ $composition->{items} },
+                $pancreatic_clinical_stage->compose;
+        }
+    }
+    if ( $self->portal_invasion ) {
+        for my $portal_invasion ( @{ $self->portal_invasion } ) {
+            push @{ $composition->{items} },
+                $portal_invasion->compose;
+        }
+    }
     if ( $self->bclc_stage ) {
         for my $bclc_stage ( @{ $self->bclc_stage } ) {
             push @{ $composition->{items} },
@@ -185,18 +191,6 @@ sub compose_raw {
 sub compose_flat {
     my $self        = shift;
     my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/portal_invasion|terminology'
-            => 'local',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/portal_invasion|code'
-            => 'at0005',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/portal_invasion|value'
-            => 'N Not present',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/pancreatic_clinical_stage|value'
-            => '31 Unresectable locally advanced',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/pancreatic_clinical_stage|terminology'
-            => 'local',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/pancreatic_clinical_stage|code'
-            => 'at0012',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/child-pugh_score:0/grade|code'
             => 'at0027',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/child-pugh_score:0/grade|value'
@@ -212,6 +206,36 @@ sub compose_flat {
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/number_of_lesions'
             => 97,
     };
+    if ( $self->pancreatic_clinical_stage ) {
+        my $pancreatic_clinical_stage_index = '0';
+        my $pancreatic_clinical_stage_comp;
+        for my $pancreatic_clinical_stage ( @{ $self->pancreatic_clinical_stage } ) {
+            my $composition_fragment = $pancreatic_clinical_stage->compose;
+            for my $key ( keys %{$composition_fragment} ) {
+                my $new_key = $key;
+                $new_key =~ s/__DIAG2__/$pancreatic_clinical_stage_index/;
+                $pancreatic_clinical_stage_comp->{$new_key} =
+                    $composition_fragment->{$key};
+            }
+            $pancreatic_clinical_stage_index++;
+            $composition = { ( %$composition, %{$pancreatic_clinical_stage_comp} ) };
+        }
+    }
+    if ( $self->portal_invasion ) {
+        my $portal_invasion_index = '0';
+        my $portal_invasion_comp;
+        for my $portal_invasion ( @{ $self->portal_invasion } ) {
+            my $composition_fragment = $portal_invasion->compose;
+            for my $key ( keys %{$composition_fragment} ) {
+                my $new_key = $key;
+                $new_key =~ s/__DIAG2__/$portal_invasion_index/;
+                $portal_invasion_comp->{$new_key} =
+                    $composition_fragment->{$key};
+            }
+            $portal_invasion_index++;
+            $composition = { ( %$composition, %{$portal_invasion_comp} ) };
+        }
+    }
     if ( $self->bclc_stage ) {
         my $bclc_stage_index = '0';
         my $bclc_stage_comp;

@@ -108,11 +108,18 @@ Used to get or set the inrg staging item for the Problem Diagnosis
 
 has inrg_staging => (
     is  => 'rw',
-    isa => 'ArrayRef',
+    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::INRG_Staging]',
 );
+
+=head2 cancer_diagnosis($upper_gi_object)
+
+Used to get or set the cancer diagnosis item for the Problem Diagnosis
+
+=cut 
+
 has cancer_diagnosis => (
     is  => 'rw',
-    isa => 'ArrayRef',
+    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis]',
 );
 has final_figo_stage => (
     is  => 'rw',
@@ -580,26 +587,26 @@ sub compose_flat {
         # Cancer Diagnosis
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis/tumour_laterality|terminology'
             => 'local',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis/recurrence_indicator|value'
-            => 'NN',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis/tumour_laterality|code'
             => 'at0033',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis/tumour_laterality|value'
             => 'Not known',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis/topography'
-            => 'Topography 75',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis/metastatic_site|terminology'
-            => 'local',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis/recurrence_indicator|value'
+            => 'NN',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis/recurrence_indicator|code'
+            => 'at0016',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis/recurrence_indicator|terminology'
+            => 'local',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis/metastatic_site|terminology'
             => 'local',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis/metastatic_site|code'
             => 'at0023',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis/morphology:0'
-            => 'Morphology 46',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis/metastatic_site|value'
             => '08 Skin',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis/recurrence_indicator|code'
-            => 'at0016',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis/morphology:0'
+            => 'Morphology 46',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis/topography'
+            => 'Topography 75',
 
         # Final Figo Stage
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/final_figo_stage/figo_grade|code'

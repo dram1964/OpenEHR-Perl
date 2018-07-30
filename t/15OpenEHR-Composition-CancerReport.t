@@ -13,6 +13,8 @@ use OpenEHR::Composition::ProblemDiagnosis::TumourID;
 use OpenEHR::Composition::ProblemDiagnosis::ClinicalEvidence;
 use OpenEHR::Composition::ProblemDiagnosis::UpperGI;
 use OpenEHR::Composition::ProblemDiagnosis::UpperGI::BCLC_Stage;
+use OpenEHR::Composition::ProblemDiagnosis::UpperGI::PortalInvasion;
+use OpenEHR::Composition::ProblemDiagnosis::UpperGI::PancreaticClinicalStage;
 use OpenEHR::Composition::ProblemDiagnosis::Integrated_TNM;
 use OpenEHR::Composition::ProblemDiagnosis::INRG_Staging;
 
@@ -75,8 +77,24 @@ for my $format (@formats) {
         ),  'Create new BCLC Stage object');
     ok($bclc_stage->composition_format($format), "Set $format format for BCLC Stage");
 
+    ok(my $portal_invasion = OpenEHR::Composition::ProblemDiagnosis::UpperGI::PortalInvasion->new(
+        code => 'at0006',
+        value => 'N Not present', 
+        terminology => 'local',
+        ),  'Create new Portal Invasion object');
+    ok($portal_invasion->composition_format($format), "Set $format format for Portal Invasion");
+
+    ok(my $pancreatic_clinical_stage = OpenEHR::Composition::ProblemDiagnosis::UpperGI::PancreaticClinicalStage->new(
+        code => 'at0012',
+        value => 'Unresectable', 
+        terminology => 'local',
+        ),  'Create new Pancreatic Clinical Stage object');
+    ok($pancreatic_clinical_stage->composition_format($format), "Set $format format for Pancreatic Clinical Stage");
+
     ok(my $upper_gi = OpenEHR::Composition::ProblemDiagnosis::UpperGI->new(
         bclc_stage => [$bclc_stage],
+        portal_invasion => [$portal_invasion],
+        pancreatic_clinical_stage => [$pancreatic_clinical_stage],
         ),  'Create new Upper GI object');
     ok($upper_gi->composition_format($format), "Set $format format for Upper GI");
 
@@ -91,8 +109,8 @@ for my $format (@formats) {
     ok($integrated_tnm->composition_format($format), "Set $format format for Integrated TNM");
 
     ok(my $inrg_staging = OpenEHR::Composition::ProblemDiagnosis::INRG_Staging->new(
-            code =>  'at0004',
-            value =>  'M',
+            code =>  'at0005',
+            value =>  'N',
             terminology =>  'local',
         ),  'Create new INRG Staging object');
     ok($inrg_staging->composition_format($format), "Set $format format for INRG Staging");

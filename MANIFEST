@@ -22,6 +22,8 @@ lib/OpenEHR/Composition/ProblemDiagnosis/ModifiedDukes.pm
 lib/OpenEHR/Composition/ProblemDiagnosis/TumourID.pm
 lib/OpenEHR/Composition/ProblemDiagnosis/UpperGI.pm
 lib/OpenEHR/Composition/ProblemDiagnosis/UpperGI/BCLC_Stage.pm
+lib/OpenEHR/Composition/ProblemDiagnosis/UpperGI/PancreaticClinicalStage.pm
+lib/OpenEHR/Composition/ProblemDiagnosis/UpperGI/PortalInvasion.pm
 lib/OpenEHR/Composition/Professional.pm
 lib/OpenEHR/Composition/RequestedTest.pm
 lib/OpenEHR/Composition/Requester.pm

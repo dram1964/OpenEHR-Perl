@@ -1,4 +1,4 @@
-package OpenEHR::Composition::ProblemDiagnosis::UpperGI::BCLC_Stage;
+package OpenEHR::Composition::ProblemDiagnosis::UpperGI::PancreaticClinicalStage;
 
 use warnings;
 use strict;
@@ -34,53 +34,35 @@ sub compose {
 
 sub compose_structured {
     my $self        = shift;
-    my $composition = {
-        bclc_stage => [{
-            '|code'        => $self->code,
+    my $composition = [
+        {   '|code'        => $self->code,          #'at0009'
             '|value'       => $self->value,
             '|terminology' => $self->terminology,
-        }],
-    };
+        }
+    ];
     return $composition;
 }
 
 sub compose_raw {
     my $self        = shift;
     my $composition = {
-        'archetype_node_id' => 'openEHR-EHR-CLUSTER.bclc_stage.v0',
-        '@class'            => 'CLUSTER',
-        'items'             => [
-            {   'value' => {
-                    '@class'        => 'DV_CODED_TEXT',
-                    'defining_code' => {
-                        'terminology_id' => {
-                            'value'  => $self->terminology,    #'local',
-                            '@class' => 'TERMINOLOGY_ID'
-                        },
-                        '@class'      => 'CODE_PHRASE',
-                        'code_string' => $self->code,          #'at0007'
-                    },
-                    'value' => $self->value,                   #'D'
-                },
-                'name' => {
-                    '@class' => 'DV_TEXT',
-                    'value'  => 'BCLC stage'
-                },
-                '@class'            => 'ELEMENT',
-                'archetype_node_id' => 'at0001'
-            }
-        ],
-        'name' => {
-            'value'  => 'BCLC stage',
-            '@class' => 'DV_TEXT'
-        },
-        'archetype_details' => {
-            'archetype_id' => {
-                '@class' => 'ARCHETYPE_ID',
-                'value'  => 'openEHR-EHR-CLUSTER.bclc_stage.v0'
+        '@class'            => 'ELEMENT',
+        'archetype_node_id' => 'at0008',
+        'value'             => {
+            '@class'        => 'DV_CODED_TEXT',
+            'defining_code' => {
+                'code_string'    => $self->code,     #'at0012',
+                '@class'         => 'CODE_PHRASE',
+                'terminology_id' => {
+                    '@class' => 'TERMINOLOGY_ID',
+                    'value'  => $self->terminology,    #'local'
+                }
             },
-            'rm_version' => '1.0.1',
-            '@class'     => 'ARCHETYPED'
+            'value' => $self->value,    #'31 Unresectable locally advanced'
+        },
+        'name' => {
+            '@class' => 'DV_TEXT',
+            'value'  => 'Pancreatic clinical stage'
         }
     };
     return $composition;
@@ -89,12 +71,12 @@ sub compose_raw {
 sub compose_flat {
     my $self        = shift;
     my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/bclc_stage:__DIAG2__/bclc_stage|value'
-            => $self->value,    #'D',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/bclc_stage:__DIAG2__/bclc_stage|code'
-            => $self->code,     #'at0007',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/bclc_stage:__DIAG2__/bclc_stage|terminology'
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/pancreatic_clinical_stage:__DIAG2__|value'
+            => $self->value,    #'31 Unresectable locally advanced',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/pancreatic_clinical_stage:__DIAG2__|terminology'
             => $self->terminology,    #'local',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/pancreatic_clinical_stage:__DIAG2__|code'
+            => $self->code,           #'at0012',
     };
     return $composition;
 }
@@ -107,18 +89,18 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::ProblemDiagnosis::UpperGI::BCLC_Stage - composition element
+OpenEHR::Composition::ProblemDiagnosis::UpperGI::PancreaticClinicalStage - composition element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::ProblemDiagnosis::UpperGI::BCLC_Stage version 0.0.2
+This document describes OpenEHR::Composition::ProblemDiagnosis::UpperGI::PancreaticClinicalStage version 0.0.2
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::ProblemDiagnosis::UpperGI::BCLC_Stage;
-    my $template = OpenEHR::Composition::ProblemDiagnosis::UpperGI::BCLC_Stage->new(
+    use OpenEHR::Composition::ProblemDiagnosis::UpperGI::PancreaticClinicalStage;
+    my $template = OpenEHR::Composition::ProblemDiagnosis::UpperGI::PancreaticClinicalStage->new(
     );
     my $template_hash = $template->compose();
 
@@ -126,7 +108,7 @@ This document describes OpenEHR::Composition::ProblemDiagnosis::UpperGI::BCLC_St
   
 =head1 DESCRIPTION
 
-Used to create a BCLC Stage element for adding to a Upper GI Problem Diagnosis item. 
+Used to create a Pancreatic Clinical Stage element for adding to a Upper GI Problem Diagnosis item. 
 
 =head1 INTERFACE 
 
@@ -136,15 +118,15 @@ Used to create a BCLC Stage element for adding to a Upper GI Problem Diagnosis i
 
 =head2 code($code)
 
-Used to get or set the BCLC Stage code
+Used to get or set the Pancreatic Clinical Stage code
 
 =head2 value($value)
 
-Used to get or set the BCLC Stage value
+Used to get or set the Pancreatic Clinical Stage value
 
 =head2 terminology($terminology)
 
-Used to get or set the BCLC Stage terminology
+Used to get or set the Pancreatic Clinical Stage terminology
 
 =head2 compose
 
@@ -168,7 +150,7 @@ None
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-OpenEHR::Composition::ProblemDiagnosis::UpperGI::BCLC_Stage requires no configuration files or 
+OpenEHR::Composition::ProblemDiagnosis::UpperGI::PancreaticClinicalStage requires no configuration files or 
 environment variables.
 
 
