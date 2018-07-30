@@ -43,6 +43,28 @@ has recurrence_indicator => (
     isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::RecurrenceIndicator]',
 );
 
+=head1 morphology($morphology)
+
+Used to get or set the Morphology item of the Cancer Diagnosis item
+
+=cut
+
+has morphology => (
+    is  => 'rw',
+    isa => 'Str',
+);
+
+=head1 topography($topography)
+
+Used to get or set the Topography item of the Cancer Diagnosis item
+
+=cut
+
+has topography => (
+    is  => 'rw',
+    isa => 'Str',
+);
+
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')
@@ -55,8 +77,8 @@ sub compose {
 sub compose_structured {
     my $self        = shift;
     my $composition = {
-        'morphology'           => ['Morphology 86'],
-        'topography'           => ['Topography 90'],
+        'morphology'           => [$self->morphology],
+        'topography'           => [$self->topography],
     };
     if ( $self->recurrence_indicator ) {
         for my $recurrence_indicator ( @{ $self->recurrence_indicator } ) {
@@ -90,7 +112,7 @@ sub compose_raw {
         },
         'items' => [
             {   'value' => {
-                    'value'  => 'Morphology 46',
+                    'value'  => $self->morphology, #'Morphology 46',
                     '@class' => 'DV_TEXT'
                 },
                 'name' => {
@@ -108,7 +130,7 @@ sub compose_raw {
                 },
                 'value' => {
                     '@class' => 'DV_TEXT',
-                    'value'  => 'Topography 75'
+                    'value'  => $self->topography, #'Topography 75'
                 }
             },
         ],
@@ -148,9 +170,9 @@ sub compose_flat {
 
         # Cancer Diagnosis
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/morphology:0'
-            => 'Morphology 46',
+            => $self->morphology, #'Morphology 46',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/topography'
-            => 'Topography 75',
+            => $self->topography, #'Topography 75',
     };
     if ( $self->recurrence_indicator ) {
         my $recurrence_indicator_index = '0';

@@ -146,6 +146,8 @@ for my $format (@formats) {
         tumour_laterality => [$tumour_laterality],
         metastatic_site => [$metastatic_site],
         recurrence_indicator => [$recurrence_indicator],
+        morphology => 'Morphology String',
+        topography => 'Topography String', 
         ),  'Create new Cancer Diagnosis object');
     ok($cancer_diagnosis->composition_format($format), "Set $format format for Cancer Diagnosis");
 
