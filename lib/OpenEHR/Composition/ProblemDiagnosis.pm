@@ -144,7 +144,7 @@ has event_date => (
     isa => 'DateTime',
 );
 
-=head2 testicular_staging($upper_gi_object)
+=head2 testicular_staging($testicular_staging_object)
 
 Used to get or set the testicular staging item for the Problem Diagnosis
 
@@ -159,6 +159,17 @@ sub compose {
     my $self = shift;
     $self->composition_format('RAW')
         if ( $self->composition_format eq 'TDD' );
+    my @properties = qw(
+        ajcc_stage colorectal_diagnosis diagnosis modified_dukes tumour_id
+        clinical_evidence upper_gi_staging integrated_tnm inrg_staging
+        cancer_diagnosis final_figo_stage testicular_staging);
+    for my $property (@properties) {
+        if ($self->$property) {
+            for my $compos ( @{ $self->$property } ) {
+                $compos->composition_format($self->composition_format);
+            }
+        }
+    }
 
     my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
@@ -169,10 +180,6 @@ sub compose_structured {
     my $composition = {
         'event_date'         => [ DateTime->now->datetime ],
     };
-
-=head1 comment
-=cut
-
     if ( $self->testicular_staging ) {
         for my $testicular_staging ( @{ $self->testicular_staging } ) {
             push @{ $composition->{testicular_staging} },
@@ -408,7 +415,7 @@ sub compose_flat {
         my $testicular_staging_index = '0';
         my $testicular_staging_comp;
         for my $testicular_staging ( @{ $self->testicular_staging } ) {
-            my $composition_fragment = $testicular_staging->compose;
+            my $composition_fragment = $testicular_staging->compose();
             for my $key ( keys %{$composition_fragment} ) {
                 my $new_key = $key;
                 $new_key =~ s/__DIAG__/$testicular_staging_index/;
@@ -453,7 +460,7 @@ sub compose_flat {
         my $inrg_staging_index = '0';
         my $inrg_staging_comp;
         for my $inrg_staging ( @{ $self->inrg_staging } ) {
-            my $composition_fragment = $inrg_staging->compose;
+            my $composition_fragment = $inrg_staging->compose();
             for my $key ( keys %{$composition_fragment} ) {
                 my $new_key = $key;
                 $new_key =~ s/__DIAG__/$inrg_staging_index/;
@@ -477,6 +484,21 @@ sub compose_flat {
             }
             $upper_gi_staging_index++;
             $composition = { ( %$composition, %{$upper_gi_staging_comp} ) };
+        }
+    }
+    if ( $self->integrated_tnm ) {
+        my $integrated_tnm_index = '0';
+        my $integrated_tnm_comp;
+        for my $integrated_tnm ( @{ $self->integrated_tnm } ) {
+            my $composition_fragment = $integrated_tnm->compose;
+            for my $key ( keys %{$composition_fragment} ) {
+                my $new_key = $key;
+                $new_key =~ s/__DIAG__/$integrated_tnm_index/;
+                $integrated_tnm_comp->{$new_key} =
+                    $composition_fragment->{$key};
+            }
+            $integrated_tnm_index++;
+            $composition = { ( %$composition, %{$integrated_tnm_comp} ) };
         }
     }
     if ( $self->clinical_evidence ) {

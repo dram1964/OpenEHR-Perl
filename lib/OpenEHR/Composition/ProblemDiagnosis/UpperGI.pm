@@ -10,15 +10,6 @@ extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
-sub compose {
-    my $self = shift;
-    $self->composition_format('RAW')
-        if ( $self->composition_format eq 'TDD' );
-
-    my $formatter = 'compose_' . lc( $self->composition_format );
-    $self->$formatter();
-}
-
 =head2 bclc_stage($bclc_stage_obj)
 
 Used to get or set the BCLC Stage item in an Upper GI Staging item
@@ -84,6 +75,25 @@ has lesions => (
     is  => 'rw',
     isa => 'Str',
 );
+
+sub compose {
+    my $self = shift;
+    $self->composition_format('RAW')
+        if ( $self->composition_format eq 'TDD' );
+    my @properties = qw(bclc_stage portal_invasion pancreatic_clinical_stage
+        child_pugh_score tace);
+
+    for my $property (@properties) {
+        if ($self->$property) {
+            for my $compos ( @{ $self->$property } ) {
+                $compos->composition_format($self->composition_format);
+            }
+        }
+    }
+
+    my $formatter = 'compose_' . lc( $self->composition_format );
+    $self->$formatter();
+}
 
 sub compose_structured {
     my $self        = shift;

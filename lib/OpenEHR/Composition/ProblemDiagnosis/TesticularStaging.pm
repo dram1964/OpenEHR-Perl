@@ -21,7 +21,7 @@ has lung_metastases => (
     isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::TesticularStaging::LungMetastases]',
 );
 
-=head1 stage_grouping_testicular($stage_grouping_testicular_object)
+=head1 stage_group_testicular($stage_grouping_testicular_object)
 
 Used to get or set the Testicular Stage Grouping item of the Testicular Staging item
 
@@ -36,6 +36,15 @@ sub compose {
     my $self = shift;
     $self->composition_format('RAW')
         if ( $self->composition_format eq 'TDD' );
+    my @properties = qw(lung_metastases stage_group_testicular);
+
+    for my $property (@properties) {
+        if ($self->$property) {
+            for my $compos ( @{ $self->$property } ) {
+                $compos->composition_format($self->composition_format);
+            }
+        }
+    }
 
     my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();

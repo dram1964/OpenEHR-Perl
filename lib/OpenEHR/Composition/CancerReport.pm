@@ -26,6 +26,9 @@ sub compose {
     $self->composition_format('RAW')
         if ( $self->composition_format eq 'TDD' );
 
+    for my $problem_diagnosis (@{ $self->problem_diagnoses } ) {
+        $problem_diagnosis->composition_format($self->composition_format);
+    }
     my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
 }
@@ -257,7 +260,7 @@ sub compose_flat {
     my $problem_diagnosis_index = '0';
     my $problem_diagnosis_comp;
     for my $problem_diagnosis ( @{ $self->problem_diagnoses } ) {
-        my $composition_fragment = $problem_diagnosis->compose;
+        my $composition_fragment = $problem_diagnosis->compose();
         for my $key ( keys %{$composition_fragment} ) {
             my $new_key = $key;
             $new_key =~ s/__TEST__/$problem_diagnosis_index/;

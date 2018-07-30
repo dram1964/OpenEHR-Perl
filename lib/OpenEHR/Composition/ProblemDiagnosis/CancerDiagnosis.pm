@@ -69,6 +69,15 @@ sub compose {
     my $self = shift;
     $self->composition_format('RAW')
         if ( $self->composition_format eq 'TDD' );
+    my @properties = qw(metastatic_site recurrence_indicator tumour_laterality);
+
+    for my $property (@properties) {
+        if ($self->$property) {
+            for my $compos ( @{ $self->$property } ) {
+                $compos->composition_format($self->composition_format);
+            }
+        }
+    }
 
     my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
