@@ -13,6 +13,7 @@ use OpenEHR::Composition::ProblemDiagnosis::TumourID;
 use OpenEHR::Composition::ProblemDiagnosis::ClinicalEvidence;
 use OpenEHR::Composition::ProblemDiagnosis::UpperGI;
 use OpenEHR::Composition::ProblemDiagnosis::UpperGI::BCLC_Stage;
+use OpenEHR::Composition::ProblemDiagnosis::Integrated_TNM;
 
 BEGIN { use_ok('OpenEHR::Composition::CancerReport'); }
 
@@ -78,6 +79,16 @@ for my $format (@formats) {
         ),  'Create new Upper GI object');
     ok($upper_gi->composition_format($format), "Set $format format for Upper GI");
 
+    ok(my $integrated_tnm = OpenEHR::Composition::ProblemDiagnosis::Integrated_TNM->new(
+            integrated_t =>     'Integrated T 90',
+            integrated_m =>     'Integrated M 25',
+            stage_grouping =>     'Integrated Stage grouping 31',
+            tnm_edition =>        'Integrated TNM Edition 44',
+            integrated_n =>       'Integrated N 15',
+            grading_at_diagnosis =>       'G4 Undifferentiated / anaplastic',
+        ),  'Create new Integrated TNM object');
+    ok($integrated_tnm->composition_format($format), "Set $format format for Integrated TNM");
+
     ok( my $problem_diagnosis = OpenEHR::Composition::ProblemDiagnosis->new(
             ajcc_stage => [$ajcc_stage],
             diagnosis   => [$diagnosis],
@@ -86,6 +97,7 @@ for my $format (@formats) {
             tumour_id => [$tumour_id],
             clinical_evidence => [$clinical_evidence],
             upper_gi_staging    => [$upper_gi],
+            integrated_tnm      => [$integrated_tnm],
         ), 'Create new ProblemDiagnosis object'
     );
     ok( $problem_diagnosis->composition_format($format), "Set $format composition format for ProblemDiagnosis");

@@ -88,9 +88,16 @@ has upper_gi_staging => (
     is  => 'rw',
     isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::UpperGI]',
 );
+
+=head2 integrated_tnm($upper_gi_object)
+
+Used to get or set the integrated tnm item for the Problem Diagnosis
+
+=cut 
+
 has integrated_tnm => (
     is  => 'rw',
-    isa => 'ArrayRef',
+    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::Integrated_TNM]',
 );
 has inrg_staging => (
     is  => 'rw',
@@ -125,16 +132,6 @@ sub compose {
 sub compose_structured {
     my $self        = shift;
     my $composition = {
-        'integrated_tnm' => [
-            {   'integrated_m' => ['Integrated M 80'],
-                'integrated_t' => ['Integrated T 28'],
-                'integrated_stage_grouping' =>
-                    ['Integrated Stage grouping 25'],
-                'integrated_n'           => ['Integrated N 98'],
-                'grading_at_diagnosis'   => ['G3 Poorly differentiated'],
-                'integrated_tnm_edition' => ['Integrated TNM Edition 41']
-            }
-        ],
         'final_figo_stage' => [
             {   'figo_version' => ['FIGO version 46'],
                 'figo_grade'   => [ { '|code' => 'at0017' } ]
@@ -162,6 +159,12 @@ sub compose_structured {
 =head1 comment
 =cut
 
+    if ( $self->integrated_tnm ) {
+        for my $integrated_tnm ( @{ $self->integrated_tnm } ) {
+            push @{ $composition->{integrated_tnm} },
+                $integrated_tnm->compose;
+        }
+    }
     if ( $self->upper_gi_staging ) {
         for my $upper_gi_staging ( @{ $self->upper_gi_staging } ) {
             push @{ $composition->{upper_gi_staging} },
@@ -311,91 +314,6 @@ sub compose_raw {
                         },
                         'rm_version' => '1.0.1'
                     }
-                },
-                {   'items' => [
-                        {   'archetype_node_id' => 'at0001',
-                            '@class'            => 'ELEMENT',
-                            'name'              => {
-                                'value'  => 'Integrated T',
-                                '@class' => 'DV_TEXT'
-                            },
-                            'value' => {
-                                '@class' => 'DV_TEXT',
-                                'value'  => 'Integrated T 99'
-                            }
-                        },
-                        {   'name' => {
-                                '@class' => 'DV_TEXT',
-                                'value'  => 'Integrated N'
-                            },
-                            'value' => {
-                                '@class' => 'DV_TEXT',
-                                'value'  => 'Integrated N 15'
-                            },
-                            'archetype_node_id' => 'at0002',
-                            '@class'            => 'ELEMENT'
-                        },
-                        {   'archetype_node_id' => 'at0003',
-                            '@class'            => 'ELEMENT',
-                            'name'              => {
-                                '@class' => 'DV_TEXT',
-                                'value'  => 'Integrated M'
-                            },
-                            'value' => {
-                                'value'  => 'Integrated M 25',
-                                '@class' => 'DV_TEXT'
-                            }
-                        },
-                        {   'name' => {
-                                '@class' => 'DV_TEXT',
-                                'value'  => 'Grading at diagnosis'
-                            },
-                            'value' => {
-                                '@class' => 'DV_TEXT',
-                                'value'  => 'G4 Undifferentiated / anaplastic'
-                            },
-                            'archetype_node_id' => 'at0005',
-                            '@class'            => 'ELEMENT'
-                        },
-                        {   'archetype_node_id' => 'at0007',
-                            '@class'            => 'ELEMENT',
-                            'name'              => {
-                                '@class' => 'DV_TEXT',
-                                'value'  => 'Integrated Stage grouping'
-                            },
-                            'value' => {
-                                '@class' => 'DV_TEXT',
-                                'value'  => 'Integrated Stage grouping 31'
-                            }
-                        },
-                        {   '@class'            => 'ELEMENT',
-                            'archetype_node_id' => 'at0017',
-                            'value'             => {
-                                '@class' => 'DV_TEXT',
-                                'value'  => 'Integrated TNM Edition 44'
-                            },
-                            'name' => {
-                                '@class' => 'DV_TEXT',
-                                'value'  => 'Integrated TNM Edition'
-                            }
-                        }
-                    ],
-                    'name' => {
-                        '@class' => 'DV_TEXT',
-                        'value'  => 'Integrated TNM'
-                    },
-                    'archetype_details' => {
-                        '@class'       => 'ARCHETYPED',
-                        'rm_version'   => '1.0.1',
-                        'archetype_id' => {
-                            '@class' => 'ARCHETYPE_ID',
-                            'value' =>
-                                'openEHR-EHR-CLUSTER.tnm_stage_clinical.v0'
-                        }
-                    },
-                    'archetype_node_id' =>
-                        'openEHR-EHR-CLUSTER.tnm_stage_clinical.v0',
-                    '@class' => 'CLUSTER'
                 },
                 {   'archetype_details' => {
                         '@class'       => 'ARCHETYPED',
@@ -621,6 +539,12 @@ sub compose_raw {
 =head1 comment
 =cut
 
+    if ( $self->integrated_tnm ) {
+        for my $integrated_tnm ( @{ $self->integrated_tnm } ) {
+            push @{ $composition->{data}->{items} },
+                $integrated_tnm->compose;
+        }
+    }
     if ( $self->upper_gi_staging ) {
         for my $upper_gi_staging ( @{ $self->upper_gi_staging } ) {
             push @{ $composition->{data}->{items} },
@@ -702,20 +626,6 @@ sub compose_flat {
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis/recurrence_indicator|code'
             => 'at0016',
 
-        # Integrated TNM
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/integrated_tnm/integrated_t'
-            => 'Integrated T 99',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/integrated_tnm/integrated_m'
-            => 'Integrated M 25',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/integrated_tnm/integrated_stage_grouping'
-            => 'Integrated Stage grouping 31',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/integrated_tnm/integrated_tnm_edition'
-            => 'Integrated TNM Edition 44',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/integrated_tnm/integrated_n'
-            => 'Integrated N 15',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/integrated_tnm/grading_at_diagnosis'
-            => 'G4 Undifferentiated / anaplastic',
-
         # Final Figo Stage
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/final_figo_stage/figo_grade|code'
             => 'at0008',
@@ -759,6 +669,21 @@ sub compose_flat {
 =head1 comment 
 =cut
 
+    if ( $self->integrated_tnm ) {
+        my $integrated_tnm_index = '0';
+        my $integrated_tnm_comp;
+        for my $integrated_tnm ( @{ $self->integrated_tnm } ) {
+            my $composition_fragment = $integrated_tnm->compose;
+            for my $key ( keys %{$composition_fragment} ) {
+                my $new_key = $key;
+                $new_key =~ s/__DIAG__/$integrated_tnm_index/;
+                $integrated_tnm_comp->{$new_key} =
+                    $composition_fragment->{$key};
+            }
+            $integrated_tnm_index++;
+            $composition = { ( %$composition, %{$integrated_tnm_comp} ) };
+        }
+    }
     if ( $self->upper_gi_staging ) {
         my $upper_gi_staging_index = '0';
         my $upper_gi_staging_comp;

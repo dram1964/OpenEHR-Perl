@@ -16,6 +16,7 @@ lib/OpenEHR/Composition/ProblemDiagnosis/AJCC_Stage.pm
 lib/OpenEHR/Composition/ProblemDiagnosis/ColorectalDiagnosis.pm
 lib/OpenEHR/Composition/ProblemDiagnosis/ClinicalEvidence.pm
 lib/OpenEHR/Composition/ProblemDiagnosis/Diagnosis.pm
+lib/OpenEHR/Composition/ProblemDiagnosis/Integrated_TNM.pm
 lib/OpenEHR/Composition/ProblemDiagnosis/ModifiedDukes.pm
 lib/OpenEHR/Composition/ProblemDiagnosis/TumourID.pm
 lib/OpenEHR/Composition/Professional.pm
