@@ -17,6 +17,8 @@ use OpenEHR::Composition::ProblemDiagnosis::UpperGI::PortalInvasion;
 use OpenEHR::Composition::ProblemDiagnosis::UpperGI::PancreaticClinicalStage;
 use OpenEHR::Composition::ProblemDiagnosis::UpperGI::ChildPughScore;
 use OpenEHR::Composition::ProblemDiagnosis::UpperGI::TACE;
+use OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis;
+use OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::TumourLaterality;
 use OpenEHR::Composition::ProblemDiagnosis::Integrated_TNM;
 use OpenEHR::Composition::ProblemDiagnosis::INRG_Staging;
 
@@ -117,6 +119,18 @@ for my $format (@formats) {
         ),  'Create new Upper GI object');
     ok($upper_gi->composition_format($format), "Set $format format for Upper GI");
 
+    ok(my $tumour_laterality = OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::TumourLaterality->new(
+        code => 'at0033',
+        value => 'Not known', 
+        terminology => 'local',
+        ),  'Create new Tumour Laterality object');
+    ok($tumour_laterality->composition_format($format), "Set $format format for Tumour Laterality");
+
+    ok(my $cancer_diagnosis = OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis->new(
+        tumour_laterality => [$tumour_laterality],
+        ),  'Create new Cancer Diagnosis object');
+    ok($cancer_diagnosis->composition_format($format), "Set $format format for Cancer Diagnosis");
+
     ok(my $integrated_tnm = OpenEHR::Composition::ProblemDiagnosis::Integrated_TNM->new(
             integrated_t =>     'Integrated T 90',
             integrated_m =>     'Integrated M 25',
@@ -144,6 +158,7 @@ for my $format (@formats) {
             upper_gi_staging    => [$upper_gi],
             integrated_tnm      => [$integrated_tnm],
             inrg_staging        => [$inrg_staging],
+            cancer_diagnosis        => [$cancer_diagnosis],
         ), 'Create new ProblemDiagnosis object'
     );
     ok( $problem_diagnosis->composition_format($format), "Set $format composition format for ProblemDiagnosis");

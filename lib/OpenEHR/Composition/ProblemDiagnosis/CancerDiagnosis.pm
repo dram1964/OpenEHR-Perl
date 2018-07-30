@@ -10,6 +10,11 @@ extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
+has tumour_laterality => (
+    is  => 'rw',
+    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::TumourLaterality]',
+);
+
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')
@@ -21,19 +26,147 @@ sub compose {
 
 sub compose_structured {
     my $self        = shift;
-    my $composition;
+    my $composition = {
+        'morphology'           => ['Morphology 86'],
+        'metastatic_site'      => [ { '|code' => 'at0023' } ],
+        'topography'           => ['Topography 90'],
+        'recurrence_indicator' => [ { '|code' => 'at0014' } ]
+    };
+    if ( $self->tumour_laterality ) {
+        for my $tumour_laterality ( @{ $self->tumour_laterality } ) {
+            push @{ $composition->{'tumour_laterality'} },
+                $tumour_laterality->compose;
+        }
+    }
     return $composition;
 }
 
 sub compose_raw {
     my $self        = shift;
-    my $composition;
+    my $composition = {
+        '@class'            => 'CLUSTER',
+        'archetype_node_id' => 'openEHR-EHR-CLUSTER.cancer_diagnosis_gel.v0',
+        'name'              => {
+            'value'  => 'Cancer diagnosis',
+            '@class' => 'DV_TEXT'
+        },
+        'items' => [
+            {   'value' => {
+                    '@class'        => 'DV_CODED_TEXT',
+                    'defining_code' => {
+                        'terminology_id' => {
+                            '@class' => 'TERMINOLOGY_ID',
+                            'value'  => 'local'
+                        },
+                        '@class'      => 'CODE_PHRASE',
+                        'code_string' => 'at0016'
+                    },
+                    'value' => 'NN'
+                },
+                'name' => {
+                    'value'  => 'Recurrence indicator',
+                    '@class' => 'DV_TEXT'
+                },
+                '@class'            => 'ELEMENT',
+                'archetype_node_id' => 'at0013'
+            },
+            {   'value' => {
+                    'value'  => 'Morphology 46',
+                    '@class' => 'DV_TEXT'
+                },
+                'name' => {
+                    '@class' => 'DV_TEXT',
+                    'value'  => 'Morphology'
+                },
+                '@class'            => 'ELEMENT',
+                'archetype_node_id' => 'at0001'
+            },
+            {   'archetype_node_id' => 'at0002',
+                '@class'            => 'ELEMENT',
+                'name'              => {
+                    '@class' => 'DV_TEXT',
+                    'value'  => 'Topography'
+                },
+                'value' => {
+                    '@class' => 'DV_TEXT',
+                    'value'  => 'Topography 75'
+                }
+            },
+            {   'value' => {
+                    '@class'        => 'DV_CODED_TEXT',
+                    'value'         => '08 Skin',
+                    'defining_code' => {
+                        'terminology_id' => {
+                            '@class' => 'TERMINOLOGY_ID',
+                            'value'  => 'local'
+                        },
+                        'code_string' => 'at0023',
+                        '@class'      => 'CODE_PHRASE'
+                    }
+                },
+                'name' => {
+                    '@class' => 'DV_TEXT',
+                    'value'  => 'Metastatic site'
+                },
+                '@class'            => 'ELEMENT',
+                'archetype_node_id' => 'at0017'
+            },
+        ],
+        'archetype_details' => {
+            '@class'       => 'ARCHETYPED',
+            'archetype_id' => {
+                'value'  => 'openEHR-EHR-CLUSTER.cancer_diagnosis_gel.v0',
+                '@class' => 'ARCHETYPE_ID'
+            },
+            'rm_version' => '1.0.1'
+        }
+    };
+    if ( $self->tumour_laterality ) {
+        for my $tumour_laterality ( @{ $self->tumour_laterality } ) {
+            push @{ $composition->{items} },
+                $tumour_laterality->compose;
+        }
+    }
     return $composition;
 }
 
 sub compose_flat {
     my $self        = shift;
-    my $composition;
+    my $composition = {
+
+        # Cancer Diagnosis
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/recurrence_indicator|value'
+            => 'NN',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/recurrence_indicator|code'
+            => 'at0016',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/recurrence_indicator|terminology'
+            => 'local',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/metastatic_site|terminology'
+            => 'local',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/metastatic_site|code'
+            => 'at0023',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/metastatic_site|value'
+            => '08 Skin',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/morphology:0'
+            => 'Morphology 46',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/topography'
+            => 'Topography 75',
+    };
+    if ( $self->tumour_laterality ) {
+        my $tumour_laterality_index = '0';
+        my $tumour_laterality_comp;
+        for my $tumour_laterality ( @{ $self->tumour_laterality } ) {
+            my $composition_fragment = $tumour_laterality->compose;
+            for my $key ( keys %{$composition_fragment} ) {
+                my $new_key = $key;
+                $new_key =~ s/__DIAG2__/$tumour_laterality_index/;
+                $tumour_laterality_comp->{$new_key} =
+                    $composition_fragment->{$key};
+            }
+            $tumour_laterality_index++;
+            $composition = { ( %$composition, %{$tumour_laterality_comp} ) };
+        }
+    }
     return $composition;
 }
 

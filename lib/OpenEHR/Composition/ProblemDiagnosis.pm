@@ -159,19 +159,17 @@ sub compose_structured {
                 'stage_grouping_testicular' => [ { '|code' => 'at0007' } ]
             }
         ],
-        'cancer_diagnosis' => [
-            {   'morphology'           => ['Morphology 86'],
-                'tumour_laterality'    => [ { '|code' => 'at0029' } ],
-                'metastatic_site'      => [ { '|code' => 'at0023' } ],
-                'topography'           => ['Topography 90'],
-                'recurrence_indicator' => [ { '|code' => 'at0014' } ]
-            }
-        ],
     };
 
 =head1 comment
 =cut
 
+    if ( $self->cancer_diagnosis ) {
+        for my $cancer_diagnosis ( @{ $self->cancer_diagnosis } ) {
+            push @{ $composition->{cancer_diagnosis} },
+                $cancer_diagnosis->compose;
+        }
+    }
     if ( $self->inrg_staging ) {
         for my $inrg_staging ( @{ $self->inrg_staging } ) {
             push @{ $composition->{inrg_staging} },
@@ -230,104 +228,6 @@ sub compose_raw {
                 '@class' => 'DV_TEXT'
             },
             'items' => [
-                {   '@class' => 'CLUSTER',
-                    'archetype_node_id' =>
-                        'openEHR-EHR-CLUSTER.cancer_diagnosis_gel.v0',
-                    'name' => {
-                        'value'  => 'Cancer diagnosis',
-                        '@class' => 'DV_TEXT'
-                    },
-                    'items' => [
-                        {   'value' => {
-                                '@class'        => 'DV_CODED_TEXT',
-                                'defining_code' => {
-                                    'terminology_id' => {
-                                        '@class' => 'TERMINOLOGY_ID',
-                                        'value'  => 'local'
-                                    },
-                                    '@class'      => 'CODE_PHRASE',
-                                    'code_string' => 'at0016'
-                                },
-                                'value' => 'NN'
-                            },
-                            'name' => {
-                                'value'  => 'Recurrence indicator',
-                                '@class' => 'DV_TEXT'
-                            },
-                            '@class'            => 'ELEMENT',
-                            'archetype_node_id' => 'at0013'
-                        },
-                        {   'value' => {
-                                'value'  => 'Morphology 46',
-                                '@class' => 'DV_TEXT'
-                            },
-                            'name' => {
-                                '@class' => 'DV_TEXT',
-                                'value'  => 'Morphology'
-                            },
-                            '@class'            => 'ELEMENT',
-                            'archetype_node_id' => 'at0001'
-                        },
-                        {   'archetype_node_id' => 'at0002',
-                            '@class'            => 'ELEMENT',
-                            'name'              => {
-                                '@class' => 'DV_TEXT',
-                                'value'  => 'Topography'
-                            },
-                            'value' => {
-                                '@class' => 'DV_TEXT',
-                                'value'  => 'Topography 75'
-                            }
-                        },
-                        {   'value' => {
-                                '@class'        => 'DV_CODED_TEXT',
-                                'value'         => '08 Skin',
-                                'defining_code' => {
-                                    'terminology_id' => {
-                                        '@class' => 'TERMINOLOGY_ID',
-                                        'value'  => 'local'
-                                    },
-                                    'code_string' => 'at0023',
-                                    '@class'      => 'CODE_PHRASE'
-                                }
-                            },
-                            'name' => {
-                                '@class' => 'DV_TEXT',
-                                'value'  => 'Metastatic site'
-                            },
-                            '@class'            => 'ELEMENT',
-                            'archetype_node_id' => 'at0017'
-                        },
-                        {   'archetype_node_id' => 'at0028',
-                            '@class'            => 'ELEMENT',
-                            'name'              => {
-                                '@class' => 'DV_TEXT',
-                                'value'  => 'Tumour laterality'
-                            },
-                            'value' => {
-                                '@class'        => 'DV_CODED_TEXT',
-                                'value'         => 'Not known',
-                                'defining_code' => {
-                                    'terminology_id' => {
-                                        '@class' => 'TERMINOLOGY_ID',
-                                        'value'  => 'local'
-                                    },
-                                    'code_string' => 'at0033',
-                                    '@class'      => 'CODE_PHRASE'
-                                }
-                            }
-                        }
-                    ],
-                    'archetype_details' => {
-                        '@class'       => 'ARCHETYPED',
-                        'archetype_id' => {
-                            'value' =>
-                                'openEHR-EHR-CLUSTER.cancer_diagnosis_gel.v0',
-                            '@class' => 'ARCHETYPE_ID'
-                        },
-                        'rm_version' => '1.0.1'
-                    }
-                },
                 {   '@class' => 'CLUSTER',
                     'archetype_node_id' =>
                         'openEHR-EHR-CLUSTER.figo_grade.v0',
@@ -515,6 +415,12 @@ sub compose_raw {
 =head1 comment
 =cut
 
+    if ( $self->cancer_diagnosis ) {
+        for my $cancer_diagnosis ( @{ $self->cancer_diagnosis } ) {
+            push @{ $composition->{data}->{items} },
+                $cancer_diagnosis->compose;
+        }
+    }
     if ( $self->inrg_staging ) {
         for my $inrg_staging ( @{ $self->inrg_staging } ) {
             push @{ $composition->{data}->{items} },
@@ -584,30 +490,6 @@ sub compose_flat {
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/encoding|terminology'
             => 'IANA_character-sets',
 
-        # Cancer Diagnosis
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis/tumour_laterality|terminology'
-            => 'local',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis/tumour_laterality|code'
-            => 'at0033',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis/tumour_laterality|value'
-            => 'Not known',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis/recurrence_indicator|value'
-            => 'NN',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis/recurrence_indicator|code'
-            => 'at0016',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis/recurrence_indicator|terminology'
-            => 'local',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis/metastatic_site|terminology'
-            => 'local',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis/metastatic_site|code'
-            => 'at0023',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis/metastatic_site|value'
-            => '08 Skin',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis/morphology:0'
-            => 'Morphology 46',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis/topography'
-            => 'Topography 75',
-
         # Final Figo Stage
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/final_figo_stage/figo_grade|code'
             => 'at0008',
@@ -643,6 +525,21 @@ sub compose_flat {
 =head1 comment 
 =cut
 
+    if ( $self->cancer_diagnosis ) {
+        my $cancer_diagnosis_index = '0';
+        my $cancer_diagnosis_comp;
+        for my $cancer_diagnosis ( @{ $self->cancer_diagnosis } ) {
+            my $composition_fragment = $cancer_diagnosis->compose;
+            for my $key ( keys %{$composition_fragment} ) {
+                my $new_key = $key;
+                $new_key =~ s/__DIAG__/$cancer_diagnosis_index/;
+                $cancer_diagnosis_comp->{$new_key} =
+                    $composition_fragment->{$key};
+            }
+            $cancer_diagnosis_index++;
+            $composition = { ( %$composition, %{$cancer_diagnosis_comp} ) };
+        }
+    }
     if ( $self->inrg_staging ) {
         my $inrg_staging_index = '0';
         my $inrg_staging_comp;
