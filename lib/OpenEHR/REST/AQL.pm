@@ -122,6 +122,10 @@ The executedAql value returned from a successful query response
 Holds the response content in the event that a query was not 
 successful. A successful query sets this to the empty string.
 
+=head2 resultset
+
+Holds an arrayref of result values
+
 =head1 DIAGNOSTICS
 
 Check if err_msg is set on the object

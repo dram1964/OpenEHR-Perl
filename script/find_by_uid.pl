@@ -5,8 +5,12 @@ use Data::Dumper;
 use OpenEHR::REST::Composition;
 
 my $path_report1 = OpenEHR::REST::Composition->new();
-my $uid = 'de7b024f-aba4-4401-ab73-4d18bb49d60d';
-$path_report1->request_format('FLAT');
+#my $uid = '0405d5d0-63be-44d8-86eb-d6e50d881dad::default::1';
+# $uid = '0405d5d0-63be-44d8-86eb-d6e50d881dad';
+my $uid = $ARGV[0];
+print "$uid\n";
+my $format = $ARGV[1] || 'FLAT';
+$path_report1->request_format($format);
 $path_report1->find_by_uid($uid);
 print Dumper $path_report1->composition_response;
 
