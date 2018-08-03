@@ -7,6 +7,7 @@ use Moose;
 use Moose::Util::TypeConstraints;
 use DateTime;
 use Data::Dumper;
+use DateTime::Format::Pg;
 extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
@@ -82,6 +83,7 @@ sub decompose_structured {
       $composition->{gel_data_request_summary}->{service_request}->[0];
     my $request_details =
       $service_request->{request}->[0]->{gel_information_request_details}->[0];
+    my $context = $composition->{gel_data_request_summary}->{context}->[0];
 
     $self->current_state(
         $service->{ism_transition}->[0]->{current_state}->[0]->{'|value'} );
@@ -89,14 +91,31 @@ sub decompose_structured {
     my $expiry_time = &format_datetime( $service_request->{expiry_time}->[0] );
     $self->expiry_time($expiry_time);
 
-    my $start_date =
-      &format_datetime(
-        $request_details->{patient_information_request_start_date}->[0] );
+    my $start_date;
+    if ($request_details->{patient_information_request_start_date}) {
+        $start_date = &format_datetime(
+            $request_details->{patient_information_request_start_date}->[0] 
+        );
+    }
+    elsif($context->{start_time}) {
+        $start_date = &format_datetime(
+            $context->{start_time}->[0]
+        );
+    }
     $self->start_date($start_date);
 
-    my $end_date =
-      &format_datetime(
-        $request_details->{patient_information_request_end_date}->[0] );
+    my $end_date;
+    if ($request_details->{patient_information_request_end_date}) {
+        $end_date = &format_datetime( 
+            $request_details->{patient_information_request_end_date}->[0]
+        );
+    }
+    elsif ($context->{_end_time}->[0]) {
+        $end_date = &format_datetime( 
+            $context->{_end_time}->[0]
+         );
+    }
+    $end_date = $end_date ? $end_date : DateTime->now;
     $self->end_date($end_date);
 
     my $timing =
@@ -156,15 +175,25 @@ sub decompose_raw {
 
 sub format_datetime {
     my $date = shift;
-    return 0 unless defined($date);
+    if (!defined($date)) {
+        $date = DateTime->now->datetime;
+    }
+    if ($date eq 'R1') {
+        $date = DateTime->now->datetime;
+    }
+    if ($date =~ /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})(\+\d{2}:\d{2})/) {
+        my ($part1, $part2) = ($1, $2);
+        $part1 .= ':00';
+        $date = $part1 . $part2;
+    }
     $date =~ s/T/ /;
     $date =~ s/Z/\:00/;
-    eval { my $et = DateTime::Format::Pg->parse_datetime($date); };
+    eval { $date = DateTime::Format::Pg->parse_datetime($date); };
     if ($@) {
         croak $@;
     }
     else {
-        $date = DateTime::Format::Pg->parse_datetime($date);
+        #$date = DateTime::Format::Pg->parse_datetime($date);
         return $date;
     }
 }
@@ -204,7 +233,7 @@ sub compose_structured {
                             'service_name' => [ $self->service_name ]
                         }
                     ],
-                    'requestor_identifier' => [ DateTime->now()->epoch() ],
+                    'requestor_identifier' => $self->request_id, # | [ DateTime->now()->epoch() ],
                     'expiry_time'          => $self->expiry_time->datetime,
                 }
             ],

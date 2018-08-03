@@ -47,7 +47,7 @@ diag( "New order HREF: " . $order->href );
 my $order_retrieval = OpenEHR::REST::Composition->new();
 $order_retrieval->request_format('STRUCTURED');
 ok( $order_retrieval->find_by_uid($composition_uid), 'Find Existing order' );
-print Dumper $order_retrieval;
+#print Dumper $order_retrieval;
 
 
 is( $order_retrieval->response_format,
@@ -117,29 +117,17 @@ ok( $order_update->compose, 'Compose the updated order' );
 note('Submitting the order update');
 ok( my $order_completion = OpenEHR::REST::Composition->new(),
     "Construct REST order" );
-ok( $order->composition($order_update), "Add composition to new order" );
-ok( $order->template_id($template_id),
+ok( $order_completion->composition($order_update), "Add composition to new order" );
+ok( $order_completion->template_id($template_id),
     'Set the template id for STRUCTURED submission' );
-ok( $order->update_by_uid($composition_uid), "Submit new information order" );
-ok( !$order->err_msg, "No error message returned from REST call" );
-if ( $order->err_msg ) {
-    diag( "Error occurred in submission: " . $order->err_msg );
+ok( $order_completion->update_by_uid($composition_uid), "Submit new information order" );
+ok( !$order_completion->err_msg, "No error message returned from REST call" );
+if ( $order_completion->err_msg ) {
+    diag( "Error occurred in submission: " . $order_completion->err_msg );
 }
-is( $order->action, "UPDATE", "Action is UPDATE" );
-diag(   'Order State: '
-      . $order_update->current_state_code . ' - '
-      . $order_update->current_state );
-diag(   'Service: '
-      . $order_update->service_name . ' - '
-      . $order_update->service_type );
-diag( 'Request ID: ' . $order_update->request_id );
-diag(   'Request Period: '
-      . $order_update->start_date . ' - '
-      . $order_update->end_date );
-diag( 'Order Date: ' . $order_update->timing );
-diag( 'Order Expiry: ' . $order_update->expiry_time );
-diag( $order->compositionUid );
-diag( $order->href );
+is( $order_completion->action, "UPDATE", "Action is UPDATE" );
+diag( $order_completion->compositionUid );
+diag( $order_completion->href );
 
 sub get_new_random_subject {
     my $action = 'RETRIEVE';

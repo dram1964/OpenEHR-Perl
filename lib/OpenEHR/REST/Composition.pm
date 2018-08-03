@@ -70,6 +70,7 @@ sub find_by_uid {
 			$self->composition_response($query_response->{composition});
 			$self->deleted($query_response->{deleted});
 			$self->lastVersion($query_response->{lastVersion});
+		    $self->href($query_response->{meta}->{href});
 		}
 		return 1;
 	} else {
