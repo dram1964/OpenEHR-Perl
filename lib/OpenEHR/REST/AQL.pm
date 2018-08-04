@@ -52,7 +52,7 @@ sub run_query {
 Retrieves all information orders whose state value matches $state
 and adds the results to the objects resultset.
 Resultset items will have the following keys: 
-ehr_id, subject_id, subject_id_type, composition_uid, narrative, order_type,
+subject_ehr_id, subject_id, subject_id_type, composition_uid, narrative, order_type,
 order_id, unique_message_id, start_date, end_date, data_start_date, data_end_date, 
 service_type, current_state, current_state_code, 
 
