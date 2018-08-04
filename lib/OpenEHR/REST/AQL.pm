@@ -47,6 +47,54 @@ sub run_query {
     }
 }
 
+=head2 find_orders_by_state($state) 
+
+Retrieves all information orders whose state value matches $state
+and adds the results to the objects resultset.
+Resultset items will have the following keys: 
+ehr_id, subject_id, subject_id_type, composition_uid, narrative, order_type,
+order_id, unique_message_id, start_date, end_date, data_start_date, data_end_date, 
+service_type, current_state, current_state_code, 
+
+=cut
+
+sub find_orders_by_state {
+    my ( $self, $state ) = @_;
+    croak "No state value specified" unless $state;
+    my @states = qw/ planned scheduled completed aborted /;
+    my $valid_state = grep( /$state/, @states);
+    croak "Invalid state specified: $state" unless $valid_state;
+    my $statement = << "END_STMT";
+    select 
+ e/ehr_id/value as subject_ehr_id,
+ e/ehr_status/subject/external_ref/namespace as subject_id_type,
+ e/ehr_status/subject/external_ref/id/value as subject_id,
+ c/uid/value as composition_uid,
+ i/narrative/value as narrative,
+ c/name/value as order_type,
+ c/composer/name as ordered_by,
+ i/uid/value as order_id,
+ i/protocol[at0008]/items[at0010]/value/value as unique_message_id,
+ i/activities[at0001]/timing/value as start_date,
+ i/expiry_time/value as end_date,
+ c/context/start_time/value as data_start_date,
+ c/context/end_time/value as data_end_date,
+ i/activities[at0001]/description[at0009]/items[at0148]/value/value as service_type,
+ a/ism_transition/current_state/value as current_state,
+ a/ism_transition/current_state/defining_code/code_string as current_state_code
+    from EHR e
+    contains COMPOSITION c[openEHR-EHR-COMPOSITION.report.v1]
+    contains (INSTRUCTION i[openEHR-EHR-INSTRUCTION.request.v0]
+    and ACTION a[openEHR-EHR-ACTION.service.v0])
+    where i/activities[at0001]/description[at0009]/items[at0121]/value = 'GEL Information data request'
+    and i/activities[at0001]/description[at0009]/items[at0148]/value/value = 'pathology'
+    and a/ism_transition/current_state/value = '$state'
+END_STMT
+    $self->statement($statement);
+    $self->run_query;
+}
+
+
 no Moose;
 
 __PACKAGE__->meta->make_immutable;
