@@ -47,6 +47,28 @@ sub run_query {
     }
 }
 
+=head2 find_ehr_by_uid
+
+Retrives EHR data for a given composition and adds the result to the 
+objects resultset. Resultset will have the following keys: ehrid and
+ptnumber
+
+=cut 
+
+sub find_ehr_by_uid {
+    my ( $self, $uid ) = @_;
+    croak "No UID specified" unless $uid;
+    my $statement = << "END_STMT";
+    select e/ehr_id/value as ehrid, e/ehr_status/subject/external_ref/id/value as ptnumber from EHR e
+    contains Composition c
+    where c/uid/value = '$uid'
+END_STMT
+    $self->statement($statement);
+    $self->run_query;
+}
+    
+
+
 =head2 find_orders_by_state($state) 
 
 Retrieves all information orders whose state value matches $state

@@ -208,9 +208,11 @@ is unsuccessful then err_msg is set to the response content.
 The TDD format is not currently implemented and requests for TDD 
 format compositions will also set the err_msg value. 
  
-Successful queries set the objects format, template_id, composition,
-deleted and lastVersion attributes with the corresponding result
-response
+Successful queries set the objects response_format to indicate
+the template format; the template_id; the composition_response to
+the actual composition; the href property to the path to display the 
+composition; and the deleted and lastVersion attributes with the 
+corresponding composition attributes
 
 =head2 update_by_uid($uid)
 
