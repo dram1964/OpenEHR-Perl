@@ -39,12 +39,14 @@ sub add_labtests {
         terminology    => 'local',
     );
     my $specimen = OpenEHR::Composition::Specimen->new(
-        specimen_type      => $order->{spec_type},
         datetime_collected => $order->{collected},
         collection_method  => $order->{collect_method},
         datetime_received  => $order->{received},
         spec_id            => $order->{labnumber}->{id},
     );
+    if ($order->{spec_type}) {
+        $specimen->{specimen_type } = $order->{spec_type};
+    }
 
     my $labresults = [];
     for my $res ( @{ $order->{labresults} } ) {

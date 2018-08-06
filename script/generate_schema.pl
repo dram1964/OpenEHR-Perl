@@ -8,6 +8,6 @@ make_schema_at(
     },
     [
         'dbi:ODBC:DSN=CRIUGenomesTest',
-        'user', 'pass', { LongReadLen => 80, LongTruncOk => 1 }
+        'dr00', 'letmein', { LongReadLen => 80, LongTruncOk => 1 }
     ],
 );
