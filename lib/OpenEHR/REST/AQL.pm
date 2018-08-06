@@ -99,14 +99,15 @@ sub find_orders_by_state {
  i/protocol[at0008]/items[at0010]/value/value as unique_message_id,
  i/activities[at0001]/timing/value as start_date,
  i/expiry_time/value as end_date,
- c/context/start_time/value as data_start_date,
- c/context/end_time/value as data_end_date,
  i/activities[at0001]/description[at0009]/items[at0148]/value/value as service_type,
+ f/items[at0001]/value/value as data_start_date,
+ f/items[at0002]/value/value as data_end_date,
  a/ism_transition/current_state/value as current_state,
  a/ism_transition/current_state/defining_code/code_string as current_state_code
     from EHR e
     contains COMPOSITION c[openEHR-EHR-COMPOSITION.report.v1]
-    contains (INSTRUCTION i[openEHR-EHR-INSTRUCTION.request.v0]
+    contains (INSTRUCTION i[openEHR-EHR-INSTRUCTION.request.v0] 
+    contains CLUSTER f[openEHR-EHR-CLUSTER.information_request_details_gel.v0]
     and ACTION a[openEHR-EHR-ACTION.service.v0])
     where i/activities[at0001]/description[at0009]/items[at0121]/value = 'GEL Information data request'
     and i/activities[at0001]/description[at0009]/items[at0148]/value/value = 'pathology'
@@ -115,6 +116,10 @@ END_STMT
     $self->statement($statement);
     $self->run_query;
 }
+=head1 REMOVAL
+ c/context/start_time/value as data_start_date,
+ c/context/end_time/value as data_end_date,
+=cut
 
 
 no Moose;
