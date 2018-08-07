@@ -9,15 +9,6 @@ use OpenEHR::Composition::LabResultReport;
 use OpenEHR::REST::Composition;
 use Genomes_100K::Model;
 
-=head1 removed
-my $dbi_dsn    = 'dbi:ODBC:DSN=CRIUGenomesTest';
-my $user       = 'dr00';
-my $pass       = 'letmein';
-my $dbi_params = { LongReadLen => 8000, LongTruncOk => 1 };
-my $schema =
-  Genomes_100K::Schema->connect( $dbi_dsn, $user, $pass, $dbi_params );
-=cut
-
 my $schema = Genomes_100K::Model->connect('CRIUGenomesTest');
 
 my $resulted =
@@ -25,7 +16,7 @@ my $resulted =
 
 my $orders_rs = $schema->resultset('InformationOrder')->search(
     {
-        order_state_code => 526,
+        order_state_code => 529,
         subject_id_type  => 'uk.nhs.nhs_number',
         service_type     => 'pathology'
     },
@@ -65,6 +56,11 @@ sub select_samples_to_report {
                 $start_date,                       $end_date ),
               "\n";
             my $data = {};
+=head1 order_number
+
+need to replace this statement with order number lookup
+
+=cut
             $data->{order_number} = {
                 id       => 'TQ00112233',
                 assigner => 'TQuest',
@@ -75,7 +71,17 @@ sub select_samples_to_report {
                 assigner => 'Winpath',
                 issuer   => 'UCLH Pathology',
             };
+=head1 report_date
+
+need to replace this statement with report data lookup
+
+=cut 
             $data->{report_date} = $resulted;
+=head1 test_status
+
+need to replace this statement with test_status lookup
+
+=cut
             $data->{test_status} = 'Final';
 
             my $sample_data = &get_sample_data($labnumber);
@@ -88,6 +94,11 @@ sub select_samples_to_report {
                         $sample_data->sample_date . " "
                       . $sample_data->sample_time );
             }
+=head1 collect_method
+
+Need to replace this statement with collect_method lookup
+
+=cut
             $data->{collect_method} = 'Phlebotomy';
             if ( $sample_data->receive_date ) {
                 $data->{received} = DateTime::Format::DateParse->parse_datetime(
@@ -106,8 +117,6 @@ sub select_samples_to_report {
                     id     => $sample_data->location_name,
                     parent => 'UCLH',
                 };
-            }
-            else {
             }
             if ( $sample_data->clinical_details ) {
                 $data->{clinical_info} = $sample_data->clinical_details;
@@ -148,6 +157,11 @@ sub select_samples_to_report {
                 else {
                     $ref_range = '';
                 }
+=head1 result_status
+
+Need to use a result_status lookup here
+
+=cut
                 push @{ $data->{labresults} }, {
                     result    => $result,       #'88.9 mmol/l',
                     comment   => $comment,      #'This is the sodium comment',
@@ -191,20 +205,36 @@ sub update_report_date() {
 sub submit_report() {
     my $labreport = shift;
     my $report    = OpenEHR::Composition::LabResultReport->new();
+=head1 report_id
+
+need to generate a report_id for each labresultreport
+
+=cut
     $report->report_id('1112233322233');
+
+=head1 patient_comment
+
+need to use a patient_comment lookup here
+
+=cut
     $report->patient_comment('Hello EHR');
     for my $order ( @{$labreport} ) {
         $report->add_labtests($order);
     }
+=head1 composer_name
+
+need to generate a suitable value for composer name
+
+=cut
     $report->composer_name('David Ramlakhan');
-    print "Composition Format: ", $report->composition_format, "\n";
+    #print "Composition Format: ", $report->composition_format, "\n";
     my $path_report = OpenEHR::REST::Composition->new();
 
     $path_report->composition($report);
     $path_report->template_id('GEL - Generic Lab Report import.v0');
     $path_report->submit_new( $report->test_ehrid );
     if ( $path_report->err_msg ) {
-        warn $path_report->err_msg;
+        die $path_report->err_msg;
     }
     if ( $path_report->action eq 'CREATE' ) {
         print "Composition UID: ", $path_report->compositionUid, "\n";
@@ -234,7 +264,7 @@ sub get_labresults() {
         )->all
     ];
 
-=head2 add_extra_filters
+=head1 add_extra_filters
     my $statement = << 'END_STMT';
 select
 t1.result
