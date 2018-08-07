@@ -7,14 +7,18 @@ use DBI;
 
 use OpenEHR::Composition::LabResultReport;
 use OpenEHR::REST::Composition;
-use Genomes_100K::Schema;
+use Genomes_100K::Model;
 
+=head1 removed
 my $dbi_dsn    = 'dbi:ODBC:DSN=CRIUGenomesTest';
 my $user       = 'dr00';
 my $pass       = 'letmein';
 my $dbi_params = { LongReadLen => 8000, LongTruncOk => 1 };
 my $schema =
   Genomes_100K::Schema->connect( $dbi_dsn, $user, $pass, $dbi_params );
+=cut
+
+my $schema = Genomes_100K::Model->connect('CRIUGenomesTest');
 
 my $resulted =
   DateTime::Format::DateParse->parse_datetime('2017-12-01T01:30:00');
@@ -44,6 +48,7 @@ sub select_samples_to_report {
             nhs_number  => $nhs_number,
             sample_date => { '>=' => $start_date },
             sample_date => { '<=' => $end_date },
+            reported_date => undef,
         },
     );
     my $row = 1;
@@ -166,18 +171,6 @@ sub select_samples_to_report {
 
 sub update_report_date() {
     my ($labnumber, $composition) = @_;
-=head1 removed
-    my $statement = << 'END_STMT';
-update dbo.Pathology_Samples
-set reported_date = GETDATE(),
-reported_by = ?, 
-composition_id = ?
-where laboratory_sample_number = ?
-END_STMT
-
-    my $sth = $dbh->prepare($statement) or die "Could not prepare statement: " . $dbh->errstr;
-    $sth->execute($0, $composition, $labnumber) or die "Could not execute statement: " . $dbh->errstr;
-=cut
     my $search = $schema->resultset('PathologySample')->search( 
         {
             laboratory_sample_number => $labnumber, 
