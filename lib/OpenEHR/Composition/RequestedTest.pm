@@ -7,11 +7,21 @@ use Moose;
 extends 'OpenEHR::Composition';
 use version; our $VERSION = qv('0.0.2');
 
-has requested_test => ( is => 'rw', isa => 'Str' );
+has requested_test => ( is => 'rw', isa => 'Str');
 has name           => ( is => 'rw', isa => 'Str' );
-has code           => ( is => 'rw', isa => 'Str' );
+has code           => ( is => 'rw', isa => 'Str', trigger => \&_check_blanks );
 has terminology    => ( is => 'rw', isa => 'Str', default => 'local' );
 has mapping        => ( is => 'rw', isa => 'HashRef' );
+
+sub _check_blanks {
+    my $self = shift;
+    if ($self->requested_test =~ /^\s*$/) {
+        $self->requseted_test($self->code);
+    }
+    if ($self->name =~ /^\s*$/) {
+        $self->name($self->code);
+    }
+}
 
 sub compose {
     my $self = shift;

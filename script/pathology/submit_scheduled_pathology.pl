@@ -20,7 +20,7 @@ my $orders_rs = $schema->resultset('InformationOrder')->search(
         subject_id_type  => 'uk.nhs.nhs_number',
         service_type     => 'pathology'
     },
-    { columns => [qw/subject_id data_start_date data_end_date subject_id/] },
+    { columns => [qw/subject_ehr_id subject_id data_start_date data_end_date subject_id/] },
 );
 
 my $patient_number;
@@ -28,12 +28,12 @@ while ( my $order = $orders_rs->next ) {
     print join( ":",
         $order->subject_id, $order->data_start_date, $order->data_end_date ),
       "\n";
-    &select_samples_to_report( $order->subject_id, $order->data_start_date,
+    &select_samples_to_report( $order->subject_ehr_id, $order->subject_id, $order->data_start_date,
         $order->data_end_date );
 }
 
 sub select_samples_to_report {
-    my ( $nhs_number, $start_date, $end_date ) = @_;
+    my ( $ehrid, $nhs_number, $start_date, $end_date ) = @_;
     my $samples_rs = $schema->resultset('PathologySample')->search(
         {
             nhs_number  => $nhs_number,
@@ -56,27 +56,20 @@ sub select_samples_to_report {
                 $start_date,                       $end_date ),
               "\n";
             my $data = {};
-=head1 order_number
 
-need to replace this statement with order number lookup
-
-=cut
-            $data->{order_number} = {
-                id       => 'TQ00112233',
-                assigner => 'TQuest',
-                issuer   => 'UCLH',
-            };
+            if ($sample->order_number) {
+                $data->{order_number} = {
+                    id       => $sample->order_number,
+                    assigner => 'TQuest',
+                    issuer   => 'UCLH',
+                };
+            }
             $data->{labnumber} = {
                 id       => $labnumber,
                 assigner => 'Winpath',
                 issuer   => 'UCLH Pathology',
             };
-=head1 report_date
-
-need to replace this statement with report data lookup
-
-=cut 
-            $data->{report_date} = $resulted;
+            $data->{report_date} = DateTime->now;
 =head1 test_status
 
 need to replace this statement with test_status lookup
@@ -128,17 +121,12 @@ Need to replace this statement with collect_method lookup
             for my $lab_result ( @{$lab_results_ref} ) {
                 my $result    = $lab_result->result;
                 my $comment   = '';
-                my $test_code = $lab_result->test_format_code;
+                my $test_code = $lab_result->test_code;
                 my $ref_range;
                 my $regex = qr/^(.*)\n([\W|\w|\n]*)/;
                 if ( $result =~ $regex ) {
                     ( $result, $comment ) = ( $1, $2 );
-
-                    #print "$test_code has linefeeds in result:\n";
-                    #print "First Line: ", $1, "\n";
-                    #print "Remainder: ", $2, "\n";
-                    #print "Result: ", $result, "\n";
-                    print Dumper $test_code, $comment;
+                    #print Dumper $test_code, $comment;
                 }
                 if ( $lab_result->units ) {
                     if ( !( $lab_result->units eq '.' ) ) {
@@ -166,7 +154,7 @@ Need to use a result_status lookup here
                     result    => $result,       #'88.9 mmol/l',
                     comment   => $comment,      #'This is the sodium comment',
                     ref_range => $ref_range,    #'80-90',
-                    testcode      => $lab_result->test_format_code,   #'NA',
+                    testcode      => $lab_result->test_code,   #'NA',
                     testname      => $lab_result->test_name,          #'Sodium',
                     result_status => 'Final',
                 };
@@ -174,11 +162,9 @@ Need to use a result_status lookup here
             push @{$labreport}, $data;
 
         }
-
-        if (my $composition = &submit_report()) {
+        if (my $composition = &submit_report($labreport, $ehrid)) {
             &update_report_date($labnumber, $composition);
         }
-        exit 1;
         $row++;
     }
 }
@@ -203,7 +189,7 @@ sub update_report_date() {
 }
 
 sub submit_report() {
-    my $labreport = shift;
+    my ( $labreport, $ehrid ) = @_;
     my $report    = OpenEHR::Composition::LabResultReport->new();
 =head1 report_id
 
@@ -232,7 +218,7 @@ need to generate a suitable value for composer name
 
     $path_report->composition($report);
     $path_report->template_id('GEL - Generic Lab Report import.v0');
-    $path_report->submit_new( $report->test_ehrid );
+    $path_report->submit_new( $ehrid );
     if ( $path_report->err_msg ) {
         die $path_report->err_msg;
     }
@@ -253,12 +239,13 @@ sub get_labresults() {
         $schema->resultset('PathologyResult')->search(
             {
                 lab_number        => $sample_number,
-                test_library_code => $order_code,
+                order_code => $order_code,
+                report  => { '<>' => 'X'},
             },
             {
                 columns => [
                     qw/ result clinical_details range_low range_high
-                      test_format_code units test_name /
+                      test_code units test_name /
                 ],
             }
         )->all
