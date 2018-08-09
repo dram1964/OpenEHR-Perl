@@ -131,7 +131,9 @@ Need to replace this statement with collect_method lookup
                 }
                 if ( $lab_result->units ) {
                     if ( !( $lab_result->units eq '.' ) ) {
-                        $result = $result . ' ' . $lab_result->units;
+                        if ($result =~ /^\d.*\d$/) {
+                            $result = $result . ' ' . $lab_result->units;
+                        }
                     }
                 }
                 if ( $lab_result->range_high ) {
