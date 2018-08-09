@@ -16,7 +16,7 @@ has mapping        => ( is => 'rw', isa => 'HashRef' );
 sub _check_blanks {
     my $self = shift;
     if ($self->requested_test =~ /^\s*$/) {
-        $self->requseted_test($self->code);
+        $self->requested_test($self->code);
     }
     if ($self->name =~ /^\s*$/) {
         $self->name($self->code);

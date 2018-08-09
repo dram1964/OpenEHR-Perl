@@ -116,6 +116,7 @@ Need to replace this statement with collect_method lookup
             }
             $data->{ordercode} = $order->order_code;
             $data->{ordername} = $order->order_name;
+            
             my $lab_results_ref =
               &get_labresults( $labnumber, $order->order_code );
             for my $lab_result ( @{$lab_results_ref} ) {
@@ -160,7 +161,6 @@ Need to use a result_status lookup here
                 };
             }
             push @{$labreport}, $data;
-
         }
         if (my $composition = &submit_report($labreport, $ehrid)) {
             &update_report_date($labnumber, $composition);
@@ -241,6 +241,11 @@ sub get_labresults() {
                 lab_number        => $sample_number,
                 order_code => $order_code,
                 report  => { '<>' => 'X'},
+                wp_function => {
+                    -not_like => [
+                        -and => ('%I%', '%J%')
+                        ]
+                },
             },
             {
                 columns => [
