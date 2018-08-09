@@ -22,8 +22,8 @@ if ( $query->err_msg ) {
 }
 
 for my $result ( @{ $query->resultset } ) {
-    &insert_order($result);
-    &update_state($result->{composition_uid});
+    my $new_uid = &update_state($result->{composition_uid});
+    &insert_order($result, $new_uid);
 }
 
 sub update_state {
@@ -36,7 +36,7 @@ sub update_state {
     my $composition = $retrieval->composition_response;
     print "Original order can be found at: " . $retrieval->href . "\n";
 
-    print Dumper $composition;
+    #print Dumper $composition;
 
     # Recompose the composition with new state
     my $recompose = OpenEHR::Composition::InformationOrder->new();
@@ -54,17 +54,18 @@ sub update_state {
         die "Error occurred in submission: " . $order_update->err_msg;
     }
     print "Update can be found at: " . $order_update->href . "\n";
+    return $order_update->compositionUid;
 
 }
 
 sub insert_order() {
-    my $result = shift;
+    my ( $result, $new_uid) = @_;
     my $order = $schema->resultset('InformationOrder')->update_or_create(
         {
             order_id          => $result->{order_id},
             start_date        => &date_format($result->{start_date}),
             end_date          => &date_format($result->{end_date}),
-            composition_uid   => $result->{composition_uid},
+            composition_uid   => $new_uid, #$result->{composition_uid},
             ordered_by        => $result->{ordered_by},
             order_type        => $result->{order_type},
             order_state       => 'scheduled', #$result->{current_state},

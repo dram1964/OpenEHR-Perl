@@ -10,20 +10,34 @@ my $schema = Genomes_100K::Model->connect('CRIUGenomesTest');
 
 my $state = 'completed';
 
-my $query = OpenEHR::REST::AQL->new();
-$query->find_orders_by_state($state);
+my $dtf = $schema->storage->datetime_parser;
+my $expired_orders = $schema->resultset('InformationOrder')->search(
+    {
+        end_date => {'<=', $dtf->format_datetime(
+            DateTime->new(
+                year => 2019,
+                month => 11,
+                day => 30,
+            )
+        )}
+    },
+);
 
-if ( $query->response_code eq '204') {
-    print "No $state orders found\n";
-    exit 1;
-}
-if ( $query->err_msg ) {
-    die $query->err_msg;
-}
+for my $order ( $expired_orders->next ) {
+    my $query = OpenEHR::REST::AQL->new();
+    $query->find_orders_by_uid($order->composition_uid);
 
-for my $result ( @{ $query->resultset } ) {
-    &update_state($result->{composition_uid});
-    &mark_completed($result);
+    if ( $query->response_code eq '204') {
+        print "No $state orders found\n";
+        exit 1;
+    }
+    if ( $query->err_msg ) {
+        die $query->err_msg;
+    }
+
+    my $result = $query->resultset->first;
+        &update_state($result->{composition_uid});
+        &mark_completed($result);
 }
 
 sub mark_completed() {

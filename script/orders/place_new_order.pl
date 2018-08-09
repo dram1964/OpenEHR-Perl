@@ -70,6 +70,7 @@ $order->submit_new( $ehr->ehr_id );
 if ( $order->err_msg ) {
     print "Error occurred in submission: " . $order->err_msg . "\n";
 }
+print "Subject ID: $nhs_number\n";
 print "New Composition: " . $order->compositionUid . "\n";
 print "HREF: " . $order->href . "\n";
 

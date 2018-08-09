@@ -69,7 +69,7 @@ sub select_samples_to_report {
                 assigner => 'Winpath',
                 issuer   => 'UCLH Pathology',
             };
-            $data->{report_date} = DateTime->now;
+            $data->{report_date} = &get_report_date($labnumber,$order->order_code); # DateTime->now;
 =head1 test_status
 
 need to replace this statement with test_status lookup
@@ -169,6 +169,35 @@ Need to use a result_status lookup here
     }
 }
 
+sub get_report_date {
+    my ( $labnumber, $order_code ) = @_;
+    my $report_date;
+    my $search_rs = $schema->resultset('PathologyResult')->search(
+        {
+            lab_number => $labnumber,
+            order_code  => $order_code,
+        },
+        {
+            order_by => 'authorisation_date',
+            rows    => 1,
+        }
+    );
+    my $result = $search_rs->first;
+    if ($result->authorisation_date) {
+        $report_date = $result->authorisation_date . ' ' . $result->authorisation_time;
+    }
+    elsif ($result->result_date) {
+        $report_date = $result->result_date . ' ' . $result->result_time;
+    }
+    else {
+        $report_date = undef;
+    }
+    return DateTime::Format::DateParse->parse_datetime($report_date);
+}
+
+
+
+
 sub update_report_date() {
     my ($labnumber, $composition) = @_;
     my $search = $schema->resultset('PathologySample')->search( 
@@ -246,6 +275,7 @@ sub get_labresults() {
                         -and => ('%I%', '%J%')
                         ]
                 },
+                result => { -not_like => '.%' },
             },
             {
                 columns => [

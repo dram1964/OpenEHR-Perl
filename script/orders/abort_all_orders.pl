@@ -47,6 +47,7 @@ my $aql_info_orders = << "END_AQL";
     and ACTION a[openEHR-EHR-ACTION.service.v0])
     where i/activities[at0001]/description[at0009]/items[at0121]/value = 'GEL Information data request'
     and i/activities[at0001]/description[at0009]/items[at0148]/value/value = 'pathology'
+    and a/ism_transition/current_state/value != 'aborted'
 END_AQL
 
 my $query = OpenEHR::REST::AQL->new();
