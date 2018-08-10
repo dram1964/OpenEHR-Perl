@@ -125,7 +125,7 @@ Need to replace this statement with collect_method lookup
               &get_labresults( $labnumber, $order->order_code );
             for my $lab_result ( @{$lab_results_ref} ) {
                 my $result    = $lab_result->result;
-                my ($magnitude, $unit);
+                my ($magnitude, $magnitude_status, $unit);
                 my $comment   = '';
                 my $test_code = $lab_result->test_code;
                 my $ref_range;
@@ -136,7 +136,10 @@ Need to replace this statement with collect_method lookup
                 }
                 if ( $lab_result->units ) {
                     if ( !( $lab_result->units eq '.' ) ) {
-                        if ($result =~ /^\d.*\d$/) {
+                        if ($result =~ /^([\<|\>]){1,1}(.*)/ ) {
+                            ($magnitude_status, $result) = ( $1, $2);
+                        }
+                        if ($result =~ /^\d*\.{1,1}\d$/) {
                             $magnitude = $result;
                             $unit = $lab_result->units;
                             $result = $result . ' ' . $lab_result->units;
@@ -164,6 +167,7 @@ Need to replace this statement with collect_method lookup
                         testcode      => $lab_result->test_code,   #'NA',
                         testname      => $lab_result->test_name,          #'Sodium',
                         result_status => 'Final',
+                        magnitude_status => $magnitude_status,
                     };
                 }
                 else {
@@ -174,6 +178,7 @@ Need to replace this statement with collect_method lookup
                         testcode      => $lab_result->test_code,   #'NA',
                         testname      => $lab_result->test_name,          #'Sodium',
                         result_status => 'Final',
+                        magnitude_status => $magnitude_status,
                     };
                 }
             }

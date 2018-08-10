@@ -24,7 +24,6 @@ has magnitude => (
 
 has magnitude_status => (
     is  => 'rw',
-    isa => 'Str',
 );
 
 has unit => (
@@ -217,11 +216,13 @@ sub compose_flat {
     elsif ( $self->magnitude ) {
         $composition->{ $path . 'result_value/value2|magnitude' } =
           $self->magnitude;
-        $composition->{ $path . 'result_value/value2|magnitude_status' } =
-          $self->magnitude_status;
         $composition->{ $path . 'result_value/value2|unit' } = $self->unit;
         $composition->{ $path . 'result_value/value2|normal_status' } =
           $self->normal_flag;
+    }
+    if ( $self->magnitude_status ) {
+        $composition->{ $path . 'result_value/value2|magnitude_status' } =
+          $self->magnitude_status;
     }
     return $composition;
 }

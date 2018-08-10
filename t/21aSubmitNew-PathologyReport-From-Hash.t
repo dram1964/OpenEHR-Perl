@@ -41,6 +41,7 @@ my $data = [
                 mapping_code           => '5195-3',
                 mapping_terminology    => 'LOINC',
                 mapping_match_operator => '=',
+                magnitude_status        => '<',
             },
             {
                 result        => '52.9 mmol/l',

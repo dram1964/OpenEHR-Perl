@@ -64,6 +64,7 @@ sub add_labtests {
                 testcode      => $res->{testcode},
                 testname      => $res->{testname},
                 result_status => $res->{result_status},
+                magnitude_status => $res->{magnitude_status},
             );
         }
         elsif ( $res->{result} ) {
@@ -74,6 +75,7 @@ sub add_labtests {
                 testcode      => $res->{testcode},
                 testname      => $res->{testname},
                 result_status => $res->{result_status},
+                magnitude_status => $res->{magnitude_status},
             );
         }
         if ( $res->{mapping_code} ) {
