@@ -41,6 +41,10 @@ sub select_samples_to_report {
             sample_date => { '<=' => $end_date },
             reported_date => undef,
         },
+        {
+            columns => [ qw/laboratory_sample_number nhs_number sample_date order_number / ],
+            distinct => 1,
+        },
     );
     my $row = 1;
     while ( my $sample = $samples_rs->next ) {
