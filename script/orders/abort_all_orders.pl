@@ -78,7 +78,7 @@ sub update_state {
     my $composition = $retrieval->composition_response;
     print "Original order can be found at: " . $retrieval->href . "\n";
 
-    print Dumper $composition;
+    #print Dumper $composition;
 
     # Recompose the composition with new status
     my $recompose = OpenEHR::Composition::InformationOrder->new();

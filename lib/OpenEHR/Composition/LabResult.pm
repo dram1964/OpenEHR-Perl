@@ -160,6 +160,19 @@ sub compose_structured {
             },
         ],
     };
+    if ( $self->mapping_code ) {
+        $composition->{result_value}->[0]->{_name}->[0]->{'_mapping'} = [
+            {
+                'target' => [
+                    {
+                        '|code'        => $self->mapping_code,
+                        '|terminology' => $self->mapping_terminology,
+                    }
+                ],
+                '|match' => $self->mapping_match_operator,
+            }
+        ];
+    }
     if ( $self->result_value ) {
         $composition->{result_value}->[0]->{text_value} =
           [ $self->result_value ];
@@ -185,18 +198,19 @@ sub compose_flat {
         $path . 'result_value/_name|value'       => $self->testname,
         $path . 'result_value/_name|code'        => $self->testcode,
         $path . 'result_value/_name|terminology' => $self->testcode_terminology,
-        $path
-          . 'result_value/_name/_mapping:0/target|code' => $self->mapping_code,
-        $path
-          . 'result_value/_name/_mapping:0/target|terminology' =>
-          $self->mapping_terminology,
-        $path
-          . 'result_value/_name/_mapping:0|match' =>
-          $self->mapping_match_operator,
-        $path . 'reference_range_guidance' => $self->ref_range,
-        $path . 'comment'                  => $self->comment,
-        $path . 'result_status|code'       => $self->status->{code},
+        $path . 'reference_range_guidance'       => $self->ref_range,
+        $path . 'comment'                        => $self->comment,
+        $path . 'result_status|code'             => $self->status->{code},
     };
+    if ( $self->mapping_code ) {
+        $composition->{ $path . 'result_value/_name/_mapping:0/target|code' } =
+          $self->mapping_code;
+        $composition->{ $path
+              . 'result_value/_name/_mapping:0/target|terminology' } =
+          $self->mapping_terminology;
+        $composition->{ $path . 'result_value/_name/_mapping:0|match' } =
+          $self->mapping_match_operator;
+    }
     if ( $self->result_value ) {
         $composition->{ $path . 'result_value/value' } = $self->result_value;
     }
@@ -224,11 +238,7 @@ sub compose_raw {
             {
                 'archetype_node_id' => 'at0001',
                 '@class'            => 'ELEMENT',
-                'value'             => {
-                    'value'  => $self->result_value,
-                    '@class' => 'DV_TEXT'
-                },
-                'name' => {
+                'name'              => {
                     'value'         => $self->testname,
                     'defining_code' => {
                         'terminology_id' => {
@@ -264,6 +274,36 @@ sub compose_raw {
         ],
         'archetype_node_id' => 'at0002'
     };
+    if ( $self->mapping_code ) {
+        $composition->{items}->[0]->{name}->{'mappings'} = [
+            {
+                'target' => {
+                    'terminology_id' => {
+                        'value'  => $self->mapping_terminology,
+                        '@class' => 'TERMINOLOGY_ID'
+                    },
+                    'code_string' => $self->mapping_code,
+                    '@class'      => 'CODE_PHRASE'
+                },
+                'match'  => $self->mapping_match_operator,
+                '@class' => 'TERM_MAPPING'
+            }
+        ];
+    }
+    if ( $self->magnitude ) {
+        $composition->{items}->[0]->{value} = {
+            'magnitude' => $self->magnitude,
+            'units'     => $self->unit,
+            '@class'    => 'DV_QUANTITY'
+        };
+    }
+    elsif ( $self->result_value ) {
+        $composition->{items}->[0]->{value} = {
+            value    => $self->result_value,
+            '@class' => 'DV_TEXT',
+        };
+    }
+
     if ( $self->comment ) {
         push @{ $composition->{items} },
           {
