@@ -4,29 +4,6 @@ use Test::More;
 use Data::Dumper;
 use OpenEHR::REST::EHR;
 use OpenEHR::REST::Composition;
-use OpenEHR::Composition::ProblemDiagnosis;
-use OpenEHR::Composition::ProblemDiagnosis::AJCC_Stage;
-use OpenEHR::Composition::ProblemDiagnosis::Diagnosis;
-use OpenEHR::Composition::ProblemDiagnosis::ColorectalDiagnosis;
-use OpenEHR::Composition::ProblemDiagnosis::FinalFigoStage;
-use OpenEHR::Composition::ProblemDiagnosis::ModifiedDukes;
-use OpenEHR::Composition::ProblemDiagnosis::TumourID;
-use OpenEHR::Composition::ProblemDiagnosis::ClinicalEvidence;
-use OpenEHR::Composition::ProblemDiagnosis::UpperGI;
-use OpenEHR::Composition::ProblemDiagnosis::UpperGI::BCLC_Stage;
-use OpenEHR::Composition::ProblemDiagnosis::UpperGI::PortalInvasion;
-use OpenEHR::Composition::ProblemDiagnosis::UpperGI::PancreaticClinicalStage;
-use OpenEHR::Composition::ProblemDiagnosis::UpperGI::ChildPughScore;
-use OpenEHR::Composition::ProblemDiagnosis::UpperGI::TACE;
-use OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis;
-use OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::TumourLaterality;
-use OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::MetastaticSite;
-use OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::RecurrenceIndicator;
-use OpenEHR::Composition::ProblemDiagnosis::Integrated_TNM;
-use OpenEHR::Composition::ProblemDiagnosis::INRG_Staging;
-use OpenEHR::Composition::ProblemDiagnosis::TesticularStaging;
-use OpenEHR::Composition::ProblemDiagnosis::TesticularStaging::LungMetastases;
-use OpenEHR::Composition::ProblemDiagnosis::TesticularStaging::StageGroupTesticular;
 
 BEGIN { use_ok('OpenEHR::Composition::CancerReport'); }
 

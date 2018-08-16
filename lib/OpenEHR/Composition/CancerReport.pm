@@ -7,6 +7,7 @@ use Moose;
 use DateTime;
 use Data::Dumper;
 extends 'OpenEHR::Composition';
+use OpenEHR::Composition::ProblemDiagnosis;
 
 use version; our $VERSION = qv('0.0.2');
 

@@ -7,6 +7,7 @@ use Moose;
 use JSON;
 use Data::Dumper;
 extends 'OpenEHR::Composition';
+use OpenEHR::Composition::LabTest;
 
 use version; our $VERSION = qv('0.0.2');
 
@@ -20,23 +21,6 @@ has labtests  => (
 has patient_comment => ( is => 'rw', isa => 'Str' );
 
 sub add_labtests {
-
-=head1 Removed
-    use OpenEHR::Composition::RequestedTest;
-    use OpenEHR::Composition::Specimen;
-    use OpenEHR::Composition::LabResult;
-    use OpenEHR::Composition::LabTestPanel;
-    use OpenEHR::Composition::Placer;
-    use OpenEHR::Composition::Filler;
-    use OpenEHR::Composition::Requester;
-    use OpenEHR::Composition::OrderingProvider;
-    use OpenEHR::Composition::Professional;
-    use OpenEHR::Composition::TestRequestDetails;
-    use OpenEHR::Composition::LabTest;
-=cut
-
-    use OpenEHR::Composition::LabTest;
-
     my ( $self, $order ) = @_;
 
     my $request = OpenEHR::Composition::LabTest::RequestedTest->new(
