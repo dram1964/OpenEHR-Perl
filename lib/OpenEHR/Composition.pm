@@ -5,6 +5,7 @@ use strict;
 use Carp;
 use Moose;
 use Moose::Util::TypeConstraints;
+use JSON;
 extends 'OpenEHR';
 use Config::Simple;
 
@@ -90,6 +91,13 @@ has facility_id => (
     default => $cfg->param('facility_id'),
 );
 
+sub print_json {
+    my ($self) = @_;
+    my $composition = $self->compose;
+    my $json = to_json($composition, { pretty => 1} );
+    return $json;
+}
+
 no Moose;
 
 __PACKAGE__->meta->make_immutable;
@@ -101,11 +109,9 @@ __END__
 OpenEHR::Composition - Holds Global Configuration for 
 OpenEHR::Composition::* objects
 
-
 =head1 VERSION
 
-This document describes OpenEHR::Composition version 0.0.1
-
+This document describes OpenEHR::Composition version 0.0.2
 
 =head1 SYNOPSIS
 
@@ -118,41 +124,45 @@ This document describes OpenEHR::Composition version 0.0.1
 
 This module provides global configuration for OpenEHR::Composition::*
 objects. Default configuration is read from either OpenEHR-Composition.conf
-file in the current working directory or '/etc/OpenEHR-Composition.conf'
-
+file in the current working directory or '/etc/OpenEHR_Composition.conf'
 
 =head1 INTERFACE 
 
 =head1 METHODS 
 
-=head1 composition_format($format)
+=head2 print_json
+
+Returns the composition as JSON in the format specified by 
+the objects composition_format property
+    my $json = $lab_result_report->print_json;
+
+=head1 ATTRIBUTES
+
+=head2 composition_format($format)
 
 Used to get or set the composition format. Valid values are one of 
 (RAW | STRUCTURED | FLAT | TDD), although TDD is not currently implemented. 
 
-=head1 composer_name($composer_name)
+=head2 composer_name($composer_name)
 
 Used to get or set the Composer Name value to be used in the composition. 
 
 =head2 language_code($language_code)
 
 Used to get or set the language_code value used in REST queries and 
-composition objects. Defaults to 'en'
+composition objects.
 
 =head2 language_terminology($language_terminology)
 
 Used to get or set the terminology used for the language_code attribute. 
-Defaults to 'ISO_639-1'
 
 =head2 territory_code($territory_code)
 
 Used to get or set the territory_code value used in REST queries. 
-Defaults to 'GB'
 
 =head2 territory_terminology($territory_terminology)
 
 Used to get or set the terminology used for the territory_code attribute. 
-Defaults to 'ISO_3166-1'
 
 =head2 encoding_code($encoding_code)
 
@@ -161,7 +171,6 @@ Used to get or set the encoding_code value used in REST queries. Defaults to 'UT
 =head2 encoding_terminology($encoding_terminology)
 
 Used to get or set the terminology used for the encoding_code attribute. 
-Defaults to 'IANA_character-sets'
 
 =head2 id_namespace($id_namespace)
 
@@ -185,18 +194,28 @@ None
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-Default values for attributes are configured in OpenEHR-Composition.conf 
+Default values for attributes are configured in OpenEHR_Composition.conf 
 file which is read from either the current working directory or 
 /etc/
 
 
 =head1 DEPENDENCIES
 
-OpenEHR
-Moose
-Carp
-Moose::Util::TypeConstraints
-Config::Simple
+=over 4
+
+=item * OpenEHR
+
+=item * Moose
+
+=item * Carp
+
+=item * JSON
+
+=item * Moose::Util::TypeConstraints
+
+=item * Config::Simple
+
+=back
 
 =head1 INCOMPATIBILITIES
 

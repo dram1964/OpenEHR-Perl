@@ -4,7 +4,6 @@ use warnings;
 use strict;
 use Carp;
 use Moose;
-use JSON;
 use Data::Dumper;
 extends 'OpenEHR::Composition';
 use OpenEHR::Composition::LabTest;
@@ -452,29 +451,37 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::LabResultReport - [One line description of module's purpose here]
-
+OpenEHR::Composition::LabResultReport - Used to construct Laboratory Result Compositions
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::LabResultReport version 0.0.1
-
+This document describes OpenEHR::Composition::LabResultReport version 0.0.2
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::LabResultReport;
+    # get OpenEHR::Composition::LabTest data from somewhere
+    my $labtest_object = &get_labtest_data_from_somewhere;
 
-=for author to fill in:
-    Brief code example(s) here showing commonest usage(s).
-    This section will be as far as many users bother reading
-    so make it as educational and exeplary as possible.
-  
+    use OpenEHR::Composition::LabResultReport;
+    my $labreport = OpenEHR::Composition::LabResultReport->new(
+            report_id       => '17V999333',
+            labtests        => [$labtest_object],
+            patient_comment => 'Patient feeling poorly',
+    );
+    $labreport->composition_format('RAW');
+
+    my $rest_composition = OpenEHR::REST::Composition->new();
+    $rest_composition->composition($labreport);
+    $rest_composition->submit_new($ehrId);
+
   
 =head1 DESCRIPTION
 
-=for author to fill in:
-    Write a full description of the module and its features here.
-    Use subsections (=head2, =head3) as appropriate.
+Use this module to transform pathology result data into a composition
+suitable for submission to an OpenEHR server. Data can be supplied 
+to the LabResultReport object either as a collection of OpenEHR::Composition
+objects or as a hash. When using a hash, the add_labtests method should
+be used.
 
 
 =head1 INTERFACE 
@@ -483,9 +490,9 @@ This document describes OpenEHR::Composition::LabResultReport version 0.0.1
 
 =head2 report_id
 
-Report Identifier
+Unique identifier for the LabResultReport object
 
-=head2 labtests
+=head2 labtests 
 
 An array of OpenEHR::Composition::LabTest objects associated with the report
 
@@ -495,9 +502,76 @@ Records the evaluation of the clinical findings
 
 =head1 METHODS
 
+=head2 composition_format($format)
+
+Inherited from L<OpenEHR::Composition>. 
+Used to get or set the composition format. Valid values are one of 
+(RAW | STRUCTURED | FLAT | TDD), although TDD is not currently implemented. 
+
 =head2 compose
 
-Returns a hashref of the object in the requested format
+Returns a hashref of the object's composition in the requested format. 
+Format is defined via the composition_format method. 
+Normally you do not need to call the compose method: 
+this will be done by the submit_new method of the OpenEHR::REST object.
+However you can call this method if you wish to inspect the composition:
+    my $composition = $lab_result_report->compose;
+
+=head2 print_json
+
+Inherited from L<OpenEHR::Composition>.
+Returns the object's composition as JSON in the format specified by 
+the objects composition_format property
+    my $json = $lab_result_report->print_json;
+
+=head2 add_labtests
+
+Utility method that adds labtest objects 
+to Report object using an array of hashes. Each hash should
+represent a single order code. Each hash should be structured like this: 
+
+    {
+        ordercode   => 'Str', 
+        ordername   => 'Str, 
+        spec_type   => 'Str',
+        collected   => 'DateTime',
+        collect_method  => 'Str',
+        received    => 'DateTime',
+        labnumber   => {
+            id          => 'Str',
+            assigner    => 'Str',
+            issuer      => 'Str',
+        },
+        labresults  => [
+            {
+                result          => 'Str',
+                comment         => 'Str',
+                ref_range       => 'Str',
+                testcode        => 'Str',
+                testname        => 'Str',
+                result_status   => 'Str',
+            },
+        ],
+        ordernumber => {
+            id          => 'Str',
+            assigner    => 'Str',
+            issuer      => 'Str',
+        },
+        report_date => 'DateTime',
+        clinician   => {
+            id          => 'Str',
+            assigner    => 'Str',
+            issuer      => 'Str',
+        },
+        location => {
+            id          => 'Str',
+            parent      => 'Str',
+        },
+        test_status     => 'Str',
+        clinical_info   => 'Str',
+    };
+
+=head1 PRIVATE METHODS
 
 =head2 compose_structured
 
@@ -511,172 +585,37 @@ Returns a hashref of the object in RAW format
 
 Returns a hashref of the object in FLAT format
 
-=head2 add_labtests
-
-Utility method that adds labtest objects (items ordered) 
-to Report object using an array of hashes. Each hash should
-represent a single order code. The array should be structured like this: 
-
-my $data = [{
-    ordercode   => 'Str', 
-    ordername   => 'Str, 
-    spec_type   => 'Str',
-    collected   => 'DateTime',
-    collect_method  => 'Str',
-    received    => 'DateTime',
-    labnumber   => {
-        id          => 'Str',
-        assigner    => 'Str',
-        issuer      => 'Str',
-    },
-    labresults  => [
-        {
-            result          => 'Str',
-            comment         => 'Str',
-            ref_range       => 'Str',
-            testcode        => 'Str',
-            testname        => 'Str',
-            result_status   => 'Str',
-        },
-    ],
-    ordernumber => {
-        id          => 'Str',
-        assigner    => 'Str',
-        issuer      => 'Str',
-    },
-    report_date => 'DateTime',
-    clinician   => {
-        id          => 'Str',
-        assigner    => 'Str',
-        issuer      => 'Str',
-    },
-    location => {
-        id          => 'Str',
-        parent      => 'Str',
-    },
-    test_status     => 'Str',
-    clinical_info   => 'Str',
-    },
-    { ...data for next order code ... }, 
-];
-
-
-=head2 add_labtests_v1
-
-Utility method that adds a single order item  
-to Report object using a hash. The hash should
-represent a single order code and be be structured like this: 
-
-my $data = {
-    ordercode   => 'Str', 
-    ordername   => 'Str, 
-    spec_type   => 'Str',
-    collected   => 'DateTime',
-    collect_method  => 'Str',
-    received    => 'DateTime',
-    labnumber   => {
-        id          => 'Str',
-        assigner    => 'Str',
-        issuer      => 'Str',
-    },
-    labresults  => [
-        {
-            result          => 'Str',
-            comment         => 'Str',
-            ref_range       => 'Str',
-            testcode        => 'Str',
-            testname        => 'Str',
-            result_status   => 'Str',
-        },
-    ],
-    ordernumber => {
-        id          => 'Str',
-        assigner    => 'Str',
-        issuer      => 'Str',
-    },
-    report_date => 'DateTime',
-    clinician   => {
-        id          => 'Str',
-        assigner    => 'Str',
-        issuer      => 'Str',
-    },
-    location => {
-        id          => 'Str',
-        parent      => 'Str',
-    },
-    test_status     => 'Str',
-    clinical_info   => 'Str',
-};
-
 
 =head1 DIAGNOSTICS
 
-=for author to fill in:
-    List every single error and warning message that the module can
-    generate (even the ones that will "never happen"), with a full
-    explanation of each problem, one or more likely causes, and any
-    suggested remedies.
-
-=over
-
-=item C<< Error message here, perhaps with %s placeholders >>
-
-[Description of error here]
-
-=item C<< Another error message here >>
-
-[Description of error here]
-
-[Et cetera, et cetera]
-
-=back
-
+None
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-=for author to fill in:
-    A full explanation of any configuration system(s) used by the
-    module, including the names and locations of any configuration
-    files, and the meaning of any environment variables or properties
-    that can be set. These descriptions must also include details of any
-    configuration language used.
-  
-OpenEHR::Composition::LabResultReport requires no configuration files or environment variables.
-
+None
 
 =head1 DEPENDENCIES
 
-=for author to fill in:
-    A list of all the other modules that this module relies upon,
-    including any restrictions on versions, and an indication whether
-    the module is part of the standard Perl distribution, part of the
-    module's distribution, or must be installed separately. ]
+=over 4
 
-None.
+=item * OpenEHR::Composition
 
+=item * OpenEHR::Composition::LabTest
+
+=item * Carp
+
+=item * Moose
+
+=item * Data::Dumper
+
+=back
 
 =head1 INCOMPATIBILITIES
-
-=for author to fill in:
-    A list of any modules that this module cannot be used in conjunction
-    with. This may be due to name conflicts in the interface, or
-    competition for system or program resources, or due to internal
-    limitations of Perl (for example, many modules that use source code
-    filters are mutually incompatible).
 
 None reported.
 
 
 =head1 BUGS AND LIMITATIONS
-
-=for author to fill in:
-    A list of known problems with the module, together with some
-    indication Whether they are likely to be fixed in an upcoming
-    release. Also a list of restrictions on the features the module
-    does provide: data types that cannot be handled, performance issues
-    and the circumstances in which they may arise, practical
-    limitations on the size of data sets, special cases that are not
-    (yet) handled, etc.
 
 No bugs have been reported.
 
