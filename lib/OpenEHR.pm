@@ -84,7 +84,6 @@ OpenEHR - Parent module for functions to interface with OpenEHR
 
 This document describes OpenEHR version 0.0.2
 
-
 =head1 SYNOPSIS
 
     use OpenEHR;
@@ -92,7 +91,7 @@ This document describes OpenEHR version 0.0.2
     # OpenEHR object with default attributes from configuration file
     my $openehr = OpenEHR->new();  
 
-    $openehr->user		        # access the value of the 'user' attribute
+    $openehr->user              # access the value of the 'user' attribute
     $openehr->user('albert')    # sets the user attribute value to 'albert'
     
     # Set OpenEHR attributes at construction
@@ -102,39 +101,73 @@ This document describes OpenEHR version 0.0.2
 	    url => 'http://www.example.com/'
     );  			   
 
-  
 =head1 DESCRIPTION
 
 OpenEHR L<http://www.openehr.org> is an open platform for developing 
 Electronic Health Records. This module provides some global 
-attributes inherited by other child modules. Default values for all
-attributes can be set in the configuration file 'OpenEHR.conf'.
-This module looks for the configuration file either in the current 
-working directory or in the '/etc/' directory. Attribute names can
-be used as both accessors and mutators. 
+attributes inherited by other child modules. The major child modules
+are:
+
+=over 4
+
+=item * OpenEHR::Composition
+
+Modules for constructing compositions. All data submitted to OpenEHR 
+must be first loaded into a composition template. The current 
+composition formats are:
+
+=over 8
+
+=item OpenEHR::Composition::LabReport
+
+=item OpenEHR::Composition::CancerReport
+
+=item OpenEHR::Composition::InformationOrder
+
+=back
+
+=item * OpenEHR::REST
+
+Modules for submitting queries to OpenEHR using the REST API. Child
+modules exist for various REST endpoints:
+
+=over 8
+
+=item OpenEHR::REST::AQL
+
+=item OpenEHR::REST::Composition
+
+=item OpenEHR::REST::Demographics
+
+=item OpenEHR::REST::EHR
+
+=item OpenEHR::REST::Template
+
+=item OpenEHR::REST::View
+
+=back
+
+=back
 
 =head1 METHODS
 
 =head2 user($user)
 
 Used to get or set the User account used to authenticate to the OpenEHR server.
-Defaults to 'admin'
 
 =head2 password($password)
 
 Used to get or set the password used to authenticate to the OpenEHR server.
-Defaults to 'admin'
 
 =head2 url($url)
 
-Used to get or set the address and port of the OpenEHR server. Defaults to 
-http://localhost:8081/'
+Used to get or set the address and port of the OpenEHR server. Should be set
+with a trailing forward slash. For example: 'http://localhost:8081/'
 
 =head2 base_path($base_path)
 
-Used to get or set the base path for REST interface. Defaults to 
-'http://localhost:8081/rest/v1/'. Should be specified with
-a trailing forward slash
+Used to get or set the base path for REST interface. Should be specified with
+a trailing forward slash. For example: 'http://localhost:8081/rest/v1/'.
 
 =head2 test_ehrid($ehr_id)
 
@@ -166,16 +199,26 @@ None.
 =head1 CONFIGURATION AND ENVIRONMENT
 
 OpenEHR reads configuration from a config file stored in 
-'OpenEHR.conf'. The configuration file should be stored in the current working directory or
-in '/etc/'. Attributes should be specified as space separated 
+'OpenEHR.conf'. The configuration file should be stored in 
+the current working directory or in '/etc/'. 
+Attributes should be specified as space separated 
 key-value pairs. An example configuration file can be found in the 
 etc directory of this distribution
 
 =head1 DEPENDENCIES
 
+=over 4
+
+=item *
 Moose
+
+=item *
 Carp
+
+=item *
 Config::Simple
+
+=back
 
 =head1 INCOMPATIBILITIES
 
