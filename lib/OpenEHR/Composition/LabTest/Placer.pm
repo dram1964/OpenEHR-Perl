@@ -1,32 +1,43 @@
-package OpenEHR::Composition::RequestedTest;
+package OpenEHR::Composition::LabTest::Placer;
 
 use warnings;
 use strict;
 use Carp;
 use Moose;
 extends 'OpenEHR::Composition';
+
 use version; our $VERSION = qv('0.0.2');
 
-has requested_test => ( is => 'rw', isa => 'Str');
-has name           => ( is => 'rw', isa => 'Str' );
-has code           => ( is => 'rw', isa => 'Str', trigger => \&_check_blanks );
-has terminology    => ( is => 'rw', isa => 'Str', default => 'local' );
-has mapping        => ( is => 'rw', isa => 'HashRef' );
+has order_number => (
+    is       => 'rw',
+    isa      => 'Str',
+    required => 1,
+);
+has issuer => (
+    is       => 'rw',
+    isa      => 'Str',
+    required => 1,
+    default  => 'UCLH',
 
-sub _check_blanks {
-    my $self = shift;
-    if ($self->requested_test =~ /^\s*$/) {
-        $self->requested_test($self->code);
-    }
-    if ($self->name =~ /^\s*$/) {
-        $self->name($self->code);
-    }
-}
+);
+has assigner => (
+    is       => 'rw',
+    isa      => 'Str',
+    required => 1,
+    default  => 'TQuest',
+);
+has type => (
+    is       => 'rw',
+    isa      => 'Str',
+    required => 1,
+    default  => 'local',
+);
 
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')
         if ( $self->composition_format eq 'TDD' );
+
     my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
 }
@@ -34,18 +45,10 @@ sub compose {
 sub compose_structured {
     my $self        = shift;
     my $composition = {
-        '_mapping' => [
-            {   '|match' => '',
-                'target' => [
-                    {   '|terminology' => '',
-                        '|code'        => '',
-                    }
-                ]
-            }
-        ],
-        '|terminology' => $self->terminology,
-        '|value'       => $self->name,
-        '|code'        => $self->code,
+        '|assigner' => $self->assigner,
+        '|issuer'   => $self->issuer,
+        '|id'       => $self->order_number,
+        '|type'     => $self->type,
     };
     return $composition;
 }
@@ -53,60 +56,32 @@ sub compose_structured {
 sub compose_raw {
     my $self        = shift;
     my $composition = {
-        'archetype_node_id' => 'at0005',
-        'name'              => {
-            '@class' => 'DV_TEXT',
-            'value'  => 'Requested Test'
+        'value' => {
+            'type'     => $self->type,
+            '@class'   => 'DV_IDENTIFIER',
+            'id'       => $self->order_number,
+            'issuer'   => $self->issuer,
+            'assigner' => $self->assigner,
         },
-        '@class' => 'ELEMENT',
-        'value'  => {
-            '@class'        => 'DV_CODED_TEXT',
-            'value'         => $self->name,
-            'defining_code' => {
-                '@class'         => 'CODE_PHRASE',
-                'code_string'    => $self->code,
-                'terminology_id' => {
-                    'value'  => $self->terminology,
-                    '@class' => 'TERMINOLOGY_ID'
-                }
-            }
+        '@class'            => 'ELEMENT',
+        'archetype_node_id' => 'at0062',
+        'name'              => {
+            'value'  => 'Placer order number',
+            '@class' => 'DV_TEXT'
         }
     };
-    if ( $self->mapping ) {
-        $composition->{'mappings'} = [
-            {   'target' => {
-                    '@class'         => 'CODE_PHRASE',
-                    'code_string'    => $self->mapping->{code},
-                    'terminology_id' => {
-                        '@class' => 'TERMINOLOGY_ID',
-                        'value'  => $self->mapping->{terminology},
-                    }
-                },
-                '@class' => 'TERM_MAPPING',
-                'match'  => $self->mapping->{match},
-            }
-        ];
-    }
     return $composition;
 }
 
 sub compose_flat {
-    my $self        = shift;
+    my $self = shift;
+    my $path =
+        'laboratory_result_report/laboratory_test:__TEST__/test_request_details/';
     my $composition = {
-        'laboratory_result_report/laboratory_test:__TEST__/requested_test' =>
-            $self->requested_test,
-        'laboratory_result_report/laboratory_test:__TEST__/requested_test|code'
-            => $self->code,
-        'laboratory_result_report/laboratory_test:__TEST__/requested_test|terminology'
-            => $self->terminology,
-        'laboratory_result_report/laboratory_test:__TEST__/requested_test|value'
-            => $self->name,
-        'laboratory_result_report/laboratory_test:__TEST__/requested_test/_mapping:0|match'
-            => '',
-        'laboratory_result_report/laboratory_test:__TEST__/requested_test/_mapping:0/target|code'
-            => '',
-        'laboratory_result_report/laboratory_test:__TEST__/requested_test/_mapping:0/target|terminology'
-            => '',
+        $path . 'placer_order_number'          => $self->order_number,
+        $path . 'placer_order_number|issuer'   => $self->issuer,
+        $path . 'placer_order_number|assigner' => $self->assigner,
+        $path . 'placer_order_number|type'     => $self->type,
     };
     return $composition;
 }
@@ -119,32 +94,54 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::RequestedTest - [One line description of module's purpose here]
-
+OpenEHR::Composition::LabTest::Placer - Placer composition element
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::RequestedTest version 0.0.1
+This document describes OpenEHR::Composition::LabTest::Placer version 0.0.1
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::RequestedTest;
+    use OpenEHR::Composition::LabTest::Placer;
+    my $placer = OpenEHR::Composition::LabTest::Placer->new({
+        order_number    => 'TQ003339999',
+        assigner        => 'TQuest',
+        issuer          => 'UCLH',
+        type            => 'local',
+        composition_format => 'FLAT',
+    });
 
-=for author to fill in:
-    Brief code example(s) here showing commonest usage(s).
-    This section will be as far as many users bother reading
-    so make it as educational and exeplary as possible.
-  
+    my $placer_hashref = $placer->compose;
+
   
 =head1 DESCRIPTION
 
-=for author to fill in:
-    Write a full description of the module and its features here.
-    Use subsections (=head2, =head3) as appropriate.
-
+Used to create a placer element for insertion into a composition
+object. When used as part of a Pathology Report composition, the 
+placer element contains identifier data from the ordering system
+used to place the order.
 
 =head1 INTERFACE 
+
+=head1 ATTRIBUTES
+
+=head2 order_number
+
+Identifier assigned to the Laboratory Test order by the ordering
+system
+
+=head2 issuer
+
+Organisation from whence the order is issued. Defaults to 'UCLH'
+
+=head2 assigner
+
+System used to generate the order. Defaults to 'TQuest'=> (
+
+=head2 type
+
+Type of identifier issued. Defaults to 'local'
 
 =head1 METHODS
 
@@ -163,12 +160,6 @@ Returns a hashref of the object in RAW format
 =head2 compose_flat
 
 Returns a hashref of the object in FLAT format
-
-=for author to fill in:
-    Write a separate section listing the public components of the modules
-    interface. These normally consist of either subroutines that may be
-    exported, or methods that may be called on objects belonging to the
-    classes provided by the module.
 
 
 =head1 DIAGNOSTICS
@@ -203,7 +194,7 @@ Returns a hashref of the object in FLAT format
     that can be set. These descriptions must also include details of any
     configuration language used.
   
-OpenEHR::Composition::RequestedTest requires no configuration files or environment variables.
+OpenEHR::Composition::LabTest::Placer requires no configuration files or environment variables.
 
 
 =head1 DEPENDENCIES
@@ -243,7 +234,7 @@ None reported.
 No bugs have been reported.
 
 Please report any bugs or feature requests to
-C<bug-openehr-composition-requestedtest@rt.cpan.org>, or through the web interface at
+C<bug-openehr-composition-placer@rt.cpan.org>, or through the web interface at
 L<http://rt.cpan.org>.
 
 
@@ -254,7 +245,7 @@ David Ramlakhan  C<< <dram1964@gmail.com> >>
 
 =head1 LICENCE AND COPYRIGHT
 
-Copyright (c) 2018, David Ramlakhan C<< <dram1964@gmail.com> >>. All rights reserved.
+Copyright (c) 2017, David Ramlakhan C<< <dram1964@gmail.com> >>. All rights reserved.
 
 This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself. See L<perlartistic>.

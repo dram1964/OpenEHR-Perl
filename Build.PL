@@ -19,6 +19,7 @@ my $builder = Module::Build->new(
         'Data::Dumper'      => 0,
         'Moose::Util::TypeConstraints'  => 0,
         'URI::Encode'       => 0,
+        'Module::Find'      => 0,
     },
     add_to_cleanup      => [ 'OpenEHR-*' ],
 );

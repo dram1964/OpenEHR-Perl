@@ -4,12 +4,12 @@ use warnings;
 use Test::More;
 use Data::Dumper;
 
-use OpenEHR::Composition::Filler;
-diag('Testing OpenEHR::Composition::Filler '
-    . $OpenEHR::Composition::Filler::VERSION);
+use OpenEHR::Composition::LabTest::Filler;
+diag('Testing OpenEHR::Composition::LabTest::Filler '
+    . $OpenEHR::Composition::LabTest::Filler::VERSION);
 
 note('Testing constuction with full parameters');
-ok( my $filler1 = OpenEHR::Composition::Filler->new(
+ok( my $filler1 = OpenEHR::Composition::LabTest::Filler->new(
         {   order_number => '17V333999',
             assigner     => 'Winpath',
             issuer       => 'UCLH Pathology',
@@ -27,7 +27,7 @@ is( $filler1->type,         'local',          'type set' );
 
 note('Testing construction with minimum parameters');
 ok( my $filler2 =
-        OpenEHR::Composition::Filler->new( { order_number => '17V444888', } ),
+        OpenEHR::Composition::LabTest::Filler->new( { order_number => '17V444888', } ),
     'Construct new filler with id only'
 );
 is( $filler2->order_number, '17V444888',      'id set' );
@@ -36,7 +36,7 @@ is( $filler2->issuer,       'UCLH Pathology', 'issuer set from default' );
 is( $filler2->type,         'local',          'type set from default' );
 
 note('Testing construction with no parameters');
-eval { my $filler3 = OpenEHR::Composition::Filler->new(); };
+eval { my $filler3 = OpenEHR::Composition::LabTest::Filler->new(); };
 ok( $@, 'Failed to construct filler with no parameters' );
 
 note('Testing FLAT compostion');

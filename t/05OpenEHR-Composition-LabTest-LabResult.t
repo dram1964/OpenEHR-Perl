@@ -4,12 +4,12 @@ use warnings;
 use Test::More;
 use Data::Dumper;
 
-use OpenEHR::Composition::LabResult;
-diag('Testing OpenEHR::Composition::LabResult '
-    . $OpenEHR::Composition::LabResult::VERSION);
+use OpenEHR::Composition::LabTest::LabResult;
+diag('Testing OpenEHR::Composition::LabTest::LabResult '
+    . $OpenEHR::Composition::LabTest::LabResult::VERSION);
 
 note('Testing constructor with result value text');
-ok( my $labtest = OpenEHR::Composition::LabResult->new(
+ok( my $labtest = OpenEHR::Composition::LabTest::LabResult->new(
         result_value => 59,
         comment   => 'See http://biochem.org for interpretation guidelines',
         ref_range => '50-60',
@@ -30,7 +30,7 @@ is( $labtest->status->{code},  'at0009', 'Status Code' );
 is( $labtest->status->{value}, 'Final',  'Status Value' );
 
 note('Testing constructor with magnitude, status, unit and flag');
-ok( $labtest = OpenEHR::Composition::LabResult->new(
+ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new(
         magnitude        => 59,
         magnitude_status => '<',
         unit             => 'mmol/l',

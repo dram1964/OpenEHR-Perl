@@ -7,6 +7,8 @@ use DateTime;
 use Moose;
 extends 'OpenEHR::Composition';
 use Moose::Util::TypeConstraints;
+use Module::Find;
+useall OpenEHR::Composition::LabTest;
 
 use version; our $VERSION = qv('0.0.2');
 
@@ -14,19 +16,25 @@ enum 'TestStatusName' =>
     [qw( Final Registered Partial Cancelled Corrected Amended Error)];
 
 has requested_test =>
-    ( is => 'rw', isa => 'OpenEHR::Composition::RequestedTest' );
-has specimens =>
-    ( is => 'rw', isa => 'ArrayRef[OpenEHR::Composition::Specimen]' );
+    ( is => 'rw', isa => 'OpenEHR::Composition::LabTest::RequestedTest' );
+has specimens => (
+    is  => 'rw',
+    isa => 'ArrayRef[OpenEHR::Composition::LabTest::Specimen]'
+);
 has history_origin   => ( is => 'rw', isa => 'DateTime' );
 has test_status      => ( is => 'rw', isa => 'TestStatusName' );
 has test_status_time => ( is => 'rw', isa => 'DateTime' );
-has clinical_info    => ( is => 'rw'  );
-has test_panels =>
-    ( is => 'rw', isa => 'ArrayRef[OpenEHR::Composition::LabTestPanel]' );
+has clinical_info    => ( is => 'rw' );
+has test_panels      => (
+    is  => 'rw',
+    isa => 'ArrayRef[OpenEHR::Composition::LabTest::LabTestPanel]'
+);
 has conclusion      => ( is => 'rw', isa => 'Str' );
 has responsible_lab => ( is => 'rw', isa => 'Str' );
-has request_details =>
-    ( is => 'rw', isa => 'OpenEHR::Composition::TestRequestDetails' );
+has request_details => (
+    is  => 'rw',
+    isa => 'OpenEHR::Composition::LabTest::TestRequestDetails'
+);
 
 sub test_status_lookup {
     my $self               = shift;

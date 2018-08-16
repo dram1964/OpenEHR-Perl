@@ -10,8 +10,8 @@ BEGIN {
     use_ok('OpenEHR::REST::Demographics');
 }
 
-diag('Testing OpenEHR::REST::Demographics '
-    . $OpenEHR::REST::Demographics::VERSION );
+diag( 'Testing OpenEHR::REST::Demographics '
+        . $OpenEHR::REST::Demographics::VERSION );
 ok( my $demog = OpenEHR::REST::Demographics->new(), "Constructor called" );
 ok( my $ehrid = $demog->test_ehrid, 'Test EhrId inherited from Parent' );
 

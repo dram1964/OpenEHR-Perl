@@ -4,6 +4,7 @@ use Test::More;
 use Data::Dumper;
 use DateTime;
 
+=head1 Removed
 use OpenEHR::Composition::RequestedTest;
 use OpenEHR::Composition::Specimen;
 use OpenEHR::Composition::LabResult;
@@ -14,19 +15,20 @@ use OpenEHR::Composition::Requester;
 use OpenEHR::Composition::OrderingProvider;
 use OpenEHR::Composition::Professional;
 use OpenEHR::Composition::TestRequestDetails;
+=cut
 
 use OpenEHR::Composition::LabTest;
-diag('Testing OpenEHR::Composition::LabTest '
-    . $OpenEHR::Composition::LabTest::VERSION);
+diag( 'Testing OpenEHR::Composition::LabTest '
+        . $OpenEHR::Composition::LabTest::VERSION );
 
-my $request = OpenEHR::Composition::RequestedTest->new(
+my $request = OpenEHR::Composition::LabTest::RequestedTest->new(
     requested_test => 'Electrolytes',
     name           => 'Electrolytes',
     code           => 'ELL',
     terminology    => 'local',
 );
 
-my $specimen = OpenEHR::Composition::Specimen->new(
+my $specimen = OpenEHR::Composition::LabTest::Specimen->new(
     specimen_type      => 'Blood',
     datetime_collected => DateTime->new(
         year   => 2017,
@@ -46,7 +48,7 @@ my $specimen = OpenEHR::Composition::Specimen->new(
     spec_id => 'bld',
 );
 
-my $labresult1 = OpenEHR::Composition::LabResult->new(
+my $labresult1 = OpenEHR::Composition::LabTest::LabResult->new(
     result_value  => 59,
     comment       => 'this is the sodium result',
     ref_range     => '50-60',
@@ -55,7 +57,7 @@ my $labresult1 = OpenEHR::Composition::LabResult->new(
     result_status => 'Final',
 );
 
-my $labresult2 = OpenEHR::Composition::LabResult->new(
+my $labresult2 = OpenEHR::Composition::LabTest::LabResult->new(
     result_value  => 88,
     comment       => 'this is the potassium result',
     ref_range     => '80-90',
@@ -65,41 +67,41 @@ my $labresult2 = OpenEHR::Composition::LabResult->new(
 );
 
 my $labpanel =
-    OpenEHR::Composition::LabTestPanel->new(
+    OpenEHR::Composition::LabTest::LabTestPanel->new(
     lab_results => [ $labresult1, $labresult2 ], );
 
-my $placer = OpenEHR::Composition::Placer->new(
+my $placer = OpenEHR::Composition::LabTest::Placer->new(
     order_number => 'TQ001113333',
     assigner     => 'TQuest',
     issuer       => 'UCLH',
     type         => 'local',
 );
 
-my $filler = OpenEHR::Composition::Filler->new(
+my $filler = OpenEHR::Composition::LabTest::Filler->new(
     order_number => '17V333999',
     assigner     => 'Winpath',
     issuer       => 'UCLH Pathology',
     type         => 'local',
 );
 
-my $ordering_provider = OpenEHR::Composition::OrderingProvider->new(
+my $ordering_provider = OpenEHR::Composition::LabTest::OrderingProvider->new(
     given_name  => 'A&E',
     family_name => 'UCLH'
 );
 
-my $professional = OpenEHR::Composition::Professional->new(
+my $professional = OpenEHR::Composition::LabTest::Professional->new(
     id       => 'AB01',
     assigner => 'Carecast',
     issuer   => 'UCLH',
     type     => 'local',
 );
 
-my $requester = OpenEHR::Composition::Requester->new(
+my $requester = OpenEHR::Composition::LabTest::Requester->new(
     ordering_provider => $ordering_provider,
     professional      => $professional,
 );
 
-my $request_details = OpenEHR::Composition::TestRequestDetails->new(
+my $request_details = OpenEHR::Composition::LabTest::TestRequestDetails->new(
     placer            => $placer,
     filler            => $filler,
     ordering_provider => $ordering_provider,
@@ -159,7 +161,7 @@ ok( my $labtest2 = OpenEHR::Composition::LabTest->new(
         responsible_lab => 'Clinical Biochemistry',
         request_details => $request_details,
     ),
-    'LabTest Constructor with no clinical_info' 
+    'LabTest Constructor with no clinical_info'
 );
 
 is( $labtest2->composition_format,
@@ -174,6 +176,5 @@ ok( my $struct2 = $labtest2->compose, 'Request composition' );
 
 ok( $labtest2->composition_format('RAW'), 'Set RAW composition format' );
 ok( my $raw2 = $labtest2->compose, 'Request composition' );
-
 
 done_testing;

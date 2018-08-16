@@ -20,6 +20,8 @@ has labtests  => (
 has patient_comment => ( is => 'rw', isa => 'Str' );
 
 sub add_labtests {
+
+=head1 Removed
     use OpenEHR::Composition::RequestedTest;
     use OpenEHR::Composition::Specimen;
     use OpenEHR::Composition::LabResult;
@@ -31,16 +33,19 @@ sub add_labtests {
     use OpenEHR::Composition::Professional;
     use OpenEHR::Composition::TestRequestDetails;
     use OpenEHR::Composition::LabTest;
+=cut
+
+    use OpenEHR::Composition::LabTest;
 
     my ( $self, $order ) = @_;
 
-    my $request = OpenEHR::Composition::RequestedTest->new(
+    my $request = OpenEHR::Composition::LabTest::RequestedTest->new(
         requested_test => $order->{ordername} || $order->{ordercode},
         name           => $order->{ordername} || $order->{ordercode},
         code           => $order->{ordercode},
         terminology    => 'local',
     );
-    my $specimen = OpenEHR::Composition::Specimen->new(
+    my $specimen = OpenEHR::Composition::LabTest::Specimen->new(
         datetime_collected => $order->{collected},
         collection_method  => $order->{collect_method},
         datetime_received  => $order->{received},
@@ -55,26 +60,26 @@ sub add_labtests {
     for my $res ( @{ $order->{labresults} } ) {
         my $labresult;
         if ( $res->{magnitude} ) {
-            $labresult = OpenEHR::Composition::LabResult->new(
-                magnitude     => $res->{magnitude},
-                unit          => $res->{unit},
-                normal_status => $res->{normal_flag},
-                comment       => $res->{comment},
-                ref_range     => $res->{ref_range},
-                testcode      => $res->{testcode},
-                testname      => $res->{testname},
-                result_status => $res->{result_status},
+            $labresult = OpenEHR::Composition::LabTest::LabResult->new(
+                magnitude        => $res->{magnitude},
+                unit             => $res->{unit},
+                normal_status    => $res->{normal_flag},
+                comment          => $res->{comment},
+                ref_range        => $res->{ref_range},
+                testcode         => $res->{testcode},
+                testname         => $res->{testname},
+                result_status    => $res->{result_status},
                 magnitude_status => $res->{magnitude_status},
             );
         }
         elsif ( $res->{result} ) {
-            $labresult = OpenEHR::Composition::LabResult->new(
-                result_value  => $res->{result},
-                comment       => $res->{comment},
-                ref_range     => $res->{ref_range},
-                testcode      => $res->{testcode},
-                testname      => $res->{testname},
-                result_status => $res->{result_status},
+            $labresult = OpenEHR::Composition::LabTest::LabResult->new(
+                result_value     => $res->{result},
+                comment          => $res->{comment},
+                ref_range        => $res->{ref_range},
+                testcode         => $res->{testcode},
+                testname         => $res->{testname},
+                result_status    => $res->{result_status},
                 magnitude_status => $res->{magnitude_status},
             );
         }
@@ -88,46 +93,49 @@ sub add_labtests {
     }
 
     my $labpanel =
-      OpenEHR::Composition::LabTestPanel->new( lab_results => $labresults );
+        OpenEHR::Composition::LabTest::LabTestPanel->new(
+        lab_results => $labresults );
 
-    my $placer = OpenEHR::Composition::Placer->new(
+    my $placer = OpenEHR::Composition::LabTest::Placer->new(
         order_number => $order->{order_number}->{id},
         assigner     => $order->{order_number}->{assigner},
         issuer       => $order->{order_number}->{issuer},
         type         => 'local',
     );
 
-    my $filler = OpenEHR::Composition::Filler->new(
+    my $filler = OpenEHR::Composition::LabTest::Filler->new(
         order_number => $order->{labnumber}->{id},
         assigner     => $order->{labnumber}->{assigner},
         issuer       => $order->{labnumber}->{issuer},
         type         => 'local',
     );
 
-    my $ordering_provider = OpenEHR::Composition::OrderingProvider->new(
+    my $ordering_provider =
+        OpenEHR::Composition::LabTest::OrderingProvider->new(
         given_name  => $order->{location}->{id},
         family_name => $order->{location}->{parent},
-    );
+        );
 
-    my $professional = OpenEHR::Composition::Professional->new(
+    my $professional = OpenEHR::Composition::LabTest::Professional->new(
         id       => $order->{clinician}->{id},
         assigner => $order->{clinician}->{assigner},
         issuer   => $order->{clinician}->{issuer},
         type     => 'local',
     );
 
-    my $requester = OpenEHR::Composition::Requester->new(
+    my $requester = OpenEHR::Composition::LabTest::Requester->new(
         ordering_provider => $ordering_provider,
         professional      => $professional,
     );
 
-    my $request_details = OpenEHR::Composition::TestRequestDetails->new(
+    my $request_details =
+        OpenEHR::Composition::LabTest::TestRequestDetails->new(
         placer            => $placer,
         filler            => $filler,
         ordering_provider => $ordering_provider,
         professional      => $professional,
         requester         => $requester,
-    );
+        );
 
     my $labtests = OpenEHR::Composition::LabTest->new(
         requested_test   => $request,
@@ -150,7 +158,7 @@ sub add_labtests {
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')
-      if ( $self->composition_format eq 'TDD' );
+        if ( $self->composition_format eq 'TDD' );
 
     for my $labtest ( @{ $self->labtests } ) {
         $labtest->composition_format( $self->composition_format );
@@ -164,17 +172,14 @@ sub compose {
 sub compose_structured {
     my $self            = shift;
     my $patient_comment = [
-        {
-            'encoding' => [
-                {
-                    '|code'        => $self->encoding_code,
+        {   'encoding' => [
+                {   '|code'        => $self->encoding_code,
                     '|terminology' => $self->encoding_terminology
                 }
             ],
             'comment'  => [ $self->patient_comment ],
             'language' => [
-                {
-                    '|terminology' => $self->language_terminology,
+                {   '|terminology' => $self->language_terminology,
                     '|code'        => $self->language_code
                 }
             ]
@@ -186,18 +191,15 @@ sub compose_structured {
     }
     my $composer = [ { '|name' => $self->composer_name } ];
     my $context = [
-        {
-            'setting' => [
-                {
-                    '|code'        => '238',
+        {   'setting' => [
+                {   '|code'        => '238',
                     '|value'       => 'other care',
                     '|terminology' => 'openehr',
                 }
             ],
             'report_id'             => [ $self->report_id ],
             '_health_care_facility' => [
-                {
-                    '|id_namespace' => 'UCLH-NS',
+                {   '|id_namespace' => 'UCLH-NS',
                     '|id_scheme'    => 'UCLH-NS',
                     '|id'           => 'RRV',
                     '|name'         => 'UCLH',
@@ -207,14 +209,12 @@ sub compose_structured {
         }
     ];
     my $language = [
-        {
-            '|terminology' => $self->language_terminology,
+        {   '|terminology' => $self->language_terminology,
             '|code'        => $self->language_code
         }
     ];
     my $territory = [
-        {
-            '|terminology' => $self->territory_terminology,
+        {   '|terminology' => $self->territory_terminology,
             '|code'        => $self->territory_code
         }
     ];
@@ -234,8 +234,7 @@ sub compose_structured {
 
 sub compose_raw {
     my $self = shift;
-    my (
-        $composer, $content,           $territory,
+    my ($composer, $content,           $territory,
         $category, $class,             $laboratory_test,
         $language, $uid,               $archetype_node_id,
         $name,     $archetype_details, $context,
@@ -274,8 +273,7 @@ sub compose_raw {
                 'value'  => 'List',
             },
             'items' => [
-                {
-                    '@class' => 'ELEMENT',
+                {   '@class' => 'ELEMENT',
                     'value'  => {
                         'value'  => $self->patient_comment,
                         '@class' => 'DV_TEXT'
@@ -339,8 +337,7 @@ sub compose_raw {
             },
             '@class' => 'ITEM_TREE',
             'items'  => [
-                {
-                    'value' => {
+                {   'value' => {
                         'value'  => $self->report_id,    #'17V444999',
                         '@class' => 'DV_TEXT'
                     },

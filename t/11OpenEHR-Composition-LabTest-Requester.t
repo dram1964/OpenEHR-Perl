@@ -4,20 +4,21 @@ use warnings;
 use Test::More;
 use Data::Dumper;
 
-use OpenEHR::Composition::Professional;
-use OpenEHR::Composition::OrderingProvider;
-use OpenEHR::Composition::Requester;
-diag('Testing OpenEHR::Composition::Requester '
-    . $OpenEHR::Composition::Requester::VERSION);
+use OpenEHR::Composition::LabTest::Professional;
+use OpenEHR::Composition::LabTest::OrderingProvider;
+use OpenEHR::Composition::LabTest::Requester;
+diag( 'Testing OpenEHR::Composition::LabTest::Requester '
+        . $OpenEHR::Composition::LabTest::Requester::VERSION );
 
-ok( my $ordering_provider = OpenEHR::Composition::OrderingProvider->new(
+ok( my $ordering_provider =
+        OpenEHR::Composition::LabTest::OrderingProvider->new(
         given_name  => 'A&E',
         family_name => 'UCLH'
-    ),
+        ),
     'Ordering Provider constructued'
 );
 
-ok( my $professional = OpenEHR::Composition::Professional->new(
+ok( my $professional = OpenEHR::Composition::LabTest::Professional->new(
         {   id       => 'AB01',
             assigner => 'Carecast',
             issuer   => 'UCLH',
@@ -27,7 +28,7 @@ ok( my $professional = OpenEHR::Composition::Professional->new(
     'Professional constructed'
 );
 
-ok( my $requester1 = OpenEHR::Composition::Requester->new(),
+ok( my $requester1 = OpenEHR::Composition::LabTest::Requester->new(),
     'Constructor called with no parameters' );
 
 ok( $requester1->ordering_provider($ordering_provider),
@@ -53,7 +54,7 @@ is( $requester1->professional->issuer,
 is( $requester1->professional->type,
     $professional->type, 'Professional type accessible from requester' );
 
-ok( my $requester2 = OpenEHR::Composition::Requester->new(
+ok( my $requester2 = OpenEHR::Composition::LabTest::Requester->new(
         ordering_provider => $ordering_provider,
         professional      => $professional,
     ),

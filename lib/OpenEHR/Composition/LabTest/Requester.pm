@@ -1,90 +1,67 @@
-package OpenEHR::Composition::Placer;
+package OpenEHR::Composition::LabTest::Requester;
 
 use warnings;
 use strict;
 use Carp;
 use Moose;
 extends 'OpenEHR::Composition';
-
 use version; our $VERSION = qv('0.0.2');
 
-has order_number => (
-    is       => 'rw',
-    isa      => 'Str',
-    required => 1,
-);
-has issuer => (
-    is       => 'rw',
-    isa      => 'Str',
-    required => 1,
-    default  => 'UCLH',
-
-);
-has assigner => (
-    is       => 'rw',
-    isa      => 'Str',
-    required => 1,
-    default  => 'TQuest',
-);
-has type => (
-    is       => 'rw',
-    isa      => 'Str',
-    required => 1,
-    default  => 'local',
-);
+has ordering_provider => (is => 'rw', isa => 'OpenEHR::Composition::LabTest::OrderingProvider');
+has professional      => (is => 'rw', isa => 'OpenEHR::Composition::LabTest::Professional');
 
 sub compose {
     my $self = shift;
-    $self->composition_format('RAW')
-        if ( $self->composition_format eq 'TDD' );
-
-    my $formatter = 'compose_' . lc( $self->composition_format );
+    $self->composition_format('RAW') if ($self->composition_format eq 'TDD');
+    $self->ordering_provider->composition_format($self->composition_format);
+    $self->professional->composition_format($self->composition_format);
+    my $formatter = 'compose_' . lc($self->composition_format);
     $self->$formatter();
 }
 
 sub compose_structured {
-    my $self        = shift;
-    my $composition = {
-        '|assigner' => $self->assigner,
-        '|issuer'   => $self->issuer,
-        '|id'       => $self->order_number,
-        '|type'     => $self->type,
-    };
+    my $self = shift;
+    my $composition = [{ 
+        professional_identifier => [$self->professional->compose()], 
+        ordering_provider => [ { ordering_provider =>  [$self->ordering_provider->compose()] } ]
+    }];
     return $composition;
 }
 
 sub compose_raw {
-    my $self        = shift;
-    my $composition = {
-        'value' => {
-            'type'     => $self->type,
-            '@class'   => 'DV_IDENTIFIER',
-            'id'       => $self->order_number,
-            'issuer'   => $self->issuer,
-            'assigner' => $self->assigner,
+    my $self = shift;
+    my $items;
+    push @{$items}, $self->professional->compose();
+    push @{$items}, $self->ordering_provider->compose();  
+    my $composition = { 
+        'name' => {
+            '@class' => 'DV_TEXT',
+            'value' => 'Requester'
         },
-        '@class'            => 'ELEMENT',
-        'archetype_node_id' => 'at0062',
-        'name'              => {
-            'value'  => 'Placer order number',
-            '@class' => 'DV_TEXT'
-        }
+        'archetype_details' => {
+            'rm_version' => '1.0.1',
+            'archetype_id' => {
+                'value' => 'openEHR-EHR-CLUSTER.individual_professional.v1',
+                '@class' => 'ARCHETYPE_ID'
+            },
+            '@class' => 'ARCHETYPED'
+        },
+        items => $items,
+        '@class' => 'CLUSTER',
+        'archetype_node_id' => 'openEHR-EHR-CLUSTER.individual_professional.v1',
     };
     return $composition;
 }
 
 sub compose_flat {
     my $self = shift;
-    my $path =
-        'laboratory_result_report/laboratory_test:__TEST__/test_request_details/';
     my $composition = {
-        $path . 'placer_order_number'          => $self->order_number,
-        $path . 'placer_order_number|issuer'   => $self->issuer,
-        $path . 'placer_order_number|assigner' => $self->assigner,
-        $path . 'placer_order_number|type'     => $self->type,
-    };
+        %{$self->professional->compose()}, 
+        %{$self->ordering_provider->compose()}};
     return $composition;
 }
+
+
 
 no Moose;
 
@@ -94,54 +71,62 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::Placer - Placer composition element
+OpenEHR::Composition::LabTest::Requester - Requestor composition element
+
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::Placer version 0.0.1
+This document describes OpenEHR::Composition::LabTest::Requester version 0.0.1
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::Placer;
-    my $placer = OpenEHR::Composition::Placer->new({
-        order_number    => 'TQ003339999',
-        assigner        => 'TQuest',
-        issuer          => 'UCLH',
-        type            => 'local',
-        composition_format => 'FLAT',
+    use OpenEHR::Composition::LabTest::Professional;
+    use OpenEHR::Composition::LabTest::OrderingProvider;
+    use OpenEHR::Composition::LabTest::Requester;
+
+    my $ordering_provider = OpenEHR::Composition::LabTest::OrderingProvider->new(
+        given_name => 'A&E',
+        family_name => 'UCLH'
+    );
+
+    my $professional = OpenEHR::Composition::LabTest::Professional->new({
+        id          => 'AB01',
+        assigner    => 'Carecast',
+        issuer      => 'UCLH',
+        type        => 'local',
     });
 
-    my $placer_hashref = $placer->compose;
+    my $requester = OpenEHR::Composition::LabTest::Requester->new(
+        ordering_provider   => $ordering_provider,
+        professional        => $professional,
+    );
 
-  
+    $requester->composition_format('FLAT');
+    my $requester_hashref = $requester->compose;
+
+
 =head1 DESCRIPTION
 
-Used to create a placer element for insertion into a composition
-object. When used as part of a Pathology Report composition, the 
-placer element contains identifier data from the ordering system
-used to place the order.
+Used to create a hashref element of a requestor for insertion to a 
+composition object. The requestor element may contain a 
+OpenEHR::Composition::LabTest::Professional object and/or an 
+OpenEHR::Composition::LabTest::OrderingProvider object
 
 =head1 INTERFACE 
 
 =head1 ATTRIBUTES
 
-=head2 order_number
+=head2 ordering_provider
 
-Identifier assigned to the Laboratory Test order by the ordering
-system
+Identity of the care provider represented as an 
+OpenEHR::Composition::LabTest::OrderingProvider object
 
-=head2 issuer
+=head2 professional
 
-Organisation from whence the order is issued. Defaults to 'UCLH'
-
-=head2 assigner
-
-System used to generate the order. Defaults to 'TQuest'=> (
-
-=head2 type
-
-Type of identifier issued. Defaults to 'local'
+Identity of the individual at the care provider responsible 
+for the request
+    
 
 =head1 METHODS
 
@@ -194,7 +179,7 @@ Returns a hashref of the object in FLAT format
     that can be set. These descriptions must also include details of any
     configuration language used.
   
-OpenEHR::Composition::Placer requires no configuration files or environment variables.
+OpenEHR::Composition::LabTest::Requester requires no configuration files or environment variables.
 
 
 =head1 DEPENDENCIES
@@ -234,7 +219,7 @@ None reported.
 No bugs have been reported.
 
 Please report any bugs or feature requests to
-C<bug-openehr-composition-placer@rt.cpan.org>, or through the web interface at
+C<bug-openehr-composition-requester@rt.cpan.org>, or through the web interface at
 L<http://rt.cpan.org>.
 
 

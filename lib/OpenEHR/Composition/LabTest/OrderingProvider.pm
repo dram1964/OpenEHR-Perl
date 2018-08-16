@@ -1,4 +1,4 @@
-package OpenEHR::Composition::OrderingProvider;
+package OpenEHR::Composition::LabTest::OrderingProvider;
 
 use warnings;
 use strict;
@@ -102,18 +102,18 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::OrderingProvider - Ordering Provider composition element
+OpenEHR::Composition::LabTest::OrderingProvider - Ordering Provider composition element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::OrderingProvider version 0.0.1
+This document describes OpenEHR::Composition::LabTest::OrderingProvider version 0.0.1
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::OrderingProvider;
-    my $ordering = OpenEHR::Composition::OrderingProvider->new(
+    use OpenEHR::Composition::LabTest::OrderingProvider;
+    my $ordering = OpenEHR::Composition::LabTest::OrderingProvider->new(
         given_name => 'A&E',
         family_name => 'UCLH');
 
@@ -191,7 +191,7 @@ Returns a hashref of the object in FLAT format
     that can be set. These descriptions must also include details of any
     configuration language used.
   
-OpenEHR::Composition::OrderingProvider requires no configuration files or environment variables.
+OpenEHR::Composition::LabTest::OrderingProvider requires no configuration files or environment variables.
 
 
 =head1 DEPENDENCIES

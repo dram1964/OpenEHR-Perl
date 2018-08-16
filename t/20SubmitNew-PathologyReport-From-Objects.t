@@ -6,17 +6,6 @@ use DateTime;
 use JSON;
 use OpenEHR::REST::Composition;
 
-use OpenEHR::Composition::RequestedTest;
-use OpenEHR::Composition::Specimen;
-use OpenEHR::Composition::LabResult;
-use OpenEHR::Composition::LabTestPanel;
-use OpenEHR::Composition::Placer;
-use OpenEHR::Composition::Filler;
-use OpenEHR::Composition::Requester;
-use OpenEHR::Composition::OrderingProvider;
-use OpenEHR::Composition::Professional;
-use OpenEHR::Composition::TestRequestDetails;
-use OpenEHR::Composition::LabTest;
 use OpenEHR::Composition::LabResultReport;
 
 my $config_file = 'OpenEHR.conf';
@@ -29,14 +18,14 @@ while ( my $line = <$fh> ) {
 
 my $ehrId = $config{test_ehrid};
 
-my $request = OpenEHR::Composition::RequestedTest->new(
+my $request = OpenEHR::Composition::LabTest::RequestedTest->new(
     requested_test => 'Electrolytes',
     name           => 'Electrolytes',
     code           => 'ELL',
     terminology    => 'local',
 );
 
-my $specimen = OpenEHR::Composition::Specimen->new(
+my $specimen = OpenEHR::Composition::LabTest::Specimen->new(
     specimen_type      => 'Blood',
     datetime_collected => DateTime->new(
         year   => 2017,
@@ -56,7 +45,7 @@ my $specimen = OpenEHR::Composition::Specimen->new(
     spec_id => 'bld',
 );
 
-my $labresult1 = OpenEHR::Composition::LabResult->new(
+my $labresult1 = OpenEHR::Composition::LabTest::LabResult->new(
     result_value  => 59,
     comment       => 'this is the sodium result',
     ref_range     => '50-60',
@@ -65,7 +54,7 @@ my $labresult1 = OpenEHR::Composition::LabResult->new(
     result_status => 'Final',
 );
 
-my $labresult2 = OpenEHR::Composition::LabResult->new(
+my $labresult2 = OpenEHR::Composition::LabTest::LabResult->new(
     result_value  => 88,
     comment       => 'this is the potassium result',
     ref_range     => '80-90',
@@ -75,41 +64,41 @@ my $labresult2 = OpenEHR::Composition::LabResult->new(
 );
 
 my $labpanel =
-  OpenEHR::Composition::LabTestPanel->new(
+    OpenEHR::Composition::LabTest::LabTestPanel->new(
     lab_results => [ $labresult1, $labresult2 ], );
 
-my $placer = OpenEHR::Composition::Placer->new(
+my $placer = OpenEHR::Composition::LabTest::Placer->new(
     order_number => 'TQ001113333',
     assigner     => 'TQuest',
     issuer       => 'UCLH',
     type         => 'local',
 );
 
-my $filler = OpenEHR::Composition::Filler->new(
+my $filler = OpenEHR::Composition::LabTest::Filler->new(
     order_number => '17V333999',
     assigner     => 'Winpath',
     issuer       => 'UCLH Pathology',
     type         => 'local',
 );
 
-my $ordering_provider = OpenEHR::Composition::OrderingProvider->new(
+my $ordering_provider = OpenEHR::Composition::LabTest::OrderingProvider->new(
     given_name  => 'A&E',
     family_name => 'UCLH'
 );
 
-my $professional = OpenEHR::Composition::Professional->new(
+my $professional = OpenEHR::Composition::LabTest::Professional->new(
     id       => 'AB01',
     assigner => 'Carecast',
     issuer   => 'UCLH',
     type     => 'local',
 );
 
-my $requester = OpenEHR::Composition::Requester->new(
+my $requester = OpenEHR::Composition::LabTest::Requester->new(
     ordering_provider => $ordering_provider,
     professional      => $professional,
 );
 
-my $request_details = OpenEHR::Composition::TestRequestDetails->new(
+my $request_details = OpenEHR::Composition::LabTest::TestRequestDetails->new(
     placer    => $placer,
     filler    => $filler,
     requester => $requester,
@@ -134,8 +123,7 @@ my $labtest = OpenEHR::Composition::LabTest->new(
     request_details => $request_details,
 );
 
-ok(
-    my $labreport = OpenEHR::Composition::LabResultReport->new(
+ok( my $labreport = OpenEHR::Composition::LabResultReport->new(
         report_id       => '17V999333',
         labtests        => [$labtest],
         patient_comment => 'Patient feeling poorly',
@@ -145,10 +133,11 @@ ok(
 
 note('Begin testing FLAT composition');
 {
-    ok( $labreport->composition_format('FLAT'), 'Set FLAT composition format' );
+    ok( $labreport->composition_format('FLAT'),
+        'Set FLAT composition format'
+    );
     my $path_report = OpenEHR::REST::Composition->new();
-    ok(
-        $path_report->composition($labreport),
+    ok( $path_report->composition($labreport),
         'Add composition object to rest client'
     );
     ok( $path_report->template_id('GEL - Generic Lab Report import.v0'),
@@ -164,13 +153,11 @@ note('Begin testing FLAT composition');
 
 note('Begin testing STRUCTURED composition');
 {
-    ok(
-        $labreport->composition_format('STRUCTURED'),
+    ok( $labreport->composition_format('STRUCTURED'),
         'Set STRUCTURED composition format'
     );
     my $path_report = OpenEHR::REST::Composition->new();
-    ok(
-        $path_report->composition($labreport),
+    ok( $path_report->composition($labreport),
         'Add composition to rest client'
     );
     ok( $path_report->template_id('GEL - Generic Lab Report import.v0'),
@@ -188,8 +175,7 @@ note('Begin testing RAW composition');
 {
     ok( $labreport->composition_format('RAW'), 'Set RAW composition format' );
     my $path_report = OpenEHR::REST::Composition->new();
-    ok(
-        $path_report->composition($labreport),
+    ok( $path_report->composition($labreport),
         'Add composition to rest client'
     );
     ok( $path_report->submit_new($ehrId), 'Submit composition' );
@@ -208,8 +194,7 @@ SKIP: {
         ok( $labreport->composition_format('TDD'),
             'Set TDD composition format' );
         my $path_report = OpenEHR::REST::Composition->new();
-        ok(
-            $path_report->composition($labreport),
+        ok( $path_report->composition($labreport),
             'Add composition to rest client'
         );
         ok( $path_report->submit_new($ehrId), 'Submit composition' );

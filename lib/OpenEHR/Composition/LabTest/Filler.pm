@@ -1,4 +1,4 @@
-package OpenEHR::Composition::Filler;
+package OpenEHR::Composition::LabTest::Filler;
 
 use warnings;
 use strict;
@@ -94,18 +94,18 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::Filler - Filler composition element
+OpenEHR::Composition::LabTest::Filler - Filler composition element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::Filler version 0.0.1
+This document describes OpenEHR::Composition::LabTest::Filler version 0.0.1
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::Filler;
-    my $filler = OpenEHR::Composition::Filler->new({
+    use OpenEHR::Composition::LabTest::Filler;
+    my $filler = OpenEHR::Composition::LabTest::Filler->new({
         order_number    => '17V111333',
         assigner        => 'Winpath',
         issuer          => 'UCLH',
@@ -171,7 +171,7 @@ None
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-OpenEHR::Composition::Filler requires no configuration files or 
+OpenEHR::Composition::LabTest::Filler requires no configuration files or 
 environment variables.
 
 

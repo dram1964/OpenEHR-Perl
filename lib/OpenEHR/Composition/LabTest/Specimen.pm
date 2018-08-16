@@ -1,4 +1,4 @@
-package OpenEHR::Composition::Specimen;
+package OpenEHR::Composition::LabTest::Specimen;
 
 use warnings;
 use strict;
@@ -171,17 +171,17 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::Specimen - [One line description of module's purpose here]
+OpenEHR::Composition::LabTest::Specimen - [One line description of module's purpose here]
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::Specimen version 0.0.1
+This document describes OpenEHR::Composition::LabTest::Specimen version 0.0.1
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::Specimen;
+    use OpenEHR::Composition::LabTest::Specimen;
 
 =for author to fill in:
     Brief code example(s) here showing commonest usage(s).
@@ -287,7 +287,7 @@ Returns a hashref of the object in FLAT format
     that can be set. These descriptions must also include details of any
     configuration language used.
   
-OpenEHR::Composition::Specimen requires no configuration files or environment variables.
+OpenEHR::Composition::LabTest::Specimen requires no configuration files or environment variables.
 
 
 =head1 DEPENDENCIES

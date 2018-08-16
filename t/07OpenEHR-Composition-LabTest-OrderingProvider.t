@@ -3,11 +3,11 @@ use warnings;
 
 use Test::More;
 use Data::Dumper;
-use OpenEHR::Composition::OrderingProvider;
-diag('Testing OpenEHR::Composition::OrderingProvider '
-    . $OpenEHR::Composition::OrderingProvider::VERSION);
+use OpenEHR::Composition::LabTest::OrderingProvider;
+diag( 'Testing OpenEHR::Composition::LabTest::OrderingProvider '
+        . $OpenEHR::Composition::LabTest::OrderingProvider::VERSION );
 
-ok( my $ordering = OpenEHR::Composition::OrderingProvider->new(
+ok( my $ordering = OpenEHR::Composition::LabTest::OrderingProvider->new(
         given_name  => 'A&E',
         family_name => 'UCLH'
     ),
@@ -23,7 +23,7 @@ ok( $ordering->composition_format('FLAT'),
     'Request FLAT composition format' );
 ok( my $flat = $ordering->compose, 'Request composition' );
 
-my $path = 'laboratory_result_report/laboratory_test:__TEST__/' 
+my $path = 'laboratory_result_report/laboratory_test:__TEST__/'
     . 'test_request_details/requester/ordering_provider/ordering_provider/';
 
 is( $flat->{ $path . 'given_name' },

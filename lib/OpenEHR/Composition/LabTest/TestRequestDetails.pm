@@ -1,4 +1,4 @@
-package OpenEHR::Composition::Requester;
+package OpenEHR::Composition::LabTest::TestRequestDetails;
 
 use warnings;
 use strict;
@@ -7,61 +7,58 @@ use Moose;
 extends 'OpenEHR::Composition';
 use version; our $VERSION = qv('0.0.2');
 
-has ordering_provider => (is => 'rw', isa => 'OpenEHR::Composition::OrderingProvider');
-has professional      => (is => 'rw', isa => 'OpenEHR::Composition::Professional');
+has placer    => ( is => 'rw', isa => 'OpenEHR::Composition::LabTest::Placer' );
+has filler    => ( is => 'rw', isa => 'OpenEHR::Composition::LabTest::Filler' );
+has requester => ( is => 'rw', isa => 'OpenEHR::Composition::LabTest::Requester' );
 
 sub compose {
     my $self = shift;
-    $self->composition_format('RAW') if ($self->composition_format eq 'TDD');
-    $self->ordering_provider->composition_format($self->composition_format);
-    $self->professional->composition_format($self->composition_format);
-    my $formatter = 'compose_' . lc($self->composition_format);
+    $self->composition_format('RAW')
+        if ( $self->composition_format eq 'TDD' );
+    $self->placer->composition_format( $self->composition_format );
+    $self->filler->composition_format( $self->composition_format );
+    $self->requester->composition_format( $self->composition_format );
+    my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
 }
 
 sub compose_structured {
-    my $self = shift;
-    my $composition = [{ 
-        professional_identifier => [$self->professional->compose()], 
-        ordering_provider => [ { ordering_provider =>  [$self->ordering_provider->compose()] } ]
-    }];
+    my $self        = shift;
+    my $composition = [
+        {   requester           => $self->requester->compose(),
+            filler_order_number => [ $self->filler->compose() ],
+            placer_order_number => [ $self->placer->compose() ],
+        }
+    ];
     return $composition;
 }
 
 sub compose_raw {
-    my $self = shift;
-    my $items;
-    push @{$items}, $self->professional->compose();
-    push @{$items}, $self->ordering_provider->compose();  
-    my $composition = { 
+    my $self        = shift;
+    my $composition = {        # TestRequestDetails
+        'archetype_node_id' => 'at0094',
+        'items'             => [
+            $self->placer->compose(), $self->filler->compose(),
+            $self->requester->compose(),
+        ],
         'name' => {
             '@class' => 'DV_TEXT',
-            'value' => 'Requester'
+            'value'  => 'Test request details'
         },
-        'archetype_details' => {
-            'rm_version' => '1.0.1',
-            'archetype_id' => {
-                'value' => 'openEHR-EHR-CLUSTER.individual_professional.v1',
-                '@class' => 'ARCHETYPE_ID'
-            },
-            '@class' => 'ARCHETYPED'
-        },
-        items => $items,
-        '@class' => 'CLUSTER',
-        'archetype_node_id' => 'openEHR-EHR-CLUSTER.individual_professional.v1',
+        '@class' => 'CLUSTER'
     };
     return $composition;
 }
 
 sub compose_flat {
-    my $self = shift;
+    my $self        = shift;
     my $composition = {
-        %{$self->professional->compose()}, 
-        %{$self->ordering_provider->compose()}};
+        %{ $self->placer->compose() },
+        %{ $self->filler->compose() },
+        %{ $self->requester->compose() },
+    };
     return $composition;
 }
-
-
 
 no Moose;
 
@@ -71,62 +68,48 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::Requester - Requestor composition element
+OpenEHR::Composition::LabTest::TestRequestDetails - [One line description of module's purpose here]
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::Requester version 0.0.1
+This document describes OpenEHR::Composition::LabTest::TestRequestDetails version 0.0.1
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::Professional;
-    use OpenEHR::Composition::OrderingProvider;
-    use OpenEHR::Composition::Requester;
+    use OpenEHR::Composition::LabTest::TestRequestDetails;
 
-    my $ordering_provider = OpenEHR::Composition::OrderingProvider->new(
-        given_name => 'A&E',
-        family_name => 'UCLH'
-    );
-
-    my $professional = OpenEHR::Composition::Professional->new({
-        id          => 'AB01',
-        assigner    => 'Carecast',
-        issuer      => 'UCLH',
-        type        => 'local',
-    });
-
-    my $requester = OpenEHR::Composition::Requester->new(
-        ordering_provider   => $ordering_provider,
-        professional        => $professional,
-    );
-
-    $requester->composition_format('FLAT');
-    my $requester_hashref = $requester->compose;
-
-
+=for author to fill in:
+    Brief code example(s) here showing commonest usage(s).
+    This section will be as far as many users bother reading
+    so make it as educational and exeplary as possible.
+  
+  
 =head1 DESCRIPTION
 
-Used to create a hashref element of a requestor for insertion to a 
-composition object. The requestor element may contain a 
-OpenEHR::Composition::Professional object and/or an 
-OpenEHR::Composition::OrderingProvider object
+=for author to fill in:
+    Write a full description of the module and its features here.
+    Use subsections (=head2, =head3) as appropriate.
+
 
 =head1 INTERFACE 
 
 =head1 ATTRIBUTES
 
-=head2 ordering_provider
+=head2  placer
 
-Identity of the care provider represented as an 
-OpenEHR::Composition::OrderingProvider object
+Information about the party requesting the pathology test represented
+as an OpenEHR::Composition::LabTest::Placer object
 
-=head2 professional
+=head2 filler
 
-Identity of the individual at the care provider responsible 
-for the request
-    
+Information about the party performing the pathology test represented
+as an OpenEHR::Composition::LabTest::Filler object
+
+=head2 requester 
+Information about the party ordering the pathology test represented
+as an OpenEHR::Composition::LabTest::Requester object
 
 =head1 METHODS
 
@@ -179,7 +162,7 @@ Returns a hashref of the object in FLAT format
     that can be set. These descriptions must also include details of any
     configuration language used.
   
-OpenEHR::Composition::Requester requires no configuration files or environment variables.
+OpenEHR::Composition::LabTest::TestRequestDetails requires no configuration files or environment variables.
 
 
 =head1 DEPENDENCIES
@@ -219,7 +202,7 @@ None reported.
 No bugs have been reported.
 
 Please report any bugs or feature requests to
-C<bug-openehr-composition-requester@rt.cpan.org>, or through the web interface at
+C<bug-openehr-composition-testrequestdetails@rt.cpan.org>, or through the web interface at
 L<http://rt.cpan.org>.
 
 

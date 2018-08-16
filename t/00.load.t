@@ -1,30 +1,65 @@
-use Test::More tests => 24;
+use Test::More tests => 47;
 
 BEGIN {
     use_ok('OpenEHR');
     use_ok('OpenEHR::Composition');
     use_ok('OpenEHR::Composition::CancerReport');
-    use_ok('OpenEHR::Composition::Filler');
     use_ok('OpenEHR::Composition::InformationOrder');
-    use_ok('OpenEHR::Composition::LabResult');
     use_ok('OpenEHR::Composition::LabResultReport');
     use_ok('OpenEHR::Composition::LabTest');
-    use_ok('OpenEHR::Composition::LabTestPanel');
-    use_ok('OpenEHR::Composition::OrderingProvider');
-    use_ok('OpenEHR::Composition::Placer');
+    use_ok('OpenEHR::Composition::LabTest::Filler');
+    use_ok('OpenEHR::Composition::LabTest::LabResult');
+    use_ok('OpenEHR::Composition::LabTest::LabTestPanel');
+    use_ok('OpenEHR::Composition::LabTest::OrderingProvider');
+    use_ok('OpenEHR::Composition::LabTest::Placer');
+    use_ok('OpenEHR::Composition::LabTest::Professional');
+    use_ok('OpenEHR::Composition::LabTest::RequestedTest');
+    use_ok('OpenEHR::Composition::LabTest::Requester');
+    use_ok('OpenEHR::Composition::LabTest::Specimen');
+    use_ok('OpenEHR::Composition::LabTest::TestRequestDetails');
     use_ok('OpenEHR::Composition::ProblemDiagnosis');
-    use_ok('OpenEHR::Composition::Professional');
-    use_ok('OpenEHR::Composition::RequestedTest');
-    use_ok('OpenEHR::Composition::Requester');
-    use_ok('OpenEHR::Composition::Specimen');
-    use_ok('OpenEHR::Composition::TestRequestDetails');
+    use_ok('OpenEHR::Composition::ProblemDiagnosis::AJCC_Stage');
+    use_ok('OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis');
+    use_ok(
+        'OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::MetastaticSite'
+    );
+    use_ok(
+        'OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::RecurrenceIndicator'
+    );
+    use_ok(
+        'OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::TumourLaterality'
+    );
+    use_ok('OpenEHR::Composition::ProblemDiagnosis::ClinicalEvidence');
+    use_ok('OpenEHR::Composition::ProblemDiagnosis::ColorectalDiagnosis');
+    use_ok('OpenEHR::Composition::ProblemDiagnosis::Diagnosis');
+    use_ok('OpenEHR::Composition::ProblemDiagnosis::FinalFigoStage');
+    use_ok('OpenEHR::Composition::ProblemDiagnosis::INRG_Staging');
+    use_ok('OpenEHR::Composition::ProblemDiagnosis::Integrated_TNM');
+    use_ok('OpenEHR::Composition::ProblemDiagnosis::ModifiedDukes');
+    use_ok('OpenEHR::Composition::ProblemDiagnosis::Template');
+    use_ok('OpenEHR::Composition::ProblemDiagnosis::TesticularStaging');
+    use_ok(
+        'OpenEHR::Composition::ProblemDiagnosis::TesticularStaging::LungMetastases'
+    );
+    use_ok(
+        'OpenEHR::Composition::ProblemDiagnosis::TesticularStaging::StageGroupTesticular'
+    );
+    use_ok('OpenEHR::Composition::ProblemDiagnosis::TumourID');
+    use_ok('OpenEHR::Composition::ProblemDiagnosis::UpperGI');
+    use_ok('OpenEHR::Composition::ProblemDiagnosis::UpperGI::BCLC_Stage');
+    use_ok('OpenEHR::Composition::ProblemDiagnosis::UpperGI::ChildPughScore');
+    use_ok(
+        'OpenEHR::Composition::ProblemDiagnosis::UpperGI::PancreaticClinicalStage'
+    );
+    use_ok('OpenEHR::Composition::ProblemDiagnosis::UpperGI::PortalInvasion');
+    use_ok('OpenEHR::Composition::ProblemDiagnosis::UpperGI::TACE');
     use_ok('OpenEHR::REST');
     use_ok('OpenEHR::REST::AQL');
+    use_ok('OpenEHR::REST::Composition');
     use_ok('OpenEHR::REST::Demographics');
     use_ok('OpenEHR::REST::EHR');
-    use_ok('OpenEHR::REST::Composition');
     use_ok('OpenEHR::REST::Template');
     use_ok('OpenEHR::REST::View');
 }
 
-diag("Testing OpenEHR $OpenEHR::VERSION");
+diag("Testing OpenEHR version $OpenEHR::VERSION");

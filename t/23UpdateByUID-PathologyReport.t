@@ -88,8 +88,8 @@ ok( $update = OpenEHR::REST::Composition->new(),
     'Create PathologyReport object' );
 ok( $update->composition($report), 'Add composition to update' );
 ok( $update->template_id('GEL - Generic Lab Report import.v0'),
-    'Add template_id for FLAT composition');
-ok( $update->update_by_uid($uid),  'Updated with new composition' );
+    'Add template_id for FLAT composition' );
+ok( $update->update_by_uid($uid), 'Updated with new composition' );
 diag( $update->err_msg ) if $update->err_msg;
 note( 'Composition update can be found at: ' . $update->href );
 
@@ -102,8 +102,8 @@ ok( $update = OpenEHR::REST::Composition->new(),
     'Create PathologyReport object' );
 ok( $update->composition($report), 'Add composition to update' );
 ok( $update->template_id('GEL - Generic Lab Report import.v0'),
-    'Add template_id for STRUCTURED composition');
-ok( $update->update_by_uid($uid),  'Updated with new composition' );
+    'Add template_id for STRUCTURED composition' );
+ok( $update->update_by_uid($uid), 'Updated with new composition' );
 diag( $update->err_msg ) if $update->err_msg;
 note( 'Composition update can be found at: ' . $update->href );
 

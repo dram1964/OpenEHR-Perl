@@ -1,24 +1,42 @@
-package OpenEHR::Composition::LabTestPanel;
+package OpenEHR::Composition::LabTest::Professional;
 
 use warnings;
 use strict;
 use Carp;
 use Moose;
-use Data::Dumper;
 extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
-has lab_results =>
-    ( is => 'rw', isa => 'ArrayRef[OpenEHR::Composition::LabResult]' );
+has id => (
+    is       => 'rw',
+    isa      => 'Str',
+    required => 1,
+);
+has issuer => (
+    is       => 'rw',
+    isa      => 'Str',
+    required => 1,
+    default  => 'UCLH',
+
+);
+has assigner => (
+    is       => 'rw',
+    isa      => 'Str',
+    required => 1,
+    default  => 'UCLH PAS',
+);
+has type => (
+    is       => 'rw',
+    isa      => 'Str',
+    required => 1,
+    default  => 'local',
+);
 
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')
         if ( $self->composition_format eq 'TDD' );
-    for my $result ( @{ $self->lab_results } ) {
-        $result->composition_format( $self->composition_format );
-    }
 
     my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
@@ -27,54 +45,44 @@ sub compose {
 sub compose_structured {
     my $self        = shift;
     my $composition = {
-        laboratory_result => [],
-
+        '|assigner' => $self->assigner,
+        '|issuer'   => $self->issuer,
+        '|id'       => $self->id,
+        '|type'     => $self->type,
     };
-    for my $result ( @{ $self->lab_results } ) {
-        push @{ $composition->{laboratory_result} }, $result->compose();
-    }
-    return $composition;
-}
-
-sub compose_flat {
-    my $self        = shift;
-    my $composition = {};
-
-    my $index = '0';
-    for my $result ( @{ $self->lab_results } ) {
-        my $fc = $result->compose();
-        for my $key ( keys %{$fc} ) {
-            my $new_key = $key;
-            $new_key =~ s/__RESULT__/$index/;
-            $composition->{$new_key} = $fc->{$key};
-        }
-        $index++;
-    }
     return $composition;
 }
 
 sub compose_raw {
     my $self        = shift;
     my $composition = {
-        'name' => {
-            '@class' => 'DV_TEXT',
-            'value'  => 'Laboratory test panel'
+        'value' => {
+            'type'     => $self->type,
+            '@class'   => 'DV_IDENTIFIER',
+            'id'       => $self->id,
+            'issuer'   => $self->issuer,
+            'assigner' => $self->assigner,
         },
-        '@class'            => 'CLUSTER',
-        'archetype_details' => {
-            'archetype_id' => {
-                '@class' => 'ARCHETYPE_ID',
-                'value'  => 'openEHR-EHR-CLUSTER.laboratory_test_panel.v0'
-            },
-            '@class'     => 'ARCHETYPED',
-            'rm_version' => '1.0.1'
-        },
-        'archetype_node_id' => 'openEHR-EHR-CLUSTER.laboratory_test_panel.v0',
-        'items'             => [],
+        '@class'            => 'ELEMENT',
+        'archetype_node_id' => 'at0011',
+        'name'              => {
+            'value'  => 'Professional Identifier',
+            '@class' => 'DV_TEXT'
+        }
     };
-    for my $result ( @{ $self->lab_results } ) {
-        push @{ $composition->{items} }, $result->compose();
-    }
+    return $composition;
+}
+
+sub compose_flat {
+    my $self = shift;
+    my $path =
+        'laboratory_result_report/laboratory_test:__TEST__/test_request_details/requester/';
+    my $composition = {
+        $path . 'professional_identifier'          => $self->id,
+        $path . 'professional_identifier|issuer'   => $self->issuer,
+        $path . 'professional_identifier|assigner' => $self->assigner,
+        $path . 'professional_identifier|type'     => $self->type,
+    };
     return $composition;
 }
 
@@ -86,60 +94,55 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::LabTestPanel - A LabTestPanel composition element
+OpenEHR::Composition::LabTest::Professional - Professional Composition Element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::LabTestPanel version 0.0.1
+This document describes OpenEHR::Composition::LabTest::Professional version 0.0.1
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::LabTestPanel;
-    use OpenEHR::Composition::LabResult;
-
-
-    my $labresult1 = OpenEHR::Composition::LabResult->new(
-        result_value => 59,
-        comment => 'this is the sodium result',
-        ref_range => '50-60',
-        testcode => 'NA',
-        testname => 'Sodium',
-        result_status  => 'Complete',
-    );
-
-    my $labresult2 = OpenEHR::Composition::LabResult->new(
-        result_value => 88,
-        comment => 'this is the potassium result',
-        ref_range => '80-90',
-        testcode => 'K',
-        testname => 'Potassium',
-        result_status  => 'Complete',
-    );
-
-
-    my $labpanel = OpenEHR::Composition::LabTestPanel->new(
-        lab_results => [$labresult1, $labresult2],
-    );
-
-    $labpanel->composition_format('STRUCTURED');
-    my $struct = $labpanel->compose;
-
+    use OpenEHR::Composition::LabTest::Professional;
+     
+    my $professional = OpenEHR::Composition::LabTest::Professional->new({
+        id          => 'AB01',
+        assigner    => 'Carecast',
+        issuer      => 'UCLH',
+        type        => 'local',
+        composition_format => 'FLAT',
+    });
+    my $professional_hashref = $professional->compose;
   
 =head1 DESCRIPTION
 
-A LabTestPanel object contains an array of OpenEHR::Composition::LabResult
-objects. 
+Used to create a hashref element of a professional for insertion to a 
+composition object. When used as part of a PathologyReport composition, 
+the professional element contains details of the clinician placing an order.
 
 =head1 INTERFACE 
 
 =head1 ATTRIBUTES
 
-=head2 lab_results     
+=head2 id
 
-An ArrayRef of OpenEHR::Composition::LabResult objects representing the
-results recorded for each test analyte
+Identifier of professional at provider organisation requesting the test
+
+=head2 issuer
+
+Organisation responsible for issuing the professional identifier. 
+Defaults to 'UCLH'
+
+=head2 assigner
+
+System used to assign the professional identifier. Defaults to 
+'UCLH PAS'
+
+=head2 type
+
+type of professional identifier issued. Defaults to local
+
 
 =head1 METHODS
 
@@ -192,7 +195,7 @@ Returns a hashref of the object in FLAT format
     that can be set. These descriptions must also include details of any
     configuration language used.
   
-OpenEHR::Composition::LabTestPanel requires no configuration files or environment variables.
+OpenEHR::Composition::LabTest::Professional requires no configuration files or environment variables.
 
 
 =head1 DEPENDENCIES
@@ -232,7 +235,7 @@ None reported.
 No bugs have been reported.
 
 Please report any bugs or feature requests to
-C<bug-openehr-composition-labtestpanel@rt.cpan.org>, or through the web interface at
+C<bug-openehr-composition-professional@rt.cpan.org>, or through the web interface at
 L<http://rt.cpan.org>.
 
 
@@ -243,7 +246,7 @@ David Ramlakhan  C<< <dram1964@gmail.com> >>
 
 =head1 LICENCE AND COPYRIGHT
 
-Copyright (c) 2018, David Ramlakhan C<< <dram1964@gmail.com> >>. All rights reserved.
+Copyright (c) 2017, David Ramlakhan C<< <dram1964@gmail.com> >>. All rights reserved.
 
 This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself. See L<perlartistic>.

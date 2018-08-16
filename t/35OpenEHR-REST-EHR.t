@@ -11,7 +11,7 @@ diag("Testing OpenEHR::REST::EHR $OpenEHR::REST::EHR::VERSION");
 ok( my $config = OpenEHR->new(),
     'Configuration available via OpenEHR module' );
 
-my $test_ehrid     = $config->test_ehrid;
+my $test_ehrid      = $config->test_ehrid;
 my $test_subject_id = $config->test_subject_id;
 
 ok( my $ehr1 = OpenEHR::REST::EHR->new(),
@@ -64,7 +64,7 @@ note( 'EHR can be found at ' . $ehr5->href );
 note('Testing find_or_new for probable non-existing record');
 my $subjectId = int( rand(1000000000) );
 $subjectId .= '0000000000';
-if ($subjectId =~ /^([\d]{10,10}).*/) {
+if ( $subjectId =~ /^([\d]{10,10}).*/ ) {
     $subjectId = $1;
 }
 ok( my $ehr6 = OpenEHR::REST::EHR->new(
@@ -135,27 +135,28 @@ else {
     diag( 'Unknown error encountered in update_ehr_status' . $ehr9->err_msg );
 }
 
-ok(my $ehr10 = OpenEHR::REST::EHR->new(
-    {
-        subject_id      => '9998887777',
-        subject_namespace       => 'uk.nhs.nhs_number',
-    }
-), "Create new EHR query with NHS Number");
+ok( my $ehr10 = OpenEHR::REST::EHR->new(
+        {   subject_id        => '9998887777',
+            subject_namespace => 'uk.nhs.nhs_number',
+        }
+    ),
+    "Create new EHR query with NHS Number"
+);
 
-ok(my $ehr11 = OpenEHR::REST::EHR->new(
-    {
-        subject_id      => '40404040',
-        subject_namespace       => 'uk.nhs.uclh',
-    }
-), "Create new EHR query with non-NHS Number");
+ok( my $ehr11 = OpenEHR::REST::EHR->new(
+        {   subject_id        => '40404040',
+            subject_namespace => 'uk.nhs.uclh',
+        }
+    ),
+    "Create new EHR query with non-NHS Number"
+);
 
 eval {
     my $ehr12 = OpenEHR::REST::EHR->new(
-        {
-            subject_id  => '99991',
-            subject_namespace   => 'uk.nhs.nhs_number',
+        {   subject_id        => '99991',
+            subject_namespace => 'uk.nhs.nhs_number',
         }
     );
 };
-ok($@, "Incorrect NHS Number format detected");
+ok( $@, "Incorrect NHS Number format detected" );
 done_testing;

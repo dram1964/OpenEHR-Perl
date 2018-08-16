@@ -7,18 +7,20 @@ use JSON;
 
 use OpenEHR::Composition::LabResultReport;
 use OpenEHR::REST::Composition;
-note("testing OpenEHR::REST::Composition $OpenEHR::VERSION");
+note(
+    "testing OpenEHR::Composition::LabResultReport 
+        $OpenEHR::Composition::LabResultReport::VERSION"
+);
 
 my $collected =
-  DateTime::Format::DateParse->parse_datetime('2017-12-01T01:10:00');
+    DateTime::Format::DateParse->parse_datetime('2017-12-01T01:10:00');
 my $received =
-  DateTime::Format::DateParse->parse_datetime('2017-12-01T01:30:00');
+    DateTime::Format::DateParse->parse_datetime('2017-12-01T01:30:00');
 my $resulted =
-  DateTime::Format::DateParse->parse_datetime('2017-12-01T01:30:00');
+    DateTime::Format::DateParse->parse_datetime('2017-12-01T01:30:00');
 
 my $data = [
-    {
-        ordercode      => 'ELL',
+    {   ordercode      => 'ELL',
         ordername      => 'Electrolytes',
         spec_type      => 'Blood',
         collected      => $collected,
@@ -30,8 +32,7 @@ my $data = [
             issuer   => 'UCLH Pathology',
         },
         labresults => [
-            {
-                magnitude              => '88.9',
+            {   magnitude              => '88.9',
                 unit                   => 'mmol/l',
                 comment                => 'This is the sodium comment',
                 ref_range              => '80-90',
@@ -41,15 +42,14 @@ my $data = [
                 mapping_code           => '5195-3',
                 mapping_terminology    => 'LOINC',
                 mapping_match_operator => '=',
-                magnitude_status        => '<',
+                magnitude_status       => '<',
             },
-            {
-                result        => '52.9 mmol/l',
-                comment       => 'This is the potassium comment',
-                ref_range     => '50-70',
-                testcode      => 'K',
-                testname      => 'Potassium',
-                result_status => 'Final',
+            {   result                 => '52.9 mmol/l',
+                comment                => 'This is the potassium comment',
+                ref_range              => '50-70',
+                testcode               => 'K',
+                testname               => 'Potassium',
+                result_status          => 'Final',
                 mapping_code           => '5195-3',
                 mapping_terminology    => 'LOINC',
                 mapping_match_operator => '=',
@@ -73,8 +73,7 @@ my $data = [
         test_status   => 'Final',
         clinical_info => 'Patient feeling unwell',
     },
-    {
-        ordercode      => 'SFLC',
+    {   ordercode      => 'SFLC',
         ordername      => 'Serum Free Light Chains',
         spec_type      => 'Blood',
         collected      => $collected,
@@ -86,16 +85,14 @@ my $data = [
             issuer   => 'UCLH Pathology',
         },
         labresults => [
-            {
-                result        => '15.0 mg/L',
+            {   result        => '15.0 mg/L',
                 comment       => '',
                 ref_range     => '',
                 testcode      => 'KAPA',
                 testname      => 'Free Kappa Light Chains',
                 result_status => 'Final',
             },
-            {
-                result        => '20 mg/L',
+            {   result        => '20 mg/L',
                 comment       => '',
                 ref_range     => '',
                 testcode      => 'LAMB',
@@ -130,8 +127,7 @@ ok( $report->patient_comment('Hello EHR'), 'comment mutator' );
 for my $order ( @{$data} ) {
     ok( $report->add_labtests($order), 'Add Labtests from hash table' );
 }
-ok(
-    $report->composer_name('David Ramlakhan'),
+ok( $report->composer_name('David Ramlakhan'),
     'Add composer name to rest client'
 );
 is( $report->composition_format,
@@ -141,8 +137,7 @@ my $path_report = OpenEHR::REST::Composition->new();
 
 note('Testing submit_new method with FLAT composition');
 ok( $report->composition_format('FLAT'), 'Set FLAT composition format' );
-ok(
-    $path_report->composition($report),
+ok( $path_report->composition($report),
     'Add composition object to rest client'
 );
 ok( $path_report->template_id('GEL - Generic Lab Report import.v0'),
@@ -156,12 +151,10 @@ ok( $path_report->href,           'HREF set' );
 note( 'Composition can be found at: ' . $path_report->href );
 
 note('Testing submit_new method with STRUCTURED composition');
-ok(
-    $report->composition_format('STRUCTURED'),
+ok( $report->composition_format('STRUCTURED'),
     'Set STRUCTURED composition format'
 );
-ok(
-    $path_report->composition($report),
+ok( $path_report->composition($report),
     'Add composition object to rest client'
 );
 ok( $path_report->template_id('GEL - Generic Lab Report import.v0'),
@@ -176,8 +169,7 @@ note( 'Composition can be found at: ' . $path_report->href );
 
 note('Testing submit_new method with RAW composition');
 ok( $report->composition_format('RAW'), 'Set RAW composition format' );
-ok(
-    $path_report->composition($report),
+ok( $path_report->composition($report),
     'Add composition object to rest client'
 );
 ok( $path_report->submit_new( $report->test_ehrid ), 'Submit composition' );
@@ -192,11 +184,11 @@ SKIP: {
     skip "TDD compositions not supported yet", 1;
     note('Testing submit_new method with TDD composition');
     ok( $report->composition_format('TDD'), 'Set TDD composition format' );
-    ok(
-        $path_report->composition($report),
+    ok( $path_report->composition($report),
         'Add composition object to rest client'
     );
-    ok( $path_report->submit_new( $report->test_ehrid ), 'Submit composition' );
+    ok( $path_report->submit_new( $report->test_ehrid ),
+        'Submit composition' );
     diag( $path_report->err_msg ) if $path_report->err_msg;
     ok( !$path_report->err_msg, 'No Error Message set' );
     is( $path_report->action, 'CREATE', 'Action is CREATE' );
