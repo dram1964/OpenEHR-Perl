@@ -9,7 +9,7 @@ use Moose::Util::TypeConstraints;
 
 use version; our $VERSION = qv('0.0.2');
 
-enum 'ResultTestName' => [
+enum 'StatusName' => [
     'Registered', 'Interim', 'Final', 'Amended',
     'Cancelled',  'Not Requested'
 ];
@@ -43,7 +43,7 @@ has comment => (
 
 has result_status => (
     is  => 'rw',
-    isa => 'ResultTestName',
+    isa => 'StatusName',
 );
 
 has status => (
