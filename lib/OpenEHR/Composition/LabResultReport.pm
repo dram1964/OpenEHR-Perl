@@ -41,37 +41,9 @@ sub add_labtests {
 
     my $labresults = [];
     for my $res ( @{ $order->{labresults} } ) {
-        my $labresult;
-        if ( $res->{magnitude} ) {
-            $labresult = OpenEHR::Composition::LabTest::LabResult->new(
-                magnitude        => $res->{magnitude},
-                unit             => $res->{unit},
-                normal_status    => $res->{normal_flag},
-                comment          => $res->{comment},
-                ref_range        => $res->{ref_range},
-                testcode         => $res->{testcode},
-                testname         => $res->{testname},
-                result_status    => $res->{result_status},
-                magnitude_status => $res->{magnitude_status},
-            );
-        }
-        elsif ( $res->{result} ) {
-            $labresult = OpenEHR::Composition::LabTest::LabResult->new(
-                result_value     => $res->{result},
-                comment          => $res->{comment},
-                ref_range        => $res->{ref_range},
-                testcode         => $res->{testcode},
-                testname         => $res->{testname},
-                result_status    => $res->{result_status},
-                magnitude_status => $res->{magnitude_status},
-            );
-        }
-        if ( $res->{mapping_code} ) {
-            $labresult->mapping_code( $res->{mapping_code} );
-            $labresult->mapping_terminology( $res->{mapping_terminology} );
-            $labresult->mapping_match_operator(
-                $res->{mapping_match_operator} );
-        }
+        my $labresult = OpenEHR::Composition::LabTest::LabResult->new(
+            $res
+        );
         push @{$labresults}, $labresult;
     }
 

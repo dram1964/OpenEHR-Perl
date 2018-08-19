@@ -46,26 +46,36 @@ my $specimen = OpenEHR::Composition::LabTest::Specimen->new(
 );
 
 my $labresult1 = OpenEHR::Composition::LabTest::LabResult->new(
-    result_value  => 59,
-    comment       => 'this is the sodium result',
+    result_value  => '<59
+this is the sodium result',
     ref_range     => '50-60',
     testcode      => 'NA',
     testname      => 'Sodium',
     result_status => 'Final',
+    unit         => 'mmol/l',
 );
 
 my $labresult2 = OpenEHR::Composition::LabTest::LabResult->new(
-    result_value  => 88,
-    comment       => 'this is the potassium result',
+    result_value  => '88
+this is the potassium result',
     ref_range     => '80-90',
     testcode      => 'K',
     testname      => 'Potassium',
+    result_status => 'Final',
+    unit         => 'g/dl',
+);
+
+my $labresult3 = OpenEHR::Composition::LabTest::LabResult->new(
+    result_value  => '88%
+this is the potassium result',
+    testcode      => 'F',
+    testname      => 'Flourosine',
     result_status => 'Final',
 );
 
 my $labpanel =
     OpenEHR::Composition::LabTest::LabTestPanel->new(
-    lab_results => [ $labresult1, $labresult2 ], );
+    lab_results => [ $labresult1, $labresult2, $labresult3 ], );
 
 my $placer = OpenEHR::Composition::LabTest::Placer->new(
     order_number => 'TQ001113333',

@@ -17,14 +17,66 @@ enum 'StatusName' => [
 has result_value => (
     is  => 'rw',
     isa => 'Str',
+    trigger => \&_format_result,
+);
+
+=head2 _format_result
+
+determines whether a result should be handled as a plain text value
+with units appended
+or split into magnitude, magnitude_status, and units. 
+
+=cut
+
+sub _format_result {
+    my $self  = shift;
+    my ($result, $magnitude, $magnitude_status, $unit, $comment);
+    $result = $self->result_value;
+
+    my $regex = qr/^(.*)\n([\W|\w|\n]*)/;
+    if ( $result =~ $regex ) {
+        ( $result, $comment ) = ( $1, $2 );
+        #print Dumper $test_code, $comment;
+    }
+    if ($result =~ /^([\<|\>]){1,1}(\d*\.{0,1}\d*)$/ ) {
+        ($magnitude_status, $magnitude) = ( $1, $2);
+    }
+    elsif ($result =~ /^(\d*\.{0,1}\d*)$/ ) {
+        $magnitude = $1;
+    }
+    if ( $magnitude ) {
+        $self->magnitude($magnitude) ;
+    }
+    elsif ($self->unit) {
+        if ($self->unit eq '.') {
+            $self->result_text($result);
+        }
+        else {
+            $self->result_text($result . ' ' . $self->unit);
+        }
+    }
+    else {
+        $self->result_text($result);
+    }
+    $self->magnitude_status($magnitude_status) if $magnitude_status;
+    $self->comment($comment) if $comment;
+}
+
+has result_text => (
+    is => 'rw',
+    isa => 'Str',
+    init_arg => undef,
 );
 
 has magnitude => (
     is  => 'rw',
     isa => 'Str',
+    init_arg => undef,
 );
 
-has magnitude_status => ( is => 'rw', );
+has magnitude_status => ( is => 'rw',
+    init_arg => undef, 
+);
 
 has unit => (
     is  => 'rw',
@@ -167,11 +219,7 @@ sub compose_structured {
             }
         ];
     }
-    if ( $self->result_value ) {
-        $composition->{result_value}->[0]->{text_value} =
-            [ $self->result_value ];
-    }
-    elsif ( $self->magnitude ) {
+    if ( $self->magnitude ) {
         $composition->{result_value}->[0]->{value2} = [
             {   magnitude        => $self->magnitude,
                 magnitude_status => $self->magnitude_status,
@@ -179,6 +227,10 @@ sub compose_structured {
                 normal_status    => $self->normal_flag,
             }
         ];
+    }
+    elsif ( $self->result_text ) {
+        $composition->{result_value}->[0]->{text_value} =
+            [ $self->result_text ];
     }
     return $composition;
 }
@@ -205,19 +257,17 @@ sub compose_flat {
         $composition->{ $path . 'result_value/_name/_mapping:0|match' } =
             $self->mapping_match_operator;
     }
-    if ( $self->result_value ) {
-        $composition->{ $path . 'result_value/value' } = $self->result_value;
-    }
-    elsif ( $self->magnitude ) {
+    if ( $self->magnitude ) {
         $composition->{ $path . 'result_value/value2|magnitude' } =
             $self->magnitude;
         $composition->{ $path . 'result_value/value2|unit' } = $self->unit;
         $composition->{ $path . 'result_value/value2|normal_status' } =
             $self->normal_flag;
-    }
-    if ( $self->magnitude_status ) {
         $composition->{ $path . 'result_value/value2|magnitude_status' } =
             $self->magnitude_status;
+    }
+    elsif ( $self->result_text ) {
+        $composition->{ $path . 'result_value/value' } = $self->result_text;
     }
     return $composition;
 }
@@ -286,13 +336,14 @@ sub compose_raw {
     if ( $self->magnitude ) {
         $composition->{items}->[0]->{value} = {
             'magnitude' => $self->magnitude,
+            'magnitude_status' => $self->magnitude_status,
             'units'     => $self->unit,
             '@class'    => 'DV_QUANTITY'
         };
     }
-    elsif ( $self->result_value ) {
+    elsif ( $self->result_text ) {
         $composition->{items}->[0]->{value} = {
-            value    => $self->result_value,
+            value    => $self->result_text,
             '@class' => 'DV_TEXT',
         };
     }
