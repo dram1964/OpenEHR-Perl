@@ -8,234 +8,262 @@ use OpenEHR::Composition::LabTest::LabResult;
 diag( 'Testing OpenEHR::Composition::LabTest::LabResult '
         . $OpenEHR::Composition::LabTest::LabResult::VERSION );
 
-my $data;
+my ( $data, $labtest );
 
 $data = {
-    result_value => 59,
-    range_low    => 50,
-    range_high   => 60,
-    unit         => 'mmol/l',
+    'testcode'     => 'A1G',
+    'testname'     => 'A1G',
+    'unit'         => '%',
+    'range_low'    => '1.7',
+    'range_high'   => '3.8',
+    'result_value' => '5.0'
 };
-ok( my $labtest1 = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
-    'Construct new lab test object with integer result' );
-is( $labtest1->magnitude, 59,       'Magnitude set from result value' );
-is( $labtest1->unit,      'mmol/l', 'Unit set by constructor param' );
-ok( !( defined( $labtest1->magnitude_status ) ), 'No magnitude_status set' );
-
-$data = {
-    result_value => 59.0,
-    range_low    => 50,
-    range_high   => 60,
-    unit         => 'mmol/l',
-};
-ok( my $labtest2 = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
     'Construct new lab test object with decimal result' );
-is( $labtest2->magnitude, 59.0,     'Magnitude set from result value' );
-is( $labtest2->unit,      'mmol/l', 'Unit set by constructor param' );
-ok( !( defined( $labtest2->magnitude_status ) ), 'No magnitude_status set' );
+is( $labtest->magnitude,  '5.0',     'Magnitude set from result value' );
+is( $labtest->testcode,   'A1G',     'Test code set by constructor param' );
+is( $labtest->testname,   'A1G',     'Test name set by constructor param' );
+is( $labtest->range_low,  '1.7',     'Range low set by constructor param' );
+is( $labtest->range_high, '3.8',     'Range high set by constructor param' );
+is( $labtest->ref_range,  '1.7-3.8', 'Ref range derived from ranges' );
+is( $labtest->unit,       '%',       'Unit set by constructor param' );
+ok( !( defined( $labtest->magnitude_status ) ), 'No magnitude_status set' );
+ok( !( defined( $labtest->result_text ) ),      'No result_text set' );
+ok( !( defined( $labtest->comment ) ),        'No comment set' );
 
 $data = {
-    result_value => '<59',
-    range_low    => 50,
-    range_high   => 60,
-    unit         => 'mmol/l',
+    'testname'     => 'ALB',
+    'testcode'     => 'ALB',
+    'result_value' => '40',
+    'range_high'   => '54',
+    'unit'         => 'g/L',
+    'range_low'    => '38'
 };
-ok( my $labtest3 = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
-    'Construct new lab test object with "less than" integer result'
-);
-is( $labtest3->magnitude, 59, 'Magnitude set from result value' );
-is( $labtest3->magnitude_status,
-    '<', 'Magnitude status set from result value' );
-is( $labtest3->unit, 'mmol/l', 'Unit set by constructor param' );
+ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+    'Construct new lab test object with integer result' );
+is( $labtest->magnitude,  '40',    'Magnitude set from result value' );
+is( $labtest->testcode,   'ALB',   'Test code set by constructor param' );
+is( $labtest->testname,   'ALB',   'Test name set by constructor param' );
+is( $labtest->range_low,  '38',    'Range low set by constructor param' );
+is( $labtest->range_high, '54',    'Range high set by constructor param' );
+is( $labtest->ref_range,  '38-54', 'Ref range derived from ranges' );
+is( $labtest->unit,       'g/L',   'Unit set by constructor param' );
+ok( !( defined( $labtest->magnitude_status ) ), 'No magnitude_status set' );
+ok( !( defined( $labtest->result_text ) ),      'No result_text set' );
+ok( !( defined( $labtest->comment ) ),        'No comment set' );
 
 $data = {
-    result_value => '<59.0',
-    range_low    => 50,
-    range_high   => 60,
-    unit         => 'mmol/l',
+    'unit'         => 'IU/L',
+    'testname'     => 'ALP',
+    'range_low'    => '0',
+    'range_high'   => '300',
+    'result_value' => '150',
+    'testcode'     => 'ALP'
 };
-ok( my $labtest4 = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
-    'Construct new lab test object with "less than" decimal result'
+ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+    'Construct new lab test object with range_low value of zero'
 );
-is( $labtest4->magnitude, '59.0', 'Magnitude set from result value' );
-is( $labtest4->magnitude_status,
-    '<', 'Magnitude status set from result value' );
-is( $labtest4->unit, 'mmol/l', 'Unit set by constructor param' );
+is( $labtest->magnitude,  '150',   'Magnitude set from result value' );
+is( $labtest->testcode,   'ALP',   'Test code set by constructor param' );
+is( $labtest->testname,   'ALP',   'Test name set by constructor param' );
+is( $labtest->range_low,  '0',     'Range low set by constructor param' );
+is( $labtest->range_high, '300',   'Range high set by constructor param' );
+is( $labtest->ref_range,  '0-300', 'Ref range derived from ranges' );
+is( $labtest->unit,       'IU/L',  'Unit set by constructor param' );
+ok( !( defined( $labtest->magnitude_status ) ), 'No magnitude_status set' );
+ok( !( defined( $labtest->result_text ) ),      'No result_text set' );
+ok( !( defined( $labtest->comment ) ),        'No comment set' );
 
 $data = {
-    result_value => '>6',
-    range_low    => 50,
-    range_high   => 60,
-    unit         => 'mmol/l',
+    'result_value' => '6.0',
+    'testname'     => 'B2G',
+    'range_high'   => '',
+    'testcode'     => 'B2G',
+    'unit'         => '%',
+    'range_low'    => ''
 };
-ok( my $labtest5 = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
-    'Construct new lab test object with "greater than" integer result'
-);
-is( $labtest5->magnitude, 6, 'Magnitude set from result value' );
-is( $labtest5->magnitude_status,
-    '>', 'Magnitude status set from result value' );
-is( $labtest5->unit, 'mmol/l', 'Unit set by constructor param' );
+ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+    'Construct new lab test object with blank ranges' );
+is( $labtest->magnitude,  '6.0', 'Magnitude set from result value' );
+is( $labtest->testcode,   'B2G', 'Test code set by constructor param' );
+is( $labtest->testname,   'B2G', 'Test name set by constructor param' );
+is( $labtest->range_low,  '',    'Range low set by constructor param' );
+is( $labtest->range_high, '',    'Range high set by constructor param' );
+is( $labtest->ref_range,  '',    'Ref range derived from ranges' );
+is( $labtest->unit,       '%',   'Unit set by constructor param' );
+ok( !( defined( $labtest->magnitude_status ) ), 'No magnitude_status set' );
+ok( !( defined( $labtest->result_text ) ),      'No result_text set' );
+ok( !( defined( $labtest->comment ) ),        'No comment set' );
 
 $data = {
-    result_value => '>5.0',
-    range_low    => 50,
-    range_high   => 60,
-    unit         => 'mmol/l',
+    'range_high'   => '',
+    'testcode'     => 'GFR',
+    'testname'     => 'GFR',
+    'range_low'    => '',
+    'result_value' => 'Not calculated. Age less than 18yrs.',
+    'unit'         => '.'
 };
-ok( my $labtest6 = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
-    'Construct new lab test object with "greater than" decimal result'
+ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+    'Construct new lab test object with text only result'
 );
-is( $labtest6->magnitude, '5.0', 'Magnitude set from result value' );
-is( $labtest6->magnitude_status,
-    '>', 'Magnitude status set from result value' );
-is( $labtest6->unit, 'mmol/l', 'Unit set by constructor param' );
+is( $labtest->result_text,
+    'Not calculated. Age less than 18yrs.',
+    'Result text set from result value'
+);
+is( $labtest->testcode,   'GFR', 'Test code set by constructor param' );
+is( $labtest->testname,   'GFR', 'Test name set by constructor param' );
+is( $labtest->range_low,  '',    'Range low set by constructor param' );
+is( $labtest->range_high, '',    'Range high set by constructor param' );
+is( $labtest->ref_range,  '',    'Ref range derived from ranges' );
+is( $labtest->unit,       '',    'Unit set to empty string' );
+ok( !( defined( $labtest->magnitude_status ) ), 'No magnitude_status set' );
+ok( !( defined( $labtest->magnitude ) ),        'No magnitude set' );
+ok( !( defined( $labtest->comment ) ),        'No comment set' );
 
 $data = {
-    result_value => '59
-This result has been produced by 
-the new methodolgy introduced on
-2015-11-01
-see http://www.biochem.org/new_test',
-    range_low  => 50,
-    range_high => 60,
-    unit       => 'mmol/l',
-};
-ok( my $labtest7 = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
-    'Construct new lab test object with integer result and text comment'
+          'range_high' => '',
+          'testname' => 'KLRA',
+          'unit' => '',
+          'range_low' => '',
+          'testcode' => 'KLRA',
+          'result_value' => '0.75
+Analysed at UCLH using SPAplus Freelite. Results
+may differ from those using the Royal Free method.
+Occasional monoclonal proteins react atypically in
+the assay and give erroneous results.
+Contact x72952 to discuss if discrepancy suspected'
+        };
+ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+    'Construct new lab test object with numeric result with comment'
 );
-is( $labtest7->magnitude, 59, 'Magnitude set from result value' );
-is( $labtest7->comment, 'This result has been produced by 
-the new methodolgy introduced on
-2015-11-01
-see http://www.biochem.org/new_test',
-    'Comment set correctly from result value'
+is( $labtest->magnitude,
+    '0.75', 'Magnitude set from numeric result on first line');
+is( $labtest->comment, 'Analysed at UCLH using SPAplus Freelite. Results
+may differ from those using the Royal Free method.
+Occasional monoclonal proteins react atypically in
+the assay and give erroneous results.
+Contact x72952 to discuss if discrepancy suspected',
+    'comment set from remainder of result'
 );
-is( $labtest7->unit, 'mmol/l', 'Unit set by constructor param' );
-ok( !( defined( $labtest7->magnitude_status ) ), 'No magnitude_status set' );
+is( $labtest->testcode,   'KLRA', 'Test code set by constructor param' );
+is( $labtest->testname,   'KLRA', 'Test name set by constructor param' );
+is( $labtest->range_low,  '',    'Range low set by constructor param' );
+is( $labtest->range_high, '',    'Range high set by constructor param' );
+is( $labtest->ref_range,  '',    'Ref range derived from ranges' );
+is( $labtest->unit, '', 'Unit set to empty string by constructor' );
+ok( !( defined( $labtest->magnitude_status ) ), 'No magnitude_status set' );
+ok( !( defined( $labtest->result_text ) ),        'No result_text set' );
 
 $data = {
-    result_value => '59.01
-This result has been produced by 
-the new methodolgy introduced on
-2015-11-01
-see http://www.biochem.org/new_test',
-    range_low  => 50,
-    range_high => 60,
-    unit       => 'mmol/l',
-};
-ok( my $labtest8 = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
-    'Construct new lab test object with decimal result and text comment'
+          'range_low' => '',
+          'testname' => 'PCOM',
+          'result_value' => 'Positive
+Method changed on 24/02/14 from gel to capillary
+electrophoresis. New reference ranges apply.',
+          'range_high' => '',
+          'testcode' => 'PCOM',
+          'unit' => ''
+        };
+ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+    'Construct new lab test object with text result with comment'
 );
-is( $labtest8->magnitude, '59.01', 'Magnitude set from result value' );
-is( $labtest8->comment, 'This result has been produced by 
-the new methodolgy introduced on
-2015-11-01
-see http://www.biochem.org/new_test',
-    'Comment set correctly from result value'
+is( $labtest->result_text,
+    'Positive', 'Result text set from numeric result on first line');
+is( $labtest->comment, 'Method changed on 24/02/14 from gel to capillary
+electrophoresis. New reference ranges apply.',
+    'comment set from remainder of result'
 );
-is( $labtest8->unit, 'mmol/l', 'Unit set by constructor param' );
-ok( !( defined( $labtest8->magnitude_status ) ), 'No magnitude_status set' );
+is( $labtest->testcode,   'PCOM', 'Test code set by constructor param' );
+is( $labtest->testname,   'PCOM', 'Test name set by constructor param' );
+is( $labtest->range_low,  '',    'Range low set by constructor param' );
+is( $labtest->range_high, '',    'Range high set by constructor param' );
+is( $labtest->ref_range,  '',    'Ref range derived from ranges' );
+is( $labtest->unit, '', 'Unit set to empty string by constructor' );
+ok( !( defined( $labtest->magnitude_status ) ), 'No magnitude_status set' );
+ok( !( defined( $labtest->magnitude ) ),        'No magnitude set' );
 
 $data = {
-    result_value => '<59
-This result has been produced by 
-the new methodolgy introduced on
-2015-11-01
-see http://www.biochem.org/new_test',
-    range_low  => 50,
-    range_high => 60,
-    unit       => 'mmol/l',
-};
-ok( my $labtest9 = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
-    'Construct new lab test object with "less than" integer result and text comment'
+          'result_value' => '19
+Method changed on 24/02/14 from gel to capillary
+electrophoresis. Paraproteins average 2 g/L higher
+(80% between 1 g/L lower and 5 g/L higher).
+IgA PP more affected than IgG or IgM.',
+          'range_low' => '0',
+          'testname' => 'PPR',
+          'range_high' => '',
+          'testcode' => 'PPR',
+          'unit' => 'g/L'
+        };
+ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+    'Construct new lab test object with numeric result, 
+    comment, no range high and range low set to "0"'
 );
-is( $labtest9->magnitude, '59', 'Magnitude set from result value' );
-is( $labtest9->magnitude_status , '<', 'magnitude_status set from result value' );
-is( $labtest9->comment, 'This result has been produced by 
-the new methodolgy introduced on
-2015-11-01
-see http://www.biochem.org/new_test',
-    'Comment set correctly from result value'
+is( $labtest->magnitude,
+    '19', 'Magnitude set from numeric result on first line');
+is( $labtest->comment, 'Method changed on 24/02/14 from gel to capillary
+electrophoresis. Paraproteins average 2 g/L higher
+(80% between 1 g/L lower and 5 g/L higher).
+IgA PP more affected than IgG or IgM.',
+    'comment set from remainder of result'
 );
-is( $labtest9->unit, 'mmol/l', 'Unit set by constructor param' );
+is( $labtest->testcode,   'PPR', 'Test code set by constructor param' );
+is( $labtest->testname,   'PPR', 'Test name set by constructor param' );
+is( $labtest->range_low,  '0',    'Range low set by constructor param' );
+is( $labtest->range_high, '',    'Range high set by constructor param' );
+is( $labtest->ref_range,  '0',    'Ref range derived from ranges' );
+is( $labtest->unit, 'g/L', 'Unit set to empty string by constructor' );
+ok( !( defined( $labtest->magnitude_status ) ), 'No magnitude_status set' );
+ok( !( defined( $labtest->result_text ) ),        'No result_text set' );
 
 $data = {
-    result_value => '<59.01
-This result has been produced by 
-the new methodolgy introduced on
-2015-11-01
-see http://www.biochem.org/new_test',
-    range_low  => 50,
-    range_high => 60,
-    unit       => 'mmol/l',
-};
-ok( my $labtest10 = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
-    'Construct new lab test object with "less than" decimal result and text comment'
+          'range_high' => '0.1',
+          'testcode' => 'BA',
+          'result_value' => ' 1.0%  0.10
+Note new haematology ranges effective 05/10/15',
+          'range_low' => '0.0',
+          'unit' => 'x10^9/L',
+          'testname' => 'BA'
+        };
+ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+    'Construct new lab test object with double numeric result and comment'
 );
-is( $labtest10->magnitude, '59.01', 'Magnitude set from result value' );
-is( $labtest10->magnitude_status , '<', 'magnitude_status set from result value' );
-is( $labtest10->comment, 'This result has been produced by 
-the new methodolgy introduced on
-2015-11-01
-see http://www.biochem.org/new_test',
-    'Comment set correctly from result value'
+is( $labtest->result_text,
+    ' 1.0%  0.10 x10^9/L', 'Result text set from double numeric result on first line');
+is( $labtest->comment, 'Note new haematology ranges effective 05/10/15',
+    'comment set from remainder of result'
 );
-is( $labtest10->unit, 'mmol/l', 'Unit set by constructor param' );
+is( $labtest->testcode,   'BA', 'Test code set by constructor param' );
+is( $labtest->testname,   'BA', 'Test name set by constructor param' );
+is( $labtest->range_low,  '0.0',    'Range low set by constructor param' );
+is( $labtest->range_high, '0.1',    'Range high set by constructor param' );
+is( $labtest->ref_range,  '0.0-0.1',    'Ref range derived from ranges' );
+is( $labtest->unit, 'x10^9/L', 'Unit set by constructor param' );
+ok( !( defined( $labtest->magnitude_status ) ), 'No magnitude_status set' );
+ok( !( defined( $labtest->magnitude ) ),        'No magnitude set' );
 
 $data = {
-    result_value => '<0.01
-This result has been produced by 
-the new methodolgy introduced on
-2015-11-01
-see http://www.biochem.org/new_test',
-    range_low  => 50,
-    range_high => 60,
-    unit       => 'mmol/l',
-};
-ok( my $labtest11 = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
-    'Construct new lab test object with "<0.01" decimal result and text comment'
+          'range_high' => '0.8',
+          'range_low' => '0.0',
+          'unit' => 'x10^9/L',
+          'testcode' => 'EO',
+          'testname' => 'EO',
+          'result_value' => ' 4.0%  0.40'
+        };
+ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+    'Construct new lab test object with double numeric result and no comment'
 );
-is( $labtest11->magnitude, '0.01', 'Magnitude set from result value' );
-is( $labtest11->magnitude_status , '<', 'magnitude_status set from result value' );
-is( $labtest11->comment, 'This result has been produced by 
-the new methodolgy introduced on
-2015-11-01
-see http://www.biochem.org/new_test',
-    'Comment set correctly from result value'
-);
-is( $labtest11->unit, 'mmol/l', 'Unit set by constructor param' );
+is( $labtest->result_text,
+    ' 4.0%  0.40 x10^9/L', 'Result text set from double numeric result on first line');
+is( $labtest->testcode,   'EO', 'Test code set by constructor param' );
+is( $labtest->testname,   'EO', 'Test name set by constructor param' );
+is( $labtest->range_low,  '0.0',    'Range low set by constructor param' );
+is( $labtest->range_high, '0.8',    'Range high set by constructor param' );
+is( $labtest->ref_range,  '0.0-0.8',    'Ref range derived from ranges' );
+is( $labtest->unit, 'x10^9/L', 'Unit set by constructor param' );
+ok( !( defined( $labtest->magnitude_status ) ), 'No magnitude_status set' );
+ok( !( defined( $labtest->magnitude ) ),        'No magnitude set' );
+ok( !( defined( $labtest->comment ) ),        'No comment set' );
 
-$data = {
-    result_value => 'Positive',
-};
-ok( my $labtest12 = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
-    'Construct new lab test object with single-line text-only result value'
-);
-ok(!( defined( $labtest12->magnitude) ), 
-    'Magnitude not set from result value' 
-);
-ok(!( defined( $labtest12->magnitude_status ) ),
-    'magnitude_status set from result value' 
-);
-is( $labtest12->result_text, 'Positive', 'Result text correctly set');
 
-ok(!( defined( $labtest12->comment ) ), 'Comment not set');
-ok(!( defined(  $labtest12->unit ) ), 'No unit set by constructor param' );
-
-$data = {
-    result_value => '88%',
-};
-ok( my $labtest13 = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
-    'Construct new lab test object with numeric result but no units'
-);
-is( $labtest13->result_text, '88%', 'Result text correctly set');
-ok(!( defined( $labtest13->magnitude) ), 
-    'Magnitude not set from result value' 
-);
-ok(!( defined( $labtest13->magnitude_status ) ),
-    'magnitude_status set from result value' 
-);
-ok(!( defined( $labtest13->comment ) ), 'Comment not set');
-ok(!( defined(  $labtest13->unit ) ), 'No unit set by constructor param' );
-
+note("on lines 61 to 65");
 done_testing;

@@ -20,48 +20,6 @@ has result_value => (
     trigger => \&_format_result,
 );
 
-=head2 _format_result
-
-determines whether a result should be handled as a plain text value
-with units appended
-or split into magnitude, magnitude_status, and units. 
-
-=cut
-
-sub _format_result {
-    my $self  = shift;
-    my ($result, $magnitude, $magnitude_status, $unit, $comment);
-    $result = $self->result_value;
-
-    my $regex = qr/^(.*)\n([\W|\w|\n]*)/;
-    if ( $result =~ $regex ) {
-        ( $result, $comment ) = ( $1, $2 );
-        #print Dumper $test_code, $comment;
-    }
-    if ($result =~ /^([\<|\>]){1,1}(\d*\.{0,1}\d*)$/ ) {
-        ($magnitude_status, $magnitude) = ( $1, $2);
-    }
-    elsif ($result =~ /^(\d*\.{0,1}\d*)$/ ) {
-        $magnitude = $1;
-    }
-    if ( $magnitude ) {
-        $self->magnitude($magnitude) ;
-    }
-    elsif ($self->unit) {
-        if ($self->unit eq '.') {
-            $self->result_text($result);
-        }
-        else {
-            $self->result_text($result . ' ' . $self->unit);
-        }
-    }
-    else {
-        $self->result_text($result);
-    }
-    $self->magnitude_status($magnitude_status) if $magnitude_status;
-    $self->comment($comment) if $comment;
-}
-
 has result_text => (
     is => 'rw',
     isa => 'Str',
@@ -81,7 +39,21 @@ has magnitude_status => ( is => 'rw',
 has unit => (
     is  => 'rw',
     isa => 'Str',
+    trigger => \&_format_unit,
 );
+
+=head2 _format_unit
+
+Sets unit to an empty string if unit is defined as '.'
+
+=cut
+
+sub _format_unit {
+    my $self = shift;
+    if ($self->unit eq '.') {
+        $self->unit('');
+    }
+}
 
 has normal_flag => (
     is  => 'rw',
@@ -105,10 +77,52 @@ has status => (
     builder => 'result_status_lookup',
 );
 
+has range_high => (
+    is => 'rw', 
+    isa => 'Str',
+);
+
+has range_low => (
+    is => 'rw',
+    isa => 'Str',
+);
+
 has ref_range => (
     is  => 'rw',
     isa => 'Str',
+    lazy => 1,
+    init_arg => undef,
+    builder => '_format_ref_range',
 );
+
+=head2 _format_ref_range
+
+Combines the range_low and range_high values of the object into 
+a formatted 'reference range' string
+
+=cut 
+
+sub _format_ref_range {
+    my $self = shift;
+    if ( $self->range_high ) {
+        if ( $self->range_low ) {
+            $self->ref_range($self->range_low . '-'
+              . $self->range_high);
+        }
+        else {
+            $self->ref_range('0-' . $self->range_high);
+        }
+    }
+    elsif ( $self->range_low eq '0' ) {
+        $self->ref_range('0');
+    }
+    elsif ( $self->range_low) {
+        $self->ref_range($self->range_low);
+    }
+    else {
+        $self->ref_range('');
+    }
+}
 
 has testname => (
     is  => 'rw',
@@ -176,6 +190,43 @@ sub result_status_lookup {
         },
     };
     $self->status( $result_status_lookup->{ $self->result_status } );
+}
+
+sub _format_result {
+    my $self  = shift;
+    my ($result, $magnitude, $magnitude_status, $unit, $comment);
+    $result = $self->result_value;
+
+    my $regex = qr/^(.*)\n([\W|\w|\n]*)/;
+    if ( $result =~ $regex ) {
+        ( $result, $comment ) = ( $1, $2 );
+        #print Dumper $test_code, $comment;
+    }
+    if ($result =~ /^([\<|\>]){1,1}(\d*\.{0,1}\d*)$/ ) {
+        ($magnitude_status, $magnitude) = ( $1, $2);
+    }
+    elsif ($result =~ /^(\d*\.{0,1}\d*)$/ ) {
+        $magnitude = $1;
+    }
+    if ( $magnitude ) {
+        $self->magnitude($magnitude) ;
+    }
+    elsif ($self->unit) {
+        if ($self->unit eq '.') {
+            $self->result_text($result);
+        }
+        elsif ($self->unit eq '') {
+            $self->result_text($result);
+        }
+        else {
+            $self->result_text($result . ' ' . $self->unit);
+        }
+    }
+    else {
+        $self->result_text($result);
+    }
+    $self->magnitude_status($magnitude_status) if $magnitude_status;
+    $self->comment($comment) if $comment;
 }
 
 sub compose {
@@ -431,12 +482,16 @@ Actual value of the result recorded for the specified test analyte
 
 =head2 magnitude
 
-Numerical value recorded for the specified test analyte
+Numerical value recorded for the specified test analyte derived from result_value
 
 =head2 magnitude_status
 
 Modifier associated with the numerical value recorded 
 for the specified test analyte
+
+=head2 result_text
+
+Result value derived from result_value if this does not appear to be a numerical result
 
 =head2 unit
 
@@ -461,11 +516,18 @@ Registered, Interim, Final, Amended, Cancelled, Not Requested.
 A HashRef represeting the status of the result value derived from the 
 text value of result_status
 
+=head2 range_high
+
+Upper limit for reference range
+
+=head2 range_low
+
+Lower limit for reference range
+
 =head2 ref_range
 
-Reference range of normal values for the specified test analyte. According to 
-the documentation this should contain additional guidance on the applicability
-of the reference range supplied
+Reference range of normal values for the specified test analyte. 
+Derived from range_low and range_high values. 
 
 =head2 testname
 
@@ -513,6 +575,16 @@ Returns a hashref of the object in FLAT format
 
 Used to set result_status attribute based on the plain text value 
 of status attribute
+
+=head1 PRIVATE METHODS
+
+=head2 _format_result
+
+determines whether a result should be handled as a plain text value
+with units appended
+or split into magnitude, magnitude_status, and units. 
+
+=cut
 
 
 =head1 DIAGNOSTICS

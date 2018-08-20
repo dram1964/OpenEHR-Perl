@@ -3,11 +3,13 @@ use warnings;
 use utf8;
 
 use Text::CSV;
+use Data::Dumper;
 
 my $start = $ARGV[0];
 my $end = $ARGV[1];
 
-my @rows;
+my $data;
+
 my $csv_in = Text::CSV->new( 
     { 
         binary => 1, 
@@ -26,9 +28,17 @@ while ( my $row = $csv_in->getline($fh) ) {
             if ($index == 2) {
                 $row->[$index] =~ s/crlf/\n/g;
             }
-            print "Line $counter:$index (", ($row->[$index]), ")\n";
+            #print "Line $counter:$index (", ($row->[$index]), ")\n";
         }
-        push @rows, $row;
+        $data = {
+            testcode => $row->[1],
+            testname => $row->[1],
+            result_value => $row->[2],
+            unit => $row->[5],
+            range_low => $row->[6],
+            range_high => $row->[7],
+        };
+        print Dumper($data);
     }
     $counter++;
 }
