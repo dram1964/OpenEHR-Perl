@@ -213,9 +213,13 @@ sub _format_result {
     }
 
     # Set Magnitude for numeric results
+    # if units provided
     # Or result_text for non-numeric results
-    if ( $magnitude ) {
+    if ( $magnitude && $self->unit ) {
         $self->magnitude($magnitude) ;
+    }
+    elsif ( $magnitude ) {
+        $self->result_text($magnitude);
     }
     else {
         $self->result_text($result);
@@ -240,18 +244,22 @@ sub _format_result {
     }
     
     # Join the comment to the result text
-    # Unless it is a double numeric 
+    # Unless it is wholly numeric 
+    # or a double numeric 
     # or matches positive/negative
     if ($self->result_text) {
-        if ( !($self->result_text =~ /\d{1,}\%\s{1,}\d{1,}/) ) {
-            if ( !($self->result_text =~ /^(Positive|Negative|Not Detected|negative)/) ) {
-                if ($comment) {
-                    $self->result_text($self->result_text . "\n" . $comment);
-                    $comment = '';
+        if ( !($self->result_text =~ /^\d*\.\d*$/) ) {
+            if ( !($self->result_text =~ /\d{1,}\%\s{1,}\d{1,}/) ) {
+                if ( !($self->result_text =~ /^(Positive|Negative|Not Detected|REACTIVE)/) ) {
+                    if ($comment) {
+                        $self->result_text($self->result_text . "\n" . $comment);
+                        $comment = '';
+                    }
                 }
             }
         }
     }
+
     $self->magnitude_status($magnitude_status) if $magnitude_status;
     $self->comment($comment) if $comment;
 }
