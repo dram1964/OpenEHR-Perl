@@ -168,7 +168,7 @@ ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
     'Construct new lab test object with text result with comment'
 );
 is( $labtest->result_text,
-    'Positive', 'Result text set from numeric result on first line');
+    'Positive', 'Result text set from text result on first line');
 is( $labtest->comment, 'Method changed on 24/02/14 from gel to capillary
 electrophoresis. New reference ranges apply.',
     'comment set from remainder of result'
@@ -264,6 +264,106 @@ ok( !( defined( $labtest->magnitude_status ) ), 'No magnitude_status set' );
 ok( !( defined( $labtest->magnitude ) ),        'No magnitude set' );
 ok( !( defined( $labtest->comment ) ),        'No comment set' );
 
+$data = {
+          'range_high' => '0.44',
+          'range_low' => '0.33',
+          'testname' => 'HCTU',
+          'testcode' => 'HCTU',
+          'unit' => 'L/L',
+          'result_value' => '0.400'
+        };
+ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+    'Construct new lab test object with result with 3 decimal places'
+);
+is( $labtest->magnitude, '0.400', 'Magnitude set 3 decimal places');
+is( $labtest->testcode,   'HCTU', 'Test code set by constructor param' );
+is( $labtest->testname,   'HCTU', 'Test name set by constructor param' );
+is( $labtest->range_low,  '0.33',    'Range low set by constructor param' );
+is( $labtest->range_high, '0.44',    'Range high set by constructor param' );
+is( $labtest->ref_range,  '0.33-0.44',    'Ref range derived from ranges' );
+is( $labtest->unit, 'L/L', 'Unit set by constructor param' );
+ok( !( defined( $labtest->magnitude_status ) ), 'No magnitude_status set' );
+ok( !( defined( $labtest->result_text ) ),        'No magnitude set' );
+ok( !( defined( $labtest->comment ) ),        'No comment set' );
 
-note("on lines 61 to 65");
+$data = {
+          'unit' => '',
+          'result_value' => '0.94
+Analysed at UCLH using SPAplus Freelite. Results
+may differ from those using the Royal Free method.
+Occasional monoclonal proteins react atypically in
+the assay and give erroneous results.
+Contact x72952 to discuss if discrepancy suspected',
+          'range_high' => '',
+          'testname' => 'KLRA',
+          'range_low' => '',
+          'testcode' => 'KLRA'
+        };
+ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+    'Construct new lab test object with 5 line comment and no units or ranges'
+);
+is( $labtest->magnitude, '0.94', 'Magnitude set by constructor param');
+is( $labtest->comment, 'Analysed at UCLH using SPAplus Freelite. Results
+may differ from those using the Royal Free method.
+Occasional monoclonal proteins react atypically in
+the assay and give erroneous results.
+Contact x72952 to discuss if discrepancy suspected', 'Comment set from remainder of result');
+is( $labtest->testcode,   'KLRA', 'Test code set by constructor param' );
+is( $labtest->testname,   'KLRA', 'Test name set by constructor param' );
+is( $labtest->range_low,  '',    'Range low set by constructor param' );
+is( $labtest->range_high, '',    'Range high set by constructor param' );
+is( $labtest->ref_range,  '',    'Ref range derived from ranges' );
+is( $labtest->unit, '', 'Unit set by constructor param' );
+ok( !( defined( $labtest->magnitude_status ) ), 'No magnitude_status set' );
+ok( !( defined( $labtest->result_text ) ),        'No magnitude set' );
+
+$data = {
+          'range_low' => '1.5',
+          'unit' => 'x10^9/L',
+          'result_value' => '20.0%  2.00',
+          'testcode' => 'LY',
+          'testname' => 'LY',
+          'range_high' => '7.0'
+        };
+ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+    'Construct new lab test object with double numeric value and no initial whitespace'
+);
+is( $labtest->result_text, '20.0%  2.00 x10^9/L', 'Result text set properly');
+is( $labtest->testcode,   'LY', 'Test code set by constructor param' );
+is( $labtest->testname,   'LY', 'Test name set by constructor param' );
+is( $labtest->range_low,  '1.5',    'Range low set by constructor param' );
+is( $labtest->range_high, '7.0',    'Range high set by constructor param' );
+is( $labtest->ref_range,  '1.5-7.0',    'Ref range derived from ranges' );
+is( $labtest->unit, 'x10^9/L', 'Unit set by constructor param' );
+ok( !( defined( $labtest->magnitude ) ), 'No magnitude set' );
+ok( !( defined( $labtest->magnitude_status ) ), 'No magnitude_status set' );
+ok( !( defined( $labtest->comment ) ),        'No comment set' );
+note("on lines 66 to 70");
+
+$data = {
+          'unit' => '',
+          'range_low' => '',
+          'testname' => 'PCCC',
+          'result_value' => 'Please note that this test may not detect HIV
+infection for up to three months after exposure.',
+          'range_high' => '',
+          'testcode' => 'PCCC'
+        };
+ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+    'Construct new lab test object with two line text-only result'
+);
+is( $labtest->result_text, 'Please note that this test may not detect HIV
+infection for up to three months after exposure.', 'Result text set properly');
+is( $labtest->testcode,   'PCCC', 'Test code set by constructor param' );
+is( $labtest->testname,   'PCCC', 'Test name set by constructor param' );
+is( $labtest->range_low,  '',    'Range low set by constructor param' );
+is( $labtest->range_high, '',    'Range high set by constructor param' );
+is( $labtest->ref_range,  '',    'Ref range derived from ranges' );
+is( $labtest->unit, '', 'Unit set by constructor param' );
+ok( !( defined( $labtest->magnitude ) ), 'No magnitude set' );
+ok( !( defined( $labtest->magnitude_status ) ), 'No magnitude_status set' );
+ok( !( defined( $labtest->comment ) ),        'No comment set' );
+note("on lines 141 to 150");
+
+
 done_testing;

@@ -211,19 +211,17 @@ sub _format_result {
     if ( $magnitude ) {
         $self->magnitude($magnitude) ;
     }
-    elsif ($self->unit) {
-        if ($self->unit eq '.') {
-            $self->result_text($result);
-        }
-        elsif ($self->unit eq '') {
-            $self->result_text($result);
-        }
-        else {
-            $self->result_text($result . ' ' . $self->unit);
-        }
-    }
     else {
         $self->result_text($result);
+    }
+    if (!$self->magnitude) {
+        if ($self->unit) {
+            if (!($self->unit eq '.')) {
+                if (!($self->unit eq '')) {
+                    $self->result_text($result . ' ' . $self->unit);
+                }
+            }
+        }
     }
     $self->magnitude_status($magnitude_status) if $magnitude_status;
     $self->comment($comment) if $comment;
