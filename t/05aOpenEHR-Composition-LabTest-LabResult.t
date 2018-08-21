@@ -165,7 +165,7 @@ electrophoresis. New reference ranges apply.',
           'unit' => ''
         };
 ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
-    'Construct new lab test object with text result with comment'
+    'Construct new lab test object with "Positive" text result with comment'
 );
 is( $labtest->result_text,
     'Positive', 'Result text set from text result on first line');
@@ -362,7 +362,222 @@ is( $labtest->unit, '', 'Unit set by constructor param' );
 ok( !( defined( $labtest->magnitude ) ), 'No magnitude set' );
 ok( !( defined( $labtest->magnitude_status ) ), 'No magnitude_status set' );
 ok( !( defined( $labtest->comment ) ),        'No comment set' );
-note("on lines 141 to 150");
+
+$data = {
+          'range_low' => '',
+          'range_high' => '',
+          'unit' => '',
+          'testname' => 'POCR',
+          'result_value' => 'HIV 1 + 2 antibodies NOT detected.',
+          'testcode' => 'POCR'
+        };
+ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+    'Construct new lab test object with single line text result with numeric characters'
+);
+is( $labtest->result_text, 'HIV 1 + 2 antibodies NOT detected.', 'Result text set properly');
+is( $labtest->testcode,   'POCR', 'Test code set by constructor param' );
+is( $labtest->testname,   'POCR', 'Test name set by constructor param' );
+is( $labtest->range_low,  '',    'Range low set by constructor param' );
+is( $labtest->range_high, '',    'Range high set by constructor param' );
+is( $labtest->ref_range,  '',    'Ref range derived from ranges' );
+is( $labtest->unit, '', 'Unit set by constructor param' );
+ok( !( defined( $labtest->magnitude ) ), 'No magnitude set' );
+ok( !( defined( $labtest->magnitude_status ) ), 'No magnitude_status set' );
+ok( !( defined( $labtest->comment ) ),        'No comment set' );
+
+$data = {
+          'result_value' => 'Note that a reactive result is not diagnostic of
+HIV infection without confirmatory laboratory
+testing, as false positives can occur.
+Please review ALL this patient\'s virology results.',
+          'testcode' => 'PCCC',
+          'testname' => 'PCCC',
+          'unit' => '',
+          'range_high' => '',
+          'range_low' => ''
+        };
+ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+    'Construct new lab test object with four line text result'
+);
+is( $labtest->result_text, 'Note that a reactive result is not diagnostic of
+HIV infection without confirmatory laboratory
+testing, as false positives can occur.
+Please review ALL this patient\'s virology results.', 'Result text set properly');
+is( $labtest->testcode,   'PCCC', 'Test code set by constructor param' );
+is( $labtest->testname,   'PCCC', 'Test name set by constructor param' );
+is( $labtest->range_low,  '',    'Range low set by constructor param' );
+is( $labtest->range_high, '',    'Range high set by constructor param' );
+is( $labtest->ref_range,  '',    'Ref range derived from ranges' );
+is( $labtest->unit, '', 'Unit set by constructor param' );
+ok( !( defined( $labtest->magnitude ) ), 'No magnitude set' );
+ok( !( defined( $labtest->magnitude_status ) ), 'No magnitude_status set' );
+ok( !( defined( $labtest->comment ) ),        'No comment set' );
+
+$data = {
+          'testcode' => 'HCVR',
+          'testname' => 'HCVR',
+          'range_low' => '',
+          'unit' => '',
+          'range_high' => '',
+          'result_value' => 'Not Detected
+This does not exclude acute HCV infection as
+seroconversion may be delayed. If you consider
+this patient to have risk factors for HCV
+infection, please contact us to discuss further
+testing of this sample.'
+        };
+ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+    'Construct new lab test object with "Not Detected" result and commment'
+);
+is( $labtest->result_text, 'Not Detected', 'Result text set properly');
+is( $labtest->comment, 'This does not exclude acute HCV infection as
+seroconversion may be delayed. If you consider
+this patient to have risk factors for HCV
+infection, please contact us to discuss further
+testing of this sample.', 'Comment set properly');
+is( $labtest->testcode,   'HCVR', 'Test code set by constructor param' );
+is( $labtest->testname,   'HCVR', 'Test name set by constructor param' );
+is( $labtest->range_low,  '',    'Range low set by constructor param' );
+is( $labtest->range_high, '',    'Range high set by constructor param' );
+is( $labtest->ref_range,  '',    'Ref range derived from ranges' );
+is( $labtest->unit, '', 'Unit set by constructor param' );
+ok( !( defined( $labtest->magnitude ) ), 'No magnitude set' );
+ok( !( defined( $labtest->magnitude_status ) ), 'No magnitude_status set' );
+
+$data = {
+          'testname' => 'HCVR',
+          'testcode' => 'HCVR',
+          'range_low' => '',
+          'unit' => '',
+          'range_high' => '',
+          'result_value' => 'Not Detected'
+        };
+ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+    'Construct new lab test object with "Not Detected" result and no commment'
+);
+is( $labtest->result_text, 'Not Detected', 'Result text set properly');
+is( $labtest->testcode,   'HCVR', 'Test code set by constructor param' );
+is( $labtest->testname,   'HCVR', 'Test name set by constructor param' );
+is( $labtest->range_low,  '',    'Range low set by constructor param' );
+is( $labtest->range_high, '',    'Range high set by constructor param' );
+is( $labtest->ref_range,  '',    'Ref range derived from ranges' );
+is( $labtest->unit, '', 'Unit set by constructor param' );
+ok( !( defined( $labtest->magnitude ) ), 'No magnitude set' );
+ok( !( defined( $labtest->magnitude_status ) ), 'No magnitude_status set' );
+ok( !( defined( $labtest->comment ) ),        'No comment set' );
+
+$data = {
+          'testcode' => 'PS10',
+          'result_value' => 'leave for sue please',
+          'testname' => 'PS10',
+          'range_low' => '',
+          'range_high' => '',
+          'unit' => 'secs'
+        };
+ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+    'Construct new lab test object with text result and units'
+);
+is( $labtest->result_text, 'leave for sue please', 'Result text set properly');
+is( $labtest->testcode,   'PS10', 'Test code set by constructor param' );
+is( $labtest->testname,   'PS10', 'Test name set by constructor param' );
+is( $labtest->range_low,  '',    'Range low set by constructor param' );
+is( $labtest->range_high, '',    'Range high set by constructor param' );
+is( $labtest->ref_range,  '',    'Ref range derived from ranges' );
+is( $labtest->unit, 'secs', 'Unit set by constructor param' );
+ok( !( defined( $labtest->magnitude ) ), 'No magnitude set' );
+ok( !( defined( $labtest->magnitude_status ) ), 'No magnitude_status set' );
+ok( !( defined( $labtest->comment ) ),        'No comment set' );
+
+$data = {
+          'testname' => 'APRA',
+          'unit' => 'n',
+          'range_low' => '2.0',
+          'testcode' => 'APRA',
+          'range_high' => '3.0',
+          'result_value' => '>180.0 secs. APTT ratio > 5.7'
+        };
+ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+    'Construct new lab test object with text result that begins and ends in numeric values'
+);
+is( $labtest->result_text, '>180.0 secs. APTT ratio > 5.7', 'Result text set properly');
+is( $labtest->testcode,   'APRA', 'Test code set by constructor param' );
+is( $labtest->testname,   'APRA', 'Test name set by constructor param' );
+is( $labtest->range_low,  '2.0',    'Range low set by constructor param' );
+is( $labtest->range_high, '3.0',    'Range high set by constructor param' );
+is( $labtest->ref_range,  '2.0-3.0',    'Ref range derived from ranges' );
+is( $labtest->unit, 'n', 'Unit set by constructor param' );
+ok( !( defined( $labtest->magnitude ) ), 'No magnitude set' );
+ok( !( defined( $labtest->magnitude_status ) ), 'No magnitude_status set' );
+ok( !( defined( $labtest->comment ) ),        'No comment set' );
+
+$data = {
+          'result_value' => 'bone marrow unsuitable for staining please repeat
+6 slides required.',
+          'range_high' => '',
+          'testname' => 'BM',
+          'unit' => '',
+          'testcode' => 'BM',
+          'range_low' => ''
+        };
+ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+    'Construct new lab test object with text result and comment that begins with numeric'
+);
+is( $labtest->result_text, 'bone marrow unsuitable for staining please repeat
+6 slides required.', 'Result text set properly');
+is( $labtest->testcode,   'BM', 'Test code set by constructor param' );
+is( $labtest->testname,   'BM', 'Test name set by constructor param' );
+is( $labtest->range_low,  '',    'Range low set by constructor param' );
+is( $labtest->range_high, '',    'Range high set by constructor param' );
+is( $labtest->ref_range,  '',    'Ref range derived from ranges' );
+is( $labtest->unit, '', 'Unit set by constructor param' );
+ok( !( defined( $labtest->magnitude ) ), 'No magnitude set' );
+ok( !( defined( $labtest->magnitude_status ) ), 'No magnitude_status set' );
+ok( !( defined( $labtest->comment ) ),        'No comment set' );
+
+$data = {
+          'testcode' => 'ACLG',
+          'result_value' => '6.8Neg',
+          'range_low' => '0',
+          'range_high' => '5',
+          'testname' => 'ACLG',
+          'unit' => 'GPLU'
+        };
+ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+    'Construct new lab test object with numeric result with text suffix'
+);
+is( $labtest->result_text, '6.8Neg GPLU', 'Result text set properly');
+is( $labtest->testcode,   'ACLG', 'Test code set by constructor param' );
+is( $labtest->testname,   'ACLG', 'Test name set by constructor param' );
+is( $labtest->range_low,  '0',    'Range low set by constructor param' );
+is( $labtest->range_high, '5',    'Range high set by constructor param' );
+is( $labtest->ref_range,  '0-5',    'Ref range derived from ranges' );
+is( $labtest->unit, 'GPLU', 'Unit set by constructor param' );
+ok( !( defined( $labtest->magnitude ) ), 'No magnitude set' );
+ok( !( defined( $labtest->magnitude_status ) ), 'No magnitude_status set' );
+ok( !( defined( $labtest->comment ) ),        'No comment set' );
+
+$data = {
+          'testcode' => 'SYPR',
+          'testname' => 'SYPR',
+          'range_high' => '',
+          'unit' => '',
+          'range_low' => '',
+          'result_value' => 'Negative'
+        };
+ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+    'Construct new lab test object with "Negative text result'
+);
+is( $labtest->result_text, 'Negative', 'Result text set properly');
+is( $labtest->testcode,   'SYPR', 'Test code set by constructor param' );
+is( $labtest->testname,   'SYPR', 'Test name set by constructor param' );
+is( $labtest->range_low,  '',    'Range low set by constructor param' );
+is( $labtest->range_high, '',    'Range high set by constructor param' );
+is( $labtest->ref_range,  '',    'Ref range derived from ranges' );
+is( $labtest->unit, '', 'Unit set by constructor param' );
+ok( !( defined( $labtest->magnitude ) ), 'No magnitude set' );
+ok( !( defined( $labtest->magnitude_status ) ), 'No magnitude_status set' );
+ok( !( defined( $labtest->comment ) ),        'No comment set' );
 
 
+note("on line 450");
 done_testing;

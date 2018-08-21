@@ -222,11 +222,18 @@ sub _format_result {
     }
 
     # Appended units to result_text
+    # if result text is numeric
     if ($self->result_text) {
         if ($self->unit) {
             if (!($self->unit eq '.')) {
                 if (!($self->unit eq '')) {
-                    $self->result_text($result . ' ' . $self->unit);
+                    if ($self->result_text !~ /[a-zA-Z]{1,}/) {
+                        $self->result_text($result . ' ' . $self->unit);
+                    }
+                    elsif ($self->result_text =~ /Neg$/) {
+                        $self->result_text($result . ' ' . $self->unit);
+                    }
+
                 }
             }
         }
@@ -236,8 +243,8 @@ sub _format_result {
     # Unless it is a double numeric 
     # or matches positive/negative
     if ($self->result_text) {
-        if ( !($self->result_text =~ /\d{1,}/) ) {
-            if ( !($self->result_text =~ /Positive|Negative|positive|negative/) ) {
+        if ( !($self->result_text =~ /\d{1,}\%\s{1,}\d{1,}/) ) {
+            if ( !($self->result_text =~ /^(Positive|Negative|Not Detected|negative)/) ) {
                 if ($comment) {
                     $self->result_text($self->result_text . "\n" . $comment);
                     $comment = '';
