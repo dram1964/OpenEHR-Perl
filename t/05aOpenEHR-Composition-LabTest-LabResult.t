@@ -338,7 +338,6 @@ is( $labtest->unit, 'x10^9/L', 'Unit set by constructor param' );
 ok( !( defined( $labtest->magnitude ) ), 'No magnitude set' );
 ok( !( defined( $labtest->magnitude_status ) ), 'No magnitude_status set' );
 ok( !( defined( $labtest->comment ) ),        'No comment set' );
-note("on lines 66 to 70");
 
 $data = {
           'unit' => '',

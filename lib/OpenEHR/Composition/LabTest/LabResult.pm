@@ -197,28 +197,50 @@ sub _format_result {
     my ($result, $magnitude, $magnitude_status, $unit, $comment);
     $result = $self->result_value;
 
+    # Treat first line as result
+    # and additional lines as a comment
     my $regex = qr/^(.*)\n([\W|\w|\n]*)/;
     if ( $result =~ $regex ) {
         ( $result, $comment ) = ( $1, $2 );
-        #print Dumper $test_code, $comment;
     }
+
+    # Check if result is numeric
     if ($result =~ /^([\<|\>]){1,1}(\d*\.{0,1}\d*)$/ ) {
         ($magnitude_status, $magnitude) = ( $1, $2);
     }
     elsif ($result =~ /^(\d*\.{0,1}\d*)$/ ) {
         $magnitude = $1;
     }
+
+    # Set Magnitude for numeric results
+    # Or result_text for non-numeric results
     if ( $magnitude ) {
         $self->magnitude($magnitude) ;
     }
     else {
         $self->result_text($result);
     }
-    if (!$self->magnitude) {
+
+    # Appended units to result_text
+    if ($self->result_text) {
         if ($self->unit) {
             if (!($self->unit eq '.')) {
                 if (!($self->unit eq '')) {
                     $self->result_text($result . ' ' . $self->unit);
+                }
+            }
+        }
+    }
+    
+    # Join the comment to the result text
+    # Unless it is a double numeric 
+    # or matches positive/negative
+    if ($self->result_text) {
+        if ( !($self->result_text =~ /\d{1,}/) ) {
+            if ( !($self->result_text =~ /Positive|Negative|positive|negative/) ) {
+                if ($comment) {
+                    $self->result_text($self->result_text . "\n" . $comment);
+                    $comment = '';
                 }
             }
         }
