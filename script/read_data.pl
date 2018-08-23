@@ -38,7 +38,11 @@ while ( my $row = $csv_in->getline($fh) ) {
             range_low => $row->[6],
             range_high => $row->[7],
         };
-        print Dumper($data);
+        if ($data->{result_value} eq '.{}') {
+        }
+        else {
+            print Dumper($data);
+        }
     }
     $counter++;
 }

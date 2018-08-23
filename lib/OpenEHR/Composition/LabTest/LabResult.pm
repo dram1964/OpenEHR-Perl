@@ -218,8 +218,12 @@ sub _format_result {
     if ( $magnitude && $self->unit ) {
         $self->magnitude($magnitude) ;
     }
+    elsif ( $magnitude && $magnitude_status) {
+        $self->result_text( $magnitude_status . $magnitude);
+        $magnitude_status = '';
+    }
     elsif ( $magnitude ) {
-        $self->result_text($magnitude);
+        $self->result_text( $magnitude);
     }
     else {
         $self->result_text($result);
@@ -250,7 +254,7 @@ sub _format_result {
     if ($self->result_text) {
         if ( !($self->result_text =~ /^\d*\.\d*$/) ) {
             if ( !($self->result_text =~ /\d{1,}\%\s{1,}\d{1,}/) ) {
-                if ( !($self->result_text =~ /^(Positive|Negative|Not Detected|REACTIVE)/) ) {
+                if ( !($self->result_text =~ /^(Positive|Negative|Not Detected|REACTIVE|Weak Reactive|POSITIVE)/) ) {
                     if ($comment) {
                         $self->result_text($self->result_text . "\n" . $comment);
                         $comment = '';
