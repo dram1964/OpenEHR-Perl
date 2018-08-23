@@ -1064,5 +1064,6 @@ is( $labtest->unit, 'mL/min/1.73sqm', 'unit set by constructor param' );
 ok( !( defined( $labtest->magnitude_status ) ), 'no magnitude status text set' );
 ok( !( defined( $labtest->result_text ) ), 'no result text set' );
 
-note("on line 1801");
+
+note("on line 2101");
 done_testing;
