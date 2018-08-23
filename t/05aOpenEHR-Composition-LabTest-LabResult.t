@@ -998,5 +998,71 @@ ok( !( defined( $labtest->magnitude ) ), 'no magnitude set' );
 ok( !( defined( $labtest->magnitude_status ) ), 'no magnitude_status set' );
 ok( !( defined( $labtest->comment ) ), 'no magnitude set' );
 
+$data = {
+          'testcode' => 'GFR',
+          'range_high' => '',
+          'testname' => 'GFR',
+          'unit' => '.',
+          'range_low' => '',
+          'result_value' => '>90
+Units: mL/min/1.73sqm
+Multiply eGFR by 1.21 for people of African
+Caribbean origin. Interpret with regard to
+UK CKD guidelines: www.renal.org/CKDguide/ckd.html
+Use with caution for adjusting drug dosages -
+contact clinical pharmacist for advice.'
+        };
+ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+    'construct new lab test object with ">" GFR result'
+);
+is( $labtest->magnitude, '90', 'magnitude set properly');
+is( $labtest->comment, 'Units: mL/min/1.73sqm
+Multiply eGFR by 1.21 for people of African
+Caribbean origin. Interpret with regard to
+UK CKD guidelines: www.renal.org/CKDguide/ckd.html
+Use with caution for adjusting drug dosages -
+contact clinical pharmacist for advice.', 'comment set properly');
+is( $labtest->magnitude_status, '>', 'magnitude status set properly');
+is( $labtest->testcode,   'GFR', 'test code set by constructor param' );
+is( $labtest->testname,   'GFR', 'test name set by constructor param' );
+is( $labtest->range_low,  '',    'range low set by constructor param' );
+is( $labtest->range_high, '',    'range high set by constructor param' );
+is( $labtest->ref_range,  '',    'ref range derived from ranges' );
+is( $labtest->unit, 'mL/min/1.73sqm', 'unit set by constructor param' );
+ok( !( defined( $labtest->result_text ) ), 'no result text set' );
+
+$data = {
+          'testcode' => 'GFR',
+          'testname' => 'GFR',
+          'range_high' => '',
+          'unit' => '.',
+          'range_low' => '',
+          'result_value' => '59
+Units: mL/min/1.73sqm
+Multiply eGFR by 1.21 for people of African
+Caribbean origin. Interpret with regard to
+UK CKD guidelines: www.renal.org/CKDguide/ckd.html
+Use with caution for adjusting drug dosages -
+contact clinical pharmacist for advice.'
+        };
+ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+    'construct new lab test object with numeric GFR result'
+);
+is( $labtest->magnitude, '59', 'magnitude set properly');
+is( $labtest->comment, 'Units: mL/min/1.73sqm
+Multiply eGFR by 1.21 for people of African
+Caribbean origin. Interpret with regard to
+UK CKD guidelines: www.renal.org/CKDguide/ckd.html
+Use with caution for adjusting drug dosages -
+contact clinical pharmacist for advice.', 'comment set properly');
+is( $labtest->testcode,   'GFR', 'test code set by constructor param' );
+is( $labtest->testname,   'GFR', 'test name set by constructor param' );
+is( $labtest->range_low,  '',    'range low set by constructor param' );
+is( $labtest->range_high, '',    'range high set by constructor param' );
+is( $labtest->ref_range,  '',    'ref range derived from ranges' );
+is( $labtest->unit, 'mL/min/1.73sqm', 'unit set by constructor param' );
+ok( !( defined( $labtest->magnitude_status ) ), 'no magnitude status text set' );
+ok( !( defined( $labtest->result_text ) ), 'no result text set' );
+
 note("on line 1801");
 done_testing;

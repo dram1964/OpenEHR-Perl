@@ -203,6 +203,11 @@ sub _format_result {
     if ( $result =~ $regex ) {
         ( $result, $comment ) = ( $1, $2 );
     }
+    if ( $comment ) {
+        if ($comment =~ m[Units: (.*)\n] ) {
+            $self->unit($1);
+        }
+    }
 
     # Check if result is numeric
     if ($result =~ /^([\<|\>]){1,1}(\d*\.{0,1}\d*)$/ ) {
