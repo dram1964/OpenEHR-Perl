@@ -48,7 +48,8 @@ my $specimen = OpenEHR::Composition::LabTest::Specimen->new(
 my $labresult1 = OpenEHR::Composition::LabTest::LabResult->new(
     result_value  => '<59
 this is the sodium result',
-    ref_range     => '50-60',
+    range_low     => '50',
+    range_high  => '60',
     testcode      => 'NA',
     testname      => 'Sodium',
     result_status => 'Final',
@@ -58,7 +59,8 @@ this is the sodium result',
 my $labresult2 = OpenEHR::Composition::LabTest::LabResult->new(
     result_value  => '88
 this is the potassium result',
-    ref_range     => '80-90',
+    range_low     => '80',
+    range_high  => '90',
     testcode      => 'K',
     testname      => 'Potassium',
     result_status => 'Final',
@@ -67,7 +69,7 @@ this is the potassium result',
 
 my $labresult3 = OpenEHR::Composition::LabTest::LabResult->new(
     result_value  => '88%
-this is the potassium result',
+this is the flourosine result',
     testcode      => 'F',
     testname      => 'Flourosine',
     result_status => 'Final',

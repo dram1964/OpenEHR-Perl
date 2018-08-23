@@ -113,11 +113,13 @@ sub _format_ref_range {
             $self->ref_range('0-' . $self->range_high);
         }
     }
-    elsif ( $self->range_low eq '0' ) {
-        $self->ref_range('0');
-    }
-    elsif ( $self->range_low) {
-        $self->ref_range($self->range_low);
+    elsif (defined( $self->range_low)) {
+        if ( $self->range_low eq '0' ) {
+            $self->ref_range('0');
+        }
+        else {
+            $self->ref_range($self->range_low);
+        }
     }
     else {
         $self->ref_range('');

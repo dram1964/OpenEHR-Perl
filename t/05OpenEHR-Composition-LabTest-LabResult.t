@@ -5,14 +5,18 @@ use Test::More;
 use Data::Dumper;
 
 use OpenEHR::Composition::LabTest::LabResult;
-diag('Testing OpenEHR::Composition::LabTest::LabResult '
-    . $OpenEHR::Composition::LabTest::LabResult::VERSION);
+diag( 'Testing OpenEHR::Composition::LabTest::LabResult '
+        . $OpenEHR::Composition::LabTest::LabResult::VERSION );
 
 note('Testing constructor with result value text');
 ok( my $labtest = OpenEHR::Composition::LabTest::LabResult->new(
-        result_value => 59,
-        comment   => 'See http://biochem.org for interpretation guidelines',
-        ref_range => '50-60',
+        result_value => '59
+See http://biochem.org for interpretation guidelines',
+        range_low  => '50',
+        range_high => '60',
+        testname   => 'ALB',
+        testcode   => 'ALB',
+        unit       => 'g/L',
         result_status => 'Final',
     ),
     'Construct new lab test object'
@@ -20,7 +24,7 @@ ok( my $labtest = OpenEHR::Composition::LabTest::LabResult->new(
 
 is( $labtest->composition_format,
     'STRUCTURED', 'STRUCTURED composition format inherited' );
-is( $labtest->result_value, 59, 'Result Value' );
+is( $labtest->magnitude, 59, 'Result Value' );
 is( $labtest->comment,
     'See http://biochem.org for interpretation guidelines',
     'Result comment'
@@ -28,21 +32,6 @@ is( $labtest->comment,
 is( $labtest->ref_range,       '50-60',  'Ref Range' );
 is( $labtest->status->{code},  'at0009', 'Status Code' );
 is( $labtest->status->{value}, 'Final',  'Status Value' );
-
-note('Testing constructor with magnitude, status, unit and flag');
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new(
-        magnitude        => 59,
-        magnitude_status => '<',
-        unit             => 'mmol/l',
-        normal_flag      => 'H',
-        comment   => 'See http://biochem.org for interpretation guidelines',
-        ref_range => '50-60',
-        test_code => 'NA',
-        test_name => 'Sodium',
-        result_status => 'Final',
-    ),
-    'Construct new lab test object'
-);
 
 note('Testing FLAT composition');
 my $path = 'laboratory_result_report/laboratory_test:__TEST__/'
@@ -58,20 +47,14 @@ if ( $labtest->magnitude ) {
     );
     is( $flat->{ $path . 'result_value/value2|unit' },
         $labtest->unit, 'result_value unit Flat format' );
-    is( $flat->{ $path . 'result_value/value2|normal_status' },
-        $labtest->normal_flag, 'result_value normal flag Flat format' );
 }
-elsif ( $labtest->result_value ) {
+elsif ( $labtest->result_text ) {
     is( $flat->{ $path . 'result_value/value' },
-        $labtest->result_value, 'result_value Flat format' );
+        $labtest->result_text, 'result_value Flat format' );
 }
 is( $flat->{ $path . 'reference_range_guidance' },
     $labtest->ref_range, 'ref range flat format' );
 is( $flat->{ $path . 'comment' }, $labtest->comment, 'comment Flat format' );
-is( $flat->{ $path . 'result_status|code' },
-    $labtest->status->{code},
-    'status code Flat format'
-);
 is( $flat->{ $path . 'result_value/_name|value' },
     $labtest->testname, 'testname in flat format' );
 is( $flat->{ $path . 'result_value/_name|code' },
@@ -143,9 +126,9 @@ is( $struct->{result_value}->[0]->{'_name'}->[0]->{'|terminology'},
     'testcode terminology in structured format'
 );
 
-if ( $labtest->result_value ) {
+if ( $labtest->result_text ) {
     is( $struct->{result_value}->[0]->{'text_value'}->[0],
-        $labtest->result_value, 'result value in structured format' );
+        $labtest->result_text, 'result value in structured format' );
 }
 elsif ( $labtest->magnitude ) {
     my $value2 = $struct->{result_value}->[0]->{'value2'};
@@ -188,7 +171,7 @@ for my $item ( @{$items} ) {
     if ( $item->{archetype_node_id} eq 'at0001' ) {
         note('Processing result');
         is( $item->{value}->{value},
-            $labtest->result_value, 'RAW result value' );
+            $labtest->result_text, 'RAW result value' );
         is( $item->{name}->{value}, $labtest->testname, 'RAW testname' );
         is( $item->{name}->{defining_code}->{code_string},
             $labtest->testcode, 'RAW testcode' );

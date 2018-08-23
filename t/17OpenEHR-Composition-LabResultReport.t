@@ -57,18 +57,20 @@ sub get_labtest_data {
     );
 
     my $labresult1 = OpenEHR::Composition::LabTest::LabResult->new(
-        result_value  => 59,
-        comment       => 'this is the sodium result',
-        ref_range     => '50-60',
+        result_value  => '59
+this is the sodium result',
+        range_low     => '50',
+        range_high  => '60',
         testcode      => 'NA',
         testname      => 'Sodium',
         result_status => 'Final',
     );
 
     my $labresult2 = OpenEHR::Composition::LabTest::LabResult->new(
-        result_value  => 88,
-        comment       => 'this is the potassium result',
-        ref_range     => '80-90',
+        result_value  => '88
+this is the potassium result',
+        range_low     => '80',
+        range_high  => '90',
         testcode      => 'K',
         testname      => 'Potassium',
         result_status => 'Final',
