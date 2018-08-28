@@ -32,7 +32,10 @@ Accessor method to call composition elements by name
 sub compos {
     my ($self, $name)  = @_;
     my $module_name;
-    if ($module_name = [grep /$name/, @{ $modules } ] ) {
+    if ($name eq 'LabTest') {
+        return __PACKAGE__;
+    }
+    elsif ($module_name = [grep /$name/, @{ $modules } ] ) {
         return $module_name->[0];
     }
     else {

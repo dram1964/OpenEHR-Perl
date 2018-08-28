@@ -120,7 +120,7 @@ ok( my $request_details = $schema->compos('TestRequestDetails')->new(
     requester => $requester,
 ), 'TestRequestDetails called with placer, filler and requester objects');
 
-my $labtest = OpenEHR::Composition::LabTest->new(
+ok( my $labtest = $schema->compos('LabTest')->new(
     requested_test   => $request,
     specimens        => [$specimen],
     history_origin   => DateTime->now(),
@@ -137,7 +137,7 @@ my $labtest = OpenEHR::Composition::LabTest->new(
     conclusion      => '',
     responsible_lab => 'Clinical Biochemistry',
     request_details => $request_details,
-);
+), 'LabTest called with compos objects');
 
 
 ok( my $labreport = OpenEHR::Composition::LabResultReport->new(
