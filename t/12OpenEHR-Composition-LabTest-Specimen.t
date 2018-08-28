@@ -4,11 +4,11 @@ use warnings;
 use Test::More;
 use DateTime;
 
-use OpenEHR::Composition::LabTest::Specimen;
-diag( 'Testing OpenEHR::Composition::LabTest::Specimen '
-        . $OpenEHR::Composition::LabTest::Specimen::VERSION );
+use OpenEHR::Composition::Elements::LabTest::Specimen;
+diag( 'Testing OpenEHR::Composition::Elements::LabTest::Specimen '
+        . $OpenEHR::Composition::Elements::LabTest::Specimen::VERSION );
 
-ok( my $specimen = OpenEHR::Composition::LabTest::Specimen->new(
+ok( my $specimen = OpenEHR::Composition::Elements::LabTest::Specimen->new(
         specimen_type      => 'Blood',
         datetime_collected => DateTime->new(
             year   => 2017,

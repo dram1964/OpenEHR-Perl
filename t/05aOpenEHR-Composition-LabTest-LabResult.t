@@ -4,9 +4,9 @@ use warnings;
 use Test::More;
 use Data::Dumper;
 
-use OpenEHR::Composition::LabTest::LabResult;
-diag( 'Testing OpenEHR::Composition::LabTest::LabResult '
-        . $OpenEHR::Composition::LabTest::LabResult::VERSION );
+use OpenEHR::Composition::Elements::LabTest::LabResult;
+diag( 'Testing OpenEHR::Composition::Elements::LabTest::LabResult '
+        . $OpenEHR::Composition::Elements::LabTest::LabResult::VERSION );
 
 my ( $data, $labtest );
 
@@ -18,7 +18,7 @@ $data = {
     'range_high'   => '3.8',
     'result_value' => '5.0'
 };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'Construct new lab test object with decimal result' );
 is( $labtest->magnitude,  '5.0',     'Magnitude set from result value' );
 is( $labtest->testcode,   'A1G',     'Test code set by constructor param' );
@@ -39,7 +39,7 @@ $data = {
     'unit'         => 'g/L',
     'range_low'    => '38'
 };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'Construct new lab test object with integer result' );
 is( $labtest->magnitude,  '40',    'Magnitude set from result value' );
 is( $labtest->testcode,   'ALB',   'Test code set by constructor param' );
@@ -60,7 +60,7 @@ $data = {
     'result_value' => '150',
     'testcode'     => 'ALP'
 };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'Construct new lab test object with range_low value of zero'
 );
 is( $labtest->magnitude,  '150',   'Magnitude set from result value' );
@@ -82,7 +82,7 @@ $data = {
     'unit'         => '%',
     'range_low'    => ''
 };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'Construct new lab test object with blank ranges' );
 is( $labtest->magnitude,  '6.0', 'Magnitude set from result value' );
 is( $labtest->testcode,   'B2G', 'Test code set by constructor param' );
@@ -103,7 +103,7 @@ $data = {
     'result_value' => 'Not calculated. Age less than 18yrs.',
     'unit'         => '.'
 };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'Construct new lab test object with text only result'
 );
 is( $labtest->result_text,
@@ -133,7 +133,7 @@ Occasional monoclonal proteins react atypically in
 the assay and give erroneous results.
 Contact x72952 to discuss if discrepancy suspected'
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'Construct new lab test object with numeric result with comment and units'
 );
 is( $labtest->magnitude,
@@ -167,7 +167,7 @@ Occasional monoclonal proteins react atypically in
 the assay and give erroneous results.
 Contact x72952 to discuss if discrepancy suspected'
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'Construct new lab test object with numeric result with comment but no units'
 );
 is( $labtest->result_text,
@@ -198,7 +198,7 @@ electrophoresis. New reference ranges apply.',
           'testcode' => 'PCOM',
           'unit' => ''
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'Construct new lab test object with "Positive" text result with comment'
 );
 is( $labtest->result_text,
@@ -228,7 +228,7 @@ IgA PP more affected than IgG or IgM.',
           'testcode' => 'PPR',
           'unit' => 'g/L'
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'Construct new lab test object with numeric result, 
     comment, no range high and range low set to "0"'
 );
@@ -258,7 +258,7 @@ Note new haematology ranges effective 05/10/15',
           'unit' => 'x10^9/L',
           'testname' => 'BA'
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'Construct new lab test object with double numeric result and comment'
 );
 is( $labtest->result_text,
@@ -283,7 +283,7 @@ $data = {
           'testname' => 'EO',
           'result_value' => ' 4.0%  0.40'
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'Construct new lab test object with double numeric result and no comment'
 );
 is( $labtest->result_text,
@@ -306,7 +306,7 @@ $data = {
           'unit' => 'L/L',
           'result_value' => '0.400'
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'Construct new lab test object with result with 3 decimal places'
 );
 is( $labtest->magnitude, '0.400', 'Magnitude set 3 decimal places');
@@ -333,7 +333,7 @@ Contact x72952 to discuss if discrepancy suspected',
           'range_low' => '',
           'testcode' => 'KLRA'
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'Construct new lab test object with 5 line comment and no units or ranges'
 );
 is( $labtest->result_text, '0.94', 'Result text set by constructor param with no units');
@@ -359,7 +359,7 @@ $data = {
           'testname' => 'LY',
           'range_high' => '7.0'
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'Construct new lab test object with double numeric value and no initial whitespace'
 );
 is( $labtest->result_text, '20.0%  2.00 x10^9/L', 'Result text set properly');
@@ -382,7 +382,7 @@ infection for up to three months after exposure.',
           'range_high' => '',
           'testcode' => 'PCCC'
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'Construct new lab test object with two line text-only result'
 );
 is( $labtest->result_text, 'Please note that this test may not detect HIV
@@ -405,7 +405,7 @@ $data = {
           'result_value' => 'HIV 1 + 2 antibodies NOT detected.',
           'testcode' => 'POCR'
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'Construct new lab test object with single line text result with numeric characters'
 );
 is( $labtest->result_text, 'HIV 1 + 2 antibodies NOT detected.', 'Result text set properly');
@@ -430,7 +430,7 @@ Please review ALL this patient\'s virology results.',
           'range_high' => '',
           'range_low' => ''
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'Construct new lab test object with four line text result'
 );
 is( $labtest->result_text, 'Note that a reactive result is not diagnostic of
@@ -460,7 +460,7 @@ this patient to have risk factors for HCV
 infection, please contact us to discuss further
 testing of this sample.'
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'Construct new lab test object with "Not Detected" result and commment'
 );
 is( $labtest->result_text, 'Not Detected', 'Result text set properly');
@@ -486,7 +486,7 @@ $data = {
           'range_high' => '',
           'result_value' => 'Not Detected'
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'Construct new lab test object with "Not Detected" result and no commment'
 );
 is( $labtest->result_text, 'Not Detected', 'Result text set properly');
@@ -508,7 +508,7 @@ $data = {
           'range_high' => '',
           'unit' => 'secs'
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'Construct new lab test object with text result and units'
 );
 is( $labtest->result_text, 'leave for sue please', 'Result text set properly');
@@ -530,7 +530,7 @@ $data = {
           'range_high' => '3.0',
           'result_value' => '>180.0 secs. APTT ratio > 5.7'
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'Construct new lab test object with text result that begins and ends in numeric values'
 );
 is( $labtest->result_text, '>180.0 secs. APTT ratio > 5.7', 'Result text set properly');
@@ -553,7 +553,7 @@ $data = {
           'testcode' => 'BM',
           'range_low' => ''
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'Construct new lab test object with text result and comment that begins with numeric'
 );
 is( $labtest->result_text, 'bone marrow unsuitable for staining please repeat
@@ -576,7 +576,7 @@ $data = {
           'testname' => 'ACLG',
           'unit' => 'GPLU'
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'Construct new lab test object with numeric result with text suffix'
 );
 is( $labtest->result_text, '6.8Neg GPLU', 'Result text set properly');
@@ -598,7 +598,7 @@ $data = {
           'range_low' => '',
           'result_value' => 'Negative'
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'Construct new lab test object with "Negative" text result'
 );
 is( $labtest->result_text, 'Negative', 'Result text set properly');
@@ -621,7 +621,7 @@ Sent to Reference Laboratory.',
           'testcode' => 'TLVR',
           'unit' => ''
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'Construct new lab test object with "REACTIVE" text result and comment'
 );
 is( $labtest->result_text, 'REACTIVE', 'Result text set properly');
@@ -643,7 +643,7 @@ $data = {
           'testname' => '9SER',
           'range_low' => ''
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'Construct new lab test object with date result'
 );
 is( $labtest->result_text, '10/10/2011', 'Result text set properly');
@@ -671,7 +671,7 @@ risk information.',
           'range_low' => '',
           'testname' => 'RIN1'
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'Construct new lab test object with 7 line text result'
 );
 is( $labtest->result_text, 'HIV INCIDENCE TEST RESULT NOT CONSISTENT WITH
@@ -699,7 +699,7 @@ $data = {
           'testcode' => 'HELC',
           'range_high' => ''
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'Construct new lab test object with numeric result and no units'
 );
 is( $labtest->result_text, '01012012', 'Result text set properly');
@@ -729,7 +729,7 @@ immunisation against infectious disease 2006.',
           'range_high' => '',
           'range_low' => ''
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'construct new lab test object with 9 line text result'
 );
 is( $labtest->result_text, 'If the patient was not previously immunised
@@ -759,7 +759,7 @@ $data = {
           'result_value' => 'Organisms sent 13/02/2012 18:16',
           'testname' => 'COSD'
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'construct new lab test object with text result ending in numerics'
 );
 is( $labtest->result_text, 'Organisms sent 13/02/2012 18:16', 'result text set properly');
@@ -782,7 +782,7 @@ $data = {
 Further report to follow.',
           'testname' => 'HDVT'
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'construct new lab test object with "weak reactive" text result with comment'
 );
 is( $labtest->result_text, 'Weak Reactive', 'result text set properly');
@@ -804,7 +804,7 @@ $data = {
           'result_value' => 'Weak Reactive',
           'testname' => 'HEGE'
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'construct new lab test object with "Weak Reactive" text result with no comment'
 );
 is( $labtest->result_text, 'Weak Reactive', 'result text set properly');
@@ -826,7 +826,7 @@ $data = {
           'range_high' => '',
           'testcode' => 'BRME'
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'construct new lab test object with "Positive" text result with same line comment ending in numerics'
 );
 is( $labtest->result_text, 'Positive: titre 80', 'result text set properly');
@@ -848,7 +848,7 @@ $data = {
           'result_value' => 'Positive: 400 IU/ml',
           'testname' => 'ASOR'
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'construct new lab test object with "positive" text result with same line comment ending in text'
 );
 is( $labtest->result_text, 'Positive: 400 IU/ml', 'result text set properly');
@@ -870,7 +870,7 @@ $data = {
           'range_high' => '',
           'unit' => ''
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'construct new lab test object with text result contain numeric character'
 );
 is( $labtest->result_text, 'Anti-HIV 1 DETECTED', 'result text set properly');
@@ -892,7 +892,7 @@ $data = {
           'testname' => 'EBNL',
           'range_high' => ''
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'construct new lab test object with magnitude status but no units'
 );
 is( $labtest->result_text, '<3.00', 'result text set properly');
@@ -914,7 +914,7 @@ $data = {
           'unit' => 'x10^9/l',
           'result_value' => '.2'
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'construct new lab test object with fractional result with no leading zero'
 );
 is( $labtest->magnitude, '.2', 'magnitude set properly');
@@ -938,7 +938,7 @@ Moderate growth of Enterococcus faecalis',
           'range_high' => '',
           'range_low' => ''
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'construct new lab test object with "Isolates" result'
 );
 is( $labtest->result_text, ':
@@ -962,7 +962,7 @@ $data = {
           'range_low' => '',
           'range_high' => ''
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'construct new lab test object with completion date result'
 );
 is( $labtest->result_text, 'COMPLETE: 21/06/12', 'result text set properly');
@@ -984,7 +984,7 @@ $data = {
           'range_high' => '',
           'range_low' => ''
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'construct new lab test object with "++" result'
 );
 is( $labtest->result_text, '++', 'result text set properly');
@@ -1012,7 +1012,7 @@ UK CKD guidelines: www.renal.org/CKDguide/ckd.html
 Use with caution for adjusting drug dosages -
 contact clinical pharmacist for advice.'
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'construct new lab test object with ">" GFR result'
 );
 is( $labtest->magnitude, '90', 'magnitude set properly');
@@ -1045,7 +1045,7 @@ UK CKD guidelines: www.renal.org/CKDguide/ckd.html
 Use with caution for adjusting drug dosages -
 contact clinical pharmacist for advice.'
         };
-ok( $labtest = OpenEHR::Composition::LabTest::LabResult->new( $data, ),
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
     'construct new lab test object with numeric GFR result'
 );
 is( $labtest->magnitude, '59', 'magnitude set properly');

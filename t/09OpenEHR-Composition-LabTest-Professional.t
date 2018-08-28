@@ -4,12 +4,12 @@ use warnings;
 use Test::More;
 use Data::Dumper;
 
-use OpenEHR::Composition::LabTest::Professional;
-diag( 'Testing OpenEHR::Composition::LabTest::Professional '
-        . $OpenEHR::Composition::LabTest::Professional::VERSION );
+use OpenEHR::Composition::Elements::LabTest::Professional;
+diag( 'Testing OpenEHR::Composition::Elements::LabTest::Professional '
+        . $OpenEHR::Composition::Elements::LabTest::Professional::VERSION );
 
 note('Testing constuction with full parameters');
-ok( my $professional1 = OpenEHR::Composition::LabTest::Professional->new(
+ok( my $professional1 = OpenEHR::Composition::Elements::LabTest::Professional->new(
         {   id       => 'AB01',
             assigner => 'Carecast',
             issuer   => 'UCLH',
@@ -28,7 +28,7 @@ is( $professional1->type,     'local',    'type set' );
 
 note('Testing construction with minimum parameters');
 ok( my $professional2 =
-        OpenEHR::Composition::LabTest::Professional->new( { id => 'BF01', } ),
+        OpenEHR::Composition::Elements::LabTest::Professional->new( { id => 'BF01', } ),
     'Construct new professional with id only'
 );
 
@@ -38,7 +38,7 @@ is( $professional2->issuer,   'UCLH',     'issuer set from default' );
 is( $professional2->type,     'local',    'type set from default' );
 
 eval {
-    my $professional3 = OpenEHR::Composition::LabTest::Professional->new();
+    my $professional3 = OpenEHR::Composition::Elements::LabTest::Professional->new();
 };
 ok( $@, 'Failed to construct professional with no parameters' );
 

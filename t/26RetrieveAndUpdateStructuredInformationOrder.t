@@ -12,8 +12,8 @@ $ehr1->get_new_ehr;
 if ( $ehr1->err_msg ) {
     die $ehr1->err_msg;
 }
-diag( 'EhrId: ' . $ehr1->ehr_id );
-diag( 'SubjectId: ' . $ehr1->subject_id );
+note( 'EhrId: ' . $ehr1->ehr_id );
+note( 'SubjectId: ' . $ehr1->subject_id );
 
 my $start_date  = DateTime::Format::Pg->parse_datetime('2011-01-01');
 my $end_date    = DateTime::Format::Pg->parse_datetime('2018-01-01');
@@ -41,8 +41,8 @@ if ( $order->err_msg ) {
     diag( "Error occurred in submission of new order: " . $order->err_msg );
 }
 my $composition_uid = $order->compositionUid;
-diag( "New order UID: " . $order->compositionUid );
-diag( "New order HREF: " . $order->href );
+note( "New order UID: " . $order->compositionUid );
+note( "New order HREF: " . $order->href );
 
 my $order_retrieval = OpenEHR::REST::Composition->new();
 $order_retrieval->request_format('STRUCTURED');
@@ -126,8 +126,8 @@ if ( $order_completion->err_msg ) {
     diag( "Error occurred in submission: " . $order_completion->err_msg );
 }
 is( $order_completion->action, "UPDATE", "Action is UPDATE" );
-diag( $order_completion->compositionUid );
-diag( $order_completion->href );
+note( $order_completion->compositionUid );
+note( $order_completion->href );
 
 sub get_new_random_subject {
     my $action = 'RETRIEVE';

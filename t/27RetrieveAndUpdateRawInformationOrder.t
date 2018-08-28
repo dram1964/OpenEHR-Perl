@@ -12,8 +12,8 @@ $ehr1->get_new_ehr;
 if ( $ehr1->err_msg ) {
     die $ehr1->err_msg;
 }
-diag( 'EhrId: ' . $ehr1->ehr_id );
-diag( 'SubjectId: ' . $ehr1->subject_id );
+note( 'EhrId: ' . $ehr1->ehr_id );
+note( 'SubjectId: ' . $ehr1->subject_id );
 
 my $start_date  = DateTime::Format::Pg->parse_datetime('2011-01-01');
 my $end_date    = DateTime::Format::Pg->parse_datetime('2018-01-01');
@@ -40,8 +40,8 @@ if ( $order->err_msg ) {
     diag( "Error occurred in submission of new order: " . $order->err_msg );
 }
 my $composition_uid = $order->compositionUid;
-diag( "New order UID: " . $order->compositionUid );
-diag( "New order HREF: " . $order->href );
+note( "New order UID: " . $order->compositionUid );
+note( "New order HREF: " . $order->href );
 
 my $order_retrieval = OpenEHR::REST::Composition->new();
 ok( $order_retrieval->request_format('RAW'), 'Set retrieveal format to RAW' );
@@ -115,8 +115,8 @@ if ( $order->err_msg ) {
     diag( "Error occurred in submission: " . $order->err_msg );
 }
 is( $order->action, "UPDATE", "Action is UPDATE" );
-diag( $order->compositionUid );
-diag( $order->href );
+note( $order->compositionUid );
+note( $order->href );
 
 SKIP: {
     skip "Not implmenented yet", 1;

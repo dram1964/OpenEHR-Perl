@@ -3,11 +3,11 @@ use warnings;
 
 use Test::More;
 use Data::Dumper;
-use OpenEHR::Composition::LabTest::OrderingProvider;
-diag( 'Testing OpenEHR::Composition::LabTest::OrderingProvider '
-        . $OpenEHR::Composition::LabTest::OrderingProvider::VERSION );
+use OpenEHR::Composition::Elements::LabTest::OrderingProvider;
+diag( 'Testing OpenEHR::Composition::Elements::LabTest::OrderingProvider '
+        . $OpenEHR::Composition::Elements::LabTest::OrderingProvider::VERSION );
 
-ok( my $ordering = OpenEHR::Composition::LabTest::OrderingProvider->new(
+ok( my $ordering = OpenEHR::Composition::Elements::LabTest::OrderingProvider->new(
         given_name  => 'A&E',
         family_name => 'UCLH'
     ),

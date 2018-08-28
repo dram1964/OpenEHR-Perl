@@ -18,14 +18,14 @@ while ( my $line = <$fh> ) {
 
 my $ehrId = $config{test_ehrid};
 
-my $request = OpenEHR::Composition::LabTest::RequestedTest->new(
+my $request = OpenEHR::Composition::Elements::LabTest::RequestedTest->new(
     requested_test => 'Electrolytes',
     name           => 'Electrolytes',
     code           => 'ELL',
     terminology    => 'local',
 );
 
-my $specimen = OpenEHR::Composition::LabTest::Specimen->new(
+my $specimen = OpenEHR::Composition::Elements::LabTest::Specimen->new(
     specimen_type      => 'Blood',
     datetime_collected => DateTime->new(
         year   => 2017,
@@ -45,7 +45,7 @@ my $specimen = OpenEHR::Composition::LabTest::Specimen->new(
     spec_id => 'bld',
 );
 
-my $labresult1 = OpenEHR::Composition::LabTest::LabResult->new(
+my $labresult1 = OpenEHR::Composition::Elements::LabTest::LabResult->new(
     result_value  => '<59
 this is the sodium result',
     range_low     => '50',
@@ -56,7 +56,7 @@ this is the sodium result',
     unit         => 'mmol/l',
 );
 
-my $labresult2 = OpenEHR::Composition::LabTest::LabResult->new(
+my $labresult2 = OpenEHR::Composition::Elements::LabTest::LabResult->new(
     result_value  => '88
 this is the potassium result',
     range_low     => '80',
@@ -67,7 +67,7 @@ this is the potassium result',
     unit         => 'g/dl',
 );
 
-my $labresult3 = OpenEHR::Composition::LabTest::LabResult->new(
+my $labresult3 = OpenEHR::Composition::Elements::LabTest::LabResult->new(
     result_value  => '88%
 this is the flourosine result',
     testcode      => 'F',
@@ -76,47 +76,47 @@ this is the flourosine result',
 );
 
 my $labpanel =
-    OpenEHR::Composition::LabTest::LabTestPanel->new(
+    OpenEHR::Composition::Elements::LabTest::LabTestPanel->new(
     lab_results => [ $labresult1, $labresult2, $labresult3 ], );
 
-my $placer = OpenEHR::Composition::LabTest::Placer->new(
+my $placer = OpenEHR::Composition::Elements::LabTest::Placer->new(
     order_number => 'TQ001113333',
     assigner     => 'TQuest',
     issuer       => 'UCLH',
     type         => 'local',
 );
 
-my $filler = OpenEHR::Composition::LabTest::Filler->new(
+my $filler = OpenEHR::Composition::Elements::LabTest::Filler->new(
     order_number => '17V333999',
     assigner     => 'Winpath',
     issuer       => 'UCLH Pathology',
     type         => 'local',
 );
 
-my $ordering_provider = OpenEHR::Composition::LabTest::OrderingProvider->new(
+my $ordering_provider = OpenEHR::Composition::Elements::LabTest::OrderingProvider->new(
     given_name  => 'A&E',
     family_name => 'UCLH'
 );
 
-my $professional = OpenEHR::Composition::LabTest::Professional->new(
+my $professional = OpenEHR::Composition::Elements::LabTest::Professional->new(
     id       => 'AB01',
     assigner => 'Carecast',
     issuer   => 'UCLH',
     type     => 'local',
 );
 
-my $requester = OpenEHR::Composition::LabTest::Requester->new(
+my $requester = OpenEHR::Composition::Elements::LabTest::Requester->new(
     ordering_provider => $ordering_provider,
     professional      => $professional,
 );
 
-my $request_details = OpenEHR::Composition::LabTest::TestRequestDetails->new(
+my $request_details = OpenEHR::Composition::Elements::LabTest::TestRequestDetails->new(
     placer    => $placer,
     filler    => $filler,
     requester => $requester,
 );
 
-my $labtest = OpenEHR::Composition::LabTest->new(
+my $labtest = OpenEHR::Composition::Elements::LabTest->new(
     requested_test   => $request,
     specimens        => [$specimen],
     history_origin   => DateTime->now(),

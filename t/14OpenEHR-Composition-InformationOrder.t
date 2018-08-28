@@ -18,8 +18,8 @@ $ehr1->get_new_ehr;
 if ( $ehr1->err_msg ) {
     die $ehr1->err_msg;
 }
-diag( 'EhrId: ' . $ehr1->ehr_id );
-diag( 'SubjectId: ' . $ehr1->subject_id );
+note( 'EhrId: ' . $ehr1->ehr_id );
+note( 'SubjectId: ' . $ehr1->subject_id );
 
 my $start_date  = DateTime::Format::Pg->parse_datetime('2011-01-01');
 my $end_date    = DateTime::Format::Pg->parse_datetime('2018-01-01');

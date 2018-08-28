@@ -4,12 +4,12 @@ use warnings;
 use Test::More;
 use Data::Dumper;
 
-use OpenEHR::Composition::LabTest::Placer;
-diag( 'Testing OpenEHR::Composition::LabTest::Placer '
-        . $OpenEHR::Composition::LabTest::Placer::VERSION );
+use OpenEHR::Composition::Elements::LabTest::Placer;
+diag( 'Testing OpenEHR::Composition::Elements::LabTest::Placer '
+        . $OpenEHR::Composition::Elements::LabTest::Placer::VERSION );
 
 note('Testing constuction with full parameters');
-ok( my $placer1 = OpenEHR::Composition::LabTest::Placer->new(
+ok( my $placer1 = OpenEHR::Composition::Elements::LabTest::Placer->new(
         {   order_number => 'TQ001113333',
             assigner     => 'TQuest',
             issuer       => 'UCLH',
@@ -27,7 +27,7 @@ is( $placer1->issuer,       'UCLH',        'issuer set' );
 is( $placer1->type,         'local',       'type set' );
 
 note('Testing construction with minimum parameters');
-ok( my $placer2 = OpenEHR::Composition::LabTest::Placer->new(
+ok( my $placer2 = OpenEHR::Composition::Elements::LabTest::Placer->new(
         { order_number => 'TQ002222666', }
     ),
     'Construct new placer with id only'
@@ -38,7 +38,7 @@ is( $placer2->assigner,     'TQuest',      'assigner set from default' );
 is( $placer2->issuer,       'UCLH',        'issuer set from default' );
 is( $placer2->type,         'local',       'type set from default' );
 
-eval { my $placer3 = OpenEHR::Composition::LabTest::Placer->new(); };
+eval { my $placer3 = OpenEHR::Composition::Elements::LabTest::Placer->new(); };
 ok( $@, 'Failed to construct placer with no parameters' );
 
 ok( $placer1->composition_format('FLAT'), 'Set composition format to FLAT' );

@@ -237,8 +237,8 @@ for my $format (@formats) {
     if ( $ehr1->err_msg ) {
         die $ehr1->err_msg;
     }
-    diag( 'EhrId: ' . $ehr1->ehr_id );
-    diag( 'SubjectId: ' . $ehr1->subject_id );
+    note( 'EhrId: ' . $ehr1->ehr_id );
+    note( 'SubjectId: ' . $ehr1->subject_id );
     ok( my $cancer_report = OpenEHR::Composition::CancerReport->new(
             problem_diagnoses => [$problem_diagnosis],
         ),
@@ -258,8 +258,8 @@ for my $format (@formats) {
         diag( "Error occurred in submission: " . $query->err_msg );
     }
     is( $query->action, "CREATE", "Action is CREATE" );
-    diag( $query->compositionUid );   # the returned CompositionUid;
-    diag( $query->href );             # URL to view the submitted composition;
+    note( $query->compositionUid );   # the returned CompositionUid;
+    note( $query->href );             # URL to view the submitted composition;
 }
 
 done_testing;

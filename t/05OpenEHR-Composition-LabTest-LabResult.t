@@ -4,12 +4,12 @@ use warnings;
 use Test::More;
 use Data::Dumper;
 
-use OpenEHR::Composition::LabTest::LabResult;
-diag( 'Testing OpenEHR::Composition::LabTest::LabResult '
-        . $OpenEHR::Composition::LabTest::LabResult::VERSION );
+use OpenEHR::Composition::Elements::LabTest::LabResult;
+diag( 'Testing OpenEHR::Composition::Elements::LabTest::LabResult '
+        . $OpenEHR::Composition::Elements::LabTest::LabResult::VERSION );
 
 note('Testing constructor with result value text');
-ok( my $labtest = OpenEHR::Composition::LabTest::LabResult->new(
+ok( my $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new(
         result_value => '59
 See http://biochem.org for interpretation guidelines',
         range_low  => '50',

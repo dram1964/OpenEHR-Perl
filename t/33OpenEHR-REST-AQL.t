@@ -14,7 +14,7 @@ my $query4 = OpenEHR::REST::AQL->new();
 my $ehrId           = $query4->test_ehrid;
 my $composition_uid = $query4->test_uid;
 
-diag($ehrId);
+note($ehrId);
 
 my $aql = "select e from Ehr e where e/ehr_id/value = '$ehrId'";
 $query4->statement($aql);

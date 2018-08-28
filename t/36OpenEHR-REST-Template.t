@@ -49,7 +49,7 @@ note('Testing get_template_example method');
 
     for my $template ( @{ $query->data->{templates} } ) {
         my $template_id = $template->{templateId};
-        diag($template_id);
+        note($template_id);
         my $query1 = OpenEHR::REST::Template->new();
         ok( !$query1->data, "Data attribute not set before query" );
         for my $format (qw(FLAT STRUCTURED RAW TDD)) {

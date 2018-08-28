@@ -13,8 +13,8 @@ $ehr1->get_new_ehr;
 if ( $ehr1->err_msg ) {
     die $ehr1->err_msg;
 }
-diag( 'EhrId: ' . $ehr1->ehr_id );
-diag( 'SubjectId: ' . $ehr1->subject_id );
+note( 'EhrId: ' . $ehr1->ehr_id );
+note( 'SubjectId: ' . $ehr1->subject_id );
 
 my $start_date  = DateTime::Format::Pg->parse_datetime('2011-01-01');
 my $end_date    = DateTime::Format::Pg->parse_datetime('2018-01-01');
@@ -42,8 +42,8 @@ if ( $order->err_msg ) {
     diag( "Error occurred in submission: " . $order->err_msg );
 }
 is( $order->action, "CREATE", "Action is CREATE" );
-diag( $order->compositionUid );    # the returned CompositionUid;
-diag( $order->href );              # URL to view the submitted composition;
+note( $order->compositionUid );    # the returned CompositionUid;
+note( $order->href );              # URL to view the submitted composition;
 
 $order_data->{current_state} = 'scheduled';
 
@@ -63,8 +63,8 @@ if ( $order_update1->err_msg ) {
     diag( 'Error occurred in submission: ' . $order_update1->err_msg );
 }
 is( $order_update1->action, 'UPDATE', 'Action is UPDATE' );
-diag( $order_update1->compositionUid );    # the returned CompositionUid;
-diag( $order_update1->href );    # URL to view the submitted composition;
+note( $order_update1->compositionUid );    # the returned CompositionUid;
+note( $order_update1->href );    # URL to view the submitted composition;
 
 $order_data->{current_state} = 'completed';
 my $update_completed =
@@ -83,8 +83,8 @@ if ( $order_update2->err_msg ) {
     diag( 'Error occurred in submission: ' . $order_update2->err_msg );
 }
 is( $order_update2->action, 'UPDATE', 'Action is UPDATE' );
-diag( $order_update2->compositionUid );    # the returned CompositionUid;
-diag( $order_update2->href );    # URL to view the submitted composition;
+note( $order_update2->compositionUid );    # the returned CompositionUid;
+note( $order_update2->href );    # URL to view the submitted composition;
 
 $order_data->{current_state} = 'aborted';
 my $update_aborted =
@@ -102,8 +102,8 @@ if ( $order_update3->err_msg ) {
     diag( 'Error occurred in submission: ' . $order_update3->err_msg );
 }
 is( $order_update3->action, 'UPDATE', 'Action is UPDATE' );
-diag( $order_update3->compositionUid );    # the returned CompositionUid;
-diag( $order_update3->href );    # URL to view the submitted composition;
+note( $order_update3->compositionUid );    # the returned CompositionUid;
+note( $order_update3->href );    # URL to view the submitted composition;
 
 sub get_new_random_subject {
     my $action = 'RETRIEVE';

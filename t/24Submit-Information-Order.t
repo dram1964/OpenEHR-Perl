@@ -40,8 +40,8 @@ for my $format (@formats) {
     if ( $ehr1->err_msg ) {
         die $ehr1->err_msg;
     }
-    diag( 'EhrId: ' . $ehr1->ehr_id );
-    diag( 'SubjectId: ' . $ehr1->subject_id );
+    note( 'EhrId: ' . $ehr1->ehr_id );
+    note( 'SubjectId: ' . $ehr1->subject_id );
 
     my $request_id = int(rand(1000000000));
     my $planned_order =
@@ -70,8 +70,8 @@ for my $format (@formats) {
         diag( "Error occurred in submission: " . $order->err_msg );
     }
     is( $order->action, "CREATE", "Action is CREATE" );
-    diag( $order->compositionUid );    # the returned CompositionUid;
-    diag( $order->href );              # URL to view the submitted composition;
+    note( $order->compositionUid );    # the returned CompositionUid;
+    note( $order->href );              # URL to view the submitted composition;
 }
 
 sub get_new_random_subject {
