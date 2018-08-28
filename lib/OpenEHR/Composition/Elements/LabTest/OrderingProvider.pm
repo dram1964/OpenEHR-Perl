@@ -1,26 +1,20 @@
-package OpenEHR::Composition::LabTest::LabTestPanel;
+package OpenEHR::Composition::Elements::LabTest::OrderingProvider;
 
 use warnings;
 use strict;
 use Carp;
 use Moose;
-use Data::Dumper;
 extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
-has lab_results => (
-    is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::LabTest::LabResult]'
-);
+has given_name  => ( is => 'rw', isa => 'Str' );
+has family_name => ( is => 'rw', isa => 'Str' );
 
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')
         if ( $self->composition_format eq 'TDD' );
-    for my $result ( @{ $self->lab_results } ) {
-        $result->composition_format( $self->composition_format );
-    }
 
     my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
@@ -29,54 +23,74 @@ sub compose {
 sub compose_structured {
     my $self        = shift;
     my $composition = {
-        laboratory_result => [],
-
+        family_name => $self->family_name,
+        given_name  => $self->given_name,
     };
-    for my $result ( @{ $self->lab_results } ) {
-        push @{ $composition->{laboratory_result} }, $result->compose();
-    }
-    return $composition;
-}
-
-sub compose_flat {
-    my $self        = shift;
-    my $composition = {};
-
-    my $index = '0';
-    for my $result ( @{ $self->lab_results } ) {
-        my $fc = $result->compose();
-        for my $key ( keys %{$fc} ) {
-            my $new_key = $key;
-            $new_key =~ s/__RESULT__/$index/;
-            $composition->{$new_key} = $fc->{$key};
-        }
-        $index++;
-    }
     return $composition;
 }
 
 sub compose_raw {
     my $self        = shift;
     my $composition = {
-        'name' => {
-            '@class' => 'DV_TEXT',
-            'value'  => 'Laboratory test panel'
-        },
-        '@class'            => 'CLUSTER',
         'archetype_details' => {
+            '@class'       => 'ARCHETYPED',
+            'rm_version'   => '1.0.1',
             'archetype_id' => {
                 '@class' => 'ARCHETYPE_ID',
-                'value'  => 'openEHR-EHR-CLUSTER.laboratory_test_panel.v0'
-            },
-            '@class'     => 'ARCHETYPED',
-            'rm_version' => '1.0.1'
+                'value'  => 'openEHR-EHR-CLUSTER.person_name.v1'
+            }
         },
-        'archetype_node_id' => 'openEHR-EHR-CLUSTER.laboratory_test_panel.v0',
-        'items'             => [],
+        'name' => {
+            '@class' => 'DV_TEXT',
+            'value'  => 'Ordering provider'
+        },
+        'archetype_node_id' => 'openEHR-EHR-CLUSTER.person_name.v1',
+        'items'             => [
+            {   'archetype_node_id' => 'at0002',
+                'items'             => [
+                    {   'value' => {
+                            '@class' => 'DV_TEXT',
+                            'value'  => $self->given_name,    #'Given name 61'
+                        },
+                        'archetype_node_id' => 'at0003',
+                        '@class'            => 'ELEMENT',
+                        'name'              => {
+                            '@class' => 'DV_TEXT',
+                            'value'  => 'Given name'
+                        }
+                    },
+                    {   'value' => {
+                            '@class' => 'DV_TEXT',
+                            'value'  => $self->family_name,  #'Family name 87'
+                        },
+                        '@class'            => 'ELEMENT',
+                        'archetype_node_id' => 'at0005',
+                        'name'              => {
+                            'value'  => 'Family name',
+                            '@class' => 'DV_TEXT'
+                        }
+                    }
+                ],
+                '@class' => 'CLUSTER',
+                'name'   => {
+                    'value'  => 'Ordering provider',
+                    '@class' => 'DV_TEXT'
+                }
+            }
+        ],
+        '@class' => 'CLUSTER'
     };
-    for my $result ( @{ $self->lab_results } ) {
-        push @{ $composition->{items} }, $result->compose();
-    }
+    return $composition;
+}
+
+sub compose_flat {
+    my $self = shift;
+    my $path =
+        'laboratory_result_report/laboratory_test:__TEST__/test_request_details/requester/ordering_provider/ordering_provider/';
+    my $composition = {
+        $path . 'given_name'  => $self->given_name,
+        $path . 'family_name' => $self->family_name,
+    };
     return $composition;
 }
 
@@ -88,60 +102,44 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::LabTest::LabTestPanel - A LabTestPanel composition element
+OpenEHR::Composition::Elements::LabTest::OrderingProvider - Ordering Provider composition element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::LabTest::LabTestPanel version 0.0.1
+This document describes OpenEHR::Composition::Elements::LabTest::OrderingProvider version 0.0.1
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::LabTest::LabTestPanel;
-    use OpenEHR::Composition::LabTest::LabResult;
+    use OpenEHR::Composition::Elements::LabTest::OrderingProvider;
+    my $ordering = OpenEHR::Composition::Elements::LabTest::OrderingProvider->new(
+        given_name => 'A&E',
+        family_name => 'UCLH');
+
+    $ordering->composition_format('FLAT');  # Request FLAT composition format
+    my $ordering_provider_hashref = $ordering->compose;
 
 
-    my $labresult1 = OpenEHR::Composition::LabTest::LabResult->new(
-        result_value => 59,
-        comment => 'this is the sodium result',
-        ref_range => '50-60',
-        testcode => 'NA',
-        testname => 'Sodium',
-        result_status  => 'Complete',
-    );
-
-    my $labresult2 = OpenEHR::Composition::LabTest::LabResult->new(
-        result_value => 88,
-        comment => 'this is the potassium result',
-        ref_range => '80-90',
-        testcode => 'K',
-        testname => 'Potassium',
-        result_status  => 'Complete',
-    );
-
-
-    my $labpanel = OpenEHR::Composition::LabTest::LabTestPanel->new(
-        lab_results => [$labresult1, $labresult2],
-    );
-
-    $labpanel->composition_format('STRUCTURED');
-    my $struct = $labpanel->compose;
-
-  
 =head1 DESCRIPTION
 
-A LabTestPanel object contains an array of OpenEHR::Composition::LabTest::LabResult
-objects. 
+Used to create an ordering_provider element for insertion to 
+a composition object. When used as part of a Pathology Report 
+composition, the ordering provider element contains
+details of the organisation placing the order.
+
 
 =head1 INTERFACE 
 
 =head1 ATTRIBUTES
 
-=head2 lab_results     
+=head2 given_name
 
-An ArrayRef of OpenEHR::Composition::LabTest::LabResult objects representing the
-results recorded for each test analyte
+Specific name of the provider organisation 
+
+=head2 family_name
+
+Name of parent organisation for provider organisation
 
 =head1 METHODS
 
@@ -160,7 +158,6 @@ Returns a hashref of the object in RAW format
 =head2 compose_flat
 
 Returns a hashref of the object in FLAT format
-
 
 =head1 DIAGNOSTICS
 
@@ -194,7 +191,7 @@ Returns a hashref of the object in FLAT format
     that can be set. These descriptions must also include details of any
     configuration language used.
   
-OpenEHR::Composition::LabTest::LabTestPanel requires no configuration files or environment variables.
+OpenEHR::Composition::Elements::LabTest::OrderingProvider requires no configuration files or environment variables.
 
 
 =head1 DEPENDENCIES
@@ -234,7 +231,7 @@ None reported.
 No bugs have been reported.
 
 Please report any bugs or feature requests to
-C<bug-openehr-composition-labtestpanel@rt.cpan.org>, or through the web interface at
+C<bug-openehr-composition-orderingprovider@rt.cpan.org>, or through the web interface at
 L<http://rt.cpan.org>.
 
 
@@ -245,7 +242,7 @@ David Ramlakhan  C<< <dram1964@gmail.com> >>
 
 =head1 LICENCE AND COPYRIGHT
 
-Copyright (c) 2018, David Ramlakhan C<< <dram1964@gmail.com> >>. All rights reserved.
+Copyright (c) 2017, David Ramlakhan C<< <dram1964@gmail.com> >>. All rights reserved.
 
 This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself. See L<perlartistic>.

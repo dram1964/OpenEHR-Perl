@@ -1,94 +1,61 @@
-package OpenEHR::Composition::LabTest::Placer;
+package OpenEHR::Composition::Elements::LabTest::TestRequestDetails;
 
 use warnings;
 use strict;
 use Carp;
 use Moose;
-use MooseX::ClassAttribute;
 extends 'OpenEHR::Composition';
-
-class_has compos_name => (
-    is => 'ro',
-    init_arg => undef,
-    default => 'Placer',
-);
-
 use version; our $VERSION = qv('0.0.2');
 
-has order_number => (
-    is       => 'rw',
-    isa      => 'Str',
-    required => 1,
-);
-has issuer => (
-    is       => 'rw',
-    isa      => 'Str',
-    required => 1,
-    default  => 'UCLH',
-
-);
-has assigner => (
-    is       => 'rw',
-    isa      => 'Str',
-    required => 1,
-    default  => 'TQuest',
-);
-has type => (
-    is       => 'rw',
-    isa      => 'Str',
-    required => 1,
-    default  => 'local',
-);
+has placer    => ( is => 'rw', isa => 'OpenEHR::Composition::Elements::LabTest::Placer' );
+has filler    => ( is => 'rw', isa => 'OpenEHR::Composition::Elements::LabTest::Filler' );
+has requester => ( is => 'rw', isa => 'OpenEHR::Composition::Elements::LabTest::Requester' );
 
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')
         if ( $self->composition_format eq 'TDD' );
-
+    $self->placer->composition_format( $self->composition_format );
+    $self->filler->composition_format( $self->composition_format );
+    $self->requester->composition_format( $self->composition_format );
     my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
 }
 
 sub compose_structured {
     my $self        = shift;
-    my $composition = {
-        '|assigner' => $self->assigner,
-        '|issuer'   => $self->issuer,
-        '|id'       => $self->order_number,
-        '|type'     => $self->type,
-    };
+    my $composition = [
+        {   requester           => $self->requester->compose(),
+            filler_order_number => [ $self->filler->compose() ],
+            placer_order_number => [ $self->placer->compose() ],
+        }
+    ];
     return $composition;
 }
 
 sub compose_raw {
     my $self        = shift;
-    my $composition = {
-        'value' => {
-            'type'     => $self->type,
-            '@class'   => 'DV_IDENTIFIER',
-            'id'       => $self->order_number,
-            'issuer'   => $self->issuer,
-            'assigner' => $self->assigner,
+    my $composition = {        # TestRequestDetails
+        'archetype_node_id' => 'at0094',
+        'items'             => [
+            $self->placer->compose(), $self->filler->compose(),
+            $self->requester->compose(),
+        ],
+        'name' => {
+            '@class' => 'DV_TEXT',
+            'value'  => 'Test request details'
         },
-        '@class'            => 'ELEMENT',
-        'archetype_node_id' => 'at0062',
-        'name'              => {
-            'value'  => 'Placer order number',
-            '@class' => 'DV_TEXT'
-        }
+        '@class' => 'CLUSTER'
     };
     return $composition;
 }
 
 sub compose_flat {
-    my $self = shift;
-    my $path =
-        'laboratory_result_report/laboratory_test:__TEST__/test_request_details/';
+    my $self        = shift;
     my $composition = {
-        $path . 'placer_order_number'          => $self->order_number,
-        $path . 'placer_order_number|issuer'   => $self->issuer,
-        $path . 'placer_order_number|assigner' => $self->assigner,
-        $path . 'placer_order_number|type'     => $self->type,
+        %{ $self->placer->compose() },
+        %{ $self->filler->compose() },
+        %{ $self->requester->compose() },
     };
     return $composition;
 }
@@ -101,54 +68,48 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::LabTest::Placer - Placer composition element
+OpenEHR::Composition::Elements::LabTest::TestRequestDetails - [One line description of module's purpose here]
+
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::LabTest::Placer version 0.0.1
+This document describes OpenEHR::Composition::Elements::LabTest::TestRequestDetails version 0.0.1
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::LabTest::Placer;
-    my $placer = OpenEHR::Composition::LabTest::Placer->new({
-        order_number    => 'TQ003339999',
-        assigner        => 'TQuest',
-        issuer          => 'UCLH',
-        type            => 'local',
-        composition_format => 'FLAT',
-    });
+    use OpenEHR::Composition::Elements::LabTest::TestRequestDetails;
 
-    my $placer_hashref = $placer->compose;
-
+=for author to fill in:
+    Brief code example(s) here showing commonest usage(s).
+    This section will be as far as many users bother reading
+    so make it as educational and exeplary as possible.
+  
   
 =head1 DESCRIPTION
 
-Used to create a placer element for insertion into a composition
-object. When used as part of a Pathology Report composition, the 
-placer element contains identifier data from the ordering system
-used to place the order.
+=for author to fill in:
+    Write a full description of the module and its features here.
+    Use subsections (=head2, =head3) as appropriate.
+
 
 =head1 INTERFACE 
 
 =head1 ATTRIBUTES
 
-=head2 order_number
+=head2  placer
 
-Identifier assigned to the Laboratory Test order by the ordering
-system
+Information about the party requesting the pathology test represented
+as an OpenEHR::Composition::Elements::LabTest::Placer object
 
-=head2 issuer
+=head2 filler
 
-Organisation from whence the order is issued. Defaults to 'UCLH'
+Information about the party performing the pathology test represented
+as an OpenEHR::Composition::Elements::LabTest::Filler object
 
-=head2 assigner
-
-System used to generate the order. Defaults to 'TQuest'=> (
-
-=head2 type
-
-Type of identifier issued. Defaults to 'local'
+=head2 requester 
+Information about the party ordering the pathology test represented
+as an OpenEHR::Composition::Elements::LabTest::Requester object
 
 =head1 METHODS
 
@@ -201,7 +162,7 @@ Returns a hashref of the object in FLAT format
     that can be set. These descriptions must also include details of any
     configuration language used.
   
-OpenEHR::Composition::LabTest::Placer requires no configuration files or environment variables.
+OpenEHR::Composition::Elements::LabTest::TestRequestDetails requires no configuration files or environment variables.
 
 
 =head1 DEPENDENCIES
@@ -241,7 +202,7 @@ None reported.
 No bugs have been reported.
 
 Please report any bugs or feature requests to
-C<bug-openehr-composition-placer@rt.cpan.org>, or through the web interface at
+C<bug-openehr-composition-testrequestdetails@rt.cpan.org>, or through the web interface at
 L<http://rt.cpan.org>.
 
 

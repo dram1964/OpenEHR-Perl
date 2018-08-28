@@ -1,4 +1,4 @@
-package OpenEHR::Composition::LabTest::OrderingProvider;
+package OpenEHR::Composition::Elements::LabTest::Professional;
 
 use warnings;
 use strict;
@@ -8,8 +8,30 @@ extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
-has given_name  => ( is => 'rw', isa => 'Str' );
-has family_name => ( is => 'rw', isa => 'Str' );
+has id => (
+    is       => 'rw',
+    isa      => 'Str',
+    required => 1,
+);
+has issuer => (
+    is       => 'rw',
+    isa      => 'Str',
+    required => 1,
+    default  => 'UCLH',
+
+);
+has assigner => (
+    is       => 'rw',
+    isa      => 'Str',
+    required => 1,
+    default  => 'UCLH PAS',
+);
+has type => (
+    is       => 'rw',
+    isa      => 'Str',
+    required => 1,
+    default  => 'local',
+);
 
 sub compose {
     my $self = shift;
@@ -23,8 +45,10 @@ sub compose {
 sub compose_structured {
     my $self        = shift;
     my $composition = {
-        family_name => $self->family_name,
-        given_name  => $self->given_name,
+        '|assigner' => $self->assigner,
+        '|issuer'   => $self->issuer,
+        '|id'       => $self->id,
+        '|type'     => $self->type,
     };
     return $composition;
 }
@@ -32,53 +56,19 @@ sub compose_structured {
 sub compose_raw {
     my $self        = shift;
     my $composition = {
-        'archetype_details' => {
-            '@class'       => 'ARCHETYPED',
-            'rm_version'   => '1.0.1',
-            'archetype_id' => {
-                '@class' => 'ARCHETYPE_ID',
-                'value'  => 'openEHR-EHR-CLUSTER.person_name.v1'
-            }
+        'value' => {
+            'type'     => $self->type,
+            '@class'   => 'DV_IDENTIFIER',
+            'id'       => $self->id,
+            'issuer'   => $self->issuer,
+            'assigner' => $self->assigner,
         },
-        'name' => {
-            '@class' => 'DV_TEXT',
-            'value'  => 'Ordering provider'
-        },
-        'archetype_node_id' => 'openEHR-EHR-CLUSTER.person_name.v1',
-        'items'             => [
-            {   'archetype_node_id' => 'at0002',
-                'items'             => [
-                    {   'value' => {
-                            '@class' => 'DV_TEXT',
-                            'value'  => $self->given_name,    #'Given name 61'
-                        },
-                        'archetype_node_id' => 'at0003',
-                        '@class'            => 'ELEMENT',
-                        'name'              => {
-                            '@class' => 'DV_TEXT',
-                            'value'  => 'Given name'
-                        }
-                    },
-                    {   'value' => {
-                            '@class' => 'DV_TEXT',
-                            'value'  => $self->family_name,  #'Family name 87'
-                        },
-                        '@class'            => 'ELEMENT',
-                        'archetype_node_id' => 'at0005',
-                        'name'              => {
-                            'value'  => 'Family name',
-                            '@class' => 'DV_TEXT'
-                        }
-                    }
-                ],
-                '@class' => 'CLUSTER',
-                'name'   => {
-                    'value'  => 'Ordering provider',
-                    '@class' => 'DV_TEXT'
-                }
-            }
-        ],
-        '@class' => 'CLUSTER'
+        '@class'            => 'ELEMENT',
+        'archetype_node_id' => 'at0011',
+        'name'              => {
+            'value'  => 'Professional Identifier',
+            '@class' => 'DV_TEXT'
+        }
     };
     return $composition;
 }
@@ -86,10 +76,12 @@ sub compose_raw {
 sub compose_flat {
     my $self = shift;
     my $path =
-        'laboratory_result_report/laboratory_test:__TEST__/test_request_details/requester/ordering_provider/ordering_provider/';
+        'laboratory_result_report/laboratory_test:__TEST__/test_request_details/requester/';
     my $composition = {
-        $path . 'given_name'  => $self->given_name,
-        $path . 'family_name' => $self->family_name,
+        $path . 'professional_identifier'          => $self->id,
+        $path . 'professional_identifier|issuer'   => $self->issuer,
+        $path . 'professional_identifier|assigner' => $self->assigner,
+        $path . 'professional_identifier|type'     => $self->type,
     };
     return $composition;
 }
@@ -102,44 +94,55 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::LabTest::OrderingProvider - Ordering Provider composition element
+OpenEHR::Composition::Elements::LabTest::Professional - Professional Composition Element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::LabTest::OrderingProvider version 0.0.1
+This document describes OpenEHR::Composition::Elements::LabTest::Professional version 0.0.1
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::LabTest::OrderingProvider;
-    my $ordering = OpenEHR::Composition::LabTest::OrderingProvider->new(
-        given_name => 'A&E',
-        family_name => 'UCLH');
-
-    $ordering->composition_format('FLAT');  # Request FLAT composition format
-    my $ordering_provider_hashref = $ordering->compose;
-
-
+    use OpenEHR::Composition::Elements::LabTest::Professional;
+     
+    my $professional = OpenEHR::Composition::Elements::LabTest::Professional->new({
+        id          => 'AB01',
+        assigner    => 'Carecast',
+        issuer      => 'UCLH',
+        type        => 'local',
+        composition_format => 'FLAT',
+    });
+    my $professional_hashref = $professional->compose;
+  
 =head1 DESCRIPTION
 
-Used to create an ordering_provider element for insertion to 
-a composition object. When used as part of a Pathology Report 
-composition, the ordering provider element contains
-details of the organisation placing the order.
-
+Used to create a hashref element of a professional for insertion to a 
+composition object. When used as part of a PathologyReport composition, 
+the professional element contains details of the clinician placing an order.
 
 =head1 INTERFACE 
 
 =head1 ATTRIBUTES
 
-=head2 given_name
+=head2 id
 
-Specific name of the provider organisation 
+Identifier of professional at provider organisation requesting the test
 
-=head2 family_name
+=head2 issuer
 
-Name of parent organisation for provider organisation
+Organisation responsible for issuing the professional identifier. 
+Defaults to 'UCLH'
+
+=head2 assigner
+
+System used to assign the professional identifier. Defaults to 
+'UCLH PAS'
+
+=head2 type
+
+type of professional identifier issued. Defaults to local
+
 
 =head1 METHODS
 
@@ -158,6 +161,7 @@ Returns a hashref of the object in RAW format
 =head2 compose_flat
 
 Returns a hashref of the object in FLAT format
+
 
 =head1 DIAGNOSTICS
 
@@ -191,7 +195,7 @@ Returns a hashref of the object in FLAT format
     that can be set. These descriptions must also include details of any
     configuration language used.
   
-OpenEHR::Composition::LabTest::OrderingProvider requires no configuration files or environment variables.
+OpenEHR::Composition::Elements::LabTest::Professional requires no configuration files or environment variables.
 
 
 =head1 DEPENDENCIES
@@ -231,7 +235,7 @@ None reported.
 No bugs have been reported.
 
 Please report any bugs or feature requests to
-C<bug-openehr-composition-orderingprovider@rt.cpan.org>, or through the web interface at
+C<bug-openehr-composition-professional@rt.cpan.org>, or through the web interface at
 L<http://rt.cpan.org>.
 
 

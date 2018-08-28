@@ -6,7 +6,7 @@ use Carp;
 use Moose;
 use Data::Dumper;
 extends 'OpenEHR::Composition';
-use OpenEHR::Composition::LabTest;
+use OpenEHR::Composition::Elements::LabTest;
 
 use version; our $VERSION = qv('0.0.2');
 
@@ -14,7 +14,7 @@ has ctx       => ( is => 'rw', isa => 'OpenEHR::Composition::CTX' );
 has report_id => ( is => 'rw', isa => 'Str' );
 has labtests  => (
     is      => 'rw',
-    isa     => 'ArrayRef[OpenEHR::Composition::LabTest]',
+    isa     => 'ArrayRef[OpenEHR::Composition::Elements::LabTest]',
     default => sub { [] }
 );
 has patient_comment => ( is => 'rw', isa => 'Str' );
@@ -22,13 +22,13 @@ has patient_comment => ( is => 'rw', isa => 'Str' );
 sub add_labtests {
     my ( $self, $order ) = @_;
 
-    my $request = OpenEHR::Composition::LabTest::RequestedTest->new(
+    my $request = OpenEHR::Composition::Elements::LabTest::RequestedTest->new(
         requested_test => $order->{ordername} || $order->{ordercode},
         name           => $order->{ordername} || $order->{ordercode},
         code           => $order->{ordercode},
         terminology    => 'local',
     );
-    my $specimen = OpenEHR::Composition::LabTest::Specimen->new(
+    my $specimen = OpenEHR::Composition::Elements::LabTest::Specimen->new(
         datetime_collected => $order->{collected},
         collection_method  => $order->{collect_method},
         datetime_received  => $order->{received},
@@ -41,24 +41,24 @@ sub add_labtests {
 
     my $labresults = [];
     for my $res ( @{ $order->{labresults} } ) {
-        my $labresult = OpenEHR::Composition::LabTest::LabResult->new(
+        my $labresult = OpenEHR::Composition::Elements::LabTest::LabResult->new(
             $res
         );
         push @{$labresults}, $labresult;
     }
 
     my $labpanel =
-        OpenEHR::Composition::LabTest::LabTestPanel->new(
+        OpenEHR::Composition::Elements::LabTest::LabTestPanel->new(
         lab_results => $labresults );
 
-    my $placer = OpenEHR::Composition::LabTest::Placer->new(
+    my $placer = OpenEHR::Composition::Elements::LabTest::Placer->new(
         order_number => $order->{order_number}->{id},
         assigner     => $order->{order_number}->{assigner},
         issuer       => $order->{order_number}->{issuer},
         type         => 'local',
     );
 
-    my $filler = OpenEHR::Composition::LabTest::Filler->new(
+    my $filler = OpenEHR::Composition::Elements::LabTest::Filler->new(
         order_number => $order->{labnumber}->{id},
         assigner     => $order->{labnumber}->{assigner},
         issuer       => $order->{labnumber}->{issuer},
@@ -66,25 +66,25 @@ sub add_labtests {
     );
 
     my $ordering_provider =
-        OpenEHR::Composition::LabTest::OrderingProvider->new(
+        OpenEHR::Composition::Elements::LabTest::OrderingProvider->new(
         given_name  => $order->{location}->{id},
         family_name => $order->{location}->{parent},
         );
 
-    my $professional = OpenEHR::Composition::LabTest::Professional->new(
+    my $professional = OpenEHR::Composition::Elements::LabTest::Professional->new(
         id       => $order->{clinician}->{id},
         assigner => $order->{clinician}->{assigner},
         issuer   => $order->{clinician}->{issuer},
         type     => 'local',
     );
 
-    my $requester = OpenEHR::Composition::LabTest::Requester->new(
+    my $requester = OpenEHR::Composition::Elements::LabTest::Requester->new(
         ordering_provider => $ordering_provider,
         professional      => $professional,
     );
 
     my $request_details =
-        OpenEHR::Composition::LabTest::TestRequestDetails->new(
+        OpenEHR::Composition::Elements::LabTest::TestRequestDetails->new(
         placer            => $placer,
         filler            => $filler,
         ordering_provider => $ordering_provider,
@@ -92,7 +92,7 @@ sub add_labtests {
         requester         => $requester,
         );
 
-    my $labtests = OpenEHR::Composition::LabTest->new(
+    my $labtests = OpenEHR::Composition::Elements::LabTest->new(
         requested_test   => $request,
         specimens        => [$specimen],
         history_origin   => DateTime->now(),
@@ -431,7 +431,7 @@ This document describes OpenEHR::Composition::LabResultReport version 0.0.2
 
 =head1 SYNOPSIS
 
-    # get OpenEHR::Composition::LabTest data from somewhere
+    # get OpenEHR::Composition::Elements::LabTest data from somewhere
     my $labtest_object = &get_labtest_data_from_somewhere;
 
     use OpenEHR::Composition::LabResultReport;
@@ -466,7 +466,7 @@ Unique identifier for the LabResultReport object
 
 =head2 labtests 
 
-An array of OpenEHR::Composition::LabTest objects associated with the report
+An array of OpenEHR::Composition::Elements::LabTest objects associated with the report
 
 =head2 patient_comment
 
@@ -572,7 +572,7 @@ None
 
 =item * OpenEHR::Composition
 
-=item * OpenEHR::Composition::LabTest
+=item * OpenEHR::Composition::Elements::LabTest
 
 =item * Carp
 

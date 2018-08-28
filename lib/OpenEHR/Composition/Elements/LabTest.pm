@@ -1,4 +1,4 @@
-package OpenEHR::Composition::LabTest;
+package OpenEHR::Composition::Elements::LabTest;
 
 use warnings;
 use strict;
@@ -20,7 +20,7 @@ Uses module find to load modules
 =cut 
 
 sub load_namespaces {
-    $modules = [ useall OpenEHR::Composition::LabTest ];
+    $modules = [ useall OpenEHR::Composition::Elements::LabTest ];
 }
 
 =head2 compos 
@@ -49,10 +49,10 @@ enum 'TestStatusName' =>
     [qw( Final Registered Partial Cancelled Corrected Amended Error)];
 
 has requested_test =>
-    ( is => 'rw', isa => 'OpenEHR::Composition::LabTest::RequestedTest' );
+    ( is => 'rw', isa => 'OpenEHR::Composition::Elements::LabTest::RequestedTest' );
 has specimens => (
     is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::LabTest::Specimen]'
+    isa => 'ArrayRef[OpenEHR::Composition::Elements::LabTest::Specimen]'
 );
 has history_origin   => ( is => 'rw', isa => 'DateTime' );
 has test_status      => ( is => 'rw', isa => 'TestStatusName' );
@@ -60,13 +60,13 @@ has test_status_time => ( is => 'rw', isa => 'DateTime' );
 has clinical_info    => ( is => 'rw' );
 has test_panels      => (
     is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::LabTest::LabTestPanel]'
+    isa => 'ArrayRef[OpenEHR::Composition::Elements::LabTest::LabTestPanel]'
 );
 has conclusion      => ( is => 'rw', isa => 'Str' );
 has responsible_lab => ( is => 'rw', isa => 'Str' );
 has request_details => (
     is  => 'rw',
-    isa => 'OpenEHR::Composition::LabTest::TestRequestDetails'
+    isa => 'OpenEHR::Composition::Elements::LabTest::TestRequestDetails'
 );
 
 sub test_status_lookup {
@@ -390,17 +390,17 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::LabTest - LabTest composition element
+OpenEHR::Composition::Elements::LabTest - LabTest composition element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::LabTest version 0.0.1
+This document describes OpenEHR::Composition::Elements::LabTest version 0.0.1
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::LabTest;
+    use OpenEHR::Composition::Elements::LabTest;
 
 =for author to fill in:
     Brief code example(s) here showing commonest usage(s).
@@ -520,7 +520,7 @@ Returns the test_status name based on the objects test_status code
     that can be set. These descriptions must also include details of any
     configuration language used.
   
-OpenEHR::Composition::LabTest requires no configuration files or environment variables.
+OpenEHR::Composition::Elements::LabTest requires no configuration files or environment variables.
 
 
 =head1 DEPENDENCIES

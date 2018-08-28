@@ -1,4 +1,4 @@
-package OpenEHR::Composition::LabTest::RequestedTest;
+package OpenEHR::Composition::Elements::LabTest::Requester;
 
 use warnings;
 use strict;
@@ -7,109 +7,61 @@ use Moose;
 extends 'OpenEHR::Composition';
 use version; our $VERSION = qv('0.0.2');
 
-has requested_test => ( is => 'rw', isa => 'Str');
-has name           => ( is => 'rw', isa => 'Str' );
-has code           => ( is => 'rw', isa => 'Str', trigger => \&_check_blanks );
-has terminology    => ( is => 'rw', isa => 'Str', default => 'local' );
-has mapping        => ( is => 'rw', isa => 'HashRef' );
-
-sub _check_blanks {
-    my $self = shift;
-    if ($self->requested_test =~ /^\s*$/) {
-        $self->requested_test($self->code);
-    }
-    if ($self->name =~ /^\s*$/) {
-        $self->name($self->code);
-    }
-}
+has ordering_provider => (is => 'rw', isa => 'OpenEHR::Composition::Elements::LabTest::OrderingProvider');
+has professional      => (is => 'rw', isa => 'OpenEHR::Composition::Elements::LabTest::Professional');
 
 sub compose {
     my $self = shift;
-    $self->composition_format('RAW')
-        if ( $self->composition_format eq 'TDD' );
-    my $formatter = 'compose_' . lc( $self->composition_format );
+    $self->composition_format('RAW') if ($self->composition_format eq 'TDD');
+    $self->ordering_provider->composition_format($self->composition_format);
+    $self->professional->composition_format($self->composition_format);
+    my $formatter = 'compose_' . lc($self->composition_format);
     $self->$formatter();
 }
 
 sub compose_structured {
-    my $self        = shift;
-    my $composition = {
-        '_mapping' => [
-            {   '|match' => '',
-                'target' => [
-                    {   '|terminology' => '',
-                        '|code'        => '',
-                    }
-                ]
-            }
-        ],
-        '|terminology' => $self->terminology,
-        '|value'       => $self->name,
-        '|code'        => $self->code,
-    };
+    my $self = shift;
+    my $composition = [{ 
+        professional_identifier => [$self->professional->compose()], 
+        ordering_provider => [ { ordering_provider =>  [$self->ordering_provider->compose()] } ]
+    }];
     return $composition;
 }
 
 sub compose_raw {
-    my $self        = shift;
-    my $composition = {
-        'archetype_node_id' => 'at0005',
-        'name'              => {
+    my $self = shift;
+    my $items;
+    push @{$items}, $self->professional->compose();
+    push @{$items}, $self->ordering_provider->compose();  
+    my $composition = { 
+        'name' => {
             '@class' => 'DV_TEXT',
-            'value'  => 'Requested Test'
+            'value' => 'Requester'
         },
-        '@class' => 'ELEMENT',
-        'value'  => {
-            '@class'        => 'DV_CODED_TEXT',
-            'value'         => $self->name,
-            'defining_code' => {
-                '@class'         => 'CODE_PHRASE',
-                'code_string'    => $self->code,
-                'terminology_id' => {
-                    'value'  => $self->terminology,
-                    '@class' => 'TERMINOLOGY_ID'
-                }
-            }
-        }
+        'archetype_details' => {
+            'rm_version' => '1.0.1',
+            'archetype_id' => {
+                'value' => 'openEHR-EHR-CLUSTER.individual_professional.v1',
+                '@class' => 'ARCHETYPE_ID'
+            },
+            '@class' => 'ARCHETYPED'
+        },
+        items => $items,
+        '@class' => 'CLUSTER',
+        'archetype_node_id' => 'openEHR-EHR-CLUSTER.individual_professional.v1',
     };
-    if ( $self->mapping ) {
-        $composition->{'mappings'} = [
-            {   'target' => {
-                    '@class'         => 'CODE_PHRASE',
-                    'code_string'    => $self->mapping->{code},
-                    'terminology_id' => {
-                        '@class' => 'TERMINOLOGY_ID',
-                        'value'  => $self->mapping->{terminology},
-                    }
-                },
-                '@class' => 'TERM_MAPPING',
-                'match'  => $self->mapping->{match},
-            }
-        ];
-    }
     return $composition;
 }
 
 sub compose_flat {
-    my $self        = shift;
+    my $self = shift;
     my $composition = {
-        'laboratory_result_report/laboratory_test:__TEST__/requested_test' =>
-            $self->requested_test,
-        'laboratory_result_report/laboratory_test:__TEST__/requested_test|code'
-            => $self->code,
-        'laboratory_result_report/laboratory_test:__TEST__/requested_test|terminology'
-            => $self->terminology,
-        'laboratory_result_report/laboratory_test:__TEST__/requested_test|value'
-            => $self->name,
-        'laboratory_result_report/laboratory_test:__TEST__/requested_test/_mapping:0|match'
-            => '',
-        'laboratory_result_report/laboratory_test:__TEST__/requested_test/_mapping:0/target|code'
-            => '',
-        'laboratory_result_report/laboratory_test:__TEST__/requested_test/_mapping:0/target|terminology'
-            => '',
-    };
+        %{$self->professional->compose()}, 
+        %{$self->ordering_provider->compose()}};
     return $composition;
 }
+
+
 
 no Moose;
 
@@ -119,32 +71,62 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::LabTest::RequestedTest - [One line description of module's purpose here]
+OpenEHR::Composition::Elements::LabTest::Requester - Requestor composition element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::LabTest::RequestedTest version 0.0.1
+This document describes OpenEHR::Composition::Elements::LabTest::Requester version 0.0.1
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::LabTest::RequestedTest;
+    use OpenEHR::Composition::Elements::LabTest::Professional;
+    use OpenEHR::Composition::Elements::LabTest::OrderingProvider;
+    use OpenEHR::Composition::Elements::LabTest::Requester;
 
-=for author to fill in:
-    Brief code example(s) here showing commonest usage(s).
-    This section will be as far as many users bother reading
-    so make it as educational and exeplary as possible.
-  
-  
+    my $ordering_provider = OpenEHR::Composition::Elements::LabTest::OrderingProvider->new(
+        given_name => 'A&E',
+        family_name => 'UCLH'
+    );
+
+    my $professional = OpenEHR::Composition::Elements::LabTest::Professional->new({
+        id          => 'AB01',
+        assigner    => 'Carecast',
+        issuer      => 'UCLH',
+        type        => 'local',
+    });
+
+    my $requester = OpenEHR::Composition::Elements::LabTest::Requester->new(
+        ordering_provider   => $ordering_provider,
+        professional        => $professional,
+    );
+
+    $requester->composition_format('FLAT');
+    my $requester_hashref = $requester->compose;
+
+
 =head1 DESCRIPTION
 
-=for author to fill in:
-    Write a full description of the module and its features here.
-    Use subsections (=head2, =head3) as appropriate.
-
+Used to create a hashref element of a requestor for insertion to a 
+composition object. The requestor element may contain a 
+OpenEHR::Composition::Elements::LabTest::Professional object and/or an 
+OpenEHR::Composition::Elements::LabTest::OrderingProvider object
 
 =head1 INTERFACE 
+
+=head1 ATTRIBUTES
+
+=head2 ordering_provider
+
+Identity of the care provider represented as an 
+OpenEHR::Composition::Elements::LabTest::OrderingProvider object
+
+=head2 professional
+
+Identity of the individual at the care provider responsible 
+for the request
+    
 
 =head1 METHODS
 
@@ -163,12 +145,6 @@ Returns a hashref of the object in RAW format
 =head2 compose_flat
 
 Returns a hashref of the object in FLAT format
-
-=for author to fill in:
-    Write a separate section listing the public components of the modules
-    interface. These normally consist of either subroutines that may be
-    exported, or methods that may be called on objects belonging to the
-    classes provided by the module.
 
 
 =head1 DIAGNOSTICS
@@ -203,7 +179,7 @@ Returns a hashref of the object in FLAT format
     that can be set. These descriptions must also include details of any
     configuration language used.
   
-OpenEHR::Composition::LabTest::RequestedTest requires no configuration files or environment variables.
+OpenEHR::Composition::Elements::LabTest::Requester requires no configuration files or environment variables.
 
 
 =head1 DEPENDENCIES
@@ -243,7 +219,7 @@ None reported.
 No bugs have been reported.
 
 Please report any bugs or feature requests to
-C<bug-openehr-composition-requestedtest@rt.cpan.org>, or through the web interface at
+C<bug-openehr-composition-requester@rt.cpan.org>, or through the web interface at
 L<http://rt.cpan.org>.
 
 
@@ -254,7 +230,7 @@ David Ramlakhan  C<< <dram1964@gmail.com> >>
 
 =head1 LICENCE AND COPYRIGHT
 
-Copyright (c) 2018, David Ramlakhan C<< <dram1964@gmail.com> >>. All rights reserved.
+Copyright (c) 2017, David Ramlakhan C<< <dram1964@gmail.com> >>. All rights reserved.
 
 This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself. See L<perlartistic>.

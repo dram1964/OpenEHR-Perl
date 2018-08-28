@@ -4,8 +4,6 @@ use warnings;
 use Test::More;
 use Data::Dumper;
 
-# BEGIN { use_ok( 'OpenEHR::Composition::LabTest' ); }
-
 use OpenEHR::Composition::LabResultReport;
 use OpenEHR::REST::Composition;
 
@@ -19,7 +17,7 @@ while ( my $line = <$fh> ) {
 
 my $ehrId = $config{test_ehrid};
 
-ok( my $schema = OpenEHR::Composition::LabTest->new(), "Setup schema");
+ok( my $schema = OpenEHR::Composition::Elements::LabTest->new(), "Setup schema");
 
 ok(my $request = $schema->compos('RequestedTest')->new(
     requested_test => 'Electrolytes',

@@ -1,4 +1,4 @@
-package OpenEHR::Composition::LabTest::LabResult;
+package OpenEHR::Composition::Elements::LabTest::LabResult;
 
 use warnings;
 use strict;
@@ -491,19 +491,19 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::LabTest::LabResult - Laboratory Test composition element
+OpenEHR::Composition::Elements::LabTest::LabResult - Laboratory Test composition element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::LabTest::LabResult version 0.0.1
+This document describes OpenEHR::Composition::Elements::LabTest::LabResult version 0.0.1
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::LabTest::LabResult;
+    use OpenEHR::Composition::Elements::LabTest::LabResult;
 
-    my $labtest = OpenEHR::Composition::LabTest::LabResult->new(
+    my $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new(
         result_value => 59,
         comment => 'See http://biochem.org for interpretation guidelines',
         ref_range => '50-60',
@@ -645,7 +645,7 @@ None
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-OpenEHR::Composition::LabTest::LabResult requires no configuration files or environment variables.
+OpenEHR::Composition::Elements::LabTest::LabResult requires no configuration files or environment variables.
 
 
 =head1 DEPENDENCIES

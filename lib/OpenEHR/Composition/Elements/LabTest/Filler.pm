@@ -1,4 +1,4 @@
-package OpenEHR::Composition::LabTest::Professional;
+package OpenEHR::Composition::Elements::LabTest::Filler;
 
 use warnings;
 use strict;
@@ -8,7 +8,7 @@ extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
-has id => (
+has order_number => (
     is       => 'rw',
     isa      => 'Str',
     required => 1,
@@ -17,14 +17,14 @@ has issuer => (
     is       => 'rw',
     isa      => 'Str',
     required => 1,
-    default  => 'UCLH',
+    default  => 'UCLH Pathology',
 
 );
 has assigner => (
     is       => 'rw',
     isa      => 'Str',
     required => 1,
-    default  => 'UCLH PAS',
+    default  => 'Winpath',
 );
 has type => (
     is       => 'rw',
@@ -47,7 +47,7 @@ sub compose_structured {
     my $composition = {
         '|assigner' => $self->assigner,
         '|issuer'   => $self->issuer,
-        '|id'       => $self->id,
+        '|id'       => $self->order_number,
         '|type'     => $self->type,
     };
     return $composition;
@@ -59,14 +59,14 @@ sub compose_raw {
         'value' => {
             'type'     => $self->type,
             '@class'   => 'DV_IDENTIFIER',
-            'id'       => $self->id,
+            'id'       => $self->order_number,
             'issuer'   => $self->issuer,
             'assigner' => $self->assigner,
         },
         '@class'            => 'ELEMENT',
-        'archetype_node_id' => 'at0011',
+        'archetype_node_id' => 'at0063',
         'name'              => {
-            'value'  => 'Professional Identifier',
+            'value'  => 'Filler order number',
             '@class' => 'DV_TEXT'
         }
     };
@@ -76,12 +76,12 @@ sub compose_raw {
 sub compose_flat {
     my $self = shift;
     my $path =
-        'laboratory_result_report/laboratory_test:__TEST__/test_request_details/requester/';
+        'laboratory_result_report/laboratory_test:__TEST__/test_request_details/';
     my $composition = {
-        $path . 'professional_identifier'          => $self->id,
-        $path . 'professional_identifier|issuer'   => $self->issuer,
-        $path . 'professional_identifier|assigner' => $self->assigner,
-        $path . 'professional_identifier|type'     => $self->type,
+        $path . 'filler_order_number'          => $self->order_number,
+        $path . 'filler_order_number|issuer'   => $self->issuer,
+        $path . 'filler_order_number|assigner' => $self->assigner,
+        $path . 'filler_order_number|type'     => $self->type,
     };
     return $composition;
 }
@@ -94,55 +94,57 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::LabTest::Professional - Professional Composition Element
+OpenEHR::Composition::Elements::LabTest::Filler - Filler composition element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::LabTest::Professional version 0.0.1
+This document describes OpenEHR::Composition::Elements::LabTest::Filler version 0.0.1
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::LabTest::Professional;
-     
-    my $professional = OpenEHR::Composition::LabTest::Professional->new({
-        id          => 'AB01',
-        assigner    => 'Carecast',
-        issuer      => 'UCLH',
-        type        => 'local',
+    use OpenEHR::Composition::Elements::LabTest::Filler;
+    my $filler = OpenEHR::Composition::Elements::LabTest::Filler->new({
+        order_number    => '17V111333',
+        assigner        => 'Winpath',
+        issuer          => 'UCLH',
+        type            => 'local',
         composition_format => 'FLAT',
     });
-    my $professional_hashref = $professional->compose;
+
+    my $filler_hashref = $filler->compose;
+
   
 =head1 DESCRIPTION
 
-Used to create a hashref element of a professional for insertion to a 
-composition object. When used as part of a PathologyReport composition, 
-the professional element contains details of the clinician placing an order.
+Used to create a hashref element of a filler for insertion into a
+composition object. The filler element contains details from the 
+pathology system used to record the order
+
 
 =head1 INTERFACE 
 
 =head1 ATTRIBUTES
 
-=head2 id
+=head2 order_number
 
-Identifier of professional at provider organisation requesting the test
+Identifier issued by the Laboratory system to track the test results
+associated with a request
 
 =head2 issuer
 
-Organisation responsible for issuing the professional identifier. 
-Defaults to 'UCLH'
+Organisation responsible for issuing the order number on the 
+performing laboratory system. Defaults to 'UCLH Pathology'
 
-=head2 assigner
+=head2 assigner 
 
-System used to assign the professional identifier. Defaults to 
-'UCLH PAS'
+System used to generate the laboratory order number. Defaults
+to 'Winpath'
 
 =head2 type
 
-type of professional identifier issued. Defaults to local
-
+Type of order identifier issued. Defaults to 'local'
 
 =head1 METHODS
 
@@ -165,77 +167,29 @@ Returns a hashref of the object in FLAT format
 
 =head1 DIAGNOSTICS
 
-=for author to fill in:
-    List every single error and warning message that the module can
-    generate (even the ones that will "never happen"), with a full
-    explanation of each problem, one or more likely causes, and any
-    suggested remedies.
-
-=over
-
-=item C<< Error message here, perhaps with %s placeholders >>
-
-[Description of error here]
-
-=item C<< Another error message here >>
-
-[Description of error here]
-
-[Et cetera, et cetera]
-
-=back
-
+None
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-=for author to fill in:
-    A full explanation of any configuration system(s) used by the
-    module, including the names and locations of any configuration
-    files, and the meaning of any environment variables or properties
-    that can be set. These descriptions must also include details of any
-    configuration language used.
-  
-OpenEHR::Composition::LabTest::Professional requires no configuration files or environment variables.
+OpenEHR::Composition::Elements::LabTest::Filler requires no configuration files or 
+environment variables.
 
 
 =head1 DEPENDENCIES
 
-=for author to fill in:
-    A list of all the other modules that this module relies upon,
-    including any restrictions on versions, and an indication whether
-    the module is part of the standard Perl distribution, part of the
-    module's distribution, or must be installed separately. ]
-
 None.
 
-
 =head1 INCOMPATIBILITIES
-
-=for author to fill in:
-    A list of any modules that this module cannot be used in conjunction
-    with. This may be due to name conflicts in the interface, or
-    competition for system or program resources, or due to internal
-    limitations of Perl (for example, many modules that use source code
-    filters are mutually incompatible).
 
 None reported.
 
 
 =head1 BUGS AND LIMITATIONS
 
-=for author to fill in:
-    A list of known problems with the module, together with some
-    indication Whether they are likely to be fixed in an upcoming
-    release. Also a list of restrictions on the features the module
-    does provide: data types that cannot be handled, performance issues
-    and the circumstances in which they may arise, practical
-    limitations on the size of data sets, special cases that are not
-    (yet) handled, etc.
-
 No bugs have been reported.
 
 Please report any bugs or feature requests to
-C<bug-openehr-composition-professional@rt.cpan.org>, or through the web interface at
+C<bug-openehr-composition-filler@rt.cpan.org>, or through the web interface at
 L<http://rt.cpan.org>.
 
 
