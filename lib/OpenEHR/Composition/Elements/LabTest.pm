@@ -35,7 +35,7 @@ sub compos {
     if ($name eq 'LabTest') {
         return __PACKAGE__;
     }
-    elsif ($module_name = [grep /$name/, @{ $modules } ] ) {
+    elsif ($module_name = [grep /::$name$/, @{ $modules } ] ) {
         return $module_name->[0];
     }
     else {
