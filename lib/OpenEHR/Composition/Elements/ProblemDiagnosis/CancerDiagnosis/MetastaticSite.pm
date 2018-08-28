@@ -1,4 +1,4 @@
-package OpenEHR::Composition::ProblemDiagnosis::Diagnosis;
+package OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::MetastaticSite;
 
 use warnings;
 use strict;
@@ -10,7 +10,15 @@ extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
-has diagnosis => (
+has code => (
+    is  => 'rw',
+    isa => 'Str',
+);
+has value => (
+    is  => 'rw',
+    isa => 'Str',
+);
+has terminology => (
     is  => 'rw',
     isa => 'Str',
 );
@@ -26,32 +34,49 @@ sub compose {
 
 sub compose_structured {
     my $self        = shift;
-    my $composition = $self->diagnosis;    # 'Diagnosis 33'
+    my $composition = {
+        '|code'        => $self->code,
+        '|value'       => $self->value,
+        '|terminology' => $self->terminology,
+    };
     return $composition;
 }
 
 sub compose_raw {
     my $self        = shift;
     my $composition = {
-        'name' => {
-            '@class' => 'DV_TEXT',
-            'value'  => 'Diagnosis'
-        },
         'value' => {
-            '@class' => 'DV_TEXT',
-            'value'  => $self->diagnosis,    #'Diagnosis 589'
-        },
-        'archetype_node_id' => 'at0002',
-        '@class'            => 'ELEMENT'
-    };
+                    '@class'        => 'DV_CODED_TEXT',
+                    'value'         => $self->value, #'08 Skin',
+                    'defining_code' => {
+                        'terminology_id' => {
+                            '@class' => 'TERMINOLOGY_ID',
+                            'value'  => $self->terminology, #'local'
+                        },
+                        'code_string' => $self->code, #'at0023',
+                        '@class'      => 'CODE_PHRASE'
+                    }
+                },
+                'name' => {
+                    '@class' => 'DV_TEXT',
+                    'value'  => 'Metastatic site'
+                },
+                '@class'            => 'ELEMENT',
+                'archetype_node_id' => 'at0017'
+            };
     return $composition;
 }
 
 sub compose_flat {
-    my $self = shift;
-    my $composition =
-        { 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/diagnosis:__DIAG__'
-            => $self->diagnosis, };
+    my $self        = shift;
+    my $composition = {
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/metastatic_site:__DIAG2__|terminology'
+            => $self->terminology, #'local',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/metastatic_site:__DIAG2__|code'
+            => $self->code, #'at0023',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/metastatic_site:__DIAG2__|value'
+            => $self->value, #'08 Skin',
+    };
     return $composition;
 }
 
@@ -63,18 +88,18 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::ProblemDiagnosis::Diagnosis - composition element
+OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::MetastaticSite - composition element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::ProblemDiagnosis::Diagnosis version 0.0.2
+This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::MetastaticSite version 0.0.2
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::ProblemDiagnosis::Diagnosis;
-    my $template = OpenEHR::Composition::ProblemDiagnosis::Diagnosis->new(
+    use OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::MetastaticSite;
+    my $template = OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::MetastaticSite->new(
     );
     my $template_hash = $template->compose();
 
@@ -82,7 +107,7 @@ This document describes OpenEHR::Composition::ProblemDiagnosis::Diagnosis versio
   
 =head1 DESCRIPTION
 
-Used to create a template element for adding to a Problem Diagnosis composition object. 
+Used to create a Metastatic Site element for adding to a Cancer Diagnosis Problem Diagnosis item. 
 
 =head1 INTERFACE 
 
@@ -90,9 +115,17 @@ Used to create a template element for adding to a Problem Diagnosis composition 
 
 =head1 METHODS
 
-=head2 diagnosis($diagnosis)
+=head2 code($code)
 
-Used to get or set the text value for the diagnosis.
+Used to get or set the Metastatic Site code
+
+=head2 value($value)
+
+Used to get or set the Metastatic Site value
+
+=head2 terminology($terminology)
+
+Used to get or set the Metastatic Site terminology
 
 =head2 compose
 
@@ -116,7 +149,7 @@ None
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-OpenEHR::Composition::ProblemDiagnosis::Diagnosis requires no configuration files or 
+OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::MetastaticSite requires no configuration files or 
 environment variables.
 
 

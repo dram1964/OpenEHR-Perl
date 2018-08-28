@@ -1,4 +1,4 @@
-package OpenEHR::Composition::ProblemDiagnosis::Integrated_TNM;
+package OpenEHR::Composition::Elements::ProblemDiagnosis::Integrated_TNM;
 
 use warnings;
 use strict;
@@ -217,18 +217,18 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::ProblemDiagnosis::Integrated_TNM - composition element
+OpenEHR::Composition::Elements::ProblemDiagnosis::Integrated_TNM - composition element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::ProblemDiagnosis::Integrated_TNM version 0.0.2
+This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::Integrated_TNM version 0.0.2
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::ProblemDiagnosis::Integrated_TNM;
-    my $template = OpenEHR::Composition::ProblemDiagnosis::Integrated_TNM->new(
+    use OpenEHR::Composition::Elements::ProblemDiagnosis::Integrated_TNM;
+    my $template = OpenEHR::Composition::Elements::ProblemDiagnosis::Integrated_TNM->new(
     );
     my $template_hash = $template->compose();
 
@@ -266,7 +266,7 @@ None
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-OpenEHR::Composition::ProblemDiagnosis::Integrated_TNM requires no configuration files or 
+OpenEHR::Composition::Elements::ProblemDiagnosis::Integrated_TNM requires no configuration files or 
 environment variables.
 
 

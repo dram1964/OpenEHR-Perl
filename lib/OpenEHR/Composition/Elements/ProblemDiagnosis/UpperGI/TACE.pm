@@ -1,4 +1,4 @@
-package OpenEHR::Composition::ProblemDiagnosis::ClinicalEvidence;
+package OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::TACE;
 
 use warnings;
 use strict;
@@ -10,7 +10,15 @@ extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
-has evidence => (
+has code => (
+    is  => 'rw',
+    isa => 'Str',
+);
+has value => (
+    is  => 'rw',
+    isa => 'Str',
+);
+has terminology => (
     is  => 'rw',
     isa => 'Str',
 );
@@ -26,11 +34,10 @@ sub compose {
 
 sub compose_structured {
     my $self        = shift;
-    my $composition = {
-        'base_of_diagnosis' => [
-            $self->evidence
-            ,  #'2 Clinical investigation including all diagnostic techniques'
-        ]
+    my $composition = { 
+        '|code' => $self->code,
+        '|value' => $self->value,
+        '|terminology' => $self->terminology,
     };
     return $composition;
 }
@@ -38,33 +45,24 @@ sub compose_structured {
 sub compose_raw {
     my $self        = shift;
     my $composition = {
-        'archetype_details' => {
-            '@class'       => 'ARCHETYPED',
-            'rm_version'   => '1.0.1',
-            'archetype_id' => {
-                '@class' => 'ARCHETYPE_ID',
-                'value'  => 'openEHR-EHR-CLUSTER.clinical_evidence.v1'
-            }
-        },
-        'name' => {
-            '@class' => 'DV_TEXT',
-            'value'  => 'Clinical evidence'
-        },
-        'items' => [
-            {   'value' => {
-                    '@class' => 'DV_TEXT',
-                    'value'  => $self->evidence,  #'6 Histology of metastasis'
+               'value' => {
+                    'value'         => $self->value, #'Y Yes',
+                    'defining_code' => {
+                        'terminology_id' => {
+                            'value'  => $self->terminology, #'local',
+                            '@class' => 'TERMINOLOGY_ID'
+                        },
+                        '@class'      => 'CODE_PHRASE',
+                        'code_string' => $self->code, #'at0015'
+                    },
+                    '@class' => 'DV_CODED_TEXT'
                 },
                 'name' => {
                     '@class' => 'DV_TEXT',
-                    'value'  => 'Base of diagnosis'
+                    'value'  => 'Transarterial chemoembolisation'
                 },
                 '@class'            => 'ELEMENT',
-                'archetype_node_id' => 'at0003'
-            }
-        ],
-        'archetype_node_id' => 'openEHR-EHR-CLUSTER.clinical_evidence.v1',
-        '@class'            => 'CLUSTER'
+                'archetype_node_id' => 'at0014'
     };
     return $composition;
 }
@@ -72,8 +70,12 @@ sub compose_raw {
 sub compose_flat {
     my $self        = shift;
     my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/clinical_evidence:__DIAG__/base_of_diagnosis'
-            => $self->evidence,    #'6 Histology of metastasis',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/transarterial_chemoembolisation:__DIAG2__|terminology'
+            => $self->terminology, #'local',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/transarterial_chemoembolisation:__DIAG2__|value'
+            => $self->value, #'Y Yes',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/transarterial_chemoembolisation:__DIAG2__|code'
+            => $self->code, #'at0015',
     };
     return $composition;
 }
@@ -86,18 +88,18 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::ProblemDiagnosis::ClinicalEvidence - composition element
+OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::TACE - composition element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::ProblemDiagnosis::ClinicalEvidence version 0.0.2
+This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::TACE version 0.0.2
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::ProblemDiagnosis::ClinicalEvidence;
-    my $template = OpenEHR::Composition::ProblemDiagnosis::ClinicalEvidence->new(
+    use OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::TACE;
+    my $template = OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::TACE->new(
     );
     my $template_hash = $template->compose();
 
@@ -105,7 +107,7 @@ This document describes OpenEHR::Composition::ProblemDiagnosis::ClinicalEvidence
   
 =head1 DESCRIPTION
 
-Used to create a template element for adding to a Problem Diagnosis composition object. 
+Used to create a Transarterial Chemoembolisation (TACE) element for adding to a Upper GI Problem Diagnosis item. 
 
 =head1 INTERFACE 
 
@@ -113,9 +115,17 @@ Used to create a template element for adding to a Problem Diagnosis composition 
 
 =head1 METHODS
 
-=head2 evidence($evidence)
+=head2 code($code)
 
-Used to get or set the clinical evidence item for a Problem Diagnosis
+Used to get or set the TACE code
+
+=head2 value($value)
+
+Used to get or set the TACE value
+
+=head2 terminology($terminology)
+
+Used to get or set the TACE terminology
 
 =head2 compose
 
@@ -139,7 +149,7 @@ None
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-OpenEHR::Composition::ProblemDiagnosis::ClinicalEvidence requires no configuration files or 
+OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::TACE requires no configuration files or 
 environment variables.
 
 

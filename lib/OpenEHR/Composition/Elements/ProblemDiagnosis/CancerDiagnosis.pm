@@ -1,4 +1,4 @@
-package OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis;
+package OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis;
 
 use warnings;
 use strict;
@@ -18,7 +18,7 @@ Used to get or set the Tumour Laterality item of the Cancer Diagnosis item
 
 has tumour_laterality => (
     is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::TumourLaterality]',
+    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::TumourLaterality]',
 );
 
 =head1 metastatic_site($metastatic_site_object)
@@ -29,7 +29,7 @@ Used to get or set the Metastatic Site item of the Cancer Diagnosis item
 
 has metastatic_site => (
     is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::MetastaticSite]',
+    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::MetastaticSite]',
 );
 
 =head1 recurrence_indicator($recurrence_indicator_object)
@@ -40,7 +40,7 @@ Used to get or set the Metastatic Site item of the Cancer Diagnosis item
 
 has recurrence_indicator => (
     is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::RecurrenceIndicator]',
+    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::RecurrenceIndicator]',
 );
 
 =head1 morphology($morphology)
@@ -239,18 +239,18 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis - composition element
+OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis - composition element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis version 0.0.2
+This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis version 0.0.2
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis;
-    my $template = OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis->new(
+    use OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis;
+    my $template = OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis->new(
     );
     my $template_hash = $template->compose();
 
@@ -288,7 +288,7 @@ None
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis requires no configuration files or 
+OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis requires no configuration files or 
 environment variables.
 
 

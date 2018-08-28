@@ -1,4 +1,4 @@
-package OpenEHR::Composition::ProblemDiagnosis::UpperGI::ChildPughScore;
+package OpenEHR::Composition::Elements::ProblemDiagnosis::AJCC_Stage;
 
 use warnings;
 use strict;
@@ -6,21 +6,29 @@ use Carp;
 use Moose;
 use DateTime;
 use Data::Dumper;
+use Moose::Util::TypeConstraints;
 extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
-has code => (
+enum 'stage_grouping' => [
+    'Stage l',
+    'Stage IA',
+    'Stage IB',
+    'Stage ll',
+    'Stage IIA',
+    'Stage IIB',
+    'Stage IIC',
+    'Stage III',
+    'Stage IIIA',
+    'Stage IIIB',
+    'Stage IIIC',
+    'Stage 4'
+];
+
+has ajcc_stage_grouping => (
     is  => 'rw',
-    isa => 'Str',
-);
-has value => (
-    is  => 'rw',
-    isa => 'Str',
-);
-has terminology => (
-    is  => 'rw',
-    isa => 'Str',
+    isa => 'stage_grouping',
 );
 
 sub compose {
@@ -35,54 +43,54 @@ sub compose {
 sub compose_structured {
     my $self        = shift;
     my $composition = {
-        'grade' => [
-            {   '|code'        => $self->code,          #'at0028'
-                '|value'       => $self->value,         #'at0028'
-                '|terminology' => $self->terminology, #'at0028'
-            }
-        ]
+        ajcc_stage_version  => ['AJCC Stage version 55'],
+        ajcc_stage_grouping => [ $self->ajcc_stage_grouping ],
     };
     return $composition;
 }
 
 sub compose_raw {
     my $self        = shift;
+    print Dumper ;
     my $composition = {
-        'archetype_details' => {
-            'rm_version'   => '1.0.1',
-            'archetype_id' => {
-                '@class' => 'ARCHETYPE_ID',
-                'value'  => 'openEHR-EHR-CLUSTER.child_pugh_score.v0'
-            },
-            '@class' => 'ARCHETYPED'
-        },
-        'items' => [
+        '@class'            => 'CLUSTER',
+        'archetype_node_id' => 'openEHR-EHR-CLUSTER.tnm_stage_clinical.v0',
+        'items'             => [
             {   '@class'            => 'ELEMENT',
-                'archetype_node_id' => 'at0026',
+                'archetype_node_id' => 'at0007',
                 'value'             => {
-                    '@class' => 'DV_CODED_TEXT',
-                    'value'  => $self->value,      #'Class A 5 to 6 points.',
-                    'defining_code' => {
-                        'terminology_id' => {
-                            'value'  => $self->terminology,    #'local',
-                            '@class' => 'TERMINOLOGY_ID'
-                        },
-                        'code_string' => $self->code,          #'at0027',
-                        '@class'      => 'CODE_PHRASE'
-                    }
+                    '@class' => 'DV_TEXT',
+                    'value'  => $self->ajcc_stage_grouping,
                 },
                 'name' => {
                     '@class' => 'DV_TEXT',
-                    'value'  => 'Grade'
+                    'value'  => 'AJCC Stage grouping'
+                }
+            },
+            {   'archetype_node_id' => 'at0017',
+                '@class'            => 'ELEMENT',
+                'name'              => {
+                    'value'  => 'AJCC Stage version',
+                    '@class' => 'DV_TEXT'
+                },
+                'value' => {
+                    '@class' => 'DV_TEXT',
+                    'value'  => 'AJCC Stage version 55'
                 }
             }
         ],
         'name' => {
-            '@class' => 'DV_TEXT',
-            'value'  => 'Child-Pugh score'
+            'value'  => 'AJCC stage',
+            '@class' => 'DV_TEXT'
         },
-        '@class'            => 'CLUSTER',
-        'archetype_node_id' => 'openEHR-EHR-CLUSTER.child_pugh_score.v0'
+        'archetype_details' => {
+            '@class'       => 'ARCHETYPED',
+            'archetype_id' => {
+                '@class' => 'ARCHETYPE_ID',
+                'value'  => 'openEHR-EHR-CLUSTER.tnm_stage_clinical.v0'
+            },
+            'rm_version' => '1.0.1'
+        }
     };
     return $composition;
 }
@@ -90,12 +98,10 @@ sub compose_raw {
 sub compose_flat {
     my $self        = shift;
     my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/child-pugh_score:__DIAG2__/grade|code'
-            => $self->code,    #'at0027',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/child-pugh_score:__DIAG2__/grade|value'
-            => $self->value,    #'Class A 5 to 6 points.',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/child-pugh_score:__DIAG2__/grade|terminology'
-            => $self->terminology,    #'local',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/ajcc_stage:__AJCC__/ajcc_stage_version'
+            => 'AJCC Stage version 55',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/ajcc_stage:__AJCC__/ajcc_stage_grouping'
+            => $self->ajcc_stage_grouping,
     };
     return $composition;
 }
@@ -108,18 +114,18 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::ProblemDiagnosis::UpperGI::ChildPughScore - composition element
+OpenEHR::Composition::Elements::ProblemDiagnosis::AJCC_Stage - composition element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::ProblemDiagnosis::UpperGI::ChildPughScore version 0.0.2
+This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::AJCC_Stage version 0.0.2
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::ProblemDiagnosis::UpperGI::ChildPughScore;
-    my $template = OpenEHR::Composition::ProblemDiagnosis::UpperGI::ChildPughScore->new(
+    use OpenEHR::Composition::Elements::ProblemDiagnosis::AJCC_Stage;
+    my $template = OpenEHR::Composition::Elements::ProblemDiagnosis::AJCC_Stage->new(
     );
     my $template_hash = $template->compose();
 
@@ -127,25 +133,20 @@ This document describes OpenEHR::Composition::ProblemDiagnosis::UpperGI::ChildPu
   
 =head1 DESCRIPTION
 
-Used to create a Child-Pugh Score element for adding to a Upper GI Problem Diagnosis item. 
+Used to create a template element for adding to a Problem Diagnosis composition object. 
 
 =head1 INTERFACE 
 
 =head1 ATTRIBUTES
 
+=head2 ajcc_stage_grouping
+
+The AJCC Stage grouping. Must be one of the following: 
+    'Stage l', 'Stage IA', 'Stage IB', 'Stage ll', 'Stage IIA',
+    'Stage IIB', 'Stage IIC', 'Stage III', 'Stage IIIA', 'Stage IIIB',
+    'Stage IIIC', 'Stage 4' 
+
 =head1 METHODS
-
-=head2 code($code)
-
-Used to get or set the Child-Pugh Score code
-
-=head2 value($value)
-
-Used to get or set the Child-Pugh Score value
-
-=head2 terminology($terminology)
-
-Used to get or set the Child-Pugh Score terminology
 
 =head2 compose
 
@@ -169,7 +170,7 @@ None
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-OpenEHR::Composition::ProblemDiagnosis::UpperGI::ChildPughScore requires no configuration files or 
+OpenEHR::Composition::Elements::ProblemDiagnosis::AJCC_Stage requires no configuration files or 
 environment variables.
 
 

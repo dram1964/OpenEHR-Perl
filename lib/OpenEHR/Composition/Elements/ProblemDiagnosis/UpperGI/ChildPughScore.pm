@@ -1,4 +1,4 @@
-package OpenEHR::Composition::ProblemDiagnosis::TesticularStaging::LungMetastases;
+package OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::ChildPughScore;
 
 use warnings;
 use strict;
@@ -35,9 +35,12 @@ sub compose {
 sub compose_structured {
     my $self        = shift;
     my $composition = {
-        '|code'        => $self->code,
-        '|value'       => $self->value,
-        '|terminology' => $self->terminology,
+        'grade' => [
+            {   '|code'        => $self->code,          #'at0028'
+                '|value'       => $self->value,         #'at0028'
+                '|terminology' => $self->terminology, #'at0028'
+            }
+        ]
     };
     return $composition;
 }
@@ -45,39 +48,54 @@ sub compose_structured {
 sub compose_raw {
     my $self        = shift;
     my $composition = {
+        'archetype_details' => {
+            'rm_version'   => '1.0.1',
+            'archetype_id' => {
+                '@class' => 'ARCHETYPE_ID',
+                'value'  => 'openEHR-EHR-CLUSTER.child_pugh_score.v0'
+            },
+            '@class' => 'ARCHETYPED'
+        },
+        'items' => [
+            {   '@class'            => 'ELEMENT',
+                'archetype_node_id' => 'at0026',
+                'value'             => {
+                    '@class' => 'DV_CODED_TEXT',
+                    'value'  => $self->value,      #'Class A 5 to 6 points.',
+                    'defining_code' => {
+                        'terminology_id' => {
+                            'value'  => $self->terminology,    #'local',
+                            '@class' => 'TERMINOLOGY_ID'
+                        },
+                        'code_string' => $self->code,          #'at0027',
+                        '@class'      => 'CODE_PHRASE'
+                    }
+                },
+                'name' => {
+                    '@class' => 'DV_TEXT',
+                    'value'  => 'Grade'
+                }
+            }
+        ],
         'name' => {
-                                'value' =>
-                                    'Lung metastases sub-stage grouping',
-                                '@class' => 'DV_TEXT'
-                            },
-                            'value' => {
-                                'value' =>
-                                    $self->value, #'L1 less than or equal to 3 metastases',
-                                'defining_code' => {
-                                    'terminology_id' => {
-                                        '@class' => 'TERMINOLOGY_ID',
-                                        'value'  => $self->terminology, #'local'
-                                    },
-                                    'code_string' => $self->code, #'at0021',
-                                    '@class'      => 'CODE_PHRASE'
-                                },
-                                '@class' => 'DV_CODED_TEXT'
-                            },
-                            'archetype_node_id' => 'at0020',
-                            '@class'            => 'ELEMENT'
-                        };
+            '@class' => 'DV_TEXT',
+            'value'  => 'Child-Pugh score'
+        },
+        '@class'            => 'CLUSTER',
+        'archetype_node_id' => 'openEHR-EHR-CLUSTER.child_pugh_score.v0'
+    };
     return $composition;
 }
 
 sub compose_flat {
     my $self        = shift;
     my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/lung_metastases_sub-stage_grouping:__DIAG2__|code'
-            => $self->code, #'at0021',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/lung_metastases_sub-stage_grouping:__DIAG2__|value'
-            => $self->value, #'L1 less than or equal to 3 metastases',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/lung_metastases_sub-stage_grouping:__DIAG2__|terminology'
-            => $self->terminology, #'local',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/child-pugh_score:__DIAG2__/grade|code'
+            => $self->code,    #'at0027',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/child-pugh_score:__DIAG2__/grade|value'
+            => $self->value,    #'Class A 5 to 6 points.',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/child-pugh_score:__DIAG2__/grade|terminology'
+            => $self->terminology,    #'local',
     };
     return $composition;
 }
@@ -90,18 +108,18 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::ProblemDiagnosis::TesticularStaging::LungMetastases - composition element
+OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::ChildPughScore - composition element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::ProblemDiagnosis::TesticularStaging::LungMetastases version 0.0.2
+This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::ChildPughScore version 0.0.2
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::ProblemDiagnosis::TesticularStaging::LungMetastases;
-    my $template = OpenEHR::Composition::ProblemDiagnosis::TesticularStaging::LungMetastases->new(
+    use OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::ChildPughScore;
+    my $template = OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::ChildPughScore->new(
     );
     my $template_hash = $template->compose();
 
@@ -109,7 +127,7 @@ This document describes OpenEHR::Composition::ProblemDiagnosis::TesticularStagin
   
 =head1 DESCRIPTION
 
-Used to create a template element for adding to a Problem Diagnosis composition object. 
+Used to create a Child-Pugh Score element for adding to a Upper GI Problem Diagnosis item. 
 
 =head1 INTERFACE 
 
@@ -119,15 +137,15 @@ Used to create a template element for adding to a Problem Diagnosis composition 
 
 =head2 code($code)
 
-Used to get or set the Lung Metastases code
+Used to get or set the Child-Pugh Score code
 
 =head2 value($value)
 
-Used to get or set the Lung Metastases value
+Used to get or set the Child-Pugh Score value
 
 =head2 terminology($terminology)
 
-Used to get or set the Lung Metastases terminology
+Used to get or set the Child-Pugh Score terminology
 
 =head2 compose
 
@@ -151,7 +169,7 @@ None
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-OpenEHR::Composition::ProblemDiagnosis::TesticularStaging::LungMetastases requires no configuration files or 
+OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::ChildPughScore requires no configuration files or 
 environment variables.
 
 

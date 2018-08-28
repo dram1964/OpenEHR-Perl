@@ -1,4 +1,4 @@
-package OpenEHR::Composition::ProblemDiagnosis::AJCC_Stage;
+package OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::LungMetastases;
 
 use warnings;
 use strict;
@@ -6,29 +6,21 @@ use Carp;
 use Moose;
 use DateTime;
 use Data::Dumper;
-use Moose::Util::TypeConstraints;
 extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
-enum 'stage_grouping' => [
-    'Stage l',
-    'Stage IA',
-    'Stage IB',
-    'Stage ll',
-    'Stage IIA',
-    'Stage IIB',
-    'Stage IIC',
-    'Stage III',
-    'Stage IIIA',
-    'Stage IIIB',
-    'Stage IIIC',
-    'Stage 4'
-];
-
-has ajcc_stage_grouping => (
+has code => (
     is  => 'rw',
-    isa => 'stage_grouping',
+    isa => 'Str',
+);
+has value => (
+    is  => 'rw',
+    isa => 'Str',
+);
+has terminology => (
+    is  => 'rw',
+    isa => 'Str',
 );
 
 sub compose {
@@ -43,65 +35,49 @@ sub compose {
 sub compose_structured {
     my $self        = shift;
     my $composition = {
-        ajcc_stage_version  => ['AJCC Stage version 55'],
-        ajcc_stage_grouping => [ $self->ajcc_stage_grouping ],
+        '|code'        => $self->code,
+        '|value'       => $self->value,
+        '|terminology' => $self->terminology,
     };
     return $composition;
 }
 
 sub compose_raw {
     my $self        = shift;
-    print Dumper ;
     my $composition = {
-        '@class'            => 'CLUSTER',
-        'archetype_node_id' => 'openEHR-EHR-CLUSTER.tnm_stage_clinical.v0',
-        'items'             => [
-            {   '@class'            => 'ELEMENT',
-                'archetype_node_id' => 'at0007',
-                'value'             => {
-                    '@class' => 'DV_TEXT',
-                    'value'  => $self->ajcc_stage_grouping,
-                },
-                'name' => {
-                    '@class' => 'DV_TEXT',
-                    'value'  => 'AJCC Stage grouping'
-                }
-            },
-            {   'archetype_node_id' => 'at0017',
-                '@class'            => 'ELEMENT',
-                'name'              => {
-                    'value'  => 'AJCC Stage version',
-                    '@class' => 'DV_TEXT'
-                },
-                'value' => {
-                    '@class' => 'DV_TEXT',
-                    'value'  => 'AJCC Stage version 55'
-                }
-            }
-        ],
         'name' => {
-            'value'  => 'AJCC stage',
-            '@class' => 'DV_TEXT'
-        },
-        'archetype_details' => {
-            '@class'       => 'ARCHETYPED',
-            'archetype_id' => {
-                '@class' => 'ARCHETYPE_ID',
-                'value'  => 'openEHR-EHR-CLUSTER.tnm_stage_clinical.v0'
-            },
-            'rm_version' => '1.0.1'
-        }
-    };
+                                'value' =>
+                                    'Lung metastases sub-stage grouping',
+                                '@class' => 'DV_TEXT'
+                            },
+                            'value' => {
+                                'value' =>
+                                    $self->value, #'L1 less than or equal to 3 metastases',
+                                'defining_code' => {
+                                    'terminology_id' => {
+                                        '@class' => 'TERMINOLOGY_ID',
+                                        'value'  => $self->terminology, #'local'
+                                    },
+                                    'code_string' => $self->code, #'at0021',
+                                    '@class'      => 'CODE_PHRASE'
+                                },
+                                '@class' => 'DV_CODED_TEXT'
+                            },
+                            'archetype_node_id' => 'at0020',
+                            '@class'            => 'ELEMENT'
+                        };
     return $composition;
 }
 
 sub compose_flat {
     my $self        = shift;
     my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/ajcc_stage:__AJCC__/ajcc_stage_version'
-            => 'AJCC Stage version 55',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/ajcc_stage:__AJCC__/ajcc_stage_grouping'
-            => $self->ajcc_stage_grouping,
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/lung_metastases_sub-stage_grouping:__DIAG2__|code'
+            => $self->code, #'at0021',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/lung_metastases_sub-stage_grouping:__DIAG2__|value'
+            => $self->value, #'L1 less than or equal to 3 metastases',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/lung_metastases_sub-stage_grouping:__DIAG2__|terminology'
+            => $self->terminology, #'local',
     };
     return $composition;
 }
@@ -114,18 +90,18 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::ProblemDiagnosis::AJCC_Stage - composition element
+OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::LungMetastases - composition element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::ProblemDiagnosis::AJCC_Stage version 0.0.2
+This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::LungMetastases version 0.0.2
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::ProblemDiagnosis::AJCC_Stage;
-    my $template = OpenEHR::Composition::ProblemDiagnosis::AJCC_Stage->new(
+    use OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::LungMetastases;
+    my $template = OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::LungMetastases->new(
     );
     my $template_hash = $template->compose();
 
@@ -139,14 +115,19 @@ Used to create a template element for adding to a Problem Diagnosis composition 
 
 =head1 ATTRIBUTES
 
-=head2 ajcc_stage_grouping
-
-The AJCC Stage grouping. Must be one of the following: 
-    'Stage l', 'Stage IA', 'Stage IB', 'Stage ll', 'Stage IIA',
-    'Stage IIB', 'Stage IIC', 'Stage III', 'Stage IIIA', 'Stage IIIB',
-    'Stage IIIC', 'Stage 4' 
-
 =head1 METHODS
+
+=head2 code($code)
+
+Used to get or set the Lung Metastases code
+
+=head2 value($value)
+
+Used to get or set the Lung Metastases value
+
+=head2 terminology($terminology)
+
+Used to get or set the Lung Metastases terminology
 
 =head2 compose
 
@@ -170,7 +151,7 @@ None
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-OpenEHR::Composition::ProblemDiagnosis::AJCC_Stage requires no configuration files or 
+OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::LungMetastases requires no configuration files or 
 environment variables.
 
 

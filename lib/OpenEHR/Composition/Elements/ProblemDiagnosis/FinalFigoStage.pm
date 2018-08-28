@@ -1,4 +1,4 @@
-package OpenEHR::Composition::ProblemDiagnosis::FinalFigoStage;
+package OpenEHR::Composition::Elements::ProblemDiagnosis::FinalFigoStage;
 
 use warnings;
 use strict;
@@ -128,18 +128,18 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::ProblemDiagnosis::FinalFigoStage - composition element
+OpenEHR::Composition::Elements::ProblemDiagnosis::FinalFigoStage - composition element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::ProblemDiagnosis::FinalFigoStage version 0.0.2
+This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::FinalFigoStage version 0.0.2
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::ProblemDiagnosis::FinalFigoStage;
-    my $template = OpenEHR::Composition::ProblemDiagnosis::FinalFigoStage->new(
+    use OpenEHR::Composition::Elements::ProblemDiagnosis::FinalFigoStage;
+    my $template = OpenEHR::Composition::Elements::ProblemDiagnosis::FinalFigoStage->new(
     );
     my $template_hash = $template->compose();
 
@@ -193,7 +193,7 @@ None
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-OpenEHR::Composition::ProblemDiagnosis::FinalFigoStage requires no configuration files or 
+OpenEHR::Composition::Elements::ProblemDiagnosis::FinalFigoStage requires no configuration files or 
 environment variables.
 
 

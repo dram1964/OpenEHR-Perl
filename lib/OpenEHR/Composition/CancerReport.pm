@@ -7,13 +7,13 @@ use Moose;
 use DateTime;
 use Data::Dumper;
 extends 'OpenEHR::Composition';
-use OpenEHR::Composition::ProblemDiagnosis;
+use OpenEHR::Composition::Elements::ProblemDiagnosis;
 
 use version; our $VERSION = qv('0.0.2');
 
 has problem_diagnoses => (
     is      => 'rw',
-    isa     => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis]',
+    isa     => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis]',
     default => sub { [] }
 );
 

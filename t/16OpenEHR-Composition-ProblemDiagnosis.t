@@ -3,25 +3,25 @@ use warnings;
 use Test::More;
 use Data::Dumper;
 =head1 removed
-use OpenEHR::Composition::ProblemDiagnosis::AJCC_Stage;
-use OpenEHR::Composition::ProblemDiagnosis::Diagnosis;
+use OpenEHR::Composition::Elements::ProblemDiagnosis::AJCC_Stage;
+use OpenEHR::Composition::Elements::ProblemDiagnosis::Diagnosis;
 =cut
 
-BEGIN { use_ok('OpenEHR::Composition::ProblemDiagnosis'); }
+BEGIN { use_ok('OpenEHR::Composition::Elements::ProblemDiagnosis'); }
 
 my @formats = qw[FLAT STRUCTURED RAW];
 @formats = qw[RAW];
 for my $format (@formats) {
-    ok(my $ajcc_stage = OpenEHR::Composition::ProblemDiagnosis::AJCC_Stage->new(
+    ok(my $ajcc_stage = OpenEHR::Composition::Elements::ProblemDiagnosis::AJCC_Stage->new(
         stage_group => 'Stage IIA'), 'Create new AJCC Stage object');
     ok($ajcc_stage->composition_format($format), "Set $format format for AJCC Stage");
 
-    ok(my $diagnosis = OpenEHR::Composition::ProblemDiagnosis::Diagnosis->new(
+    ok(my $diagnosis = OpenEHR::Composition::Elements::ProblemDiagnosis::Diagnosis->new(
         diagnosis => 'Colorectal Cancer'),  'Create new Diagnosis object');
     ok($diagnosis->composition_format($format), "Set $format format for Diagnosis Stage");
 
 
-    ok(my $problem_diagnosis = OpenEHR::Composition::ProblemDiagnosis->new(
+    ok(my $problem_diagnosis = OpenEHR::Composition::Elements::ProblemDiagnosis->new(
         ajcc_stage => [$ajcc_stage],
         diagnosis => [$diagnosis],
         ), 

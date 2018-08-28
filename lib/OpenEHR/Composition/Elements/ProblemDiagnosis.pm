@@ -1,4 +1,4 @@
-package OpenEHR::Composition::ProblemDiagnosis;
+package OpenEHR::Composition::Elements::ProblemDiagnosis;
 
 use warnings;
 use strict;
@@ -8,7 +8,7 @@ use DateTime;
 use Data::Dumper;
 extends 'OpenEHR::Composition';
 use Module::Find;
-useall OpenEHR::Composition::ProblemDiagnosis;
+useall OpenEHR::Composition::Elements::ProblemDiagnosis;
 
 use version; our $VERSION = qv('0.0.2');
 
@@ -20,7 +20,7 @@ Used to get or set the AJCC Stage item for the Problem Diagnosis
 
 has ajcc_stage => (
     is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::AJCC_Stage]',
+    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::AJCC_Stage]',
 );
 
 =head2 colorectal_diagnosis($colorectal_diagnosis_object)
@@ -32,7 +32,7 @@ Used to get or set the Colorectal Diagnosis item for the Problem Diagnosis
 has colorectal_diagnosis => (
     is => 'rw',
     isa =>
-        'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::ColorectalDiagnosis]',
+        'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::ColorectalDiagnosis]',
 );
 
 =head2 diagnosis($diagnosis_object)
@@ -43,7 +43,7 @@ Used to get or set the diagnosis item for the Problem Diagnosis
 
 has diagnosis => (
     is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::Diagnosis]',
+    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::Diagnosis]',
 );
 
 =head2 modified_dukes($modified_dukes_object)
@@ -54,7 +54,7 @@ Used to get or set the modified_dukes item for the Problem Diagnosis
 
 has modified_dukes => (
     is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::ModifiedDukes]',
+    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::ModifiedDukes]',
 );
 
 =head2 tumour_id($tumour_id_object)
@@ -65,7 +65,7 @@ Used to get or set the tumour_id item for the Problem Diagnosis
 
 has tumour_id => (
     is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::TumourID]',
+    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::TumourID]',
 );
 
 =head2 clinical_evidence($clinical_evidence_object)
@@ -77,7 +77,7 @@ Used to get or set the clinical_evidence item for the Problem Diagnosis
 has clinical_evidence => (
     is => 'rw',
     isa =>
-        'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::ClinicalEvidence]',
+        'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::ClinicalEvidence]',
 );
 
 =head2 upper_gi_staging($upper_gi_object)
@@ -88,7 +88,7 @@ Used to get or set the upper_gi item for the Problem Diagnosis
 
 has upper_gi_staging => (
     is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::UpperGI]',
+    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI]',
 );
 
 =head2 integrated_tnm($upper_gi_object)
@@ -99,7 +99,7 @@ Used to get or set the integrated tnm item for the Problem Diagnosis
 
 has integrated_tnm => (
     is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::Integrated_TNM]',
+    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::Integrated_TNM]',
 );
 
 =head2 inrg_staging($upper_gi_object)
@@ -110,7 +110,7 @@ Used to get or set the inrg staging item for the Problem Diagnosis
 
 has inrg_staging => (
     is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::INRG_Staging]',
+    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::INRG_Staging]',
 );
 
 =head2 cancer_diagnosis($upper_gi_object)
@@ -121,7 +121,7 @@ Used to get or set the cancer diagnosis item for the Problem Diagnosis
 
 has cancer_diagnosis => (
     is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis]',
+    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis]',
 );
 
 =head2 final_figo_stage($final_figo_stage_object)
@@ -132,7 +132,7 @@ Used to get or set the final figo stage item for the Problem Diagnosis
 
 has final_figo_stage => (
     is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::FinalFigoStage]',
+    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::FinalFigoStage]',
 );
 
 =head2 event_date($datetime_object)
@@ -154,7 +154,7 @@ Used to get or set the testicular staging item for the Problem Diagnosis
 
 has testicular_staging => (
     is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::TesticularStaging]',
+    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging]',
 );
 
 sub compose {
@@ -603,18 +603,18 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::ProblemDiagnosis - Problem Diagnosis composition element
+OpenEHR::Composition::Elements::ProblemDiagnosis - Problem Diagnosis composition element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::ProblemDiagnosis version 0.0.2
+This document describes OpenEHR::Composition::Elements::ProblemDiagnosis version 0.0.2
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::ProblemDiagnosis;
-    my $diagnosis = OpenEHR::Composition::ProblemDiagnosis->new(
+    use OpenEHR::Composition::Elements::ProblemDiagnosis;
+    my $diagnosis = OpenEHR::Composition::Elements::ProblemDiagnosis->new(
     );
     my $diagnosis_hash = $diagnosis->compose();
 
@@ -653,7 +653,7 @@ None
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-OpenEHR::Composition::ProblemDiagnosis requires no configuration files or 
+OpenEHR::Composition::Elements::ProblemDiagnosis requires no configuration files or 
 environment variables.
 
 

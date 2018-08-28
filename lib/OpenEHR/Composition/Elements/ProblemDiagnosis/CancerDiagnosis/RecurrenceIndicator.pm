@@ -1,4 +1,4 @@
-package OpenEHR::Composition::ProblemDiagnosis::ModifiedDukes;
+package OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::RecurrenceIndicator;
 
 use warnings;
 use strict;
@@ -35,12 +35,9 @@ sub compose {
 sub compose_structured {
     my $self        = shift;
     my $composition = {
-        'modified_dukes_stage' => [
-            {   '|code'        => $self->code,
-                '|value'       => $self->value,
-                '|terminology' => $self->terminology,
-            }
-        ]
+        '|code'        => $self->code,
+        '|value'       => $self->value,
+        '|terminology' => $self->terminology,
     };
     return $composition;
 }
@@ -48,41 +45,24 @@ sub compose_structured {
 sub compose_raw {
     my $self        = shift;
     my $composition = {
-        'archetype_node_id' => 'openEHR-EHR-CLUSTER.modified_dukes_stage.v0',
-        '@class'            => 'CLUSTER',
-        'archetype_details' => {
-            '@class'       => 'ARCHETYPED',
-            'archetype_id' => {
-                'value'  => 'openEHR-EHR-CLUSTER.modified_dukes_stage.v0',
-                '@class' => 'ARCHETYPE_ID'
+        'value' => {
+            '@class'        => 'DV_CODED_TEXT',
+            'defining_code' => {
+                'terminology_id' => {
+                    '@class' => 'TERMINOLOGY_ID',
+                    'value'  => $self->terminology, #'local'
+                },
+                '@class'      => 'CODE_PHRASE',
+                'code_string' => $self->code, #'at0016'
             },
-            'rm_version' => '1.0.1'
+            'value' => $self->value, #'NN'
         },
         'name' => {
-            '@class' => 'DV_TEXT',
-            'value'  => 'Modified Dukes stage'
+            'value'  => 'Recurrence indicator',
+            '@class' => 'DV_TEXT'
         },
-        'items' => [
-            {   'value' => {
-                    '@class'        => 'DV_CODED_TEXT',
-                    'defining_code' => {
-                        'code_string'    => $self->code,     #'at0006',
-                        '@class'         => 'CODE_PHRASE',
-                        'terminology_id' => {
-                            'value'  => $self->terminology,    #'local',
-                            '@class' => 'TERMINOLOGY_ID'
-                        }
-                    },
-                    'value' => $self->value,    #'Dukes Stage D'
-                },
-                'name' => {
-                    '@class' => 'DV_TEXT',
-                    'value'  => 'Modified Dukes stage'
-                },
-                '@class'            => 'ELEMENT',
-                'archetype_node_id' => 'at0001'
-            }
-        ]
+        '@class'            => 'ELEMENT',
+        'archetype_node_id' => 'at0013'
     };
     return $composition;
 }
@@ -90,12 +70,12 @@ sub compose_raw {
 sub compose_flat {
     my $self        = shift;
     my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/modified_dukes_stage:__DIAG__/modified_dukes_stage|value'
-            => $self->value,    #'Dukes Stage D',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/modified_dukes_stage:__DIAG__/modified_dukes_stage|terminology'
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/recurrence_indicator:__DIAG2__|value'
+            => $self->value,    #'NN',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/recurrence_indicator:__DIAG2__|code'
+            => $self->code,     #'at0016',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/recurrence_indicator:__DIAG2__|terminology'
             => $self->terminology,    #'local',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/modified_dukes_stage:__DIAG__/modified_dukes_stage|code'
-            => $self->code,           #'at0006',
     };
     return $composition;
 }
@@ -108,18 +88,18 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::ProblemDiagnosis::ModifiedDukes - composition element
+OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::RecurrenceIndicator - composition element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::ProblemDiagnosis::ModifiedDukes version 0.0.2
+This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::RecurrenceIndicator version 0.0.2
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::ProblemDiagnosis::ModifiedDukes;
-    my $template = OpenEHR::Composition::ProblemDiagnosis::ModifiedDukes->new(
+    use OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::RecurrenceIndicator;
+    my $template = OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::RecurrenceIndicator->new(
     );
     my $template_hash = $template->compose();
 
@@ -127,7 +107,7 @@ This document describes OpenEHR::Composition::ProblemDiagnosis::ModifiedDukes ve
   
 =head1 DESCRIPTION
 
-Used to create a template element for adding to a Problem Diagnosis composition object. 
+Used to create a Recurrence Indicator element for adding to a Cancer Diagnosis Problem Diagnosis item. 
 
 =head1 INTERFACE 
 
@@ -137,15 +117,15 @@ Used to create a template element for adding to a Problem Diagnosis composition 
 
 =head2 code($code)
 
-Used to get or set the modified dukes stage code
+Used to get or set the Recurrence Indicator code
 
 =head2 value($value)
 
-Used to get or set the modified dukes stage value
+Used to get or set the Recurrence Indicator value
 
 =head2 terminology($terminology)
 
-Used to get or set the modified dukes stage terminology
+Used to get or set the Recurrence Indicator terminology
 
 =head2 compose
 
@@ -169,7 +149,7 @@ None
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-OpenEHR::Composition::ProblemDiagnosis::ModifiedDukes requires no configuration files or 
+OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::RecurrenceIndicator requires no configuration files or 
 environment variables.
 
 

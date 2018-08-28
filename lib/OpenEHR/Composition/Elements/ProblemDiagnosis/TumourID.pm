@@ -1,4 +1,4 @@
-package OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::RecurrenceIndicator;
+package OpenEHR::Composition::Elements::ProblemDiagnosis::TumourID;
 
 use warnings;
 use strict;
@@ -10,15 +10,22 @@ extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
-has code => (
+has id => (
     is  => 'rw',
     isa => 'Str',
 );
-has value => (
+
+has assigner => (
     is  => 'rw',
     isa => 'Str',
 );
-has terminology => (
+
+has issuer => (
+    is  => 'rw',
+    isa => 'Str',
+);
+
+has type => (
     is  => 'rw',
     isa => 'Str',
 );
@@ -35,9 +42,13 @@ sub compose {
 sub compose_structured {
     my $self        = shift;
     my $composition = {
-        '|code'        => $self->code,
-        '|value'       => $self->value,
-        '|terminology' => $self->terminology,
+        'tumour_identifier' => [
+            {   '|type'     => $self->type,
+                '|issuer'   => $self->issuer,
+                '|id'       => $self->id,
+                '|assigner' => $self->assigner,
+            },
+        ],
     };
     return $composition;
 }
@@ -45,24 +56,36 @@ sub compose_structured {
 sub compose_raw {
     my $self        = shift;
     my $composition = {
-        'value' => {
-            '@class'        => 'DV_CODED_TEXT',
-            'defining_code' => {
-                'terminology_id' => {
-                    '@class' => 'TERMINOLOGY_ID',
-                    'value'  => $self->terminology, #'local'
-                },
-                '@class'      => 'CODE_PHRASE',
-                'code_string' => $self->code, #'at0016'
-            },
-            'value' => $self->value, #'NN'
-        },
         'name' => {
-            'value'  => 'Recurrence indicator',
+            'value'  => 'Tumour ID',
             '@class' => 'DV_TEXT'
         },
-        '@class'            => 'ELEMENT',
-        'archetype_node_id' => 'at0013'
+        'items' => [
+            {   'value' => {
+                    'id'       => $self->id,
+                    'issuer'   => $self->issuer,
+                    '@class'   => 'DV_IDENTIFIER',
+                    'assigner' => $self->assigner,
+                    'type'     => $self->type,
+                },
+                'name' => {
+                    '@class' => 'DV_TEXT',
+                    'value'  => 'Tumour identifier'
+                },
+                '@class'            => 'ELEMENT',
+                'archetype_node_id' => 'at0001'
+            }
+        ],
+        'archetype_details' => {
+            'archetype_id' => {
+                'value'  => 'openEHR-EHR-CLUSTER.tumour_id_gel.v0',
+                '@class' => 'ARCHETYPE_ID'
+            },
+            'rm_version' => '1.0.1',
+            '@class'     => 'ARCHETYPED'
+        },
+        'archetype_node_id' => 'openEHR-EHR-CLUSTER.tumour_id_gel.v0',
+        '@class'            => 'CLUSTER'
     };
     return $composition;
 }
@@ -70,12 +93,14 @@ sub compose_raw {
 sub compose_flat {
     my $self        = shift;
     my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/recurrence_indicator:__DIAG2__|value'
-            => $self->value,    #'NN',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/recurrence_indicator:__DIAG2__|code'
-            => $self->code,     #'at0016',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/recurrence_indicator:__DIAG2__|terminology'
-            => $self->terminology,    #'local',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/tumour_id:__DIAG__/tumour_identifier:0|issuer'
+            => $self->issuer,
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/tumour_id:__DIAG__/tumour_identifier:0'
+            => $self->id,
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/tumour_id:__DIAG__/tumour_identifier:0|assigner'
+            => $self->assigner,
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/tumour_id:__DIAG__/tumour_identifier:0|type'
+            => $self->type,
     };
     return $composition;
 }
@@ -88,18 +113,18 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::RecurrenceIndicator - composition element
+OpenEHR::Composition::Elements::ProblemDiagnosis::TumourID - composition element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::RecurrenceIndicator version 0.0.2
+This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::TumourID version 0.0.2
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::RecurrenceIndicator;
-    my $template = OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::RecurrenceIndicator->new(
+    use OpenEHR::Composition::Elements::ProblemDiagnosis::TumourID;
+    my $template = OpenEHR::Composition::Elements::ProblemDiagnosis::TumourID->new(
     );
     my $template_hash = $template->compose();
 
@@ -107,7 +132,7 @@ This document describes OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis:
   
 =head1 DESCRIPTION
 
-Used to create a Recurrence Indicator element for adding to a Cancer Diagnosis Problem Diagnosis item. 
+Used to create a template element for adding to a Problem Diagnosis composition object. 
 
 =head1 INTERFACE 
 
@@ -115,17 +140,21 @@ Used to create a Recurrence Indicator element for adding to a Cancer Diagnosis P
 
 =head1 METHODS
 
-=head2 code($code)
+=head2 id($id)
 
-Used to get or set the Recurrence Indicator code
+Used to get or set the tumour indicator id
 
-=head2 value($value)
+=head2 assigner($assigner)
 
-Used to get or set the Recurrence Indicator value
+Used to get or set the tumour indicator assigner
 
-=head2 terminology($terminology)
+=head2 issuer($issuer)
 
-Used to get or set the Recurrence Indicator terminology
+Used to get or set the tumour indicator issuer
+
+=head2 type($type)
+
+Used to get or set the tumour indicator type
 
 =head2 compose
 
@@ -149,7 +178,7 @@ None
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::RecurrenceIndicator requires no configuration files or 
+OpenEHR::Composition::Elements::ProblemDiagnosis::TumourID requires no configuration files or 
 environment variables.
 
 

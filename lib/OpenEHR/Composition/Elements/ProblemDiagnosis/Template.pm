@@ -1,4 +1,4 @@
-package OpenEHR::Composition::ProblemDiagnosis::TumourID;
+package OpenEHR::Composition::Elements::ProblemDiagnosis::Template;
 
 use warnings;
 use strict;
@@ -9,26 +9,6 @@ use Data::Dumper;
 extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
-
-has id => (
-    is  => 'rw',
-    isa => 'Str',
-);
-
-has assigner => (
-    is  => 'rw',
-    isa => 'Str',
-);
-
-has issuer => (
-    is  => 'rw',
-    isa => 'Str',
-);
-
-has type => (
-    is  => 'rw',
-    isa => 'Str',
-);
 
 sub compose {
     my $self = shift;
@@ -41,67 +21,19 @@ sub compose {
 
 sub compose_structured {
     my $self        = shift;
-    my $composition = {
-        'tumour_identifier' => [
-            {   '|type'     => $self->type,
-                '|issuer'   => $self->issuer,
-                '|id'       => $self->id,
-                '|assigner' => $self->assigner,
-            },
-        ],
-    };
+    my $composition;
     return $composition;
 }
 
 sub compose_raw {
     my $self        = shift;
-    my $composition = {
-        'name' => {
-            'value'  => 'Tumour ID',
-            '@class' => 'DV_TEXT'
-        },
-        'items' => [
-            {   'value' => {
-                    'id'       => $self->id,
-                    'issuer'   => $self->issuer,
-                    '@class'   => 'DV_IDENTIFIER',
-                    'assigner' => $self->assigner,
-                    'type'     => $self->type,
-                },
-                'name' => {
-                    '@class' => 'DV_TEXT',
-                    'value'  => 'Tumour identifier'
-                },
-                '@class'            => 'ELEMENT',
-                'archetype_node_id' => 'at0001'
-            }
-        ],
-        'archetype_details' => {
-            'archetype_id' => {
-                'value'  => 'openEHR-EHR-CLUSTER.tumour_id_gel.v0',
-                '@class' => 'ARCHETYPE_ID'
-            },
-            'rm_version' => '1.0.1',
-            '@class'     => 'ARCHETYPED'
-        },
-        'archetype_node_id' => 'openEHR-EHR-CLUSTER.tumour_id_gel.v0',
-        '@class'            => 'CLUSTER'
-    };
+    my $composition;
     return $composition;
 }
 
 sub compose_flat {
     my $self        = shift;
-    my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/tumour_id:__DIAG__/tumour_identifier:0|issuer'
-            => $self->issuer,
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/tumour_id:__DIAG__/tumour_identifier:0'
-            => $self->id,
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/tumour_id:__DIAG__/tumour_identifier:0|assigner'
-            => $self->assigner,
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/tumour_id:__DIAG__/tumour_identifier:0|type'
-            => $self->type,
-    };
+    my $composition;
     return $composition;
 }
 
@@ -113,18 +45,18 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::ProblemDiagnosis::TumourID - composition element
+OpenEHR::Composition::Elements::ProblemDiagnosis::Template - composition element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::ProblemDiagnosis::TumourID version 0.0.2
+This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::Template version 0.0.2
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::ProblemDiagnosis::TumourID;
-    my $template = OpenEHR::Composition::ProblemDiagnosis::TumourID->new(
+    use OpenEHR::Composition::Elements::ProblemDiagnosis::Template;
+    my $template = OpenEHR::Composition::Elements::ProblemDiagnosis::Template->new(
     );
     my $template_hash = $template->compose();
 
@@ -139,22 +71,6 @@ Used to create a template element for adding to a Problem Diagnosis composition 
 =head1 ATTRIBUTES
 
 =head1 METHODS
-
-=head2 id($id)
-
-Used to get or set the tumour indicator id
-
-=head2 assigner($assigner)
-
-Used to get or set the tumour indicator assigner
-
-=head2 issuer($issuer)
-
-Used to get or set the tumour indicator issuer
-
-=head2 type($type)
-
-Used to get or set the tumour indicator type
 
 =head2 compose
 
@@ -178,7 +94,7 @@ None
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-OpenEHR::Composition::ProblemDiagnosis::TumourID requires no configuration files or 
+OpenEHR::Composition::Elements::ProblemDiagnosis::Template requires no configuration files or 
 environment variables.
 
 

@@ -1,4 +1,4 @@
-package OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::TumourLaterality;
+package OpenEHR::Composition::Elements::ProblemDiagnosis::ColorectalDiagnosis;
 
 use warnings;
 use strict;
@@ -35,9 +35,12 @@ sub compose {
 sub compose_structured {
     my $self        = shift;
     my $composition = {
-        '|code'        => $self->code,
-        '|value'       => $self->value,
-        '|terminology' => $self->terminology,
+        'synchronous_tumour_indicator' => [
+            {   '|code'        => $self->code,           #'at0002',
+                '|value'       => $self->value,          #'value',
+                '|terminology' => $self->terminology,    #'terminology',
+            }
+        ],
     };
     return $composition;
 }
@@ -45,24 +48,42 @@ sub compose_structured {
 sub compose_raw {
     my $self        = shift;
     my $composition = {
-        'archetype_node_id' => 'at0028',
-        '@class'            => 'ELEMENT',
-        'name'              => {
+        'name' => {
             '@class' => 'DV_TEXT',
-            'value'  => 'Tumour laterality'
+            'value'  => 'Colorectal diagnosis'
         },
-        'value' => {
-            '@class'        => 'DV_CODED_TEXT',
-            'value'         => $self->value,      #'Not known',
-            'defining_code' => {
-                'terminology_id' => {
-                    '@class' => 'TERMINOLOGY_ID',
-                    'value'  => $self->terminology,    #'local'
+        'items' => [
+            {   '@class'            => 'ELEMENT',
+                'archetype_node_id' => 'at0001',
+                'value'             => {
+                    'value'         => $self->value,    #'2 Appendix',
+                    'defining_code' => {
+                        '@class'         => 'CODE_PHRASE',
+                        'code_string'    => $self->code,     #'at0003',
+                        'terminology_id' => {
+                            'value'  => $self->terminology,    #'local',
+                            '@class' => 'TERMINOLOGY_ID'
+                        }
+                    },
+                    '@class' => 'DV_CODED_TEXT'
                 },
-                'code_string' => $self->code,          #'at0033',
-                '@class'      => 'CODE_PHRASE'
+                'name' => {
+                    'value'  => 'Synchronous tumour indicator',
+                    '@class' => 'DV_TEXT'
+                }
             }
-        }
+        ],
+        'archetype_details' => {
+            '@class'       => 'ARCHETYPED',
+            'rm_version'   => '1.0.1',
+            'archetype_id' => {
+                '@class' => 'ARCHETYPE_ID',
+                'value'  => 'openEHR-EHR-CLUSTER.colorectal_diagnosis_gel.v0'
+            }
+        },
+        '@class' => 'CLUSTER',
+        'archetype_node_id' =>
+            'openEHR-EHR-CLUSTER.colorectal_diagnosis_gel.v0'
     };
     return $composition;
 }
@@ -70,12 +91,12 @@ sub compose_raw {
 sub compose_flat {
     my $self        = shift;
     my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/tumour_laterality:__DIAG2__|terminology'
-            => $self->terminology,                     #'local',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/tumour_laterality:__DIAG2__|code'
-            => $self->code,                            #'at0033',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/tumour_laterality:__DIAG2__|value'
-            => $self->value,                           #'Not known',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/colorectal_diagnosis:__DIAG__/synchronous_tumour_indicator:0|value'
+            => '2 Appendix',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/colorectal_diagnosis:__DIAG__/synchronous_tumour_indicator:0|code'
+            => 'at0003',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/colorectal_diagnosis:__DIAG__/synchronous_tumour_indicator:0|terminology'
+            => 'local',
     };
     return $composition;
 }
@@ -88,18 +109,18 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::TumourLaterality - composition element
+OpenEHR::Composition::Elements::ProblemDiagnosis::ColorectalDiagnosis - composition element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::TumourLaterality version 0.0.2
+This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::ColorectalDiagnosis version 0.0.2
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::TumourLaterality;
-    my $template = OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::TumourLaterality->new(
+    use OpenEHR::Composition::Elements::ProblemDiagnosis::ColorectalDiagnosis;
+    my $template = OpenEHR::Composition::Elements::ProblemDiagnosis::ColorectalDiagnosis->new(
     );
     my $template_hash = $template->compose();
 
@@ -107,7 +128,7 @@ This document describes OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis:
   
 =head1 DESCRIPTION
 
-Used to create a Tumour Laterality element for adding to a Cancer Diagnosis Problem Diagnosis item. 
+Used to create a template element for adding to a Problem Diagnosis composition object. 
 
 =head1 INTERFACE 
 
@@ -117,15 +138,15 @@ Used to create a Tumour Laterality element for adding to a Cancer Diagnosis Prob
 
 =head2 code($code)
 
-Used to get or set the Tumour Laterality code
+Used to get or set the tumour indicator code
 
 =head2 value($value)
 
-Used to get or set the Tumour Laterality value
+Used to get or set the tumour indicator value
 
 =head2 terminology($terminology)
 
-Used to get or set the Tumour Laterality terminology
+Used to get or set the tumour indicator terminology
 
 =head2 compose
 
@@ -149,7 +170,7 @@ None
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::TumourLaterality requires no configuration files or 
+OpenEHR::Composition::Elements::ProblemDiagnosis::ColorectalDiagnosis requires no configuration files or 
 environment variables.
 
 

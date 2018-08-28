@@ -1,4 +1,4 @@
-package OpenEHR::Composition::ProblemDiagnosis::TesticularStaging;
+package OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging;
 
 use warnings;
 use strict;
@@ -18,7 +18,7 @@ Used to get or set the Lung Metastases item of the Testicular Staging item
 
 has lung_metastases => (
     is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::TesticularStaging::LungMetastases]',
+    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::LungMetastases]',
 );
 
 =head1 stage_group_testicular($stage_grouping_testicular_object)
@@ -29,7 +29,7 @@ Used to get or set the Testicular Stage Grouping item of the Testicular Staging 
 
 has stage_group_testicular => (
     is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::TesticularStaging::StageGroupTesticular]',
+    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::StageGroupTesticular]',
 );
 
 sub compose {
@@ -177,18 +177,18 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::ProblemDiagnosis::TesticularStaging - composition element
+OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging - composition element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::ProblemDiagnosis::TesticularStaging version 0.0.2
+This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging version 0.0.2
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::ProblemDiagnosis::TesticularStaging;
-    my $template = OpenEHR::Composition::ProblemDiagnosis::TesticularStaging->new(
+    use OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging;
+    my $template = OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging->new(
     );
     my $template_hash = $template->compose();
 
@@ -226,7 +226,7 @@ None
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-OpenEHR::Composition::ProblemDiagnosis::TesticularStaging requires no configuration files or 
+OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging requires no configuration files or 
 environment variables.
 
 

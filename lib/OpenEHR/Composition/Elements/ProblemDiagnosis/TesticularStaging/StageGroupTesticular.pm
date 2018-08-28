@@ -1,4 +1,4 @@
-package OpenEHR::Composition::ProblemDiagnosis::UpperGI::BCLC_Stage;
+package OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::StageGroupTesticular;
 
 use warnings;
 use strict;
@@ -35,11 +35,9 @@ sub compose {
 sub compose_structured {
     my $self        = shift;
     my $composition = {
-        bclc_stage => [{
-            '|code'        => $self->code,
-            '|value'       => $self->value,
-            '|terminology' => $self->terminology,
-        }],
+        '|code'        => $self->code,
+        '|value'       => $self->value,
+        '|terminology' => $self->terminology,
     };
     return $composition;
 }
@@ -47,54 +45,37 @@ sub compose_structured {
 sub compose_raw {
     my $self        = shift;
     my $composition = {
-        'archetype_node_id' => 'openEHR-EHR-CLUSTER.bclc_stage.v0',
-        '@class'            => 'CLUSTER',
-        'items'             => [
-            {   'value' => {
-                    '@class'        => 'DV_CODED_TEXT',
-                    'defining_code' => {
-                        'terminology_id' => {
-                            'value'  => $self->terminology,    #'local',
-                            '@class' => 'TERMINOLOGY_ID'
-                        },
-                        '@class'      => 'CODE_PHRASE',
-                        'code_string' => $self->code,          #'at0007'
-                    },
-                    'value' => $self->value,                   #'D'
-                },
-                'name' => {
-                    '@class' => 'DV_TEXT',
-                    'value'  => 'BCLC stage'
-                },
-                '@class'            => 'ELEMENT',
-                'archetype_node_id' => 'at0001'
-            }
-        ],
-        'name' => {
-            'value'  => 'BCLC stage',
-            '@class' => 'DV_TEXT'
-        },
-        'archetype_details' => {
-            'archetype_id' => {
-                '@class' => 'ARCHETYPE_ID',
-                'value'  => 'openEHR-EHR-CLUSTER.bclc_stage.v0'
-            },
-            'rm_version' => '1.0.1',
-            '@class'     => 'ARCHETYPED'
-        }
-    };
+        'value' => {
+                                '@class'        => 'DV_CODED_TEXT',
+                                'value'         => $self->value, #'3C',
+                                'defining_code' => {
+                                    'terminology_id' => {
+                                        '@class' => 'TERMINOLOGY_ID',
+                                        'value'  => $self->terminology, #'local'
+                                    },
+                                    'code_string' => $self->code, #'at0010',
+                                    '@class'      => 'CODE_PHRASE'
+                                }
+                            },
+                            'name' => {
+                                'value'  => 'Stage grouping testicular',
+                                '@class' => 'DV_TEXT'
+                            },
+                            '@class'            => 'ELEMENT',
+                            'archetype_node_id' => 'at0001'
+                        };
     return $composition;
 }
 
 sub compose_flat {
     my $self        = shift;
     my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/bclc_stage:__DIAG2__/bclc_stage|value'
-            => $self->value,    #'D',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/bclc_stage:__DIAG2__/bclc_stage|code'
-            => $self->code,     #'at0007',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/bclc_stage:__DIAG2__/bclc_stage|terminology'
-            => $self->terminology,    #'local',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/stage_grouping_testicular:__DIAG2__|terminology'
+            => $self->terminology, #'local',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/stage_grouping_testicular:__DIAG2__|code'
+            => $self->code, #'at0010',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/stage_grouping_testicular:__DIAG2__|value'
+            => $self->value, #'3C',
     };
     return $composition;
 }
@@ -107,18 +88,18 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::ProblemDiagnosis::UpperGI::BCLC_Stage - composition element
+OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::StageGroupTesticular - composition element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::ProblemDiagnosis::UpperGI::BCLC_Stage version 0.0.2
+This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::StageGroupTesticular version 0.0.2
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::ProblemDiagnosis::UpperGI::BCLC_Stage;
-    my $template = OpenEHR::Composition::ProblemDiagnosis::UpperGI::BCLC_Stage->new(
+    use OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::StageGroupTesticular;
+    my $template = OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::StageGroupTesticular->new(
     );
     my $template_hash = $template->compose();
 
@@ -126,7 +107,7 @@ This document describes OpenEHR::Composition::ProblemDiagnosis::UpperGI::BCLC_St
   
 =head1 DESCRIPTION
 
-Used to create a BCLC Stage element for adding to a Upper GI Problem Diagnosis item. 
+Used to create a Stage Group Testicular element for adding to Testicular Staging Problem Diagnosis composition object. 
 
 =head1 INTERFACE 
 
@@ -136,15 +117,15 @@ Used to create a BCLC Stage element for adding to a Upper GI Problem Diagnosis i
 
 =head2 code($code)
 
-Used to get or set the BCLC Stage code
+Used to get or set the Stage Group Testicular code
 
 =head2 value($value)
 
-Used to get or set the BCLC Stage value
+Used to get or set the Stage Group Testicular value
 
 =head2 terminology($terminology)
 
-Used to get or set the BCLC Stage terminology
+Used to get or set the Stage Group Testicular terminology
 
 =head2 compose
 
@@ -168,7 +149,7 @@ None
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-OpenEHR::Composition::ProblemDiagnosis::UpperGI::BCLC_Stage requires no configuration files or 
+OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::StageGroupTesticular requires no configuration files or 
 environment variables.
 
 

@@ -1,4 +1,4 @@
-package OpenEHR::Composition::ProblemDiagnosis::UpperGI::PancreaticClinicalStage;
+package OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::PortalInvasion;
 
 use warnings;
 use strict;
@@ -34,36 +34,37 @@ sub compose {
 
 sub compose_structured {
     my $self        = shift;
-    my $composition = [
-        {   '|code'        => $self->code,          #'at0009'
-            '|value'       => $self->value,
-            '|terminology' => $self->terminology,
-        }
-    ];
+    my $composition = [ 
+            { 
+                '|code' => $self->code, #'at0004',
+                '|value' => $self->value, #'N Not present',
+                '|terminology' => $self->terminology, #'local',
+            } 
+        ];
     return $composition;
 }
 
 sub compose_raw {
     my $self        = shift;
     my $composition = {
-        '@class'            => 'ELEMENT',
-        'archetype_node_id' => 'at0008',
-        'value'             => {
-            '@class'        => 'DV_CODED_TEXT',
-            'defining_code' => {
-                'code_string'    => $self->code,     #'at0012',
-                '@class'         => 'CODE_PHRASE',
-                'terminology_id' => {
-                    '@class' => 'TERMINOLOGY_ID',
-                    'value'  => $self->terminology,    #'local'
-                }
-            },
-            'value' => $self->value,    #'31 Unresectable locally advanced'
-        },
-        'name' => {
-            '@class' => 'DV_TEXT',
-            'value'  => 'Pancreatic clinical stage'
-        }
+            'name' => {
+                    'value'  => 'Portal invasion',
+                    '@class' => 'DV_TEXT'
+                },
+                'value' => {
+                    'value'         => $self->value, #'N Not present',
+                    'defining_code' => {
+                        'terminology_id' => {
+                            'value'  => $self->terminology, #'local',
+                            '@class' => 'TERMINOLOGY_ID'
+                        },
+                        '@class'      => 'CODE_PHRASE',
+                        'code_string' => $self->code, #'at0005'
+                    },
+                    '@class' => 'DV_CODED_TEXT'
+                },
+                'archetype_node_id' => 'at0003',
+                '@class'            => 'ELEMENT'
     };
     return $composition;
 }
@@ -71,12 +72,12 @@ sub compose_raw {
 sub compose_flat {
     my $self        = shift;
     my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/pancreatic_clinical_stage:__DIAG2__|value'
-            => $self->value,    #'31 Unresectable locally advanced',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/pancreatic_clinical_stage:__DIAG2__|terminology'
-            => $self->terminology,    #'local',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/pancreatic_clinical_stage:__DIAG2__|code'
-            => $self->code,           #'at0012',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/portal_invasion:__DIAG2__|terminology'
+            => $self->terminology, #'local',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/portal_invasion:__DIAG2__|code'
+            => $self->code, #'at0005',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/portal_invasion:__DIAG2__|value'
+            => $self->value, #'N Not present',
     };
     return $composition;
 }
@@ -89,18 +90,18 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::ProblemDiagnosis::UpperGI::PancreaticClinicalStage - composition element
+OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::PortalInvasion - composition element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::ProblemDiagnosis::UpperGI::PancreaticClinicalStage version 0.0.2
+This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::PortalInvasion version 0.0.2
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::ProblemDiagnosis::UpperGI::PancreaticClinicalStage;
-    my $template = OpenEHR::Composition::ProblemDiagnosis::UpperGI::PancreaticClinicalStage->new(
+    use OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::PortalInvasion;
+    my $template = OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::PortalInvasion->new(
     );
     my $template_hash = $template->compose();
 
@@ -108,7 +109,7 @@ This document describes OpenEHR::Composition::ProblemDiagnosis::UpperGI::Pancrea
   
 =head1 DESCRIPTION
 
-Used to create a Pancreatic Clinical Stage element for adding to a Upper GI Problem Diagnosis item. 
+Used to create a Portal Invasion element for adding to a Upper GI Problem Diagnosis item. 
 
 =head1 INTERFACE 
 
@@ -118,15 +119,15 @@ Used to create a Pancreatic Clinical Stage element for adding to a Upper GI Prob
 
 =head2 code($code)
 
-Used to get or set the Pancreatic Clinical Stage code
+Used to get or set the Portal Invasion code
 
 =head2 value($value)
 
-Used to get or set the Pancreatic Clinical Stage value
+Used to get or set the Portal Invasion value
 
 =head2 terminology($terminology)
 
-Used to get or set the Pancreatic Clinical Stage terminology
+Used to get or set the Portal Invasion terminology
 
 =head2 compose
 
@@ -150,7 +151,7 @@ None
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-OpenEHR::Composition::ProblemDiagnosis::UpperGI::PancreaticClinicalStage requires no configuration files or 
+OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::PortalInvasion requires no configuration files or 
 environment variables.
 
 

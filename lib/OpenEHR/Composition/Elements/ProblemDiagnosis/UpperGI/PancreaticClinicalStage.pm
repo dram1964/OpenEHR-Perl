@@ -1,4 +1,4 @@
-package OpenEHR::Composition::ProblemDiagnosis::ColorectalDiagnosis;
+package OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::PancreaticClinicalStage;
 
 use warnings;
 use strict;
@@ -34,56 +34,36 @@ sub compose {
 
 sub compose_structured {
     my $self        = shift;
-    my $composition = {
-        'synchronous_tumour_indicator' => [
-            {   '|code'        => $self->code,           #'at0002',
-                '|value'       => $self->value,          #'value',
-                '|terminology' => $self->terminology,    #'terminology',
-            }
-        ],
-    };
+    my $composition = [
+        {   '|code'        => $self->code,          #'at0009'
+            '|value'       => $self->value,
+            '|terminology' => $self->terminology,
+        }
+    ];
     return $composition;
 }
 
 sub compose_raw {
     my $self        = shift;
     my $composition = {
+        '@class'            => 'ELEMENT',
+        'archetype_node_id' => 'at0008',
+        'value'             => {
+            '@class'        => 'DV_CODED_TEXT',
+            'defining_code' => {
+                'code_string'    => $self->code,     #'at0012',
+                '@class'         => 'CODE_PHRASE',
+                'terminology_id' => {
+                    '@class' => 'TERMINOLOGY_ID',
+                    'value'  => $self->terminology,    #'local'
+                }
+            },
+            'value' => $self->value,    #'31 Unresectable locally advanced'
+        },
         'name' => {
             '@class' => 'DV_TEXT',
-            'value'  => 'Colorectal diagnosis'
-        },
-        'items' => [
-            {   '@class'            => 'ELEMENT',
-                'archetype_node_id' => 'at0001',
-                'value'             => {
-                    'value'         => $self->value,    #'2 Appendix',
-                    'defining_code' => {
-                        '@class'         => 'CODE_PHRASE',
-                        'code_string'    => $self->code,     #'at0003',
-                        'terminology_id' => {
-                            'value'  => $self->terminology,    #'local',
-                            '@class' => 'TERMINOLOGY_ID'
-                        }
-                    },
-                    '@class' => 'DV_CODED_TEXT'
-                },
-                'name' => {
-                    'value'  => 'Synchronous tumour indicator',
-                    '@class' => 'DV_TEXT'
-                }
-            }
-        ],
-        'archetype_details' => {
-            '@class'       => 'ARCHETYPED',
-            'rm_version'   => '1.0.1',
-            'archetype_id' => {
-                '@class' => 'ARCHETYPE_ID',
-                'value'  => 'openEHR-EHR-CLUSTER.colorectal_diagnosis_gel.v0'
-            }
-        },
-        '@class' => 'CLUSTER',
-        'archetype_node_id' =>
-            'openEHR-EHR-CLUSTER.colorectal_diagnosis_gel.v0'
+            'value'  => 'Pancreatic clinical stage'
+        }
     };
     return $composition;
 }
@@ -91,12 +71,12 @@ sub compose_raw {
 sub compose_flat {
     my $self        = shift;
     my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/colorectal_diagnosis:__DIAG__/synchronous_tumour_indicator:0|value'
-            => '2 Appendix',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/colorectal_diagnosis:__DIAG__/synchronous_tumour_indicator:0|code'
-            => 'at0003',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/colorectal_diagnosis:__DIAG__/synchronous_tumour_indicator:0|terminology'
-            => 'local',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/pancreatic_clinical_stage:__DIAG2__|value'
+            => $self->value,    #'31 Unresectable locally advanced',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/pancreatic_clinical_stage:__DIAG2__|terminology'
+            => $self->terminology,    #'local',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/pancreatic_clinical_stage:__DIAG2__|code'
+            => $self->code,           #'at0012',
     };
     return $composition;
 }
@@ -109,18 +89,18 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::ProblemDiagnosis::ColorectalDiagnosis - composition element
+OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::PancreaticClinicalStage - composition element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::ProblemDiagnosis::ColorectalDiagnosis version 0.0.2
+This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::PancreaticClinicalStage version 0.0.2
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::ProblemDiagnosis::ColorectalDiagnosis;
-    my $template = OpenEHR::Composition::ProblemDiagnosis::ColorectalDiagnosis->new(
+    use OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::PancreaticClinicalStage;
+    my $template = OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::PancreaticClinicalStage->new(
     );
     my $template_hash = $template->compose();
 
@@ -128,7 +108,7 @@ This document describes OpenEHR::Composition::ProblemDiagnosis::ColorectalDiagno
   
 =head1 DESCRIPTION
 
-Used to create a template element for adding to a Problem Diagnosis composition object. 
+Used to create a Pancreatic Clinical Stage element for adding to a Upper GI Problem Diagnosis item. 
 
 =head1 INTERFACE 
 
@@ -138,15 +118,15 @@ Used to create a template element for adding to a Problem Diagnosis composition 
 
 =head2 code($code)
 
-Used to get or set the tumour indicator code
+Used to get or set the Pancreatic Clinical Stage code
 
 =head2 value($value)
 
-Used to get or set the tumour indicator value
+Used to get or set the Pancreatic Clinical Stage value
 
 =head2 terminology($terminology)
 
-Used to get or set the tumour indicator terminology
+Used to get or set the Pancreatic Clinical Stage terminology
 
 =head2 compose
 
@@ -170,7 +150,7 @@ None
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-OpenEHR::Composition::ProblemDiagnosis::ColorectalDiagnosis requires no configuration files or 
+OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::PancreaticClinicalStage requires no configuration files or 
 environment variables.
 
 

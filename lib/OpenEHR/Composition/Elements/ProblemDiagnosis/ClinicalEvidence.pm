@@ -1,4 +1,4 @@
-package OpenEHR::Composition::ProblemDiagnosis::TesticularStaging::StageGroupTesticular;
+package OpenEHR::Composition::Elements::ProblemDiagnosis::ClinicalEvidence;
 
 use warnings;
 use strict;
@@ -10,15 +10,7 @@ extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
-has code => (
-    is  => 'rw',
-    isa => 'Str',
-);
-has value => (
-    is  => 'rw',
-    isa => 'Str',
-);
-has terminology => (
+has evidence => (
     is  => 'rw',
     isa => 'Str',
 );
@@ -35,9 +27,10 @@ sub compose {
 sub compose_structured {
     my $self        = shift;
     my $composition = {
-        '|code'        => $self->code,
-        '|value'       => $self->value,
-        '|terminology' => $self->terminology,
+        'base_of_diagnosis' => [
+            $self->evidence
+            ,  #'2 Clinical investigation including all diagnostic techniques'
+        ]
     };
     return $composition;
 }
@@ -45,37 +38,42 @@ sub compose_structured {
 sub compose_raw {
     my $self        = shift;
     my $composition = {
-        'value' => {
-                                '@class'        => 'DV_CODED_TEXT',
-                                'value'         => $self->value, #'3C',
-                                'defining_code' => {
-                                    'terminology_id' => {
-                                        '@class' => 'TERMINOLOGY_ID',
-                                        'value'  => $self->terminology, #'local'
-                                    },
-                                    'code_string' => $self->code, #'at0010',
-                                    '@class'      => 'CODE_PHRASE'
-                                }
-                            },
-                            'name' => {
-                                'value'  => 'Stage grouping testicular',
-                                '@class' => 'DV_TEXT'
-                            },
-                            '@class'            => 'ELEMENT',
-                            'archetype_node_id' => 'at0001'
-                        };
+        'archetype_details' => {
+            '@class'       => 'ARCHETYPED',
+            'rm_version'   => '1.0.1',
+            'archetype_id' => {
+                '@class' => 'ARCHETYPE_ID',
+                'value'  => 'openEHR-EHR-CLUSTER.clinical_evidence.v1'
+            }
+        },
+        'name' => {
+            '@class' => 'DV_TEXT',
+            'value'  => 'Clinical evidence'
+        },
+        'items' => [
+            {   'value' => {
+                    '@class' => 'DV_TEXT',
+                    'value'  => $self->evidence,  #'6 Histology of metastasis'
+                },
+                'name' => {
+                    '@class' => 'DV_TEXT',
+                    'value'  => 'Base of diagnosis'
+                },
+                '@class'            => 'ELEMENT',
+                'archetype_node_id' => 'at0003'
+            }
+        ],
+        'archetype_node_id' => 'openEHR-EHR-CLUSTER.clinical_evidence.v1',
+        '@class'            => 'CLUSTER'
+    };
     return $composition;
 }
 
 sub compose_flat {
     my $self        = shift;
     my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/stage_grouping_testicular:__DIAG2__|terminology'
-            => $self->terminology, #'local',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/stage_grouping_testicular:__DIAG2__|code'
-            => $self->code, #'at0010',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/stage_grouping_testicular:__DIAG2__|value'
-            => $self->value, #'3C',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/clinical_evidence:__DIAG__/base_of_diagnosis'
+            => $self->evidence,    #'6 Histology of metastasis',
     };
     return $composition;
 }
@@ -88,18 +86,18 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::ProblemDiagnosis::TesticularStaging::StageGroupTesticular - composition element
+OpenEHR::Composition::Elements::ProblemDiagnosis::ClinicalEvidence - composition element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::ProblemDiagnosis::TesticularStaging::StageGroupTesticular version 0.0.2
+This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::ClinicalEvidence version 0.0.2
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::ProblemDiagnosis::TesticularStaging::StageGroupTesticular;
-    my $template = OpenEHR::Composition::ProblemDiagnosis::TesticularStaging::StageGroupTesticular->new(
+    use OpenEHR::Composition::Elements::ProblemDiagnosis::ClinicalEvidence;
+    my $template = OpenEHR::Composition::Elements::ProblemDiagnosis::ClinicalEvidence->new(
     );
     my $template_hash = $template->compose();
 
@@ -107,7 +105,7 @@ This document describes OpenEHR::Composition::ProblemDiagnosis::TesticularStagin
   
 =head1 DESCRIPTION
 
-Used to create a Stage Group Testicular element for adding to Testicular Staging Problem Diagnosis composition object. 
+Used to create a template element for adding to a Problem Diagnosis composition object. 
 
 =head1 INTERFACE 
 
@@ -115,17 +113,9 @@ Used to create a Stage Group Testicular element for adding to Testicular Staging
 
 =head1 METHODS
 
-=head2 code($code)
+=head2 evidence($evidence)
 
-Used to get or set the Stage Group Testicular code
-
-=head2 value($value)
-
-Used to get or set the Stage Group Testicular value
-
-=head2 terminology($terminology)
-
-Used to get or set the Stage Group Testicular terminology
+Used to get or set the clinical evidence item for a Problem Diagnosis
 
 =head2 compose
 
@@ -149,7 +139,7 @@ None
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-OpenEHR::Composition::ProblemDiagnosis::TesticularStaging::StageGroupTesticular requires no configuration files or 
+OpenEHR::Composition::Elements::ProblemDiagnosis::ClinicalEvidence requires no configuration files or 
 environment variables.
 
 

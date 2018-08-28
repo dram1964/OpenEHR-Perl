@@ -1,4 +1,4 @@
-package OpenEHR::Composition::ProblemDiagnosis::INRG_Staging;
+package OpenEHR::Composition::Elements::ProblemDiagnosis::INRG_Staging;
 
 use warnings;
 use strict;
@@ -110,18 +110,18 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::ProblemDiagnosis::INRG_Staging - composition element
+OpenEHR::Composition::Elements::ProblemDiagnosis::INRG_Staging - composition element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::ProblemDiagnosis::INRG_Staging version 0.0.2
+This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::INRG_Staging version 0.0.2
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::ProblemDiagnosis::INRG_Staging;
-    my $template = OpenEHR::Composition::ProblemDiagnosis::INRG_Staging->new(
+    use OpenEHR::Composition::Elements::ProblemDiagnosis::INRG_Staging;
+    my $template = OpenEHR::Composition::Elements::ProblemDiagnosis::INRG_Staging->new(
     );
     my $template_hash = $template->compose();
 
@@ -171,7 +171,7 @@ None
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-OpenEHR::Composition::ProblemDiagnosis::INRG_Staging requires no configuration files or 
+OpenEHR::Composition::Elements::ProblemDiagnosis::INRG_Staging requires no configuration files or 
 environment variables.
 
 

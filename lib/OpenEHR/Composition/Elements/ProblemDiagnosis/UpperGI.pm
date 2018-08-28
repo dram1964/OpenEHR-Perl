@@ -1,4 +1,4 @@
-package OpenEHR::Composition::ProblemDiagnosis::UpperGI;
+package OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI;
 
 use warnings;
 use strict;
@@ -18,7 +18,7 @@ Used to get or set the BCLC Stage item in an Upper GI Staging item
 
 has bclc_stage => (
     is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::UpperGI::BCLC_Stage]',
+    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::BCLC_Stage]',
 );
 
 =head2 portal_invasion($portal_invasion_obj)
@@ -29,7 +29,7 @@ Used to get or set the Portal Invasion item in an Upper GI Staging item
 
 has portal_invasion => (
     is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::UpperGI::PortalInvasion]',
+    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::PortalInvasion]',
 );
 
 =head2 pancreatic_clinical_stage($pancreatic_clinical_stage_obj)
@@ -40,7 +40,7 @@ Used to get or set the Pancreatic Clinical Stage item in an Upper GI Staging ite
 
 has pancreatic_clinical_stage => (
     is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::UpperGI::PancreaticClinicalStage]',
+    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::PancreaticClinicalStage]',
 );
 
 =head2 child_pugh_score($child_pugh_score_obj)
@@ -51,7 +51,7 @@ Used to get or set the Child-Pugh Score item in an Upper GI Staging item
 
 has child_pugh_score => (
     is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::UpperGI::ChildPughScore]',
+    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::ChildPughScore]',
 );
 
 =head2 tace($tace_obj)
@@ -62,7 +62,7 @@ Used to get or set the Transarterial Chemoembolisation (TACE) item in an Upper G
 
 has tace => (
     is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::ProblemDiagnosis::UpperGI::TACE]',
+    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::TACE]',
 );
 
 =head2 lesions($lesions)
@@ -289,18 +289,18 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::ProblemDiagnosis::UpperGI - composition element
+OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI - composition element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::ProblemDiagnosis::UpperGI version 0.0.2
+This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI version 0.0.2
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::ProblemDiagnosis::UpperGI;
-    my $template = OpenEHR::Composition::ProblemDiagnosis::UpperGI->new(
+    use OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI;
+    my $template = OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI->new(
     );
     my $template_hash = $template->compose();
 
@@ -338,7 +338,7 @@ None
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-OpenEHR::Composition::ProblemDiagnosis::UpperGI requires no configuration files or 
+OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI requires no configuration files or 
 environment variables.
 
 

@@ -1,4 +1,4 @@
-package OpenEHR::Composition::ProblemDiagnosis::UpperGI::TACE;
+package OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::BCLC_Stage;
 
 use warnings;
 use strict;
@@ -34,10 +34,12 @@ sub compose {
 
 sub compose_structured {
     my $self        = shift;
-    my $composition = { 
-        '|code' => $self->code,
-        '|value' => $self->value,
-        '|terminology' => $self->terminology,
+    my $composition = {
+        bclc_stage => [{
+            '|code'        => $self->code,
+            '|value'       => $self->value,
+            '|terminology' => $self->terminology,
+        }],
     };
     return $composition;
 }
@@ -45,24 +47,41 @@ sub compose_structured {
 sub compose_raw {
     my $self        = shift;
     my $composition = {
-               'value' => {
-                    'value'         => $self->value, #'Y Yes',
+        'archetype_node_id' => 'openEHR-EHR-CLUSTER.bclc_stage.v0',
+        '@class'            => 'CLUSTER',
+        'items'             => [
+            {   'value' => {
+                    '@class'        => 'DV_CODED_TEXT',
                     'defining_code' => {
                         'terminology_id' => {
-                            'value'  => $self->terminology, #'local',
+                            'value'  => $self->terminology,    #'local',
                             '@class' => 'TERMINOLOGY_ID'
                         },
                         '@class'      => 'CODE_PHRASE',
-                        'code_string' => $self->code, #'at0015'
+                        'code_string' => $self->code,          #'at0007'
                     },
-                    '@class' => 'DV_CODED_TEXT'
+                    'value' => $self->value,                   #'D'
                 },
                 'name' => {
                     '@class' => 'DV_TEXT',
-                    'value'  => 'Transarterial chemoembolisation'
+                    'value'  => 'BCLC stage'
                 },
                 '@class'            => 'ELEMENT',
-                'archetype_node_id' => 'at0014'
+                'archetype_node_id' => 'at0001'
+            }
+        ],
+        'name' => {
+            'value'  => 'BCLC stage',
+            '@class' => 'DV_TEXT'
+        },
+        'archetype_details' => {
+            'archetype_id' => {
+                '@class' => 'ARCHETYPE_ID',
+                'value'  => 'openEHR-EHR-CLUSTER.bclc_stage.v0'
+            },
+            'rm_version' => '1.0.1',
+            '@class'     => 'ARCHETYPED'
+        }
     };
     return $composition;
 }
@@ -70,12 +89,12 @@ sub compose_raw {
 sub compose_flat {
     my $self        = shift;
     my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/transarterial_chemoembolisation:__DIAG2__|terminology'
-            => $self->terminology, #'local',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/transarterial_chemoembolisation:__DIAG2__|value'
-            => $self->value, #'Y Yes',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/transarterial_chemoembolisation:__DIAG2__|code'
-            => $self->code, #'at0015',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/bclc_stage:__DIAG2__/bclc_stage|value'
+            => $self->value,    #'D',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/bclc_stage:__DIAG2__/bclc_stage|code'
+            => $self->code,     #'at0007',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/bclc_stage:__DIAG2__/bclc_stage|terminology'
+            => $self->terminology,    #'local',
     };
     return $composition;
 }
@@ -88,18 +107,18 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::ProblemDiagnosis::UpperGI::TACE - composition element
+OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::BCLC_Stage - composition element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::ProblemDiagnosis::UpperGI::TACE version 0.0.2
+This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::BCLC_Stage version 0.0.2
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::ProblemDiagnosis::UpperGI::TACE;
-    my $template = OpenEHR::Composition::ProblemDiagnosis::UpperGI::TACE->new(
+    use OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::BCLC_Stage;
+    my $template = OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::BCLC_Stage->new(
     );
     my $template_hash = $template->compose();
 
@@ -107,7 +126,7 @@ This document describes OpenEHR::Composition::ProblemDiagnosis::UpperGI::TACE ve
   
 =head1 DESCRIPTION
 
-Used to create a Transarterial Chemoembolisation (TACE) element for adding to a Upper GI Problem Diagnosis item. 
+Used to create a BCLC Stage element for adding to a Upper GI Problem Diagnosis item. 
 
 =head1 INTERFACE 
 
@@ -117,15 +136,15 @@ Used to create a Transarterial Chemoembolisation (TACE) element for adding to a 
 
 =head2 code($code)
 
-Used to get or set the TACE code
+Used to get or set the BCLC Stage code
 
 =head2 value($value)
 
-Used to get or set the TACE value
+Used to get or set the BCLC Stage value
 
 =head2 terminology($terminology)
 
-Used to get or set the TACE terminology
+Used to get or set the BCLC Stage terminology
 
 =head2 compose
 
@@ -149,7 +168,7 @@ None
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-OpenEHR::Composition::ProblemDiagnosis::UpperGI::TACE requires no configuration files or 
+OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::BCLC_Stage requires no configuration files or 
 environment variables.
 
 
