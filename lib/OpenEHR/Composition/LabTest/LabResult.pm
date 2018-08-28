@@ -9,6 +9,11 @@ use Moose::Util::TypeConstraints;
 
 use version; our $VERSION = qv('0.0.2');
 
+has name => ( 
+    is => 'rw',
+    default => 'LabResult' 
+);
+
 enum 'StatusName' => [
     'Registered', 'Interim', 'Final', 'Amended',
     'Cancelled',  'Not Requested'
