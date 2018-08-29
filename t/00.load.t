@@ -18,42 +18,42 @@ BEGIN {
     use_ok('OpenEHR::Composition::Elements::LabTest::Requester');
     use_ok('OpenEHR::Composition::Elements::LabTest::Specimen');
     use_ok('OpenEHR::Composition::Elements::LabTest::TestRequestDetails');
-    use_ok('OpenEHR::Composition::ProblemDiagnosis');
-    use_ok('OpenEHR::Composition::ProblemDiagnosis::AJCC_Stage');
-    use_ok('OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis');
+    use_ok('OpenEHR::Composition::Elements::ProblemDiagnosis');
+    use_ok('OpenEHR::Composition::Elements::ProblemDiagnosis::AJCC_Stage');
+    use_ok('OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis');
     use_ok(
-        'OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::MetastaticSite'
+        'OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::MetastaticSite'
     );
     use_ok(
-        'OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::RecurrenceIndicator'
+        'OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::RecurrenceIndicator'
     );
     use_ok(
-        'OpenEHR::Composition::ProblemDiagnosis::CancerDiagnosis::TumourLaterality'
+        'OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::TumourLaterality'
     );
-    use_ok('OpenEHR::Composition::ProblemDiagnosis::ClinicalEvidence');
-    use_ok('OpenEHR::Composition::ProblemDiagnosis::ColorectalDiagnosis');
-    use_ok('OpenEHR::Composition::ProblemDiagnosis::Diagnosis');
-    use_ok('OpenEHR::Composition::ProblemDiagnosis::FinalFigoStage');
-    use_ok('OpenEHR::Composition::ProblemDiagnosis::INRG_Staging');
-    use_ok('OpenEHR::Composition::ProblemDiagnosis::Integrated_TNM');
-    use_ok('OpenEHR::Composition::ProblemDiagnosis::ModifiedDukes');
-    use_ok('OpenEHR::Composition::ProblemDiagnosis::Template');
-    use_ok('OpenEHR::Composition::ProblemDiagnosis::TesticularStaging');
+    use_ok('OpenEHR::Composition::Elements::ProblemDiagnosis::ClinicalEvidence');
+    use_ok('OpenEHR::Composition::Elements::ProblemDiagnosis::ColorectalDiagnosis');
+    use_ok('OpenEHR::Composition::Elements::ProblemDiagnosis::Diagnosis');
+    use_ok('OpenEHR::Composition::Elements::ProblemDiagnosis::FinalFigoStage');
+    use_ok('OpenEHR::Composition::Elements::ProblemDiagnosis::INRG_Staging');
+    use_ok('OpenEHR::Composition::Elements::ProblemDiagnosis::Integrated_TNM');
+    use_ok('OpenEHR::Composition::Elements::ProblemDiagnosis::ModifiedDukes');
+    use_ok('OpenEHR::Composition::Elements::ProblemDiagnosis::Template');
+    use_ok('OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging');
     use_ok(
-        'OpenEHR::Composition::ProblemDiagnosis::TesticularStaging::LungMetastases'
+        'OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::LungMetastases'
     );
     use_ok(
-        'OpenEHR::Composition::ProblemDiagnosis::TesticularStaging::StageGroupTesticular'
+        'OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::StageGroupTesticular'
     );
-    use_ok('OpenEHR::Composition::ProblemDiagnosis::TumourID');
-    use_ok('OpenEHR::Composition::ProblemDiagnosis::UpperGI');
-    use_ok('OpenEHR::Composition::ProblemDiagnosis::UpperGI::BCLC_Stage');
-    use_ok('OpenEHR::Composition::ProblemDiagnosis::UpperGI::ChildPughScore');
+    use_ok('OpenEHR::Composition::Elements::ProblemDiagnosis::TumourID');
+    use_ok('OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI');
+    use_ok('OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::BCLC_Stage');
+    use_ok('OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::ChildPughScore');
     use_ok(
-        'OpenEHR::Composition::ProblemDiagnosis::UpperGI::PancreaticClinicalStage'
+        'OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::PancreaticClinicalStage'
     );
-    use_ok('OpenEHR::Composition::ProblemDiagnosis::UpperGI::PortalInvasion');
-    use_ok('OpenEHR::Composition::ProblemDiagnosis::UpperGI::TACE');
+    use_ok('OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::PortalInvasion');
+    use_ok('OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::TACE');
     use_ok('OpenEHR::REST');
     use_ok('OpenEHR::REST::AQL');
     use_ok('OpenEHR::REST::Composition');
