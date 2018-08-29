@@ -5,23 +5,10 @@ use strict;
 use Carp;
 use DateTime;
 use Moose;
-extends 'OpenEHR::Composition';
+extends 'OpenEHR::Composition::Elements';
 use Moose::Util::TypeConstraints;
-use Module::Find;
 
-our $modules;
-
-__PACKAGE__->load_namespaces;
-
-=head2 load_namespaces
-
-Uses module find to load modules
-
-=cut 
-
-sub load_namespaces {
-    $modules = [ useall __PACKAGE__ ];
-}
+our $modules = __PACKAGE__->load_namespaces;
 
 =head2 element 
 

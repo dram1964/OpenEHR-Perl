@@ -6,23 +6,9 @@ use Carp;
 use Moose;
 use DateTime;
 use Data::Dumper;
-extends 'OpenEHR::Composition';
-use Module::Find;
-useall OpenEHR::Composition::Elements::ProblemDiagnosis;
+extends 'OpenEHR::Composition::Elements';
 
-our $modules;
-
-__PACKAGE__->load_namespaces;
-
-=head2 load_namespaces
-
-Uses module find to load modules
-
-=cut 
-
-sub load_namespaces {
-    $modules = [ useall __PACKAGE__ ];
-}
+our $modules = __PACKAGE__->load_namespaces;
 
 =head2 element 
 
