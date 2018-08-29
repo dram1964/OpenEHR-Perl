@@ -225,7 +225,6 @@ ok( my $problem_diagnosis = $pd->element('ProblemDiagnosis')->new(
 
 my @formats = qw( FLAT STRUCTURED RAW);
 
-#@formats = qw(FLAT);
 for my $format (@formats) {
     note("Testing $format format composition");
     my $ehr1 = &get_new_random_subject();

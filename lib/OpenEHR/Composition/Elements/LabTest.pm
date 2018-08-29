@@ -8,27 +8,7 @@ use Moose;
 extends 'OpenEHR::Composition::Elements';
 use Moose::Util::TypeConstraints;
 
-our $modules = __PACKAGE__->load_namespaces;
-
-=head2 element 
-
-Accessor method to call composition elements by name
-
-=cut
-
-sub element {
-    my ($self, $name)  = @_;
-    my $module_name;
-    if ($name eq 'LabTest') {
-        return __PACKAGE__;
-    }
-    elsif ($module_name = [grep /::$name$/, @{ $modules } ] ) {
-        return $module_name->[0];
-    }
-    else {
-        croak "$module_name not found";
-    }
-}
+__PACKAGE__->load_namespaces;
 
 use version; our $VERSION = qv('0.0.2');
 

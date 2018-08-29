@@ -9,6 +9,7 @@ extends 'OpenEHR::Composition';
 use Moose::Util::TypeConstraints;
 use Module::Find;
 
+our $modules;
 
 =head2 load_namespaces
 
@@ -18,7 +19,25 @@ Uses module find to load modules
 
 sub load_namespaces {
     my $caller = caller;
-    return [ useall $caller];
+    $modules = [ useall $caller];
+    push @{ $modules }, $caller;
+}
+
+=head2 element 
+
+Accessor method to call composition elements by name
+
+=cut
+
+sub element {
+    my ($self, $name)  = @_;
+    my $module_name;
+    if ($module_name = [grep /::$name$/, @{ $modules } ] ) {
+        return $module_name->[0];
+    }
+    else {
+        croak "$module_name not found";
+    }
 }
 
 no Moose;

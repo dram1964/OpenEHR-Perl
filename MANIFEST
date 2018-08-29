@@ -4,6 +4,7 @@ lib/OpenEHR.pm
 lib/OpenEHR/Composition.pm
 lib/OpenEHR/Composition/CancerReport.pm
 lib/OpenEHR/Composition/InformationOrder.pm
+lib/OpenEHR/Composition/Elements.pm
 lib/OpenEHR/Composition/Elements/LabTest.pm
 lib/OpenEHR/Composition/Elements/LabTest/Filler.pm
 lib/OpenEHR/Composition/Elements/LabTest/LabResult.pm
