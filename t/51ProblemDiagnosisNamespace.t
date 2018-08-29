@@ -7,22 +7,22 @@ use OpenEHR::REST::Composition;
 
 BEGIN { use_ok('OpenEHR::Composition::CancerReport'); }
 
-ok( my $schema = OpenEHR::Composition::Elements::ProblemDiagnosis->new(), 'Setup ProblemDiagnosis Schema');
+ok( my $pd = OpenEHR::Composition::Elements::ProblemDiagnosis->new(), 'Setup ProblemDiagnosis Schema');
 
-ok( my $ajcc_stage = $schema->compos('AJCC_Stage')->new(
+ok( my $ajcc_stage = $pd->element('AJCC_Stage')->new(
         ajcc_stage_grouping => 'Stage IB',
     ),
     'Create new AJCC Stage object'
 );
 
-ok( my $diagnosis = $schema->compos('Diagnosis')->new(
+ok( my $diagnosis = $pd->element('Diagnosis')->new(
         diagnosis => 'Colorectal Cancer'
     ),
     'Create new Diagnosis object'
 );
 
 ok( my $colorectal_diagnosis =
-        $schema->compos('ColorectalDiagnosis')->new(
+        $pd->element('ColorectalDiagnosis')->new(
         code        => 'at0003',
         value       => '2 Appendix',
         terminology => 'local',
@@ -31,7 +31,7 @@ ok( my $colorectal_diagnosis =
 );
 
 ok( my $final_figo_stage =
-        $schema->compos('FinalFigoStage')->new(
+        $pd->element('FinalFigoStage')->new(
         code        => 'at0008',
         value       => 'ib',
         terminology => 'local',
@@ -41,7 +41,7 @@ ok( my $final_figo_stage =
 );
 
 ok( my $modified_dukes =
-        $schema->compos('ModifiedDukes')->new(
+        $pd->element('ModifiedDukes')->new(
         code        => 'at0006',
         value       => 'Dukes Stage D',
         terminology => 'local',
@@ -49,7 +49,7 @@ ok( my $modified_dukes =
     'Create new Modified Dukes object'
 );
 
-ok( my $tumour_id = $schema->compos('TumourID')->new(
+ok( my $tumour_id = $pd->element('TumourID')->new(
         id       => 'aassdddffee',
         issuer   => 'uclh',
         assigner => 'cancer care',
@@ -59,7 +59,7 @@ ok( my $tumour_id = $schema->compos('TumourID')->new(
 );
 
 ok( my $clinical_evidence =
-        $schema->compos('ClinicalEvidence')->new(
+        $pd->element('ClinicalEvidence')->new(
         evidence =>
             '2 Clinical investigation including all diagnostic techniques',
         ),
@@ -67,7 +67,7 @@ ok( my $clinical_evidence =
 );
 
 ok( my $bclc_stage =
-        $schema->compos('BCLC_Stage')->new(
+        $pd->element('BCLC_Stage')->new(
         code        => 'at0007',
         value       => 'D',
         terminology => 'local',
@@ -76,7 +76,7 @@ ok( my $bclc_stage =
 );
 
 ok( my $portal_invasion =
-        $schema->compos('PortalInvasion')->new(
+        $pd->element('PortalInvasion')->new(
         code        => 'at0006',
         value       => 'N Not present',
         terminology => 'local',
@@ -85,7 +85,7 @@ ok( my $portal_invasion =
 );
 
 ok( my $pancreatic_clinical_stage =
-        $schema->compos('PancreaticClinicalStage')->new(
+        $pd->element('PancreaticClinicalStage')->new(
         code        => 'at0012',
         value       => 'Unresectable',
         terminology => 'local',
@@ -94,7 +94,7 @@ ok( my $pancreatic_clinical_stage =
 );
 
 ok( my $child_pugh_score =
-        $schema->compos('ChildPughScore')->new(
+        $pd->element('ChildPughScore')->new(
         code        => 'at0027',
         value       => 'Class B 7 to 8 points',
         terminology => 'local',
@@ -102,7 +102,7 @@ ok( my $child_pugh_score =
     'Create new Child-Pugh Score object'
 );
 
-ok( my $tace = $schema->compos('TACE')->new(
+ok( my $tace = $pd->element('TACE')->new(
         code        => 'at0015',
         value       => 'Y Yes',
         terminology => 'local',
@@ -110,7 +110,7 @@ ok( my $tace = $schema->compos('TACE')->new(
     'Create new TACE object'
 );
 
-ok( my $upper_gi = $schema->compos('UpperGI')->new(
+ok( my $upper_gi = $pd->element('UpperGI')->new(
         bclc_stage                => [$bclc_stage],
         portal_invasion           => [$portal_invasion],
         pancreatic_clinical_stage => [$pancreatic_clinical_stage],
@@ -122,7 +122,7 @@ ok( my $upper_gi = $schema->compos('UpperGI')->new(
 );
 
 ok( my $tumour_laterality =
-        $schema->compos('TumourLaterality')->new(
+        $pd->element('TumourLaterality')->new(
         code        => 'at0033',
         value       => 'Not known',
         terminology => 'local',
@@ -131,7 +131,7 @@ ok( my $tumour_laterality =
 );
 
 ok( my $metastatic_site =
-        $schema->compos('MetastaticSite')->new(
+        $pd->element('MetastaticSite')->new(
         code        => 'at0023',
         value       => '08 Skin',
         terminology => 'local',
@@ -140,7 +140,7 @@ ok( my $metastatic_site =
 );
 
 ok( my $recurrence_indicator =
-        $schema->compos('RecurrenceIndicator')->new(
+        $pd->element('RecurrenceIndicator')->new(
         code        => 'at0016',
         value       => 'NN',
         terminology => 'local',
@@ -149,7 +149,7 @@ ok( my $recurrence_indicator =
 );
 
 ok( my $cancer_diagnosis =
-        $schema->compos('CancerDiagnosis')->new(
+        $pd->element('CancerDiagnosis')->new(
         tumour_laterality    => [$tumour_laterality],
         metastatic_site      => [$metastatic_site],
         recurrence_indicator => [$recurrence_indicator],
@@ -160,7 +160,7 @@ ok( my $cancer_diagnosis =
 );
 
 ok( my $integrated_tnm =
-        $schema->compos('Integrated_TNM')->new(
+        $pd->element('Integrated_TNM')->new(
         integrated_t         => 'Integrated T 90',
         integrated_m         => 'Integrated M 25',
         stage_grouping       => 'Integrated Stage grouping 31',
@@ -172,7 +172,7 @@ ok( my $integrated_tnm =
 );
 
 ok( my $inrg_staging =
-        $schema->compos('INRG_Staging')->new(
+        $pd->element('INRG_Staging')->new(
         code        => 'at0005',
         value       => 'N',
         terminology => 'local',
@@ -181,7 +181,7 @@ ok( my $inrg_staging =
 );
 
 ok( my $lung_metastases =
-        $schema->compos('LungMetastases')->new(
+        $pd->element('LungMetastases')->new(
         code        => 'at0021',
         value       => 'L1 less than or equal to 4 metastases',
         terminology => 'local',
@@ -190,7 +190,7 @@ ok( my $lung_metastases =
 );
 
 ok( my $stage_group_testicular =
-        $schema->compos('StageGroupTesticular')->new(
+        $pd->element('StageGroupTesticular')->new(
         terminology => 'local',
         code        => 'at0010',
         value       => '3C adjusted',
@@ -199,14 +199,14 @@ ok( my $stage_group_testicular =
 );
 
 ok( my $testicular_staging =
-        $schema->compos('TesticularStaging')->new(
+        $pd->element('TesticularStaging')->new(
         lung_metastases        => [$lung_metastases],
         stage_group_testicular => [$stage_group_testicular],
         ),
     'Create new Testicular Staging object'
 );
 
-ok( my $problem_diagnosis = $schema->compos('ProblemDiagnosis')->new(
+ok( my $problem_diagnosis = $pd->element('ProblemDiagnosis')->new(
         ajcc_stage           => [$ajcc_stage],
         diagnosis            => [$diagnosis],
         colorectal_diagnosis => [$colorectal_diagnosis],

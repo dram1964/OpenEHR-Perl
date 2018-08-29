@@ -22,13 +22,15 @@ has patient_comment => ( is => 'rw', isa => 'Str' );
 sub add_labtests {
     my ( $self, $order ) = @_;
 
-    my $request = OpenEHR::Composition::Elements::LabTest::RequestedTest->new(
+    my $labtest = OpenEHR::Composition::Elements::LabTest->new();
+
+    my $request = $labtest->element('RequestedTest')->new(
         requested_test => $order->{ordername} || $order->{ordercode},
         name           => $order->{ordername} || $order->{ordercode},
         code           => $order->{ordercode},
         terminology    => 'local',
     );
-    my $specimen = OpenEHR::Composition::Elements::LabTest::Specimen->new(
+    my $specimen = $labtest->element('Specimen')->new(
         datetime_collected => $order->{collected},
         collection_method  => $order->{collect_method},
         datetime_received  => $order->{received},
@@ -41,24 +43,24 @@ sub add_labtests {
 
     my $labresults = [];
     for my $res ( @{ $order->{labresults} } ) {
-        my $labresult = OpenEHR::Composition::Elements::LabTest::LabResult->new(
+        my $labresult = $labtest->element('LabResult')->new(
             $res
         );
         push @{$labresults}, $labresult;
     }
 
     my $labpanel =
-        OpenEHR::Composition::Elements::LabTest::LabTestPanel->new(
+        $labtest->element('LabTestPanel')->new(
         lab_results => $labresults );
 
-    my $placer = OpenEHR::Composition::Elements::LabTest::Placer->new(
+    my $placer = $labtest->element('Placer')->new(
         order_number => $order->{order_number}->{id},
         assigner     => $order->{order_number}->{assigner},
         issuer       => $order->{order_number}->{issuer},
         type         => 'local',
     );
 
-    my $filler = OpenEHR::Composition::Elements::LabTest::Filler->new(
+    my $filler = $labtest->element('Filler')->new(
         order_number => $order->{labnumber}->{id},
         assigner     => $order->{labnumber}->{assigner},
         issuer       => $order->{labnumber}->{issuer},
@@ -66,25 +68,25 @@ sub add_labtests {
     );
 
     my $ordering_provider =
-        OpenEHR::Composition::Elements::LabTest::OrderingProvider->new(
+        $labtest->element('OrderingProvider')->new(
         given_name  => $order->{location}->{id},
         family_name => $order->{location}->{parent},
         );
 
-    my $professional = OpenEHR::Composition::Elements::LabTest::Professional->new(
+    my $professional = $labtest->element('Professional')->new(
         id       => $order->{clinician}->{id},
         assigner => $order->{clinician}->{assigner},
         issuer   => $order->{clinician}->{issuer},
         type     => 'local',
     );
 
-    my $requester = OpenEHR::Composition::Elements::LabTest::Requester->new(
+    my $requester = $labtest->element('Requester')->new(
         ordering_provider => $ordering_provider,
         professional      => $professional,
     );
 
     my $request_details =
-        OpenEHR::Composition::Elements::LabTest::TestRequestDetails->new(
+        $labtest->element('TestRequestDetails')->new(
         placer            => $placer,
         filler            => $filler,
         ordering_provider => $ordering_provider,
@@ -92,7 +94,7 @@ sub add_labtests {
         requester         => $requester,
         );
 
-    my $labtests = OpenEHR::Composition::Elements::LabTest->new(
+    my $labtests = $labtest->element('LabTest')->new(
         requested_test   => $request,
         specimens        => [$specimen],
         history_origin   => DateTime->now(),

@@ -17,16 +17,16 @@ while ( my $line = <$fh> ) {
 
 my $ehrId = $config{test_ehrid};
 
-ok( my $schema = OpenEHR::Composition::Elements::LabTest->new(), "Setup schema");
+ok( my $labtest = OpenEHR::Composition::Elements::LabTest->new(), "Setup elements");
 
-ok(my $request = $schema->compos('RequestedTest')->new(
+ok(my $request = $labtest->element('RequestedTest')->new(
     requested_test => 'Electrolytes',
     name           => 'Electrolytes',
     code           => 'ELL',
     terminology    => 'local',
 ), 'RequestedTest compos available');
 
-ok( my $specimen = $schema->compos('Specimen')->new(
+ok( my $specimen = $labtest->element('Specimen')->new(
     specimen_type      => 'Blood',
     datetime_collected => DateTime->new(
         year   => 2017,
@@ -46,7 +46,7 @@ ok( my $specimen = $schema->compos('Specimen')->new(
     spec_id => 'bld',
 ), 'Specimen compos available');
 
-ok( my $labresult1 = $schema->compos('LabResult')->new(
+ok( my $labresult1 = $labtest->element('LabResult')->new(
     result_value  => '<59
 this is the sodium result',
     range_low     => '50',
@@ -57,7 +57,7 @@ this is the sodium result',
     unit         => 'mmol/l',
 ), 'LabResult compos available');
 
-ok( my $labresult2 = $schema->compos('LabResult')->new(
+ok( my $labresult2 = $labtest->element('LabResult')->new(
     result_value  => '88
 this is the potassium result',
     range_low     => '80',
@@ -68,7 +68,7 @@ this is the potassium result',
     unit         => 'g/dl',
 ), 'LabResult compos called 2nd time');
 
-ok( my $labresult3 = $schema->compos('LabResult')->new(
+ok( my $labresult3 = $labtest->element('LabResult')->new(
     result_value  => '88%
 this is the flourosine result',
     testcode      => 'F',
@@ -77,48 +77,48 @@ this is the flourosine result',
 ), 'LabResult compos called 3rd time');
 
 ok( my $labpanel =
-    $schema->compos('LabTestPanel')->new(
+    $labtest->element('LabTestPanel')->new(
     lab_results => [ $labresult1, $labresult2, $labresult3 ], ),
     'LabTestPanel compos called with LabResult objects');
 
-ok( my $placer = $schema->compos('Placer')->new(
+ok( my $placer = $labtest->element('Placer')->new(
     order_number => 'TQ001113333',
     assigner     => 'TQuest',
     issuer       => 'UCLH',
     type         => 'local',
 ), 'Placer compos available');
 
-ok( my $filler = $schema->compos('Filler')->new(
+ok( my $filler = $labtest->element('Filler')->new(
     order_number => '17V333999',
     assigner     => 'Winpath',
     issuer       => 'UCLH Pathology',
     type         => 'local',
 ), 'Filler compos available');
 
-ok( my $ordering_provider = $schema->compos('OrderingProvider')->new(
+ok( my $ordering_provider = $labtest->element('OrderingProvider')->new(
     given_name  => 'A&E',
     family_name => 'UCLH'
 ), 'Ordering provider compos available');
 
-ok( my $professional = $schema->compos('Professional')->new(
+ok( my $professional = $labtest->element('Professional')->new(
     id       => 'AB01',
     assigner => 'Carecast',
     issuer   => 'UCLH',
     type     => 'local',
 ), 'Professional compos available');
 
-ok( my $requester = $schema->compos('Requester')->new(
+ok( my $requester = $labtest->element('Requester')->new(
     ordering_provider => $ordering_provider,
     professional      => $professional,
 ), 'Requester compos called with ordering provider and professional objects');
 
-ok( my $request_details = $schema->compos('TestRequestDetails')->new(
+ok( my $request_details = $labtest->element('TestRequestDetails')->new(
     placer    => $placer,
     filler    => $filler,
     requester => $requester,
 ), 'TestRequestDetails called with placer, filler and requester objects');
 
-ok( my $labtest = $schema->compos('LabTest')->new(
+ok( $labtest = $labtest->element('LabTest')->new(
     requested_test   => $request,
     specimens        => [$specimen],
     history_origin   => DateTime->now(),

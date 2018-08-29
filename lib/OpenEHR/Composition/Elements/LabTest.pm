@@ -20,16 +20,16 @@ Uses module find to load modules
 =cut 
 
 sub load_namespaces {
-    $modules = [ useall OpenEHR::Composition::Elements::LabTest ];
+    $modules = [ useall __PACKAGE__ ];
 }
 
-=head2 compos 
+=head2 element 
 
 Accessor method to call composition elements by name
 
 =cut
 
-sub compos {
+sub element {
     my ($self, $name)  = @_;
     my $module_name;
     if ($name eq 'LabTest') {
