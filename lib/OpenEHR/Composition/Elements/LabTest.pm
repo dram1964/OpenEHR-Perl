@@ -369,12 +369,51 @@ This document describes OpenEHR::Composition::Elements::LabTest version 0.0.1
 
     use OpenEHR::Composition::Elements::LabTest;
 
-=for author to fill in:
-    Brief code example(s) here showing commonest usage(s).
-    This section will be as far as many users bother reading
-    so make it as educational and exeplary as possible.
-  
-  
+    my $schema = OpenEHR::Composition::Elements::LabTest->new();
+
+    my $labresult1 = $schema->element('LabResult')->new({ labresult_data });
+    my $labresult2 = $schema->element('LabResult')->new({ labresult_data });
+    my $labresult3 = $schema->element('LabResult')->new({ labresult_data });
+    my $labpanel = $schema->element('LabTestPanel')->new(
+        lab_results => [ $labresult1, $labresult2, $labresult3 ] );
+
+    my $ordering_provider = $schema->element('OrderingProvider')->new($provider_data);
+    my $professional = $schema->element('Professional')->new($professional_data);
+    my $requester = $schema->element('Requester')->new(
+        $ordering_provider, 
+        $professional
+    );
+
+    my $placer = $schema->element('Placer')->new($placer_data);
+    my $filler = $schema->element('Filler')->new($filler_data);
+    my $request_details = $schema->element('TestRequestDetails')->new(
+        placer    => $placer,
+        filler    => $filler,
+        requester => $requester,
+    );
+
+    my $request = $schema->element('RequestedTest')->new($request_data);
+    my $specimen = $schema->element('Specimen')->new($specimen_data);
+    
+    my $labtest = $labtest->element('LabTest')->new(
+        requested_test   => $request,
+        specimens        => [$specimen],
+        history_origin   => DateTime->now(),
+        test_status      => 'Final',
+        test_status_time => DateTime->new(
+            year   => 2017,
+            month  => 11,
+            day    => 10,
+            hour   => 14,
+            minute => 12
+        ),
+        clinical_info   => 'Feeling unwell',
+        test_panels     => [$labpanel],
+        conclusion      => '',
+        responsible_lab => 'Clinical Biochemistry',
+        request_details => $request_details,
+    );
+
 =head1 DESCRIPTION
 
 =for author to fill in:

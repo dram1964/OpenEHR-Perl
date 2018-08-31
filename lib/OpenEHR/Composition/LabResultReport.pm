@@ -452,11 +452,11 @@ This document describes OpenEHR::Composition::LabResultReport version 0.0.2
 =head1 DESCRIPTION
 
 Use this module to transform pathology result data into a composition
-suitable for submission to an OpenEHR server. Data can be supplied 
-to the LabResultReport object either as a collection of OpenEHR::Composition
-objects or as a hash. When using a hash, the add_labtests method should
-be used.
-
+suitable for submission to an OpenEHR server. 
+LabResultReports are constructed by supplying a report_id, patient_comment
+and an array of OpenEHR::Composition::Elements::LabTest objects. 
+Once the LabResultReport is constructed, it can be submitted to the OpenEHR
+server using OpenEHR::REST::Composition module.
 
 =head1 INTERFACE 
 

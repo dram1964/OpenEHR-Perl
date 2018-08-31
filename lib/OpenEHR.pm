@@ -78,7 +78,7 @@ __END__
 
 =head1 NAME
 
-OpenEHR - Parent module for functions to interface with OpenEHR 
+OpenEHR - Hold global configuration for interacting with an OpenEHR System
 
 =head1 VERSION
 
@@ -104,17 +104,34 @@ This document describes OpenEHR version 0.0.2
 =head1 DESCRIPTION
 
 OpenEHR L<http://www.openehr.org> is an open platform for developing 
-Electronic Health Records. This module provides some global 
-attributes inherited by other child modules. The major child modules
-are:
+Electronic Health Records. This module and its child modules 
+exist to provide an environment to move data from an existing data source
+into an OpenEHR system. It is therefore intended for use as part of an ETL 
+(Extract-Transform-Load) process. 
+
+The OpenEHR modules do not provide any tools to perform the Extraction
+process. How you access the source data will vary depending on your 
+particular environment. 
+
+Once you have identified an extract process, you can then use the OpenEHR 
+modules to Transform and Load your data into an OpenEHR system. 
+
+The major child modules are:
 
 =over 4
 
 =item * OpenEHR::Composition
 
-Modules for constructing compositions. All data submitted to OpenEHR 
-must be first loaded into a composition template. The current 
-composition formats are:
+These modules provide the Transformation part of the ETL task. Before 
+any data is submitted to OpenEHR, it must be transformed into a 
+representation that conforms to the OpenEHR Information Model. Such 
+representations are referred to as 'Compositions' in the OpenEHR world. 
+Compositions are used to represent various items of information that
+may be stored in a clinical information system, such as a patient's 
+demographic information, a laboratory test result, a clinical report or
+a request for information. Composition formats are defined in 
+the OpenEHR::Composition::* namespace. Current modules for constructing 
+compositions are:
 
 =over 8
 
@@ -128,8 +145,13 @@ composition formats are:
 
 =item * OpenEHR::REST
 
-Modules for submitting queries to OpenEHR using the REST API. Child
-modules exist for various REST endpoints:
+The OpenEHR::REST modules provide access to the REST API that comes
+with an OpenEHR system. OpenEHR::REST::Composition module can be used to submit 
+compositions to an OpenEHR system and therefore provide the 'Load' part 
+of the ETL process. 
+The REST API of an OpenEHR system provides a number of additional 
+endpoints for interacting with the OpenEHR system. Current modules for 
+interacting with the REST API are: 
 
 =over 8
 
@@ -202,8 +224,26 @@ OpenEHR reads configuration from a config file stored in
 'OpenEHR.conf'. The configuration file should be stored in 
 the current working directory or in '/etc/'. 
 Attributes should be specified as space separated 
-key-value pairs. An example configuration file can be found in the 
-etc directory of this distribution
+key-value pairs. Here's an example:
+
+    ### BEGIN OpenEHR.conf ###
+
+    # Parameters used to authenticate to server
+    user            admin
+    password        admin
+
+    # Servers URL - must end in a trailing slash
+    url     http://localhost:8081/
+
+    # URL for the REST API of your server
+    base_path       http://localhost:8081/rest/v1/
+
+    # Indentification of test data used in the test suite
+    test_ehrid          7287df6c-0958-4ec7-ba8a-952354528e23
+    test_uid            cccc7673-8c74-4cd0-9fec-583ddc0d9134::default::1
+    test_subject_id     7713848332
+
+    ### END OpenEHR.conf ###
 
 =head1 DEPENDENCIES
 
