@@ -125,62 +125,16 @@ Need to replace this statement with collect_method lookup
               &get_labresults( $labnumber, $order->order_code );
             for my $lab_result ( @{$lab_results_ref} ) {
                 my $result    = $lab_result->result;
-                my ($magnitude, $magnitude_status, $unit);
-                my $comment   = '';
                 my $test_code = $lab_result->test_code;
-                my $ref_range;
-                my $regex = qr/^(.*)\n([\W|\w|\n]*)/;
-                if ( $result =~ $regex ) {
-                    ( $result, $comment ) = ( $1, $2 );
-                    #print Dumper $test_code, $comment;
-                }
-                if ( $lab_result->units ) {
-                    if ( !( $lab_result->units eq '.' ) ) {
-                        if ($result =~ /^([\<|\>]){1,1}(.*)/ ) {
-                            ($magnitude_status, $result) = ( $1, $2);
-                        }
-                        if ($result =~ /^\d*\.{1,1}\d$/) {
-                            $magnitude = $result;
-                            $unit = $lab_result->units;
-                            $result = $result . ' ' . $lab_result->units;
-                        }
-                    }
-                }
-                if ( $lab_result->range_high ) {
-                    if ( $lab_result->range_low ) {
-                        $ref_range = $lab_result->range_low . '-'
-                          . $lab_result->range_high;
-                    }
-                    else {
-                        $ref_range = '0-' . $lab_result->range_high;
-                    }
-                }
-                else {
-                    $ref_range = '';
-                }
-                if ( $magnitude ) {
-                    push @{ $data->{labresults} }, {
-                        magnitude    => $magnitude,       #'88.9 mmol/l',
-                        unit        => $unit,
-                        comment   => $comment,      #'This is the sodium comment',
-                        ref_range => $ref_range,    #'80-90',
-                        testcode      => $lab_result->test_code,   #'NA',
-                        testname      => $lab_result->test_name,          #'Sodium',
-                        result_status => 'Final',
-                        magnitude_status => $magnitude_status,
-                    };
-                }
-                else {
-                    push @{ $data->{labresults} }, {
-                        result    => $result,       #'88.9 mmol/l',
-                        comment   => $comment,      #'This is the sodium comment',
-                        ref_range => $ref_range,    #'80-90',
-                        testcode      => $lab_result->test_code,   #'NA',
-                        testname      => $lab_result->test_name,          #'Sodium',
-                        result_status => 'Final',
-                        magnitude_status => $magnitude_status,
-                    };
-                }
+                push @{ $data->{labresults} }, {
+                    result_value => $result,
+                    range_low => $lab_result->range_low,
+                    range_high => $lab_result->range_high,
+                    testcode      => $lab_result->test_code,
+                    testname      => $lab_result->test_name,
+                    result_status => 'Final',
+                    unit => $lab_result->units,
+                };
             }
             push @{$labreport}, $data;
         }

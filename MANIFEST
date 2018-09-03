@@ -81,7 +81,8 @@ t/35OpenEHR-REST-EHR.t
 t/36OpenEHR-REST-Template.t
 t/40RetrieveInformationOrders.t
 t/41RetrieveEHRByComposition.t
-t/50namespaces.t
+t/50LabTestNamespace.t
+t/51ProblemDiagnosisNamespace.t
 t/perlcritic.t
 t/pod-coverage.t
 t/pod.t
