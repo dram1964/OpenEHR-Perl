@@ -4,14 +4,7 @@ use warnings;
 use strict;
 use Carp;
 use Moose;
-use MooseX::ClassAttribute;
 extends 'OpenEHR::Composition';
-
-class_has compos_name => (
-    is => 'ro',
-    init_arg => undef,
-    default => 'Placer',
-);
 
 use version; our $VERSION = qv('0.0.2');
 
