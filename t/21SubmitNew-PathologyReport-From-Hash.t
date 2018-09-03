@@ -151,6 +151,7 @@ ok( $path_report->compositionUid, 'Composition UID set' );
 ok( $path_report->href,           'HREF set' );
 note( 'Composition can be found at: ' . $path_report->href );
 
+$path_report->err_msg('');
 note('Testing submit_new method with STRUCTURED composition');
 ok( $report->composition_format('STRUCTURED'),
     'Set STRUCTURED composition format'
@@ -168,6 +169,7 @@ ok( $path_report->compositionUid, 'Composition UID set' );
 ok( $path_report->href,           'HREF set' );
 note( 'Composition can be found at: ' . $path_report->href );
 
+$path_report->err_msg('');
 note('Testing submit_new method with RAW composition');
 ok( $report->composition_format('RAW'), 'Set RAW composition format' );
 ok( $path_report->composition($report),

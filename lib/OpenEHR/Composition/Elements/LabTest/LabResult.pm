@@ -9,41 +9,40 @@ use Moose::Util::TypeConstraints;
 
 use version; our $VERSION = qv('0.0.2');
 
-has name => ( 
-    is => 'rw',
-    default => 'LabResult' 
+has name => (
+    is      => 'rw',
+    default => 'LabResult'
 );
 
-enum 'StatusName' => [
-    'Registered', 'Interim', 'Final', 'Amended',
-    'Cancelled',  'Not Requested'
-];
+enum 'StatusName' =>
+  [ 'Registered', 'Interim', 'Final', 'Amended', 'Cancelled', 'Not Requested' ];
 
 has result_value => (
-    is  => 'rw',
-    isa => 'Str',
+    is      => 'rw',
+    isa     => 'Str',
     trigger => \&_format_result,
 );
 
 has result_text => (
-    is => 'rw',
-    isa => 'Str',
+    is       => 'rw',
+    isa      => 'Str',
     init_arg => undef,
 );
 
 has magnitude => (
-    is  => 'rw',
-    isa => 'Str',
+    is       => 'rw',
+    isa      => 'Str',
     init_arg => undef,
 );
 
-has magnitude_status => ( is => 'rw',
-    init_arg => undef, 
+has magnitude_status => (
+    is       => 'rw',
+    init_arg => undef,
 );
 
 has unit => (
-    is  => 'rw',
-    isa => 'Str',
+    is      => 'rw',
+    isa     => 'Str',
     trigger => \&_format_unit,
 );
 
@@ -55,7 +54,7 @@ Sets unit to an empty string if unit is defined as '.'
 
 sub _format_unit {
     my $self = shift;
-    if ($self->unit eq '.') {
+    if ( $self->unit eq '.' ) {
         $self->unit('');
     }
 }
@@ -83,21 +82,21 @@ has status => (
 );
 
 has range_high => (
-    is => 'rw', 
+    is  => 'rw',
     isa => 'Str',
 );
 
 has range_low => (
-    is => 'rw',
+    is  => 'rw',
     isa => 'Str',
 );
 
 has ref_range => (
-    is  => 'rw',
-    isa => 'Str',
-    lazy => 1,
+    is       => 'rw',
+    isa      => 'Str',
+    lazy     => 1,
     init_arg => undef,
-    builder => '_format_ref_range',
+    builder  => '_format_ref_range',
 );
 
 =head2 _format_ref_range
@@ -111,19 +110,18 @@ sub _format_ref_range {
     my $self = shift;
     if ( $self->range_high ) {
         if ( $self->range_low ) {
-            $self->ref_range($self->range_low . '-'
-              . $self->range_high);
+            $self->ref_range( $self->range_low . '-' . $self->range_high );
         }
         else {
-            $self->ref_range('0-' . $self->range_high);
+            $self->ref_range( '0-' . $self->range_high );
         }
     }
-    elsif (defined( $self->range_low)) {
+    elsif ( defined( $self->range_low ) ) {
         if ( $self->range_low eq '0' ) {
             $self->ref_range('0');
         }
         else {
-            $self->ref_range($self->range_low);
+            $self->ref_range( $self->range_low );
         }
     }
     else {
@@ -200,8 +198,8 @@ sub result_status_lookup {
 }
 
 sub _format_result {
-    my $self  = shift;
-    my ($result, $magnitude, $magnitude_status, $unit, $comment);
+    my $self = shift;
+    my ( $result, $magnitude, $magnitude_status, $unit, $comment );
     $result = $self->result_value;
 
     # Treat first line as result
@@ -210,17 +208,17 @@ sub _format_result {
     if ( $result =~ $regex ) {
         ( $result, $comment ) = ( $1, $2 );
     }
-    if ( $comment ) {
-        if ($comment =~ m[Units: (.*)\n] ) {
+    if ($comment) {
+        if ( $comment =~ m[Units: (.*)\n] ) {
             $self->unit($1);
         }
     }
 
     # Check if result is numeric
-    if ($result =~ /^([\<|\>]){1,1}(\d*\.{0,1}\d*)$/ ) {
-        ($magnitude_status, $magnitude) = ( $1, $2);
+    if ( $result =~ /^([\<|\>]){1,1}(\d*\.{0,1}\d*)$/ ) {
+        ( $magnitude_status, $magnitude ) = ( $1, $2 );
     }
-    elsif ($result =~ /^(\d*\.{0,1}\d*)$/ ) {
+    elsif ( $result =~ /^(\d*\.{0,1}\d*)$/ ) {
         $magnitude = $1;
     }
 
@@ -228,14 +226,14 @@ sub _format_result {
     # if units provided
     # Or result_text for non-numeric results
     if ( $magnitude && $self->unit ) {
-        $self->magnitude($magnitude) ;
+        $self->magnitude($magnitude);
     }
-    elsif ( $magnitude && $magnitude_status) {
-        $self->result_text( $magnitude_status . $magnitude);
+    elsif ( $magnitude && $magnitude_status ) {
+        $self->result_text( $magnitude_status . $magnitude );
         $magnitude_status = '';
     }
-    elsif ( $magnitude ) {
-        $self->result_text( $magnitude);
+    elsif ($magnitude) {
+        $self->result_text($magnitude);
     }
     else {
         $self->result_text($result);
@@ -243,32 +241,39 @@ sub _format_result {
 
     # Appended units to result_text
     # if result text is numeric
-    if ($self->result_text) {
-        if ($self->unit) {
-            if (!($self->unit eq '.')) {
-                if (!($self->unit eq '')) {
-                    if ($self->result_text !~ /[a-zA-Z]{1,}/) {
-                        $self->result_text($result . ' ' . $self->unit);
+    if ( $self->result_text ) {
+        if ( $self->unit ) {
+            if ( !( $self->unit eq '.' ) ) {
+                if ( !( $self->unit eq '' ) ) {
+                    if ( $self->result_text !~ /[a-zA-Z]{1,}/ ) {
+                        $self->result_text( $result . ' ' . $self->unit );
                     }
-                    elsif ($self->result_text =~ /Neg$/) {
-                        $self->result_text($result . ' ' . $self->unit);
+                    elsif ( $self->result_text =~ /Neg$/ ) {
+                        $self->result_text( $result . ' ' . $self->unit );
                     }
 
                 }
             }
         }
     }
-    
+
     # Join the comment to the result text
-    # Unless it is wholly numeric 
-    # or a double numeric 
+    # Unless it is wholly numeric
+    # or a double numeric
     # or matches positive/negative
-    if ($self->result_text) {
-        if ( !($self->result_text =~ /^\d*\.\d*$/) ) {
-            if ( !($self->result_text =~ /\d{1,}\%\s{1,}\d{1,}/) ) {
-                if ( !($self->result_text =~ /^(Positive|Negative|Not Detected|REACTIVE|Weak Reactive|POSITIVE)/) ) {
+    if ( $self->result_text ) {
+        if ( !( $self->result_text =~ /^\d*\.\d*$/ ) ) {
+            if ( !( $self->result_text =~ /\d{1,}\%\s{1,}\d{1,}/ ) ) {
+                if (
+                    !(
+                        $self->result_text =~
+/^(Positive|Negative|Not Detected|REACTIVE|Weak Reactive|POSITIVE)/
+                    )
+                  )
+                {
                     if ($comment) {
-                        $self->result_text($self->result_text . "\n" . $comment);
+                        $self->result_text(
+                            $self->result_text . "\n" . $comment );
                         $comment = '';
                     }
                 }
@@ -277,13 +282,13 @@ sub _format_result {
     }
 
     $self->magnitude_status($magnitude_status) if $magnitude_status;
-    $self->comment($comment) if $comment;
+    $self->comment($comment)                   if $comment;
 }
 
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')
-        if ( $self->composition_format eq 'TDD' );
+      if ( $self->composition_format eq 'TDD' );
 
     my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
@@ -295,8 +300,10 @@ sub compose_structured {
         'reference_range_guidance' => [ $self->ref_range ],
         'comment'                  => [ $self->comment ],
         'result_value'             => [
-            {   '_name' => [
-                    {   '|code'        => $self->testcode,
+            {
+                '_name' => [
+                    {
+                        '|code'        => $self->testcode,
                         '|value'       => $self->testname,
                         '|terminology' => $self->testcode_terminology,
                     },
@@ -304,7 +311,8 @@ sub compose_structured {
             },
         ],
         'result_status' => [
-            {   '|value'       => $self->status->{value},
+            {
+                '|value'       => $self->status->{value},
                 '|terminology' => $self->status->{terminology},
                 '|code'        => $self->status->{code},
             },
@@ -312,8 +320,10 @@ sub compose_structured {
     };
     if ( $self->mapping_code ) {
         $composition->{result_value}->[0]->{_name}->[0]->{'_mapping'} = [
-            {   'target' => [
-                    {   '|code'        => $self->mapping_code,
+            {
+                'target' => [
+                    {
+                        '|code'        => $self->mapping_code,
                         '|terminology' => $self->mapping_terminology,
                     }
                 ],
@@ -322,17 +332,34 @@ sub compose_structured {
         ];
     }
     if ( $self->magnitude ) {
-        $composition->{result_value}->[0]->{value2} = [
-            {   magnitude        => $self->magnitude,
+        $composition->{result_value}->[0]->{quantity_value} = [
+            {
+                magnitude        => $self->magnitude,
                 magnitude_status => $self->magnitude_status,
                 unit             => $self->unit,
                 normal_status    => $self->normal_flag,
+                _normal_range    => [
+                    {
+                        upper => [
+                            {
+                                '|unit'      => $self->unit,
+                                '|magnitude' => $self->range_high,
+                            },
+                        ],
+                        lower => [
+                            {
+                                '|unit'      => $self->unit,
+                                '|magnitude' => $self->range_low,
+                            },
+                        ],
+                    },
+                ],
             }
         ];
     }
     elsif ( $self->result_text ) {
         $composition->{result_value}->[0]->{text_value} =
-            [ $self->result_text ];
+          [ $self->result_text ];
     }
     return $composition;
 }
@@ -340,33 +367,45 @@ sub compose_structured {
 sub compose_flat {
     my $self = shift;
     my $path = 'laboratory_result_report/laboratory_test:__TEST__/'
-        . 'laboratory_test_panel:__PANEL__/laboratory_result:__RESULT__/';
+      . 'laboratory_test_panel:__PANEL__/laboratory_result:__RESULT__/';
     my $composition = {
-        $path . 'result_value/_name|value' => $self->testname,
-        $path . 'result_value/_name|code'  => $self->testcode,
-        $path
-            . 'result_value/_name|terminology' => $self->testcode_terminology,
-        $path . 'reference_range_guidance' => $self->ref_range,
-        $path . 'comment'                  => $self->comment,
-        $path . 'result_status|code'       => $self->status->{code},
+        $path . 'result_value/_name|value'       => $self->testname,
+        $path . 'result_value/_name|code'        => $self->testcode,
+        $path . 'result_value/_name|terminology' => $self->testcode_terminology,
+        $path . 'reference_range_guidance'       => $self->ref_range,
+        $path . 'comment'                        => $self->comment,
+        $path . 'result_status|code'             => $self->status->{code},
     };
     if ( $self->mapping_code ) {
-        $composition->{ $path . 'result_value/_name/_mapping:0/target|code' }
-            = $self->mapping_code;
+        $composition->{ $path . 'result_value/_name/_mapping:0/target|code' } =
+          $self->mapping_code;
         $composition->{ $path
-                . 'result_value/_name/_mapping:0/target|terminology' } =
-            $self->mapping_terminology;
+              . 'result_value/_name/_mapping:0/target|terminology' } =
+          $self->mapping_terminology;
         $composition->{ $path . 'result_value/_name/_mapping:0|match' } =
-            $self->mapping_match_operator;
+          $self->mapping_match_operator;
     }
     if ( $self->magnitude ) {
-        $composition->{ $path . 'result_value/value2|magnitude' } =
-            $self->magnitude;
-        $composition->{ $path . 'result_value/value2|unit' } = $self->unit;
-        $composition->{ $path . 'result_value/value2|normal_status' } =
-            $self->normal_flag;
-        $composition->{ $path . 'result_value/value2|magnitude_status' } =
-            $self->magnitude_status;
+        $composition->{ $path . 'result_value/quantity_value|magnitude' } =
+          $self->magnitude;
+        $composition->{ $path . 'result_value/quantity_value|unit' } =
+          $self->unit;
+        $composition->{ $path . 'result_value/quantity_value|normal_status' } =
+          $self->normal_flag;
+        $composition->{ $path . 'result_value/quantity_value|magnitude_status' }
+          = $self->magnitude_status;
+        $composition->{ $path
+              . 'result_value/quantity_value/_normal_range/lower|magnitude' } =
+          $self->range_low;
+        $composition->{ $path
+              . 'result_value/quantity_value/_normal_range/lower|unit' } =
+          $self->unit;
+        $composition->{ $path
+              . 'result_value/quantity_value/_normal_range/upper|magnitude' } =
+          $self->range_high;
+        $composition->{ $path
+              . 'result_value/quantity_value/_normal_range/upper|unit' } =
+          $self->unit;
     }
     elsif ( $self->result_text ) {
         $composition->{ $path . 'result_value/value' } = $self->result_text;
@@ -383,7 +422,8 @@ sub compose_raw {
             '@class' => 'DV_TEXT'
         },
         'items' => [
-            {   'archetype_node_id' => 'at0001',
+            {
+                'archetype_node_id' => 'at0001',
                 '@class'            => 'ELEMENT',
                 'name'              => {
                     'value'         => $self->testname,
@@ -398,7 +438,8 @@ sub compose_raw {
                     '@class' => 'DV_CODED_TEXT',
                 }
             },
-            {   '@class' => 'ELEMENT',
+            {
+                '@class' => 'ELEMENT',
                 'value'  => {
                     '@class'        => 'DV_CODED_TEXT',
                     'value'         => $self->status->{value},
@@ -422,7 +463,8 @@ sub compose_raw {
     };
     if ( $self->mapping_code ) {
         $composition->{items}->[0]->{name}->{'mappings'} = [
-            {   'target' => {
+            {
+                'target' => {
                     'terminology_id' => {
                         'value'  => $self->mapping_terminology,
                         '@class' => 'TERMINOLOGY_ID'
@@ -437,10 +479,23 @@ sub compose_raw {
     }
     if ( $self->magnitude ) {
         $composition->{items}->[0]->{value} = {
-            'magnitude' => $self->magnitude,
+            'magnitude'        => $self->magnitude,
             'magnitude_status' => $self->magnitude_status,
-            'units'     => $self->unit,
-            '@class'    => 'DV_QUANTITY'
+            'units'            => $self->unit,
+            '@class'           => 'DV_QUANTITY',
+            'normal_range' => {
+                'upper'           => {
+                    'magnitude' => $self->range_high,
+                    'units'     => $self->unit,
+                    '@class'    => 'DV_QUANTITY'
+                },
+                'lower' => {
+                    'magnitude' => $self->range_low,
+                    'units'     => $self->unit,
+                    '@class'    => 'DV_QUANTITY'
+                },
+                '@class'          => 'DV_INTERVAL',
+            },
         };
     }
     elsif ( $self->result_text ) {
@@ -452,7 +507,7 @@ sub compose_raw {
 
     if ( $self->comment ) {
         push @{ $composition->{items} },
-            {
+          {
             'name' => {
                 'value'  => 'Comment',
                 '@class' => 'DV_TEXT'
@@ -463,11 +518,11 @@ sub compose_raw {
             },
             '@class'            => 'ELEMENT',
             'archetype_node_id' => 'at0003'
-            };
+          };
     }
     if ( $self->ref_range ) {
         push @{ $composition->{items} },
-            {
+          {
             'archetype_node_id' => 'at0004',
             'name'              => {
                 'value'  => 'Reference range guidance',
@@ -478,7 +533,7 @@ sub compose_raw {
                 '@class' => 'DV_TEXT',
                 'value'  => $self->ref_range,
             }
-            };
+          };
     }
     return $composition;
 }
