@@ -110,10 +110,10 @@ sub _format_ref_range {
     my $self = shift;
     if ( $self->range_high ) {
         if ( $self->range_low ) {
-            $self->ref_range( $self->range_low . '-' . $self->range_high );
+            $self->ref_range( $self->range_low . ' - ' . $self->range_high );
         }
         else {
-            $self->ref_range( '0-' . $self->range_high );
+            $self->ref_range( '0 - ' . $self->range_high );
         }
     }
     elsif ( defined( $self->range_low ) ) {
