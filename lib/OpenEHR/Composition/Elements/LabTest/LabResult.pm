@@ -46,19 +46,6 @@ has unit => (
     trigger => \&_format_unit,
 );
 
-=head2 _format_unit
-
-Sets unit to an empty string if unit is defined as '.'
-
-=cut
-
-sub _format_unit {
-    my $self = shift;
-    if ( $self->unit eq '.' ) {
-        $self->unit('');
-    }
-}
-
 has normal_flag => (
     is  => 'rw',
     isa => 'Str',
@@ -99,36 +86,6 @@ has ref_range => (
     builder  => '_format_ref_range',
 );
 
-=head2 _format_ref_range
-
-Combines the range_low and range_high values of the object into 
-a formatted 'reference range' string
-
-=cut 
-
-sub _format_ref_range {
-    my $self = shift;
-    if ( $self->range_high ) {
-        if ( $self->range_low ) {
-            $self->ref_range( $self->range_low . ' - ' . $self->range_high );
-        }
-        else {
-            $self->ref_range( '0 - ' . $self->range_high );
-        }
-    }
-    elsif ( defined( $self->range_low ) ) {
-        if ( $self->range_low eq '0' ) {
-            $self->ref_range('0');
-        }
-        else {
-            $self->ref_range( $self->range_low );
-        }
-    }
-    else {
-        $self->ref_range('');
-    }
-}
-
 has testname => (
     is  => 'rw',
     isa => 'Str',
@@ -159,6 +116,36 @@ has mapping_match_operator => (
     is  => 'rw',
     isa => 'Str',
 );
+
+sub _format_ref_range {
+    my $self = shift;
+    if ( $self->range_high ) {
+        if ( $self->range_low ) {
+            $self->ref_range( $self->range_low . ' - ' . $self->range_high );
+        }
+        else {
+            $self->ref_range( '0 - ' . $self->range_high );
+        }
+    }
+    elsif ( defined( $self->range_low ) ) {
+        if ( $self->range_low eq '0' ) {
+            $self->ref_range('0');
+        }
+        else {
+            $self->ref_range( $self->range_low );
+        }
+    }
+    else {
+        $self->ref_range('');
+    }
+}
+
+sub _format_unit {
+    my $self = shift;
+    if ( $self->unit eq '.' ) {
+        $self->unit('');
+    }
+}
 
 sub result_status_lookup {
     my $self                 = shift;
@@ -690,7 +677,14 @@ determines whether a result should be handled as a plain text value
 with units appended
 or split into magnitude, magnitude_status, and units. 
 
-=cut
+=head2 _format_ref_range
+
+Combines the range_low and range_high values of the object into 
+a formatted 'reference range' string
+
+=head2 _format_unit
+
+Sets unit to an empty string if unit is defined as '.'
 
 
 =head1 DIAGNOSTICS

@@ -29,7 +29,7 @@ is( $labtest->comment,
     'See http://biochem.org for interpretation guidelines',
     'Result comment'
 );
-is( $labtest->ref_range,       '50-60',  'Ref Range' );
+is( $labtest->ref_range,       '50 - 60',  'Ref Range' );
 is( $labtest->status->{code},  'at0009', 'Status Code' );
 is( $labtest->status->{value}, 'Final',  'Status Value' );
 
@@ -39,13 +39,13 @@ my $path = 'laboratory_result_report/laboratory_test:__TEST__/'
 ok( $labtest->composition_format('FLAT'), 'Request Structured format' );
 ok( my $flat = $labtest->compose(), 'Compose called' );
 if ( $labtest->magnitude ) {
-    is( $flat->{ $path . 'result_value/value2|magnitude' },
+    is( $flat->{ $path . 'result_value/quantity_value|magnitude' },
         $labtest->magnitude, 'result_value magnitude Flat format' );
-    is( $flat->{ $path . 'result_value/value2|magnitude_status' },
+    is( $flat->{ $path . 'result_value/quantity_value|magnitude_status' },
         $labtest->magnitude_status,
         'result_value magnitude status Flat format'
     );
-    is( $flat->{ $path . 'result_value/value2|unit' },
+    is( $flat->{ $path . 'result_value/quantity_value|unit' },
         $labtest->unit, 'result_value unit Flat format' );
 }
 elsif ( $labtest->result_text ) {
@@ -76,12 +76,12 @@ note(
     $flat->{ $path . 'result_value/_name/_mapping:0|match' }
 );
 note(
-    'not implemented result_value/value2|magnitude_status: ',
-    $flat->{ $path . 'result_value/value2|magnitude_status' }
+    'not implemented result_value/quantity_value|magnitude_status: ',
+    $flat->{ $path . 'result_value/quantity_value|magnitude_status' }
 );
 note(
-    'not implemented result_value/value2|unit: ',
-    $flat->{ $path . 'result_value/value2|unit' }
+    'not implemented result_value/quantity_value|unit: ',
+    $flat->{ $path . 'result_value/quantity_value|unit' }
 );
 note(
     'not implemented result_value/value: ',
@@ -89,25 +89,25 @@ note(
 );
 note(
     'not implemented '
-        . 'result_value/value2/_normal_range/lower|magnitude: ',
-    $flat->{ $path . 'result_value/value2/_normal_range/lower|magnitude' }
+        . 'result_value/quantity_value/_normal_range/lower|magnitude: ',
+    $flat->{ $path . 'result_value/quantity_value/_normal_range/lower|magnitude' }
 );
 note(
-    'not implemented result_value/value2/_normal_range/lower|unit: ',
-    $flat->{ $path . 'result_value/value2/_normal_range/lower|unit' }
+    'not implemented result_value/quantity_value/_normal_range/lower|unit: ',
+    $flat->{ $path . 'result_value/quantity_value/_normal_range/lower|unit' }
 );
 note(
     'not implemented '
-        . 'result_value/value2/_normal_range/upper|magnitude: ',
-    $flat->{ $path . 'result_value/value2/_normal_range/upper|magnitude' }
+        . 'result_value/quantity_value/_normal_range/upper|magnitude: ',
+    $flat->{ $path . 'result_value/quantity_value/_normal_range/upper|magnitude' }
 );
 note(
-    'not implemented result_value/value2/_normal_range/upper|unit: ',
-    $flat->{ $path . 'result_value/value2/_normal_range/upper|unit' }
+    'not implemented result_value/quantity_value/_normal_range/upper|unit: ',
+    $flat->{ $path . 'result_value/quantity_value/_normal_range/upper|unit' }
 );
 note(
-    'not implemented result_value/value2|normal_status: ',
-    $flat->{ $path . 'result_value/value2|normal_status' }
+    'not implemented result_value/quantity_value|normal_status: ',
+    $flat->{ $path . 'result_value/quantity_value|normal_status' }
 );
 
 note('Testing STRUCTURED composition');
@@ -131,7 +131,7 @@ if ( $labtest->result_text ) {
         $labtest->result_text, 'result value in structured format' );
 }
 elsif ( $labtest->magnitude ) {
-    my $value2 = $struct->{result_value}->[0]->{'value2'};
+    my $value2 = $struct->{result_value}->[0]->{'quantity_value'};
     is( $value2->[0]->{'magnitude'},
         $labtest->magnitude, 'result magnitude in structured format' );
     is( $value2->[0]->{'magnitude_status'},
