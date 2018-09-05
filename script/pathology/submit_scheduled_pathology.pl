@@ -1,13 +1,14 @@
 use strict;
 use warnings;
 use DateTime::Format::DateParse;
-use Data::Dumper;
 use JSON;
 use DBI;
 
 use OpenEHR::Composition::LabResultReport;
 use OpenEHR::REST::Composition;
 use Genomes_100K::Model;
+use Data::Dumper;
+
 
 my $schema = Genomes_100K::Model->connect('CRIUGenomesTest');
 
@@ -126,7 +127,9 @@ Need to replace this statement with collect_method lookup
             for my $lab_result ( @{$lab_results_ref} ) {
                 my $result    = $lab_result->result;
                 my $test_code = $lab_result->test_code;
-                push @{ $data->{labresults} }, {
+                my $department_code = $lab_result->laboratory_department_code;
+                my $mapping = &get_mappings($order->order_code, $test_code, $department_code);
+                my $results = {
                     result_value => $result,
                     range_low => $lab_result->range_low,
                     range_high => $lab_result->range_high,
@@ -135,6 +138,10 @@ Need to replace this statement with collect_method lookup
                     result_status => 'Final',
                     unit => $lab_result->units,
                 };
+                if ($mapping) {
+                    $results->{mapping} = $mapping;
+                }
+                push @{ $data->{labresults} }, $results;
             }
             push @{$labreport}, $data;
         }
@@ -143,6 +150,79 @@ Need to replace this statement with collect_method lookup
         }
         $row++;
     }
+}
+
+sub get_mappings {
+    my ( $order_code, $test_code, $department_code ) = @_;
+    if ($department_code =~ /^M.*/) {
+        $department_code = 'UCLH_MIC_DW';
+    }
+    else {
+        $department_code = 'UCLH_BHI_DW';
+    }
+    my $mapping;
+    my $loinc_rs = $schema->resultset('HslLoincMapping')->search(
+        {
+            profile_code => $order_code,
+            test_code => $test_code,
+            origin => { -like => 'UCLH_%' },
+        },
+        {
+            rows => 1,
+        },
+    );
+    my $loinc_code;
+    if (my $loinc = $loinc_rs->first) {
+        if ($loinc->loinc_code) {
+            print Dumper ($order_code, $test_code, $loinc->loinc_code);
+            $loinc_code = $loinc->loinc_code;
+            push @{ $mapping }, {
+                code => $loinc->loinc_code,
+                terminology => 'LOINC',
+            };
+        }
+    }
+    if (!$loinc_code) {
+        my $loinc_rs2 = $schema->resultset('HslLoincMapping')->search(
+            {
+                test_code => $test_code,
+                origin => $department_code,
+            },
+            {
+                rows => 1,
+            }
+        );
+        if (my $loinc = $loinc_rs2->first) {
+            if ($loinc->loinc_code) {
+                print Dumper ($order_code, $test_code, $loinc->loinc_code);
+                $loinc_code = $loinc->loinc_code;
+                push @{ $mapping }, {
+                    code => $loinc->loinc_code,
+                    terminology => 'LOINC',
+                };
+            }
+        }
+    }
+    if ($loinc_code) {
+        my $gel_rs = $schema->resultset('GelLoincMapping')->search(
+            {
+                loinc_code => $loinc_code,
+            },
+            {
+                rows    => 1,
+            }
+        );
+        if (my $gel = $gel_rs->first) {
+            if ($gel->gel_code) {
+                print Dumper ($order_code, $test_code, $gel->gel_code);
+                push @{ $mapping }, {
+                    code => $gel->gel_code,
+                    terminology => 'GEL',
+                };
+            }
+        }
+    }
+    return $mapping;
 }
 
 sub get_report_date {
@@ -256,7 +336,7 @@ sub get_labresults() {
             {
                 columns => [
                     qw/ result clinical_details range_low range_high
-                      test_code units test_name /
+                      test_code units test_name laboratory_department_code/
                 ],
             }
         )->all

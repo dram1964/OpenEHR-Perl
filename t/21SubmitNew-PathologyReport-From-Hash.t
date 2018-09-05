@@ -41,11 +41,19 @@ This is the sodium comment',
                 testcode               => 'NA',
                 testname               => 'Sodium',
                 result_status          => 'Final',
-                mapping_code           => '5195-3',
-                mapping_terminology    => 'LOINC',
-                mapping_match_operator => '=',
+                mapping     => [
+                    {
+                        code => '5195-3',
+                        terminology => 'LOINC',
+                    },
+                    {
+                        code => '35338',
+                        terminology => 'GEL',
+                    }
+                ],
             },
-            {   result_value           => '52.9
+            {   
+                result_value           => '52.9
 This is the potassium comment',
                 unit                   => 'mmol/l',
                 range_low              => '50',
@@ -53,9 +61,16 @@ This is the potassium comment',
                 testcode               => 'K',
                 testname               => 'Potassium',
                 result_status          => 'Final',
-                mapping_code           => '5195-3',
-                mapping_terminology    => 'LOINC',
-                mapping_match_operator => '=',
+                mapping     => [
+                    {
+                        code => '5196-3',
+                        terminology => 'LOINC',
+                    },
+                    {
+                        code => '35339',
+                        terminology => 'GEL',
+                    }
+                ],
             },
         ],
         order_number => {
@@ -83,7 +98,7 @@ This is the potassium comment',
         collect_method => 'Phlebotomy',
         received       => $received,
         labnumber      => {
-            id       => '17V333322',
+            id       => '17V555522',
             assigner => 'Winpath',
             issuer   => 'UCLH Pathology',
         },
@@ -94,7 +109,7 @@ This is the potassium comment',
                 testname      => 'Free Kappa Light Chains',
                 result_status => 'Final',
             },
-            {   result_value        => '20',
+            {   result_value        => 'Positive',
                 unit => 'mg/L',
                 testcode      => 'LAMB',
                 testname      => 'Free Lambda Light Chains',
@@ -102,22 +117,22 @@ This is the potassium comment',
             },
         ],
         order_number => {
-            id       => 'TQ00112233',
+            id       => 'TQ00333221',
             assigner => 'TQuest',
             issuer   => 'UCLH',
         },
         report_date => $resulted,
         clinician   => {
-            id       => 'AB01',
+            id       => 'AB02',
             assigner => 'Carecast',
             issuer   => 'UCLH',
         },
         location => {
-            id     => 'ITU1',
+            id     => 'ITU2',
             parent => 'UCLH',
         },
         test_status   => 'Final',
-        clinical_info => 'Patient feeling unwell',
+        clinical_info => 'Dizzy spells',
     }
 ];
 

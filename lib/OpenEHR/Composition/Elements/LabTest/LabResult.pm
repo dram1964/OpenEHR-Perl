@@ -102,19 +102,9 @@ has testcode_terminology => (
     default => 'Local',
 );
 
-has mapping_code => (
-    is  => 'rw',
-    isa => 'Str',
-);
-
-has mapping_terminology => (
-    is  => 'rw',
-    isa => 'Str',
-);
-
-has mapping_match_operator => (
-    is  => 'rw',
-    isa => 'Str',
+has mapping => (
+    is => 'rw',
+    isa => 'ArrayRef[HashRef]',
 );
 
 sub _format_ref_range {
@@ -305,18 +295,19 @@ sub compose_structured {
             },
         ],
     };
-    if ( $self->mapping_code ) {
-        $composition->{result_value}->[0]->{_name}->[0]->{'_mapping'} = [
-            {
-                'target' => [
-                    {
-                        '|code'        => $self->mapping_code,
-                        '|terminology' => $self->mapping_terminology,
-                    }
-                ],
-                '|match' => $self->mapping_match_operator,
-            }
-        ];
+    if ( $self->mapping ) {
+        for my $mapping ( @{ $self->mapping } ) {
+            push @{ $composition->{result_value}->[0]->{_name}->[0]->{'_mapping'} }, 
+                {
+                    target => [
+                        {
+                            '|code' => $mapping->{code},
+                            '|terminology' => $mapping->{terminology},
+                        }
+                    ],
+                    '|match'    => '=',
+                };
+        }
     }
     if ( $self->magnitude ) {
         $composition->{result_value}->[0]->{quantity_value} = [
@@ -363,14 +354,17 @@ sub compose_flat {
         $path . 'comment'                        => $self->comment,
         $path . 'result_status|code'             => $self->status->{code},
     };
-    if ( $self->mapping_code ) {
-        $composition->{ $path . 'result_value/_name/_mapping:0/target|code' } =
-          $self->mapping_code;
-        $composition->{ $path
-              . 'result_value/_name/_mapping:0/target|terminology' } =
-          $self->mapping_terminology;
-        $composition->{ $path . 'result_value/_name/_mapping:0|match' } =
-          $self->mapping_match_operator;
+    if ( $self->mapping ) {
+        my $index = '0';
+        for my $mapping ( @{ $self->mapping } ) {
+            $composition->{ $path . "result_value/_name/_mapping:$index/target|code" } =
+              $mapping->{code};
+            $composition->{ $path
+                  . "result_value/_name/_mapping:$index/target|terminology" } =
+              $mapping->{terminology};
+            $composition->{ $path . "result_value/_name/_mapping:$index|match" } = '=';
+            $index++;
+        }
     }
     if ( $self->magnitude ) {
         $composition->{ $path . 'result_value/quantity_value|magnitude' } =
@@ -448,21 +442,22 @@ sub compose_raw {
         ],
         'archetype_node_id' => 'at0002'
     };
-    if ( $self->mapping_code ) {
-        $composition->{items}->[0]->{name}->{'mappings'} = [
-            {
-                'target' => {
-                    'terminology_id' => {
-                        'value'  => $self->mapping_terminology,
-                        '@class' => 'TERMINOLOGY_ID'
+    if ($self->mapping) {
+        for my $mapping (@{ $self->mapping } ) {
+            push @{ $composition->{items}->[0]->{name}->{'mappings'} },  
+                {
+                    'target' => {
+                        'terminology_id' => {
+                            'value'  => $mapping->{terminology},
+                            '@class' => 'TERMINOLOGY_ID'
+                        },
+                        'code_string' => $mapping->{code},
+                        '@class'      => 'CODE_PHRASE'
                     },
-                    'code_string' => $self->mapping_code,
-                    '@class'      => 'CODE_PHRASE'
-                },
-                'match'  => $self->mapping_match_operator,
-                '@class' => 'TERM_MAPPING'
+                    'match'  => "=",
+                    '@class' => 'TERM_MAPPING'
+                };
             }
-        ];
     }
     if ( $self->magnitude ) {
         $composition->{items}->[0]->{value} = {
