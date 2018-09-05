@@ -156,10 +156,10 @@ sub compose_structured {
             ],
             'report_id'             => [ $self->report_id ],
             '_health_care_facility' => [
-                {   '|id_namespace' => 'UCLH-NS',
-                    '|id_scheme'    => 'UCLH-NS',
-                    '|id'           => 'RRV',
-                    '|name'         => 'UCLH',
+                {   '|id_namespace' => $self->id_namespace,
+                    '|id_scheme'    => $self->id_scheme,
+                    '|id'           => $self->facility_id,
+                    '|name'         => $self->facility_name,
                 }
             ],
             'start_time' => [ DateTime->now->datetime, ]
@@ -323,13 +323,13 @@ sub compose_raw {
         '@class'               => 'EVENT_CONTEXT',
         'health_care_facility' => {
             '@class'       => 'PARTY_IDENTIFIED',
-            'name'         => 'UCLH',
+            'name'         => $self->facility_name,
             'external_ref' => {
-                'namespace' => 'UCLH-NS',
+                'namespace' => $self->id_namespace,
                 'type'      => 'ANY',
                 'id'        => {
-                    'scheme' => 'UCLH-NS',
-                    'value'  => 'RRV',
+                    'scheme' => $self->id_scheme,
+                    'value'  => $self->facility_id,
                     '@class' => 'GENERIC_ID'
                 },
                 '@class' => 'PARTY_REF'
@@ -383,7 +383,6 @@ sub compose_raw {
         archetype_details => $archetype_details,
     };
 
-    #print Dumper $composition;
     return $composition;
 }
 
@@ -406,10 +405,10 @@ sub compose_flat {
         'ctx/territory'                 => $self->territory_code,
         'ctx/composer_name'             => $self->composer_name,
         'ctx/time'                      => DateTime->now->datetime,
-        'ctx/id_namespace'              => 'UCLH-NS',
-        'ctx/id_scheme'                 => 'UCLH-NS',
-        'ctx/health_care_facility|name' => 'UCLH',
-        'ctx/health_care_facility|id'   => 'RRV',
+        'ctx/id_namespace'              => $self->id_namespace,
+        'ctx/id_scheme'                 => $self->id_scheme,
+        'ctx/health_care_facility|name' => $self->facility_name,
+        'ctx/health_care_facility|id'   => $self->facility_id,
         $path . 'context/report_id'     => $self->report_id,
         %{$labtest_comp},
         $path . 'patient_comment/comment' => $self->patient_comment,
