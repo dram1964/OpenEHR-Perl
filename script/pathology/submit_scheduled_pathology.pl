@@ -51,6 +51,7 @@ sub select_samples_to_report {
     while ( my $sample = $samples_rs->next ) {
         my $labreport       = [];
         my $labnumber       = $sample->laboratory_sample_number;
+        my $report_id = $labnumber;
         my $order_codes_ref = &get_order_codes($labnumber);
 
         for my $order ( @{$order_codes_ref} ) {
@@ -60,6 +61,7 @@ sub select_samples_to_report {
                 $order->order_name,                $sample->sample_date,
                 $start_date,                       $end_date ),
               "\n";
+            $report_id = $report_id . '-' . $order->order_code;
             my $data = {};
 
             if ($sample->order_number) {
@@ -145,7 +147,7 @@ Need to replace this statement with collect_method lookup
             }
             push @{$labreport}, $data;
         }
-        if (my $composition = &submit_report($labreport, $ehrid)) {
+        if (my $composition = &submit_report($labreport, $ehrid, $report_id)) {
             &update_report_date($labnumber, $composition);
         }
         $row++;
@@ -174,7 +176,6 @@ sub get_mappings {
     my $loinc_code;
     if (my $loinc = $loinc_rs->first) {
         if ($loinc->loinc_code) {
-            print Dumper ($order_code, $test_code, $loinc->loinc_code);
             $loinc_code = $loinc->loinc_code;
             push @{ $mapping }, {
                 code => $loinc->loinc_code,
@@ -194,7 +195,6 @@ sub get_mappings {
         );
         if (my $loinc = $loinc_rs2->first) {
             if ($loinc->loinc_code) {
-                print Dumper ($order_code, $test_code, $loinc->loinc_code);
                 $loinc_code = $loinc->loinc_code;
                 push @{ $mapping }, {
                     code => $loinc->loinc_code,
@@ -214,7 +214,6 @@ sub get_mappings {
         );
         if (my $gel = $gel_rs->first) {
             if ($gel->gel_code) {
-                print Dumper ($order_code, $test_code, $gel->gel_code);
                 push @{ $mapping }, {
                     code => $gel->gel_code,
                     terminology => 'GEL',
@@ -274,31 +273,13 @@ sub update_report_date() {
 }
 
 sub submit_report() {
-    my ( $labreport, $ehrid ) = @_;
+    my ( $labreport, $ehrid, $report_id ) = @_;
     my $report    = OpenEHR::Composition::LabResultReport->new();
-=head1 report_id
+    $report->report_id($report_id);
 
-need to generate a report_id for each labresultreport
-
-=cut
-    $report->report_id('1112233322233');
-
-=head1 patient_comment
-
-need to use a patient_comment lookup here
-
-=cut
-    $report->patient_comment('Hello EHR');
     for my $order ( @{$labreport} ) {
         $report->add_labtests($order);
     }
-=head1 composer_name
-
-need to generate a suitable value for composer name
-
-=cut
-    $report->composer_name('David Ramlakhan');
-    #print "Composition Format: ", $report->composition_format, "\n";
     my $path_report = OpenEHR::REST::Composition->new();
 
     $path_report->composition($report);
