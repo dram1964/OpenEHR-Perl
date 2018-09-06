@@ -1,4 +1,4 @@
-use Test::More tests => 48;
+use Test::More tests => 49;
 
 BEGIN {
     use_ok('OpenEHR');
@@ -7,6 +7,7 @@ BEGIN {
     use_ok('OpenEHR::Composition::InformationOrder');
     use_ok('OpenEHR::Composition::LabResultReport');
     use_ok('OpenEHR::Composition::Elements');
+    use_ok('OpenEHR::Composition::Elements::CTX');
     use_ok('OpenEHR::Composition::Elements::LabTest');
     use_ok('OpenEHR::Composition::Elements::LabTest::Filler');
     use_ok('OpenEHR::Composition::Elements::LabTest::LabResult');

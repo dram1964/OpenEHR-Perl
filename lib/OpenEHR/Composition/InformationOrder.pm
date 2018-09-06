@@ -200,16 +200,17 @@ sub format_datetime {
 
 sub compose_structured {
     my $self        = shift;
+    my $ctx = {
+        'language'                  => $self->language_code,
+        'territory'                 => $self->territory_code,
+        'composer_name'             => $self->composer_name . '-' . $self->composition_format,
+        'id_namespace'              => $self->id_namespace,
+        'id_scheme'                 => $self->id_scheme,
+        'health_care_facility|name' => $self->facility_name,
+        'health_care_facility|id'   => $self->facility_id,
+    };
     my $composition = {
-        ctx => {
-            'language'                  => $self->language_code,
-            'territory'                 => $self->territory_code,
-            'composer_name'             => $self->composer_name,
-            'id_namespace'              => $self->id_namespace,
-            'id_scheme'                 => $self->id_scheme,
-            'health_care_facility|name' => $self->facility_name,
-            'health_care_facility|id'   => $self->facility_id,
-        },
+        ctx => $ctx,
         'gel_data_request_summary'      => {
             'service_request' => [
                 {
@@ -272,7 +273,7 @@ sub compose_structured {
 
 sub compose_raw {
     my $self        = shift;
-    my $composition = {
+    my $ctx = {
         'territory' => {
             'terminology_id' => {
                 'value'  => $self->territory_terminology,
@@ -289,6 +290,45 @@ sub compose_raw {
             'code_string' => $self->language_code,
             '@class'      => 'CODE_PHRASE'
         },
+        'context' => {
+            'start_time' => {
+                'value'  => DateTime->now->datetime,
+                '@class' => 'DV_DATE_TIME'
+            },
+            'health_care_facility' => {
+                'name'         => $self->facility_name,
+                'external_ref' => {
+                    'namespace' => $self->id_namespace,
+                    'type'      => 'PARTY',
+                    'id'        => {
+                        'value'  => $self->facility_id,
+                        'scheme' => $self->id_scheme,
+                        '@class' => 'GENERIC_ID'
+                    },
+                    '@class' => 'PARTY_REF'
+                },
+                '@class' => 'PARTY_IDENTIFIED'
+            },
+            'setting' => {
+                'value'         => 'other care',
+                'defining_code' => {
+                    'terminology_id' => {
+                        'value'  => 'openehr',
+                        '@class' => 'TERMINOLOGY_ID'
+                    },
+                    'code_string' => '238',
+                    '@class'      => 'CODE_PHRASE'
+                },
+                '@class' => 'DV_CODED_TEXT',
+            },
+        '@class' => 'EVENT_CONTEXT',
+        },
+        'composer' => {
+            'name'   => $self->composer_name . '-' . $self->composition_format,
+            '@class' => 'PARTY_IDENTIFIED'
+        }
+    };
+    my $composition = {
         'archetype_node_id' => 'openEHR-EHR-COMPOSITION.report.v1',
         'content' => [
             {
@@ -559,39 +599,6 @@ sub compose_raw {
             '@class' => 'ARCHETYPED'
         },
         '@class'  => 'COMPOSITION',
-        'context' => {
-            'start_time' => {
-                'value'  => DateTime->now->datetime,
-                '@class' => 'DV_DATE_TIME'
-            },
-            'health_care_facility' => {
-                'name'         => 'UCLH',
-                'external_ref' => {
-                    'namespace' => 'UCLH-NS',
-                    'type'      => 'PARTY',
-                    'id'        => {
-                        'value'  => 'RRV',
-                        'scheme' => 'UCLH-NS',
-                        '@class' => 'GENERIC_ID'
-                    },
-                    '@class' => 'PARTY_REF'
-                },
-                '@class' => 'PARTY_IDENTIFIED'
-            },
-            'setting' => {
-                'value'         => 'other care',
-                'defining_code' => {
-                    'terminology_id' => {
-                        'value'  => 'openehr',
-                        '@class' => 'TERMINOLOGY_ID'
-                    },
-                    'code_string' => '238',
-                    '@class'      => 'CODE_PHRASE'
-                },
-                '@class' => 'DV_CODED_TEXT'
-            },
-            '@class' => 'EVENT_CONTEXT'
-        },
         'category' => {
             'value'         => 'event',
             'defining_code' => {
@@ -604,24 +611,24 @@ sub compose_raw {
             },
             '@class' => 'DV_CODED_TEXT'
         },
-        'composer' => {
-            'name'   => $self->composer_name,
-            '@class' => 'PARTY_IDENTIFIED'
-        }
     };
+    $composition = { %{$composition}, %{$ctx} };
     return $composition;
 }
 
 sub compose_flat {
     my $self        = shift;
-    my $composition = {
+    my $ctx = {
         'ctx/language'                  => $self->language_code,
         'ctx/territory'                 => $self->territory_code,
-        'ctx/composer_name'             => $self->composer_name,
+        'ctx/composer_name'             => $self->composer_name . '-' . $self->composition_format,
         'ctx/id_namespace'              => $self->id_namespace,
         'ctx/id_scheme'                 => $self->id_scheme, 
         'ctx/health_care_facility|name' => $self->facility_name,
         'ctx/health_care_facility|id'   => $self->facility_id,
+    };
+    my $composition = {
+        %{ $ctx }, 
         'gel_data_request_summary/service_request:0/request:0/service_name' =>
           $self->service_name,
         'gel_data_request_summary/service_request:0/request:0/service_type' =>
