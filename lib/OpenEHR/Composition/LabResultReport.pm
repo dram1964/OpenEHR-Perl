@@ -7,10 +7,11 @@ use Moose;
 use Data::Dumper;
 extends 'OpenEHR::Composition';
 use OpenEHR::Composition::Elements::LabTest;
+use OpenEHR::Composition::Elements::CTX;
 
 use version; our $VERSION = qv('0.0.2');
 
-has ctx       => ( is => 'rw', isa => 'OpenEHR::Composition::CTX' );
+has ctx       => ( is => 'rw', isa => 'OpenEHR::Composition::Elements::CTX', default => \&_set_ctx );
 has report_id => ( is => 'rw', isa => 'Str' );
 has labtests  => (
     is      => 'rw',
@@ -18,6 +19,18 @@ has labtests  => (
     default => sub { [] }
 );
 has patient_comment => ( is => 'rw', isa => 'Str' );
+
+=head1 _set_ctx
+
+Adds the context and ctx elements to the Information Order
+
+=cut 
+
+sub _set_ctx {
+    my $self = shift;
+    my $ctx = OpenEHR::Composition::Elements::CTX->new();
+    $self->ctx($ctx);
+}
 
 sub add_labtests {
     my ( $self, $order ) = @_;
@@ -146,46 +159,17 @@ sub compose_structured {
     for my $labtest ( @{ $self->labtests } ) {
         push @{$laboratory_test}, $labtest->compose();
     }
-    my $composer = [ { '|name' => $self->composer_name } ];
-    my $context = [
-        {   'setting' => [
-                {   '|code'        => '238',
-                    '|value'       => 'other care',
-                    '|terminology' => 'openehr',
-                }
-            ],
-            'report_id'             => [ $self->report_id ],
-            '_health_care_facility' => [
-                {   '|id_namespace' => $self->id_namespace,
-                    '|id_scheme'    => $self->id_scheme,
-                    '|id'           => $self->facility_id,
-                    '|name'         => $self->facility_name,
-                }
-            ],
-            'start_time' => [ DateTime->now->datetime, ]
-        }
-    ];
-    my $language = [
-        {   '|terminology' => $self->language_terminology,
-            '|code'        => $self->language_code
-        }
-    ];
-    my $territory = [
-        {   '|terminology' => $self->territory_terminology,
-            '|code'        => $self->territory_code
-        }
-    ];
+
+    my $ctx = $self->ctx->compose;
 
     my $composition = {
         'laboratory_result_report' => {
-            'context'         => $context,
             'laboratory_test' => $laboratory_test,
             'patient_comment' => $patient_comment,
-            'composer'        => $composer,
-            'language'        => $language,
-            'territory'       => $territory
-        }
+        },
+        ctx => $ctx,
     };
+
     return $composition;
 }
 
@@ -196,12 +180,6 @@ sub compose_raw {
         $language, $uid,               $archetype_node_id,
         $name,     $archetype_details, $context,
     );
-
-    $composer = {
-        'name'   => $self->composer_name,
-        '@class' => 'PARTY_IDENTIFIED'
-    };
-
     $content = [];
     for my $labtest ( @{ $self->labtests } ) {
         push @{$content}, $labtest->compose();
@@ -262,32 +240,11 @@ sub compose_raw {
     };
     push @$content, $evaluation if $evaluation;
 
-    $territory = {
-        '@class'         => 'CODE_PHRASE',
-        'terminology_id' => {
-            '@class' => 'TERMINOLOGY_ID',
-            'value'  => $self->territory_terminology,
-        },
-        'code_string' => $self->territory_code,
-    };
-
-    $category = {
-        'value'         => 'event',
-        '@class'        => 'DV_CODED_TEXT',
-        'defining_code' => {
-            'code_string'    => '433',
-            '@class'         => 'CODE_PHRASE',
-            'terminology_id' => {
-                '@class' => 'TERMINOLOGY_ID',
-                'value'  => 'openehr'
-            }
-        }
-    };
-
     $class = 'COMPOSITION';
 
-    $context = {
-        'other_context' => {
+    my $ctx = $self->ctx->compose;
+
+    $ctx->{context}->{other_context} = {
             'name' => {
                 '@class' => 'DV_TEXT',
                 'value'  => 'Tree'
@@ -307,47 +264,6 @@ sub compose_raw {
                 }
             ],
             'archetype_node_id' => 'at0001'
-        },
-        'setting' => {
-            'value'         => 'other care',
-            '@class'        => 'DV_CODED_TEXT',
-            'defining_code' => {
-                'terminology_id' => {
-                    '@class' => 'TERMINOLOGY_ID',
-                    'value'  => 'openehr'
-                },
-                '@class'      => 'CODE_PHRASE',
-                'code_string' => '238'
-            }
-        },
-        '@class'               => 'EVENT_CONTEXT',
-        'health_care_facility' => {
-            '@class'       => 'PARTY_IDENTIFIED',
-            'name'         => $self->facility_name,
-            'external_ref' => {
-                'namespace' => $self->id_namespace,
-                'type'      => 'ANY',
-                'id'        => {
-                    'scheme' => $self->id_scheme,
-                    'value'  => $self->facility_id,
-                    '@class' => 'GENERIC_ID'
-                },
-                '@class' => 'PARTY_REF'
-            }
-        },
-        'start_time' => {
-            'value'  => DateTime->now->datetime,
-            '@class' => 'DV_DATE_TIME'
-        }
-    };
-
-    $language = {
-        'terminology_id' => {
-            'value'  => $self->language_terminology,
-            '@class' => 'TERMINOLOGY_ID',
-        },
-        '@class'      => 'CODE_PHRASE',
-        'code_string' => $self->language_code,
     };
 
     $archetype_node_id = 'openEHR-EHR-COMPOSITION.report-result.v1';
@@ -371,17 +287,13 @@ sub compose_raw {
     };
 
     my $composition = {
-        composer          => $composer,
         content           => $content,
-        territory         => $territory,
-        category          => $category,
         '@class'          => $class,
-        context           => $context,
-        language          => $language,
         archetype_node_id => $archetype_node_id,
         name              => $name,
         archetype_details => $archetype_details,
     };
+    $composition = { %{$composition}, %{$ctx} };
 
     return $composition;
 }
@@ -400,15 +312,11 @@ sub compose_flat {
         }
         $labtest_index++;
     }
+
+    my $ctx = $self->ctx->compose;
+
     my $composition = {
-        'ctx/language'                  => $self->language_code,
-        'ctx/territory'                 => $self->territory_code,
-        'ctx/composer_name'             => $self->composer_name,
-        'ctx/time'                      => DateTime->now->datetime,
-        'ctx/id_namespace'              => $self->id_namespace,
-        'ctx/id_scheme'                 => $self->id_scheme,
-        'ctx/health_care_facility|name' => $self->facility_name,
-        'ctx/health_care_facility|id'   => $self->facility_id,
+        %{ $ctx },
         $path . 'context/report_id'     => $self->report_id,
         %{$labtest_comp},
         $path . 'patient_comment/comment' => $self->patient_comment,

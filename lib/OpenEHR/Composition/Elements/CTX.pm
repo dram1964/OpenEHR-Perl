@@ -36,6 +36,18 @@ sub compose_structured {
 sub compose_raw {
     my $self        = shift;
     my $composition = {
+        category => {
+            'value'         => 'event',
+            '@class'        => 'DV_CODED_TEXT',
+            'defining_code' => {
+                'code_string'    => '433',
+                '@class'         => 'CODE_PHRASE',
+                'terminology_id' => {
+                    '@class' => 'TERMINOLOGY_ID',
+                    'value'  => 'openehr'
+                }
+            }
+        },
         'territory' => {
             'terminology_id' => {
                 'value'  => $self->territory_terminology,

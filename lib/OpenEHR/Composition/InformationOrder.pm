@@ -559,18 +559,6 @@ sub compose_raw {
             '@class' => 'ARCHETYPED'
         },
         '@class'  => 'COMPOSITION',
-        'category' => {
-            'value'         => 'event',
-            'defining_code' => {
-                'terminology_id' => {
-                    'value'  => 'openehr',
-                    '@class' => 'TERMINOLOGY_ID'
-                },
-                'code_string' => '433',
-                '@class'      => 'CODE_PHRASE'
-            },
-            '@class' => 'DV_CODED_TEXT'
-        },
     };
     $composition = { %{$composition}, %{$ctx} };
     return $composition;
