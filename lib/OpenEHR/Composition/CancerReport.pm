@@ -24,6 +24,11 @@ has ctx => (
     default => \&_set_ctx,
 );
 
+has report_id => (
+    is  => 'rw',
+    isa => 'Str',
+);
+
 =head1 _set_ctx
 
 Adds the context and ctx elements to the Information Order
@@ -76,7 +81,7 @@ sub compose_structured {
                             ]
                         }
                     ],
-                    'report_id' => ['Report ID 93']
+                    'report_id' => $self->report_id,
                 }
             ]
         },
@@ -101,7 +106,7 @@ sub compose_raw {
         },
         'items' => [
             {   'value' => {
-                    'value'  => 'Report ID 75',
+                    'value'  => $self->report_id,
                     '@class' => 'DV_TEXT'
                 },
                 'name' => {
@@ -216,6 +221,7 @@ sub compose_flat {
     $composition = {
         %{$ctx},
         # Context
+        'gel_cancer_diagnosis/context/report_id' => $self->report_id,
         'gel_cancer_diagnosis/context/participant/participant_identifier|type'
             => 'Prescription',
         'gel_cancer_diagnosis/context/participant/participant_identifier|assigner'

@@ -241,6 +241,7 @@ for my $format (@formats) {
     note( 'SubjectId: ' . $ehr1->subject_id );
     ok( my $cancer_report = OpenEHR::Composition::CancerReport->new(
             problem_diagnoses => [$problem_diagnosis],
+            report_id => 'TT123123Z',
         ),
         'Create New Cancer Report Object'
     );
