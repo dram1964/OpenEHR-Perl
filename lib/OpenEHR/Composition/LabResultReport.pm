@@ -166,6 +166,9 @@ sub compose_structured {
         'laboratory_result_report' => {
             'laboratory_test' => $laboratory_test,
             'patient_comment' => $patient_comment,
+            context => {
+                report_id => $self->report_id,
+            },
         },
         ctx => $ctx,
     };

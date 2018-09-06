@@ -1,385 +1,202 @@
-65 b1dd2b- 2586 - 4628 -a76a-fb8dd7285b19::default::1 $VAR1 = {
+$VAR1 = {
     'laboratory_result_report' => {
+        'patient_comment' => [
+            {   'comment'  => [ 'Patient feeling poorly' ],
+                'encoding' => [
+                    {   '|code'        => 'UTF-8',
+                        '|terminology' => 'IANA_character-sets'
+                    }
+                ],
+                'language' => [
+                    {   '|terminology' => 'ISO_639-1',
+                        '|code'        => 'en'
+                    }
+                ]
+            }
+        ],
+        'category' => [
+            {   '|terminology' => 'openehr',
+                '|value'       => 'event',
+                '|code'        => '433'
+            }
+        ],
         'territory' => [
-            {
-                '|code'        => 'GB',
+            {   '|code'        => 'GB',
                 '|terminology' => 'ISO_3166-1'
             }
         ],
+        '_uid' => [ '107c6d6d-cc84-45c5-8e4c-c4a3aaa7bbd8::default::1' ],
         'laboratory_test' => [
-            {
-                'language' => [
-                    {
-                        '|code'        => 'en',
+            {   'time'     => [ '2018-09-06T16:55:24.208+01:00' ],
+                'specimen' => [
+                    {   'processing' => [
+                            {   'laboratory_specimen_identifier' => [
+                                    {   '|issuer'   => 'UCLH Pathology',
+                                        '|type'     => 'local',
+                                        '|id'       => 'bld',
+                                        '|assigner' => 'Winpath'
+                                    }
+                                ],
+                                'datetime_received' => [ '2017-11-20T15:21Z' ]
+                            }
+                        ],
+                        'specimen_type'      => [ 'Blood' ],
+                        'datetime_collected' => [ '2017-11-20T14:31Z' ],
+                        'collection_method'  => [ 'Phlebotomy' ]
+                    }
+                ],
+                'test_request_details' => [
+                    {   'filler_order_number' => [
+                            {   '|assigner' => 'Winpath',
+                                '|issuer'   => 'UCLH Pathology',
+                                '|type'     => 'local',
+                                '|id'       => '17V333999'
+                            }
+                        ],
+                        'requester' => [
+                            {   'ordering_provider' => [
+                                    {   'ordering_provider' => [
+                                            {   'family_name' => [ 'UCLH' ],
+                                                'given_name'  => [ 'A&E' ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                'professional_identifier' => [
+                                    {   '|assigner' => 'Carecast',
+                                        '|issuer'   => 'UCLH',
+                                        '|type'     => 'local',
+                                        '|id'       => 'AB01'
+                                    }
+                                ]
+                            }
+                        ],
+                        'placer_order_number' => [
+                            {   '|assigner' => 'TQuest',
+                                '|type'     => 'local',
+                                '|id'       => 'TQ001113333',
+                                '|issuer'   => 'UCLH'
+                            }
+                        ]
+                    }
+                ],
+                'test_status_timestamp'  => [ '2017-11-10T14:12Z' ],
+                'responsible_laboratory' => [
+                    { 'name_of_organisation' => [ 'Clinical Biochemistry' ] }
+                ],
+                'clinical_information_provided' => [ 'Feeling unwell' ],
+                'language'                      => [
+                    {   '|code'        => 'en',
                         '|terminology' => 'ISO_639-1'
                     }
                 ],
-                'clinical_information_provided' => [ 'Patient feeling unwell' ],
-                'time'        => [ '2018-09-03T14:08:55+01:00' ],
-                'test_status' => [
-                    {
-                        '|code'        => 'at0038',
-                        '|terminology' => 'local',
-                        '|value'       => 'Final'
-                    }
-                ],
-                'responsible_laboratory' => [
-                    {
-                        'name_of_organisation' => [ 'UCLH Pathology' ]
-                    }
-                ],
                 'requested_test' => [
-                    {
+                    {   '|terminology' => 'local',
                         '|code'        => 'ELL',
-                        '|terminology' => 'local',
                         '|value'       => 'Electrolytes'
                     }
                 ],
-                'test_request_details' => [
-                    {
-                        'placer_order_number' => [
-                            {
-                                '|id'       => 'TQ00112233',
-                                '|assigner' => 'TQuest',
-                                '|issuer'   => 'UCLH',
-                                '|type'     => 'local'
-                            }
-                        ],
-                        'requester' => [
-                            {
-                                'professional_identifier' => [
-                                    {
-                                        '|id'       => 'AB01',
-                                        '|assigner' => 'Carecast',
-                                        '|issuer'   => 'UCLH',
-                                        '|type'     => 'local'
-                                    }
-                                ],
-                                'ordering_provider' => [
-                                    {
-                                        'ordering_provider' => [
-                                            {
-                                                'family_name' => [ 'UCLH' ],
-                                                'given_name'  => [ 'ITU1' ]
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ],
-                        'filler_order_number' => [
-                            {
-                                '|id'       => '17V333322',
-                                '|assigner' => 'Winpath',
-                                '|issuer'   => 'UCLH Pathology',
-                                '|type'     => 'local'
-                            }
-                        ]
-                    }
-                ],
-                'test_status_timestamp' => [ '2017-12-01T01:30Z' ],
-                'specimen'              => [
-                    {
-                        'collection_method'  => [ 'Phlebotomy' ],
-                        'datetime_collected' => [ '2017-12-01T01:10Z' ],
-                        'processing'         => [
-                            {
-                                'laboratory_specimen_identifier' => [
-                                    {
-                                        '|id'       => '17V333322',
-                                        '|assigner' => 'Winpath',
-                                        '|issuer'   => 'UCLH Pathology',
-                                        '|type'     => 'local'
-                                    }
-                                ],
-                                'datetime_received' => [ '2017-12-01T01:30Z' ]
-                            }
-                        ],
-                        'specimen_type' => [ 'Blood' ]
-                    }
-                ],
                 'laboratory_test_panel' => [
-                    {
-                        'laboratory_result' => [
-                            {
+                    {   'laboratory_result' => [
+                            {   'result_status' => [
+                                    {   '|code'        => 'at0009',
+                                        '|value'       => 'Final',
+                                        '|terminology' => 'local'
+                                    }
+                                ],
                                 'result_value' => [
-                                    {
-                                        '_name' => [
-                                            {
+                                    {   '_name' => [
+                                            {   '|terminology' => 'Local',
                                                 '|code'        => 'NA',
-                                                '|terminology' => 'Local',
-                                                '|value'       => 'Sodium',
-                                                '_mapping'     => [
-                                                    {
-                                                        'target' => [
-                                                            {
-                                                                '|code' =>
-                                                                  '5195-3',
-                                                                '|terminology'
-                                                                  => 'LOINC'
-                                                            }
-                                                        ],
-                                                        '|match' => '='
-                                                    }
-                                                ]
+                                                '|value'       => 'Sodium'
                                             }
                                         ],
                                         'quantity_value' => [
-                                            {
-                                                '_normal_range' => [
-                                                    {
-                                                        'upper' => [
-                                                            {
-                                                                '|unit' =>
-                                                                  'mmol/l',
-                                                                '|magnitude' =>
-                                                                  '90'
+                                            {   '_normal_range' => [
+                                                    {   'upper' => [
+                                                            {   '|unit' =>
+                                                                    'mmol/l',
+                                                                '|magnitude'
+                                                                    => '60'
                                                             }
                                                         ],
                                                         'lower' => [
-                                                            {
-                                                                '|unit' =>
-                                                                  'mmol/l',
-                                                                '|magnitude' =>
-                                                                  '80'
+                                                            {   '|unit' =>
+                                                                    'mmol/l',
+                                                                '|magnitude'
+                                                                    => '50'
                                                             }
                                                         ]
                                                     }
                                                 ],
-                                                '|unit'             => 'mmol/l',
                                                 '|magnitude_status' => '<',
-                                                '|magnitude'        => '88.9'
+                                                '|unit'      => 'mmol/l',
+                                                '|magnitude' => '59'
                                             }
                                         ]
                                     }
                                 ],
-                                'reference_range_guidance' => [ '80-90' ],
-                                'comment' => [ 'This is the sodium comment' ],
-                                'result_status' => [
-                                    {
-                                        '|code'        => 'at0009',
-                                        '|terminology' => 'local',
-                                        '|value'       => 'Final'
-                                    }
-                                ]
+                                'comment' => [ 'this is the sodium result' ],
+                                'reference_range_guidance' => [ '50 - 60' ]
                             },
-                            {
+                            {   'reference_range_guidance' => [ '80 - 90' ],
+                                'comment' =>
+                                    [ 'this is the potassium result' ],
                                 'result_value' => [
-                                    {
-                                        '_name' => [
-                                            {
-                                                '|code'        => 'K',
-                                                '|terminology' => 'Local',
-                                                '|value'       => 'Potassium',
-                                                '_mapping'     => [
-                                                    {
-                                                        'target' => [
-                                                            {
-                                                                '|code' =>
-                                                                  '5195-3',
-                                                                '|terminology'
-                                                                  => 'LOINC'
+                                    {   'quantity_value' => [
+                                            {   '|magnitude'    => '88',
+                                                '|unit'         => 'g/dl',
+                                                '_normal_range' => [
+                                                    {   'upper' => [
+                                                            {   '|unit' =>
+                                                                    'g/dl',
+                                                                '|magnitude'
+                                                                    => '90'
                                                             }
                                                         ],
-                                                        '|match' => '='
+                                                        'lower' => [
+                                                            {   '|unit' =>
+                                                                    'g/dl',
+                                                                '|magnitude'
+                                                                    => '80'
+                                                            }
+                                                        ]
                                                     }
                                                 ]
                                             }
                                         ],
-                                        'quantity_value' => [
-                                            {
-                                                '_normal_range' => [
-                                                    {
-                                                        'upper' => [
-                                                            {
-                                                                '|unit' =>
-                                                                  'mmol/l',
-                                                                '|magnitude' =>
-                                                                  '70'
-                                                            }
-                                                        ],
-                                                        'lower' => [
-                                                            {
-                                                                '|unit' =>
-                                                                  'mmol/l',
-                                                                '|magnitude' =>
-                                                                  '50'
-                                                            }
-                                                        ]
-                                                    }
-                                                ],
-                                                '|unit'      => 'mmol/l',
-                                                '|magnitude' => '52.9'
-                                            }
-                                        ]
-                                    }
-                                ],
-                                'reference_range_guidance' => [ '50-70' ],
-                                'comment' =>
-                                  [ 'This is the potassium comment' ],
-                                'result_status' => [
-                                    {
-                                        '|code'        => 'at0009',
-                                        '|terminology' => 'local',
-                                        '|value'       => 'Final'
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ],
-                'encoding' => [
-                    {
-                        '|code'        => 'UTF-8',
-                        '|terminology' => 'IANA_character-sets'
-                    }
-                ]
-            },
-            {
-                'language' => [
-                    {
-                        '|code'        => 'en',
-                        '|terminology' => 'ISO_639-1'
-                    }
-                ],
-                'clinical_information_provided' => [ 'Patient feeling unwell' ],
-                'time'        => [ '2018-09-03T14:08:55+01:00' ],
-                'test_status' => [
-                    {
-                        '|code'        => 'at0038',
-                        '|terminology' => 'local',
-                        '|value'       => 'Final'
-                    }
-                ],
-                'responsible_laboratory' => [
-                    {
-                        'name_of_organisation' => [ 'UCLH Pathology' ]
-                    }
-                ],
-                'requested_test' => [
-                    {
-                        '|code'        => 'SFLC',
-                        '|terminology' => 'local',
-                        '|value'       => 'Serum Free Light Chains'
-                    }
-                ],
-                'test_request_details' => [
-                    {
-                        'placer_order_number' => [
-                            {
-                                '|id'       => 'TQ00112233',
-                                '|assigner' => 'TQuest',
-                                '|issuer'   => 'UCLH',
-                                '|type'     => 'local'
-                            }
-                        ],
-                        'requester' => [
-                            {
-                                'professional_identifier' => [
-                                    {
-                                        '|id'       => 'AB01',
-                                        '|assigner' => 'Carecast',
-                                        '|issuer'   => 'UCLH',
-                                        '|type'     => 'local'
-                                    }
-                                ],
-                                'ordering_provider' => [
-                                    {
-                                        'ordering_provider' => [
-                                            {
-                                                'family_name' => [ 'UCLH' ],
-                                                'given_name'  => [ 'ITU1' ]
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ],
-                        'filler_order_number' => [
-                            {
-                                '|id'       => '17V333322',
-                                '|assigner' => 'Winpath',
-                                '|issuer'   => 'UCLH Pathology',
-                                '|type'     => 'local'
-                            }
-                        ]
-                    }
-                ],
-                'test_status_timestamp' => [ '2017-12-01T01:30Z' ],
-                'specimen'              => [
-                    {
-                        'collection_method'  => [ 'Phlebotomy' ],
-                        'datetime_collected' => [ '2017-12-01T01:10Z' ],
-                        'processing'         => [
-                            {
-                                'laboratory_specimen_identifier' => [
-                                    {
-                                        '|id'       => '17V333322',
-                                        '|assigner' => 'Winpath',
-                                        '|issuer'   => 'UCLH Pathology',
-                                        '|type'     => 'local'
-                                    }
-                                ],
-                                'datetime_received' => [ '2017-12-01T01:30Z' ]
-                            }
-                        ],
-                        'specimen_type' => [ 'Blood' ]
-                    }
-                ],
-                'laboratory_test_panel' => [
-                    {
-                        'laboratory_result' => [
-                            {
-                                'result_value' => [
-                                    {
                                         '_name' => [
-                                            {
-                                                '|code'        => 'KAPA',
-                                                '|terminology' => 'Local',
-                                                '|value' =>
-                                                  'Free Kappa Light Chains'
-                                            }
-                                        ],
-                                        'quantity_value' => [
-                                            {
-                                                '|unit'      => 'mg/L',
-                                                '|magnitude' => '15'
+                                            {   '|code'        => 'K',
+                                                '|value'       => 'Potassium',
+                                                '|terminology' => 'Local'
                                             }
                                         ]
                                     }
                                 ],
                                 'result_status' => [
-                                    {
+                                    {   '|terminology' => 'local',
                                         '|code'        => 'at0009',
-                                        '|terminology' => 'local',
                                         '|value'       => 'Final'
                                     }
                                 ]
                             },
-                            {
-                                'result_value' => [
-                                    {
-                                        '_name' => [
-                                            {
-                                                '|code'        => 'LAMB',
-                                                '|terminology' => 'Local',
-                                                '|value' =>
-                                                  'Free Lambda Light Chains'
+                            {   'result_value' => [
+                                    {   '_name' => [
+                                            {   '|code'  => 'F',
+                                                '|value' => 'Flourosine',
+                                                '|terminology' => 'Local'
                                             }
                                         ],
-                                        'quantity_value' => [
-                                            {
-                                                '|unit'      => 'mg/L',
-                                                '|magnitude' => '20'
-                                            }
+                                        'text_value' => [
+                                            '88%
+this is the flourosine result'
                                         ]
                                     }
                                 ],
                                 'result_status' => [
-                                    {
+                                    {   '|value'       => 'Final',
                                         '|code'        => 'at0009',
-                                        '|terminology' => 'local',
-                                        '|value'       => 'Final'
+                                        '|terminology' => 'local'
                                     }
                                 ]
                             }
@@ -387,69 +204,41 @@
                     }
                 ],
                 'encoding' => [
-                    {
-                        '|code'        => 'UTF-8',
+                    {   '|code'        => 'UTF-8',
                         '|terminology' => 'IANA_character-sets'
-                    }
-                ]
-            }
-        ],
-        'patient_comment' => [
-            {
-                'language' => [
-                    {
-                        '|code'        => 'en',
-                        '|terminology' => 'ISO_639-1'
                     }
                 ],
-                'comment'  => [ 'Hello EHR' ],
-                'encoding' => [
-                    {
-                        '|code'        => 'UTF-8',
-                        '|terminology' => 'IANA_character-sets'
+                'test_status' => [
+                    {   '|code'        => 'at0038',
+                        '|value'       => 'Final',
+                        '|terminology' => 'local'
                     }
                 ]
             }
         ],
         'language' => [
-            {
-                '|code'        => 'en',
-                '|terminology' => 'ISO_639-1'
+            {   '|terminology' => 'ISO_639-1',
+                '|code'        => 'en'
             }
         ],
         'context' => [
-            {
-                '_health_care_facility' => [
-                    {
-                        '|id'           => 'RRV',
-                        '|name'         => 'UCLH',
-                        '|id_namespace' => 'UCLH-NS',
-                        '|id_scheme'    => 'UCLH-NS'
-                    }
-                ],
-                'start_time' => [ '2018-09-03T14:08:55+01:00' ],
-                'setting'    => [
-                    {
+            {   'setting' => [
+                    {   '|terminology' => 'openehr',
                         '|code'        => '238',
-                        '|terminology' => 'openehr',
                         '|value'       => 'other care'
                     }
                 ],
-                'report_id' => [ '1112233322233' ]
+                'report_id'  => [ '17V999333' ],
+                'start_time' => [ '2018-09-06T16:55:24.208+01:00' ],
+                '_health_care_facility' => [
+                    {   '|id'           => 'RRV',
+                        '|id_scheme'    => 'UCLH-NS',
+                        '|name'         => 'UCLH NHS Foundation Trust',
+                        '|id_namespace' => 'UCLH-NS'
+                    }
+                ]
             }
         ],
-        'category' => [
-            {
-                '|code'        => '433',
-                '|terminology' => 'openehr',
-                '|value'       => 'event'
-            }
-        ],
-        '_uid'     => [ '65b1dd2b-2586-4628-a76a-fb8dd7285b19::default::1' ],
-        'composer' => [
-            {
-                '|name' => 'David Ramlakhan'
-            }
-        ]
+        'composer' => [ { '|name' => 'OpenEHR-Perl-FLAT' } ]
     }
 };

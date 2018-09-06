@@ -56,7 +56,8 @@ sub compose_structured {
         ctx                    => $ctx,
         'gel_cancer_diagnosis' => {
             'context' => [
-                {   'participant' => [
+                {   
+                    'participant' => [
                         {   'study_identifier' => [
                                 {   '|assigner' => 'Assigner',
                                     '|id' =>
