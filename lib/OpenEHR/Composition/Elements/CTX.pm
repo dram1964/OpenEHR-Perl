@@ -22,15 +22,13 @@ sub compose {
 sub compose_structured {
     my $self        = shift;
     my $composition = {
-        ctx => {
-            'language'                  => $self->language_code,
-            'territory'                 => $self->territory_code,
-            'composer_name'             => $self->composer_name,
-            'id_namespace'              => $self->id_namespace,
-            'id_scheme'                 => $self->id_scheme,
-            'health_care_facility|name' => $self->facility_name,
-            'health_care_facility|id'   => $self->facility_id,
-        },
+        'language'                  => $self->language_code,
+        'territory'                 => $self->territory_code,
+        'composer_name'             => $self->composer_name . '-' . $self->composition_format,
+        'id_namespace'              => $self->id_namespace,
+        'id_scheme'                 => $self->id_scheme,
+        'health_care_facility|name' => $self->facility_name,
+        'health_care_facility|id'   => $self->facility_id,
     };
     return $composition;
 }
@@ -55,6 +53,10 @@ sub compose_raw {
             '@class'      => 'CODE_PHRASE'
         },
         'context' => {
+            'start_time' => {
+                'value'  => DateTime->now->datetime,
+                '@class' => 'DV_DATE_TIME'
+            },
             'health_care_facility' => {
                 'name'         => $self->facility_name,
                 'external_ref' => {
@@ -69,9 +71,22 @@ sub compose_raw {
                 },
                 '@class' => 'PARTY_IDENTIFIED'
             },
+            'setting' => {
+                'value'         => 'other care',
+                'defining_code' => {
+                    'terminology_id' => {
+                        'value'  => 'openehr',
+                        '@class' => 'TERMINOLOGY_ID'
+                    },
+                    'code_string' => '238',
+                    '@class'      => 'CODE_PHRASE'
+                },
+                '@class' => 'DV_CODED_TEXT',
+            },
+        '@class' => 'EVENT_CONTEXT',
         },
         'composer' => {
-            'name'   => $self->composer_name,
+            'name'   => $self->composer_name . '-' . $self->composition_format,
             '@class' => 'PARTY_IDENTIFIED'
         }
     };
@@ -83,9 +98,9 @@ sub compose_flat {
     my $composition = {
         'ctx/language'                  => $self->language_code,
         'ctx/territory'                 => $self->territory_code,
-        'ctx/composer_name'             => $self->composer_name,
+        'ctx/composer_name'             => $self->composer_name . '-' . $self->composition_format,
         'ctx/id_namespace'              => $self->id_namespace,
-        'ctx/id_scheme'                 => $self->id_scheme,
+        'ctx/id_scheme'                 => $self->id_scheme, 
         'ctx/health_care_facility|name' => $self->facility_name,
         'ctx/health_care_facility|id'   => $self->facility_id,
     };
