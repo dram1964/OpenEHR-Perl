@@ -201,13 +201,15 @@ sub format_datetime {
 sub compose_structured {
     my $self        = shift;
     my $composition = {
-        'ctx/language'                  => $self->language_code,
-        'ctx/territory'                 => $self->territory_code,
-        'ctx/composer_name'             => $self->composer_name,
-        'ctx/id_namespace'              => 'UCLH-NS',
-        'ctx/id_scheme'                 => 'UCLH-NS',
-        'ctx/health_care_facility|name' => 'UCLH',
-        'ctx/health_care_facility|id'   => 'RRV',
+        ctx => {
+            'language'                  => $self->language_code,
+            'territory'                 => $self->territory_code,
+            'composer_name'             => $self->composer_name,
+            'id_namespace'              => $self->id_namespace,
+            'id_scheme'                 => $self->id_scheme,
+            'health_care_facility|name' => $self->facility_name,
+            'health_care_facility|id'   => $self->facility_id,
+        },
         'gel_data_request_summary'      => {
             'service_request' => [
                 {
@@ -288,11 +290,6 @@ sub compose_raw {
             '@class'      => 'CODE_PHRASE'
         },
         'archetype_node_id' => 'openEHR-EHR-COMPOSITION.report.v1',
-
-     #       'uid'               => {
-     #           'value'  => '81a78d8a-a4d0-4c20-b6a5-69c203f969fe::default::1',
-     #           '@class' => 'OBJECT_VERSION_ID'
-     #       },
         'content' => [
             {
                 'protocol' => {
@@ -327,10 +324,6 @@ sub compose_raw {
                 },
                 'archetype_node_id' => 'openEHR-EHR-INSTRUCTION.request.v0',
 
-                #               'uid'               => {
-                #                   'value'  => '',
-                #                   '@class' => 'HIER_OBJECT_ID'
-                #               },
                 'subject' => {
                     '@class' => 'PARTY_SELF'
                 },
@@ -625,11 +618,10 @@ sub compose_flat {
         'ctx/language'                  => $self->language_code,
         'ctx/territory'                 => $self->territory_code,
         'ctx/composer_name'             => $self->composer_name,
-        'ctx/time'                      => DateTime->now->datetime,
-        'ctx/id_namespace'              => 'UCLH-NS',
-        'ctx/id_scheme'                 => 'UCLH-NS',
-        'ctx/health_care_facility|name' => 'UCLH',
-        'ctx/health_care_facility|id'   => 'RRV',
+        'ctx/id_namespace'              => $self->id_namespace,
+        'ctx/id_scheme'                 => $self->id_scheme, 
+        'ctx/health_care_facility|name' => $self->facility_name,
+        'ctx/health_care_facility|id'   => $self->facility_id,
         'gel_data_request_summary/service_request:0/request:0/service_name' =>
           $self->service_name,
         'gel_data_request_summary/service_request:0/request:0/service_type' =>
@@ -660,38 +652,6 @@ sub compose_flat {
     return $composition;
 }
 
-#        'ctx/participation_id'          => '199',
-#        'ctx/participation_function'    => 'requester',
-#        'ctx/participation_name'        => 'Dr. Marcus Johnson',
-#        'ctx/participation_mode'        => 'face-to-face communication',
-#        'ctx/participation_id:1'        => '198',
-#        'ctx/participation_function:1'  => 'performer',
-#        'ctx/participation_name:1'      => 'Lara Markham',
-#'gel_data_request_summary/context/individual_professional_demographics_uk:0/professional_identifier:0'
-#          => '3cee91a5-eba2-42b0-9bfa-21fe3a7c5b38',
-#'gel_data_request_summary/context/individual_professional_demographics_uk:0/professional_identifier:0|issuer'
-#          => 'Issuer',
-#'gel_data_request_summary/context/individual_professional_demographics_uk:0/grade'
-#          => 'Grade 11',
-#'gel_data_request_summary/context/individual_professional_demographics_uk:0/professional_identifier:0|assigner'
-#          => 'Assigner',
-#'gel_data_request_summary/context/individual_professional_demographics_uk:0/professional_group'
-#          => 'Professional group 18',
-#'gel_data_request_summary/context/individual_professional_demographics_uk:0/team'
-#          => 'Team 36',
-#'gel_data_request_summary/context/individual_professional_demographics_uk:0/professional_identifier:0|type'
-#          => 'Prescription',
-#        'gel_data_request_summary/service:0/requestor_identifier|issuer' =>
-#          'Issuer',
-#        'gel_data_request_summary/service_request:0/_uid' =>
-#          'e0d413ed-5c42-4257-8eed-9de8806d7782',
-#        'gel_data_request_summary/service:0/requestor_identifier|type' =>
-#          'Prescription',
-#        'gel_data_request_summary/service:0/comment' => 'Comment 45',
-#        'gel_data_request_summary/service:0/requestor_identifier' =>
-#          '0cce9c45-861f-4d4e-8102-0a9c96cf59dc',
-#        'gel_data_request_summary/service:0/requestor_identifier|assigner' =>
-#          'Assigner',
 
 no Moose;
 
