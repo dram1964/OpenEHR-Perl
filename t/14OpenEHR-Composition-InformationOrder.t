@@ -54,11 +54,11 @@ is( $planned_order->current_state_code,
     '531', 'Current State Code updated for aborted' );
 
 ok(
-    $planned_order->current_state('completed'),
-    'Current State changed to completed'
+    $planned_order->current_state('complete'),
+    'Current State changed to complete'
 );
 is( $planned_order->current_state_code,
-    '532', 'Current State Code updated for completed' );
+    '532', 'Current State Code updated for complete' );
 
 ok(
     $planned_order->current_state('planned'),

@@ -12,9 +12,6 @@ use Data::Dumper;
 
 my $schema = Genomes_100K::Model->connect('CRIUGenomesTest');
 
-my $resulted =
-  DateTime::Format::DateParse->parse_datetime('2017-12-01T01:30:00');
-
 my $orders_rs = $schema->resultset('InformationOrder')->search(
     {
         order_state_code => 529,
@@ -97,9 +94,9 @@ need to replace this statement with test_status lookup
 =head1 collect_method
 
 Need to replace this statement with collect_method lookup
+   $data->{collect_method} = 'Phlebotomy';
 
 =cut
-            $data->{collect_method} = 'Phlebotomy';
             if ( $sample_data->receive_date ) {
                 $data->{received} = DateTime::Format::DateParse->parse_datetime(
                         $sample_data->receive_date . " "

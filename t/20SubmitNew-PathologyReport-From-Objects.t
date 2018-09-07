@@ -34,7 +34,7 @@ my $specimen = OpenEHR::Composition::Elements::LabTest::Specimen->new(
         hour   => 14,
         minute => 31
     ),
-    collection_method => 'Phlebotomy',
+#    collection_method => 'Phlebotomy',
     datetime_received => DateTime->new(
         year   => 2017,
         month  => 11,

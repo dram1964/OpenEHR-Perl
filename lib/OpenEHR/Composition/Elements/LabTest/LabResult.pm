@@ -185,11 +185,14 @@ sub _format_result {
     if ( $result =~ $regex ) {
         ( $result, $comment ) = ( $1, $2 );
     }
+=for removal
+    Need to break GFR comment into result, unit and comment
     if ($comment) {
-        if ( $comment =~ m[Units: (.*)\n] ) {
-            $self->unit($1);
+        if ( $comment =~ m[Units: (.*)\n([\W|\w|\n]*)] ) {
+            $self->unit($1), $self->comment($2);
         }
     }
+=cut 
 
     # Check if result is numeric
     if ( $result =~ /^([\<|\>]){1,1}(\d*\.{0,1}\d*)$/ ) {

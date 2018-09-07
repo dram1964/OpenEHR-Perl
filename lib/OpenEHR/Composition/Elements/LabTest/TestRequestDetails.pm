@@ -7,14 +7,17 @@ use Moose;
 extends 'OpenEHR::Composition';
 use version; our $VERSION = qv('0.0.2');
 
-has placer    => ( is => 'rw', isa => 'OpenEHR::Composition::Elements::LabTest::Placer' );
-has filler    => ( is => 'rw', isa => 'OpenEHR::Composition::Elements::LabTest::Filler' );
-has requester => ( is => 'rw', isa => 'OpenEHR::Composition::Elements::LabTest::Requester' );
+has placer =>
+  ( is => 'rw', isa => 'OpenEHR::Composition::Elements::LabTest::Placer' );
+has filler =>
+  ( is => 'rw', isa => 'OpenEHR::Composition::Elements::LabTest::Filler' );
+has requester =>
+  ( is => 'rw', isa => 'OpenEHR::Composition::Elements::LabTest::Requester' );
 
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')
-        if ( $self->composition_format eq 'TDD' );
+      if ( $self->composition_format eq 'TDD' );
     $self->placer->composition_format( $self->composition_format );
     $self->filler->composition_format( $self->composition_format );
     $self->requester->composition_format( $self->composition_format );
@@ -25,38 +28,49 @@ sub compose {
 sub compose_structured {
     my $self        = shift;
     my $composition = [
-        {   requester           => $self->requester->compose(),
-            filler_order_number => [ $self->filler->compose() ],
-            placer_order_number => [ $self->placer->compose() ],
+        {
+            filler_order_number => [ $self->filler->compose ],
         }
     ];
+    if ( $self->requester ) {
+        $composition->[0]->{requester} = $self->requester->compose;
+    }
+    if ( $self->placer ) {
+        $composition->[0]->{placer_order_number} = [ $self->placer->compose ];
+    }
     return $composition;
 }
 
 sub compose_raw {
     my $self        = shift;
-    my $composition = {        # TestRequestDetails
+    my $composition = {
         'archetype_node_id' => 'at0094',
-        'items'             => [
-            $self->placer->compose(), $self->filler->compose(),
-            $self->requester->compose(),
-        ],
-        'name' => {
+        'items'             => [ $self->filler->compose(), ],
+        'name'              => {
             '@class' => 'DV_TEXT',
             'value'  => 'Test request details'
         },
         '@class' => 'CLUSTER'
     };
+    if ( $self->requester ) {
+        push @{ $composition->{items} }, $self->requester->compose();
+    }
+    if ( $self->placer ) {
+        push @{ $composition->{items} }, $self->placer->compose();
+    }
     return $composition;
 }
 
 sub compose_flat {
     my $self        = shift;
-    my $composition = {
-        %{ $self->placer->compose() },
-        %{ $self->filler->compose() },
-        %{ $self->requester->compose() },
-    };
+    my $composition = { %{ $self->filler->compose() }, };
+    if ( $self->requester ) {
+        $composition = { %{$composition}, %{ $self->requester->compose } };
+    }
+    if ( $self->placer ) {
+        $composition = { %{$composition}, %{ $self->placer->compose } };
+    }
+
     return $composition;
 }
 

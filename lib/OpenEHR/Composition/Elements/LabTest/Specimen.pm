@@ -11,7 +11,7 @@ use version; our $VERSION = qv('0.0.2');
 
 has specimen_type      => ( is => 'rw', isa => 'Str' );
 has datetime_collected => ( is => 'rw', isa => 'DateTime' );
-has collection_method  => ( is => 'rw', isa => 'Str' );
+has collection_method  => ( is => 'rw' );
 has datetime_received  => ( is => 'rw', isa => 'DateTime' );
 has spec_id            => ( is => 'rw', isa => 'Str' );
 has spec_issuer => ( is => 'rw', isa => 'Str', default => 'UCLH Pathology' );
@@ -52,39 +52,6 @@ sub compose_raw {
     my $self        = shift;
     my $composition = {
         'items' => [
-            {   'value' => {
-                    '@class' => 'DV_TEXT',
-                    'value'  => $self->specimen_type,
-                },
-                '@class' => 'ELEMENT',
-                'name'   => {
-                    '@class' => 'DV_TEXT',
-                    'value'  => 'Specimen type',
-                },
-                'archetype_node_id' => 'at0029',
-            },
-            {   'value' => {
-                    'value'  => $self->datetime_collected->datetime,
-                    '@class' => 'DV_DATE_TIME',
-                },
-                '@class' => 'ELEMENT',
-                'name'   => {
-                    'value'  => 'Datetime collected',
-                    '@class' => 'DV_TEXT',
-                },
-                'archetype_node_id' => 'at0015',
-            },
-            {   'name' => {
-                    '@class' => 'DV_TEXT',
-                    'value'  => 'Collection method'
-                },
-                'value' => {
-                    '@class' => 'DV_TEXT',
-                    'value'  => $self->collection_method,
-                },
-                '@class'            => 'ELEMENT',
-                'archetype_node_id' => 'at0007',
-            },
             {   'archetype_node_id' => 'at0046',
                 'items'             => [
                     {   'archetype_node_id' => 'at0034',
@@ -135,6 +102,49 @@ sub compose_raw {
             'value'  => 'Specimen'
         }
     };
+    if ( $self->collection_method ) {
+        push @{ $composition->{items} }, 
+            {   'name' => {
+                    '@class' => 'DV_TEXT',
+                    'value'  => 'Collection method'
+                },
+                'value' => {
+                    '@class' => 'DV_TEXT',
+                    'value'  => $self->collection_method,
+                },
+                '@class'            => 'ELEMENT',
+                'archetype_node_id' => 'at0007',
+            };
+    }
+    if ( $self->specimen_type) {
+        push @{ $composition->{items} }, 
+            {   'value' => {
+                    '@class' => 'DV_TEXT',
+                    'value'  => $self->specimen_type,
+                },
+                '@class' => 'ELEMENT',
+                'name'   => {
+                    '@class' => 'DV_TEXT',
+                    'value'  => 'Specimen type',
+                },
+                'archetype_node_id' => 'at0029',
+            };
+    }
+    if ( $self->datetime_collected) {
+        push @{ $composition->{items} }, 
+            {   'value' => {
+                    'value'  => $self->datetime_collected->datetime,
+                    '@class' => 'DV_DATE_TIME',
+                },
+                '@class' => 'ELEMENT',
+                'name'   => {
+                    'value'  => 'Datetime collected',
+                    '@class' => 'DV_TEXT',
+                },
+                'archetype_node_id' => 'at0015',
+            };
+    }
+
     return $composition;
 }
 

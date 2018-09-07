@@ -66,7 +66,7 @@ is( $order_update1->action, 'UPDATE', 'Action is UPDATE' );
 note( $order_update1->compositionUid );    # the returned CompositionUid;
 note( $order_update1->href );    # URL to view the submitted composition;
 
-$order_data->{current_state} = 'completed';
+$order_data->{current_state} = 'complete';
 my $update_completed =
     OpenEHR::Composition::InformationOrder->new( $order_data, );
 $update_completed->composition_format('RAW');

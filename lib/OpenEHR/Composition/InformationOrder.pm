@@ -13,7 +13,7 @@ extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
-enum 'CurrentState' => [qw( planned scheduled aborted completed )];
+enum 'CurrentState' => [qw( planned scheduled aborted complete )];
 
 =head1 _set_ctx
 
@@ -79,7 +79,7 @@ sub _set_state_code {
         planned   => 526,
         scheduled => 529,
         aborted   => 531,
-        completed => 532,
+        complete => 532,
     };
     $self->current_state_code( $states->{ $self->current_state } );
 }
@@ -639,7 +639,7 @@ composition object.
 
 Text value for the current completeness state of the 
 information order. Can be one of 
-['planned'|'scheduled'|'aborted'|'completed']
+['planned'|'scheduled'|'aborted'|'complete']
 
 =head2 current_state_code
 

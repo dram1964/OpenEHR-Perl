@@ -97,7 +97,7 @@ is( $order_update->expiry_time,
     $expiry_time, 'expiry_time set after decompose' );
 
 note('Updating the order');
-ok( $order_update->current_state('completed'),
+ok( $order_update->current_state('complete'),
     'Update current state for retrieved composition'
 );
 ok( $order_update->composition_format('RAW'),
