@@ -6,6 +6,7 @@ use Carp;
 use Moose;
 extends 'OpenEHR::Composition';
 use Moose::Util::TypeConstraints;
+use Data::Dumper;
 
 use version; our $VERSION = qv('0.0.2');
 
@@ -184,15 +185,16 @@ sub _format_result {
     my $regex = qr/^(.*)\n([\W|\w|\n]*)/;
     if ( $result =~ $regex ) {
         ( $result, $comment ) = ( $1, $2 );
+        $result =~ s/\r//;
     }
-=for removal
-    Need to break GFR comment into result, unit and comment
     if ($comment) {
         if ( $comment =~ m[Units: (.*)\n([\W|\w|\n]*)] ) {
-            $self->unit($1), $self->comment($2);
+            my ($unit) = ( $1 );
+            $unit =~ s/\r//;
+            $comment =~ s/\r//g;
+            $self->unit($unit);
         }
     }
-=cut 
 
     # Check if result is numeric
     if ( $result =~ /^([\<|\>]){1,1}(\d*\.{0,1}\d*)$/ ) {
@@ -241,20 +243,18 @@ sub _format_result {
     # Unless it is wholly numeric
     # or a double numeric
     # or matches positive/negative
+    # or matches 'Units: '
     if ( $self->result_text ) {
         if ( !( $self->result_text =~ /^\d*\.\d*$/ ) ) {
             if ( !( $self->result_text =~ /\d{1,}\%\s{1,}\d{1,}/ ) ) {
-                if (
-                    !(
-                        $self->result_text =~
-/^(Positive|Negative|Not Detected|REACTIVE|Weak Reactive|POSITIVE)/
-                    )
-                  )
-                {
+                if ( !( $self->result_text =~
+/^(Positive|Negative|Not Detected|REACTIVE|Weak Reactive|POSITIVE)/ ) ) {
                     if ($comment) {
-                        $self->result_text(
-                            $self->result_text . "\n" . $comment );
-                        $comment = '';
+                        if ( $comment !~ m[Units: (.*)\n([\W|\w|\n]*)] ) {
+                            $self->result_text(
+                                $self->result_text . "\n" . $comment );
+                            $comment = '';
+                        }
                     }
                 }
             }
@@ -262,6 +262,7 @@ sub _format_result {
     }
 
     $self->magnitude_status($magnitude_status) if $magnitude_status;
+    
     $self->comment($comment)                   if $comment;
 }
 
