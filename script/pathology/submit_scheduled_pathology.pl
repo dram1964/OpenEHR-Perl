@@ -120,6 +120,10 @@ Need to replace this statement with collect_method lookup
             }
             $data->{ordercode} = $order->order_code;
             $data->{ordername} = $order->order_name;
+            my $order_mapping = &get_order_mappings($order->order_code);
+            if ($order_mapping) {
+                $data->{order_mapping} = $order_mapping;
+            }
             
             my $lab_results_ref =
               &get_labresults( $labnumber, $order->order_code );
@@ -127,7 +131,7 @@ Need to replace this statement with collect_method lookup
                 my $result    = $lab_result->result;
                 my $test_code = $lab_result->test_code;
                 my $department_code = $lab_result->laboratory_department_code;
-                my $mapping = &get_mappings($order->order_code, $test_code, $department_code);
+                my $result_mapping = &get_mappings($order->order_code, $test_code, $department_code);
                 my $results = {
                     result_value => $result,
                     range_low => $lab_result->range_low,
@@ -137,8 +141,8 @@ Need to replace this statement with collect_method lookup
                     result_status => 'Final',
                     unit => $lab_result->units,
                 };
-                if ($mapping) {
-                    $results->{mapping} = $mapping;
+                if ($result_mapping) {
+                    $results->{result_mapping} = $result_mapping;
                 }
                 push @{ $data->{labresults} }, $results;
             }
@@ -149,6 +153,36 @@ Need to replace this statement with collect_method lookup
         }
         $row++;
     }
+}
+
+sub get_order_mappings {
+    my $order_code = shift;
+    my $mapping;
+    my $gel_rs = $schema->resultset('GelLoincMapping')->search(
+        {
+            local_code => $order_code,
+        },
+        {
+            rows => 1,
+        }
+    );
+    while (my $map = $gel_rs->next ) {
+        if ($map->gel_code) {
+            push @{ $mapping }, 
+            {
+                code => $map->gel_code,
+                terminology => 'GEL',
+            };
+        }
+        if ($map->loinc_code) {
+            push @{ $mapping }, 
+            {
+                code => $map->loinc_code,
+                terminology => 'LOINC',
+            };
+        }
+    }
+    return $mapping;
 }
 
 sub get_mappings {
