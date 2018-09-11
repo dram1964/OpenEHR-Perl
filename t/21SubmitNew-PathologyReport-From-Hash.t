@@ -22,6 +22,12 @@ my $resulted =
 my $data = [
     {   ordercode      => 'ELL',
         ordername      => 'Electrolytes',
+        order_mapping   => [
+            {
+                code => '3212-5',
+                terminology => 'RAMLINC',
+            },
+        ],
         spec_type      => 'Blood',
         collected      => $collected,
         collect_method => 'Phlebotomy',
@@ -41,7 +47,7 @@ This is the sodium comment',
                 testcode               => 'NA',
                 testname               => 'Sodium',
                 result_status          => 'Final',
-                mapping     => [
+                result_mapping     => [
                     {
                         code => '5195-3',
                         terminology => 'LOINC',
@@ -61,7 +67,7 @@ This is the potassium comment',
                 testcode               => 'K',
                 testname               => 'Potassium',
                 result_status          => 'Final',
-                mapping     => [
+                result_mapping     => [
                     {
                         code => '5196-3',
                         terminology => 'LOINC',

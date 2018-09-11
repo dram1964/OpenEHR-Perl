@@ -43,6 +43,9 @@ sub add_labtests {
         code           => $order->{ordercode},
         terminology    => 'local',
     );
+    if ( $order->{order_mapping} ) {
+        $request->order_mapping($order->{order_mapping});
+    }
     my $specimen = $labtest->element('Specimen')->new(
         datetime_collected => $order->{collected},
         collection_method  => $order->{collect_method},

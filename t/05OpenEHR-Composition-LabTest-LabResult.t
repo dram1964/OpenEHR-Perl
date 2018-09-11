@@ -19,7 +19,7 @@ See http://biochem.org for interpretation guidelines',
         testcode      => 'ALB',
         unit          => 'g/L',
         result_status => 'Final',
-        mapping       => [
+        result_mapping       => [
             {
                 code        => '14569-8',
                 terminology => 'LOINC',

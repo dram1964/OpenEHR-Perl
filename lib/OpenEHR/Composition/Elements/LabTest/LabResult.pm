@@ -103,7 +103,7 @@ has testcode_terminology => (
     default => 'Local',
 );
 
-has mapping => (
+has result_mapping => (
     is => 'rw',
     isa => 'ArrayRef[HashRef]',
 );
@@ -299,8 +299,8 @@ sub compose_structured {
             },
         ],
     };
-    if ( $self->mapping ) {
-        for my $mapping ( @{ $self->mapping } ) {
+    if ( $self->result_mapping ) {
+        for my $mapping ( @{ $self->result_mapping } ) {
             push @{ $composition->{result_value}->[0]->{_name}->[0]->{'_mapping'} }, 
                 {
                     target => [
@@ -358,9 +358,9 @@ sub compose_flat {
         $path . 'comment'                        => $self->comment,
         $path . 'result_status|code'             => $self->status->{code},
     };
-    if ( $self->mapping ) {
+    if ( $self->result_mapping ) {
         my $index = '0';
-        for my $mapping ( @{ $self->mapping } ) {
+        for my $mapping ( @{ $self->result_mapping } ) {
             $composition->{ $path . "result_value/_name/_mapping:$index/target|code" } =
               $mapping->{code};
             $composition->{ $path
@@ -446,8 +446,8 @@ sub compose_raw {
         ],
         'archetype_node_id' => 'at0002'
     };
-    if ($self->mapping) {
-        for my $mapping (@{ $self->mapping } ) {
+    if ($self->result_mapping) {
+        for my $mapping (@{ $self->result_mapping } ) {
             push @{ $composition->{items}->[0]->{name}->{'mappings'} },  
                 {
                     'target' => {
@@ -633,17 +633,11 @@ Code for the analyte being tested
 
 Terminology that defines the code being used for the analyte
 
-=head2 mapping_code
+=head2 result_mapping
 
-Mapping code for testcode
-
-=head2 mapping_terminology
-
-Terminology used for mapping code
-
-=head2 mapping_match_operator
-
-Operator defining match type for mapping code
+Array of hash references defining mappings of the test_code to 
+other terminologies (e.g. LOINC, GEL). Each mapping hashref should
+contain values for two keys: code and terminology
 
 =head1 METHODS
 

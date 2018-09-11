@@ -6,27 +6,28 @@ use Carp;
 use Moose;
 extends 'OpenEHR::Composition';
 use version; our $VERSION = qv('0.0.2');
+use Data::Dumper;
 
-has requested_test => ( is => 'rw', isa => 'Str');
+has requested_test => ( is => 'rw', isa => 'Str' );
 has name           => ( is => 'rw', isa => 'Str' );
 has code           => ( is => 'rw', isa => 'Str', trigger => \&_check_blanks );
 has terminology    => ( is => 'rw', isa => 'Str', default => 'local' );
-has mapping        => ( is => 'rw', isa => 'HashRef' );
+has order_mapping  => ( is => 'rw', isa => 'ArrayRef[HashRef]' );
 
 sub _check_blanks {
     my $self = shift;
-    if ($self->requested_test =~ /^\s*$/) {
-        $self->requested_test($self->code);
+    if ( $self->requested_test =~ /^\s*$/ ) {
+        $self->requested_test( $self->code );
     }
-    if ($self->name =~ /^\s*$/) {
-        $self->name($self->code);
+    if ( $self->name =~ /^\s*$/ ) {
+        $self->name( $self->code );
     }
 }
 
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')
-        if ( $self->composition_format eq 'TDD' );
+      if ( $self->composition_format eq 'TDD' );
     my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
 }
@@ -35,18 +36,25 @@ sub compose_structured {
     my $self        = shift;
     my $composition = {
         '_mapping' => [
-            {   '|match' => '',
-                'target' => [
-                    {   '|terminology' => '',
-                        '|code'        => '',
-                    }
-                ]
-            }
         ],
         '|terminology' => $self->terminology,
         '|value'       => $self->name,
         '|code'        => $self->code,
     };
+    if ( $self->order_mapping ) {
+        for my $mapping ( @{ $self->order_mapping } ) {
+            push @{ $composition->{'_mapping'} }, 
+            {
+                '|match' => '=',
+                'target' => [
+                    {
+                        '|terminology' => $mapping->{terminology},
+                        '|code'        => $mapping->{code},
+                    },
+                ],
+            };
+        }
+    }
     return $composition;
 }
 
@@ -72,42 +80,46 @@ sub compose_raw {
             }
         }
     };
-    if ( $self->mapping ) {
-        $composition->{'mappings'} = [
-            {   'target' => {
-                    '@class'         => 'CODE_PHRASE',
-                    'code_string'    => $self->mapping->{code},
-                    'terminology_id' => {
-                        '@class' => 'TERMINOLOGY_ID',
-                        'value'  => $self->mapping->{terminology},
-                    }
-                },
-                '@class' => 'TERM_MAPPING',
-                'match'  => $self->mapping->{match},
-            }
-        ];
+    if ( $self->order_mapping ) {
+        for my $mapping ( @{ $self->order_mapping } ) {
+            push @{ $composition->{value}->{'mappings'}  },
+                {
+                    'target' => {
+                        '@class'         => 'CODE_PHRASE',
+                        'code_string'    => $mapping->{code},
+                        'terminology_id' => {
+                            '@class' => 'TERMINOLOGY_ID',
+                            'value'  => $mapping->{terminology},
+                        }
+                    },
+                    '@class' => 'TERM_MAPPING',
+                    'match'  => '=',
+                };
+        }
     }
+    print Dumper $composition;
     return $composition;
 }
 
 sub compose_flat {
     my $self        = shift;
+    my $path        = 'laboratory_result_report/laboratory_test:__TEST__/';
     my $composition = {
-        'laboratory_result_report/laboratory_test:__TEST__/requested_test' =>
-            $self->requested_test,
-        'laboratory_result_report/laboratory_test:__TEST__/requested_test|code'
-            => $self->code,
-        'laboratory_result_report/laboratory_test:__TEST__/requested_test|terminology'
-            => $self->terminology,
-        'laboratory_result_report/laboratory_test:__TEST__/requested_test|value'
-            => $self->name,
-        'laboratory_result_report/laboratory_test:__TEST__/requested_test/_mapping:0|match'
-            => '',
-        'laboratory_result_report/laboratory_test:__TEST__/requested_test/_mapping:0/target|code'
-            => '',
-        'laboratory_result_report/laboratory_test:__TEST__/requested_test/_mapping:0/target|terminology'
-            => '',
+        $path . 'requested_test'             => $self->requested_test,
+        $path . 'requested_test|code'        => $self->code,
+        $path . 'requested_test|terminology' => $self->terminology,
+        $path . 'requested_test|value'       => $self->name,
     };
+    if ( $self->order_mapping ) {
+        for my $mapping ( @{ $self->order_mapping } ) {
+            $composition->{ $path . 'requested_test/_mapping:0|match' } = '=';
+            $composition->{ $path . 'requested_test/_mapping:0/target|code' } =
+              $mapping->{code};
+            $composition->{ $path
+                  . 'requested_test/_mapping:0/target|terminology' } =
+              $mapping->{terminology};
+        }
+    }
     return $composition;
 }
 
