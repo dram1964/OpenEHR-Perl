@@ -97,7 +97,6 @@ sub compose_raw {
                 };
         }
     }
-    print Dumper $composition;
     return $composition;
 }
 
