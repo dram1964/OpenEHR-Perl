@@ -3,8 +3,8 @@ Changes
 lib/OpenEHR.pm
 lib/OpenEHR/Composition.pm
 lib/OpenEHR/Composition/CancerReport.pm
-lib/OpenEHR/Composition/InformationOrder.pm
 lib/OpenEHR/Composition/Elements.pm
+lib/OpenEHR/Composition/Elements/CTX.pm
 lib/OpenEHR/Composition/Elements/LabTest.pm
 lib/OpenEHR/Composition/Elements/LabTest/Filler.pm
 lib/OpenEHR/Composition/Elements/LabTest/LabResult.pm
@@ -16,13 +16,12 @@ lib/OpenEHR/Composition/Elements/LabTest/RequestedTest.pm
 lib/OpenEHR/Composition/Elements/LabTest/Requester.pm
 lib/OpenEHR/Composition/Elements/LabTest/Specimen.pm
 lib/OpenEHR/Composition/Elements/LabTest/TestRequestDetails.pm
-lib/OpenEHR/Composition/LabResultReport.pm
 lib/OpenEHR/Composition/Elements/ProblemDiagnosis.pm
 lib/OpenEHR/Composition/Elements/ProblemDiagnosis/AJCC_Stage.pm
 lib/OpenEHR/Composition/Elements/ProblemDiagnosis/CancerDiagnosis.pm
-lib/OpenEHR/Composition/Elements/ProblemDiagnosis/CancerDiagnosis/TumourLaterality.pm
 lib/OpenEHR/Composition/Elements/ProblemDiagnosis/CancerDiagnosis/MetastaticSite.pm
 lib/OpenEHR/Composition/Elements/ProblemDiagnosis/CancerDiagnosis/RecurrenceIndicator.pm
+lib/OpenEHR/Composition/Elements/ProblemDiagnosis/CancerDiagnosis/TumourLaterality.pm
 lib/OpenEHR/Composition/Elements/ProblemDiagnosis/ColorectalDiagnosis.pm
 lib/OpenEHR/Composition/Elements/ProblemDiagnosis/ClinicalEvidence.pm
 lib/OpenEHR/Composition/Elements/ProblemDiagnosis/Diagnosis.pm
@@ -40,6 +39,8 @@ lib/OpenEHR/Composition/Elements/ProblemDiagnosis/UpperGI/ChildPughScore.pm
 lib/OpenEHR/Composition/Elements/ProblemDiagnosis/UpperGI/PancreaticClinicalStage.pm
 lib/OpenEHR/Composition/Elements/ProblemDiagnosis/UpperGI/PortalInvasion.pm
 lib/OpenEHR/Composition/Elements/ProblemDiagnosis/UpperGI/TACE.pm
+lib/OpenEHR/Composition/InformationOrder.pm
+lib/OpenEHR/Composition/LabResultReport.pm
 lib/OpenEHR/REST.pm
 lib/OpenEHR/REST/AQL.pm
 lib/OpenEHR/REST/Composition.pm
@@ -55,6 +56,7 @@ t/00.load.t
 t/01OpenEHR.t
 t/03OpenEHR-Composition.t
 t/04OpenEHR-Composition-LabTest-Filler.t
+t/05LabResultFormatting.t
 t/05OpenEHR-Composition-LabTest-LabResult.t
 t/06OpenEHR-Composition-LabTest.t
 t/07OpenEHR-Composition-LabTest-OrderingProvider.t
@@ -67,6 +69,8 @@ t/13OpenEHR-Composition-LabTest-TestRequestDetails.t
 t/14OpenEHR-Composition-InformationOrder.t
 t/15OpenEHR-Composition-CancerReport.t
 t/16OpenEHR-Composition-ProblemDiagnosis.t
+t/17OpenEHR-Composition-LabResultReport.t
+t/18OpenEHR-Composition-CTX.t
 t/20SubmitNew-PathologyReport-From-Objects.t
 t/21SubmitNew-PathologyReport-From-Hash.t
 t/22FindByUID-PathologyReport.t
