@@ -12,6 +12,7 @@ use version; our $VERSION = qv('0.0.2');
 
 has ctx       => ( is => 'rw', isa => 'OpenEHR::Composition::Elements::CTX', default => \&_set_ctx );
 has report_id => ( is => 'rw', isa => 'Str' );
+has requester_order => ( is => 'rw', isa => 'ArrayRef[OpenEHR::Composition::Elements::Radiology::RequesterOrder]');
 has patient_comment => ( is => 'rw', isa => 'Str' );
 
 =head1 _set_ctx
@@ -32,6 +33,9 @@ sub compose {
         if ( $self->composition_format eq 'TDD' );
 
     $self->ctx->composition_format( $self->composition_format ) if $self->ctx;
+    for my $requester_order ( @{ $self->requester_order } ) {
+        $requester_order->composition_format( $self->composition_format );
+    }
 
     my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
@@ -203,15 +207,7 @@ sub compose_flat {
     my $self          = shift;
     my $ctx = $self->ctx->compose;
 
-    my $composition = {
-        %{ $ctx },
-    'radiology_result_report/context/report_id' => $self->report_id,
-# Request Details
-'radiology_result_report/imaging_examination_result:0/examination_request_details:0/dicom_study_identifier'
-      => 'http://example.com/path/resource',
-'radiology_result_report/imaging_examination_result:0/examination_request_details:0/examination_requested_name:0'
-      => 'Examination requested name 16',
-# Requester
+=for removal
 'radiology_result_report/imaging_examination_result:0/examination_request_details:0/requester_order_identifier|type'
       => 'Prescription',
 'radiology_result_report/imaging_examination_result:0/examination_request_details:0/requester_order_identifier|issuer'
@@ -220,6 +216,16 @@ sub compose_flat {
       => 'Assigner',
 'radiology_result_report/imaging_examination_result:0/examination_request_details:0/requester_order_identifier'
       => '0cfc0ff7-5aca-4dc1-870b-ab5197a86bab',
+=cut
+
+    my $composition = {
+        %{ $ctx },
+    'radiology_result_report/context/report_id' => $self->report_id,
+# Request Details
+'radiology_result_report/imaging_examination_result:0/examination_request_details:0/dicom_study_identifier'
+      => 'http://example.com/path/resource',
+'radiology_result_report/imaging_examination_result:0/examination_request_details:0/examination_requested_name:0'
+      => 'Examination requested name 16',
 # Report Reference
 'radiology_result_report/imaging_examination_result:0/examination_request_details:0/imaging_report_reference|type'
       => 'Prescription',
@@ -264,6 +270,20 @@ sub compose_flat {
 'radiology_result_report/imaging_examination_result:0/any_event:0/multimedia_resource:0/image_file_reference'
       => 'Image file reference 97',
     };
+
+    my $requester_index = '0';
+    my $requester_comp = {};
+    for my $requester_order ( @{ $self->requester_order } ) {
+        my $composition_fragment = $requester_order->compose;
+        for my $key ( keys %{ $composition_fragment } ) {
+            my $new_key = $key;
+            $new_key =~ s/__REQ__/$requester_index/;
+            $requester_comp->{$new_key} = $composition_fragment->{$key};
+        }
+    }
+
+    $composition = { %{ $composition }, %{ $requester_comp } };
+
     return $composition;
 }
 

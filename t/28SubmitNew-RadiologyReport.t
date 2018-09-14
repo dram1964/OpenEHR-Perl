@@ -6,6 +6,7 @@ use Data::Dumper;
 use JSON;
 
 use OpenEHR::Composition::RadiologyReport;
+use OpenEHR::Composition::Elements::Radiology::RequesterOrder;
 use OpenEHR::REST::Composition;
 note(
     "testing OpenEHR::Composition::RadiologyReport 
@@ -19,13 +20,15 @@ my $received =
 my $resulted =
     DateTime::Format::DateParse->parse_datetime('2017-12-01T01:30:00');
 
-my $data = [
-];
+my $requester_order = OpenEHR::Composition::Elements::Radiology::RequesterOrder->new(
+    id => '2353332xh',
+);
 
 ok( my $report = OpenEHR::Composition::RadiologyReport->new(),
     'Construct a blank RadiologyReport object' );
 ok( $report->report_id('1112233322233'),   'report_id mutator' );
 ok( $report->patient_comment('Hello EHR'), 'comment mutator' );
+ok( $report->requester_order([$requester_order]), 'Add requester order ArrayRef');
 ok( $report->composer_name('David Ramlakhan'),
     'Add composer name to rest client'
 );
