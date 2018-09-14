@@ -7,6 +7,7 @@ use JSON;
 
 use OpenEHR::Composition::RadiologyReport;
 use OpenEHR::Composition::Elements::Radiology::RequesterOrder;
+use OpenEHR::Composition::Elements::Radiology::ReceiverOrder;
 use OpenEHR::Composition::Elements::Radiology::ReportReference;
 use OpenEHR::REST::Composition;
 note(
@@ -27,6 +28,9 @@ my $requester_order = OpenEHR::Composition::Elements::Radiology::RequesterOrder-
 my $report_reference = OpenEHR::Composition::Elements::Radiology::ReportReference->new(
     id => '99bb88cc77',
 );
+my $receiver_order = OpenEHR::Composition::Elements::Radiology::ReceiverOrder->new(
+    id => 'rec-123534',
+);
 
 
 ok( my $report = OpenEHR::Composition::RadiologyReport->new(),
@@ -34,7 +38,8 @@ ok( my $report = OpenEHR::Composition::RadiologyReport->new(),
 ok( $report->report_id('1112233322233'),   'report_id mutator' );
 ok( $report->patient_comment('Hello EHR'), 'comment mutator' );
 ok( $report->requester_order([$requester_order]), 'Add requester order ArrayRef');
-#ok( $report->report_reference([$report_reference]), 'Add report reference ArrayRef');
+ok( $report->receiver_order([$receiver_order]), 'Add requester order ArrayRef');
+ok( $report->report_reference([$report_reference]), 'Add report reference ArrayRef');
 ok( $report->composer_name('David Ramlakhan'),
     'Add composer name to rest client'
 );

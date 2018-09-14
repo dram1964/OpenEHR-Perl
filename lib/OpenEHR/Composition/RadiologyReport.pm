@@ -13,6 +13,7 @@ use version; our $VERSION = qv('0.0.2');
 has ctx       => ( is => 'rw', isa => 'OpenEHR::Composition::Elements::CTX', default => \&_set_ctx );
 has report_id => ( is => 'rw', isa => 'Str' );
 has requester_order => ( is => 'rw', isa => 'ArrayRef[OpenEHR::Composition::Elements::Radiology::RequesterOrder]');
+has receiver_order => ( is => 'rw', isa => 'ArrayRef[OpenEHR::Composition::Elements::Radiology::ReceiverOrder]');
 has report_reference => ( is => 'rw', isa => 'ArrayRef[OpenEHR::Composition::Elements::Radiology::ReportReference]');
 has patient_comment => ( is => 'rw', isa => 'Str' );
 
@@ -37,6 +38,11 @@ sub compose {
     if ($self->requester_order) {
         for my $requester_order ( @{ $self->requester_order } ) {
             $requester_order->composition_format( $self->composition_format );
+        }
+    }
+    if ($self->receiver_order) {
+        for my $receiver_order ( @{ $self->receiver_order } ) {
+            $receiver_order->composition_format( $self->composition_format );
         }
     }
     if ($self->report_reference) {
@@ -224,15 +230,6 @@ sub compose_flat {
       => 'http://example.com/path/resource',
 'radiology_result_report/imaging_examination_result:0/examination_request_details:0/examination_requested_name:0'
       => 'Examination requested name 16',
-# Order ID
-'radiology_result_report/imaging_examination_result:0/examination_request_details:0/receiver_order_identifier|type'
-      => 'Prescription',
-'radiology_result_report/imaging_examination_result:0/examination_request_details:0/receiver_order_identifier|assigner'
-      => 'Assigner',
-'radiology_result_report/imaging_examination_result:0/examination_request_details:0/receiver_order_identifier'
-      => 'ee61cc8e-a19b-4d6c-84aa-a7d1fad60829',
-'radiology_result_report/imaging_examination_result:0/examination_request_details:0/receiver_order_identifier|issuer'
-      => 'Issuer',
 # Event Data
 'radiology_result_report/imaging_examination_result:0/any_event:0/clinical_information_provided'
       => 'Clinical information provided 50',
@@ -273,6 +270,20 @@ sub compose_flat {
         }
         $composition = { %{ $composition }, %{ $requester_comp } };
     }
+
+    if ($self->receiver_order) {
+        my $receiver_index = '0';
+        my $receiver_comp = {};
+        for my $receiver_order ( @{ $self->receiver_order } ) {
+            my $composition_fragment = $receiver_order->compose;
+            for my $key ( keys %{ $composition_fragment } ) {
+                my $new_key = $key;
+                $new_key =~ s/__REC__/$receiver_index/;
+                $receiver_comp->{$new_key} = $composition_fragment->{$key};
+            }
+        }
+        $composition = { %{ $composition }, %{ $receiver_comp } };
+    }
     
     if ($self->report_reference) {
         my $report_index = '0';
@@ -288,18 +299,6 @@ sub compose_flat {
         $composition = { %{ $composition }, %{ $report_comp } };
     }
     
-=for removal # Report Reference
-'radiology_result_report/imaging_examination_result:0/examination_request_details:0/imaging_report_reference|type'
-      => 'Prescription',
-'radiology_result_report/imaging_examination_result:0/examination_request_details:0/imaging_report_reference|issuer'
-      => 'Issuer',
-'radiology_result_report/imaging_examination_result:0/examination_request_details:0/imaging_report_reference'
-      => '8987968c-347e-452a-907b-3268d844881d',
-'radiology_result_report/imaging_examination_result:0/examination_request_details:0/imaging_report_reference|assigner'
-      => 'Assigner',
-=cut 
-
-
     return $composition;
 }
 
