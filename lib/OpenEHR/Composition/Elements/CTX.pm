@@ -154,6 +154,22 @@ Used to create a hashref element of an CTX composition element.
 
 =head1 METHODS
 
+=head2 compose
+
+Returns a hashref representation of a CTX composition element
+
+=head2 compose_flat
+
+Used by compose to return composition in FLAT format
+
+=head2 compose_structured
+
+Used by compose to return composition in STRUCTURED format
+
+=head2 compose_raw
+
+Used by compose to return composition in RAW format
+
 =head1 DIAGNOSTICS
 
 None
