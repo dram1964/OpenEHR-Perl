@@ -2,10 +2,6 @@ use strict;
 use warnings;
 use Test::More;
 use Data::Dumper;
-=head1 removed
-use OpenEHR::Composition::Elements::ProblemDiagnosis::AJCC_Stage;
-use OpenEHR::Composition::Elements::ProblemDiagnosis::Diagnosis;
-=cut
 
 BEGIN { use_ok('OpenEHR::Composition::Elements::ProblemDiagnosis'); }
 

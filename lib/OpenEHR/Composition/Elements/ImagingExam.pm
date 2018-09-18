@@ -12,14 +12,21 @@ __PACKAGE__->load_namespaces;
 
 use version; our $VERSION = qv('0.0.2');
 
+has reports => (
+    is => 'rw',
+    isa => 'ArrayRef[OpenEHR::Composition::Elements::ImagingExam::ImagingReport]',
+);
+
+has request_details => (
+    is => 'rw',
+    isa => 'ArrayRef[OpenEHR::Composition::Elements::ImagingExam::RequestDetail]',
+);
+
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')
         if ( $self->composition_format eq 'TDD' );
-    my @properties = qw(
-        ajcc_stage colorectal_diagnosis diagnosis modified_dukes tumour_id
-        clinical_evidence upper_gi_staging integrated_tnm inrg_staging
-        cancer_diagnosis final_figo_stage testicular_staging);
+    my @properties = qw( reports request_details );
     for my $property (@properties) {
         if ($self->$property) {
             for my $compos ( @{ $self->$property } ) {
@@ -244,199 +251,39 @@ sub compose_raw {
 
 sub compose_flat {
     my $self        = shift;
-    my $composition = {
+    my $composition = {};
 
-        # Problem Diagnosis
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/language|terminology'
-            => 'ISO_639-1',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/language|code' =>
-            'en',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/encoding|code' =>
-            'UTF-8',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/event_date' =>
-            DateTime->now->datetime, #'2018-07-24T14:05:01.806+01:00',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/encoding|terminology'
-            => 'IANA_character-sets',
-    };
+    if ( $self->request_details ) {
+        my $request_details_index = '0';
+        my $request_details_comp;
+        for my $request_details ( @{ $self->request_details } ) {
+            my $composition_fragment = $request_details->compose();
+            for my $key ( keys %{$composition_fragment} ) {
+                my $new_key = $key;
+                $new_key =~ s/__REQ__/$request_details_index/;
+                $request_details_comp->{$new_key} =
+                    $composition_fragment->{$key};
+            }
+            $request_details_index++;
+            $composition = { ( %$composition, %{$request_details_comp} ) };
+        }
+    }
+    if ( $self->reports ) {
+        my $reports_index = '0';
+        my $reports_comp;
+        for my $reports ( @{ $self->reports } ) {
+            my $composition_fragment = $reports->compose();
+            for my $key ( keys %{$composition_fragment} ) {
+                my $new_key = $key;
+                $new_key =~ s/__REP__/$reports_index/;
+                $reports_comp->{$new_key} =
+                    $composition_fragment->{$key};
+            }
+            $reports_index++;
+            $composition = { ( %$composition, %{$reports_comp} ) };
+        }
+    }
 
-    if ( $self->testicular_staging ) {
-        my $testicular_staging_index = '0';
-        my $testicular_staging_comp;
-        for my $testicular_staging ( @{ $self->testicular_staging } ) {
-            my $composition_fragment = $testicular_staging->compose();
-            for my $key ( keys %{$composition_fragment} ) {
-                my $new_key = $key;
-                $new_key =~ s/__DIAG__/$testicular_staging_index/;
-                $testicular_staging_comp->{$new_key} =
-                    $composition_fragment->{$key};
-            }
-            $testicular_staging_index++;
-            $composition = { ( %$composition, %{$testicular_staging_comp} ) };
-        }
-    }
-    if ( $self->final_figo_stage ) {
-        my $final_figo_stage_index = '0';
-        my $final_figo_stage_comp;
-        for my $final_figo_stage ( @{ $self->final_figo_stage } ) {
-            my $composition_fragment = $final_figo_stage->compose;
-            for my $key ( keys %{$composition_fragment} ) {
-                my $new_key = $key;
-                $new_key =~ s/__DIAG__/$final_figo_stage_index/;
-                $final_figo_stage_comp->{$new_key} =
-                    $composition_fragment->{$key};
-            }
-            $final_figo_stage_index++;
-            $composition = { ( %$composition, %{$final_figo_stage_comp} ) };
-        }
-    }
-    if ( $self->cancer_diagnosis ) {
-        my $cancer_diagnosis_index = '0';
-        my $cancer_diagnosis_comp;
-        for my $cancer_diagnosis ( @{ $self->cancer_diagnosis } ) {
-            my $composition_fragment = $cancer_diagnosis->compose;
-            for my $key ( keys %{$composition_fragment} ) {
-                my $new_key = $key;
-                $new_key =~ s/__DIAG__/$cancer_diagnosis_index/;
-                $cancer_diagnosis_comp->{$new_key} =
-                    $composition_fragment->{$key};
-            }
-            $cancer_diagnosis_index++;
-            $composition = { ( %$composition, %{$cancer_diagnosis_comp} ) };
-        }
-    }
-    if ( $self->inrg_staging ) {
-        my $inrg_staging_index = '0';
-        my $inrg_staging_comp;
-        for my $inrg_staging ( @{ $self->inrg_staging } ) {
-            my $composition_fragment = $inrg_staging->compose();
-            for my $key ( keys %{$composition_fragment} ) {
-                my $new_key = $key;
-                $new_key =~ s/__DIAG__/$inrg_staging_index/;
-                $inrg_staging_comp->{$new_key} =
-                    $composition_fragment->{$key};
-            }
-            $inrg_staging_index++;
-            $composition = { ( %$composition, %{$inrg_staging_comp} ) };
-        }
-    }
-    if ( $self->upper_gi_staging ) {
-        my $upper_gi_staging_index = '0';
-        my $upper_gi_staging_comp;
-        for my $upper_gi_staging ( @{ $self->upper_gi_staging } ) {
-            my $composition_fragment = $upper_gi_staging->compose;
-            for my $key ( keys %{$composition_fragment} ) {
-                my $new_key = $key;
-                $new_key =~ s/__DIAG__/$upper_gi_staging_index/;
-                $upper_gi_staging_comp->{$new_key} =
-                    $composition_fragment->{$key};
-            }
-            $upper_gi_staging_index++;
-            $composition = { ( %$composition, %{$upper_gi_staging_comp} ) };
-        }
-    }
-    if ( $self->integrated_tnm ) {
-        my $integrated_tnm_index = '0';
-        my $integrated_tnm_comp;
-        for my $integrated_tnm ( @{ $self->integrated_tnm } ) {
-            my $composition_fragment = $integrated_tnm->compose;
-            for my $key ( keys %{$composition_fragment} ) {
-                my $new_key = $key;
-                $new_key =~ s/__DIAG__/$integrated_tnm_index/;
-                $integrated_tnm_comp->{$new_key} =
-                    $composition_fragment->{$key};
-            }
-            $integrated_tnm_index++;
-            $composition = { ( %$composition, %{$integrated_tnm_comp} ) };
-        }
-    }
-    if ( $self->clinical_evidence ) {
-        my $clinical_evidence_index = '0';
-        my $clinical_evidence_comp;
-        for my $clinical_evidence ( @{ $self->clinical_evidence } ) {
-            my $composition_fragment = $clinical_evidence->compose;
-            for my $key ( keys %{$composition_fragment} ) {
-                my $new_key = $key;
-                $new_key =~ s/__DIAG__/$clinical_evidence_index/;
-                $clinical_evidence_comp->{$new_key} =
-                    $composition_fragment->{$key};
-            }
-            $clinical_evidence_index++;
-            $composition = { ( %$composition, %{$clinical_evidence_comp} ) };
-        }
-    }
-    if ( $self->tumour_id ) {
-        my $tumour_id_index = '0';
-        my $tumour_id_comp;
-        for my $tumour_id ( @{ $self->tumour_id } ) {
-            my $composition_fragment = $tumour_id->compose;
-            for my $key ( keys %{$composition_fragment} ) {
-                my $new_key = $key;
-                $new_key =~ s/__DIAG__/$tumour_id_index/;
-                $tumour_id_comp->{$new_key} = $composition_fragment->{$key};
-            }
-            $tumour_id_index++;
-            $composition = { ( %$composition, %{$tumour_id_comp} ) };
-        }
-    }
-    if ( $self->modified_dukes ) {
-        my $modified_dukes_index = '0';
-        my $modified_dukes_comp;
-        for my $modified_dukes ( @{ $self->modified_dukes } ) {
-            my $composition_fragment = $modified_dukes->compose;
-            for my $key ( keys %{$composition_fragment} ) {
-                my $new_key = $key;
-                $new_key =~ s/__DIAG__/$modified_dukes_index/;
-                $modified_dukes_comp->{$new_key} =
-                    $composition_fragment->{$key};
-            }
-            $modified_dukes_index++;
-            $composition = { ( %$composition, %{$modified_dukes_comp} ) };
-        }
-    }
-    if ( $self->colorectal_diagnosis ) {
-        my $colorectal_diagnosis_index = '0';
-        my $colorectal_diagnosis_comp;
-        for my $colorectal_diagnosis ( @{ $self->colorectal_diagnosis } ) {
-            my $composition_fragment = $colorectal_diagnosis->compose;
-            for my $key ( keys %{$composition_fragment} ) {
-                my $new_key = $key;
-                $new_key =~ s/__DIAG__/$colorectal_diagnosis_index/;
-                $colorectal_diagnosis_comp->{$new_key} =
-                    $composition_fragment->{$key};
-            }
-            $colorectal_diagnosis_index++;
-            $composition =
-                { ( %$composition, %{$colorectal_diagnosis_comp} ) };
-        }
-    }
-    if ( $self->diagnosis ) {
-        my $diagnosis_index = '0';
-        my $diagnosis_comp;
-        for my $diagnosis ( @{ $self->diagnosis } ) {
-            my $composition_fragment = $diagnosis->compose;
-            for my $key ( keys %{$composition_fragment} ) {
-                my $new_key = $key;
-                $new_key =~ s/__DIAG__/$diagnosis_index/;
-                $diagnosis_comp->{$new_key} = $composition_fragment->{$key};
-            }
-            $diagnosis_index++;
-            $composition = { ( %$composition, %{$diagnosis_comp} ) };
-        }
-    }
-    if ( $self->ajcc_stage ) {
-        my $ajcc_index = '0';
-        my $ajcc_comp;
-        for my $ajcc ( @{ $self->ajcc_stage } ) {
-            my $composition_fragment = $ajcc->compose;
-            for my $key ( keys %{$composition_fragment} ) {
-                my $new_key = $key;
-                $new_key =~ s/__AJCC__/$ajcc_index/;
-                $ajcc_comp->{$new_key} = $composition_fragment->{$key};
-            }
-            $ajcc_index++;
-            $composition = { ( %$composition, %{$ajcc_comp} ) };
-        }
-    }
 
     return $composition;
 }
