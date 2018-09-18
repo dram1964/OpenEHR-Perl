@@ -6,17 +6,14 @@ use Data::Dumper;
 use DateTime;
 
 use OpenEHR::Composition::RadiologyReport;
-use OpenEHR::Composition::Elements::Radiology::RequesterOrder;
-use OpenEHR::Composition::Elements::Radiology::ReportReference;
-use OpenEHR::Composition::Elements::Radiology::ReceiverOrder;
 
-my $requester_order = OpenEHR::Composition::Elements::Radiology::RequesterOrder->new(
+my $requester_order = OpenEHR::Composition::Elements::ImagingExam::RequesterOrder->new(
     id => '1232341234234',
 );
-my $report_reference = OpenEHR::Composition::Elements::Radiology::ReportReference->new(
+my $report_reference = OpenEHR::Composition::Elements::ImagingExam::ReportReference->new(
     id => '99887766',
 );
-my $reciever_order = OpenEHR::Composition::Elements::Radiology::ReceiverOrder->new(
+my $reciever_order = OpenEHR::Composition::Elements::ImagingExam::ReceiverOrder->new(
     id => 'rec-1235',
 );
 

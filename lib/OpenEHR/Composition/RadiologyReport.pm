@@ -6,15 +6,15 @@ use Carp;
 use Moose;
 use Data::Dumper;
 extends 'OpenEHR::Composition';
+use OpenEHR::Composition::Elements::ImagingExam;
 use OpenEHR::Composition::Elements::CTX;
 
 use version; our $VERSION = qv('0.0.2');
 
 has ctx       => ( is => 'rw', isa => 'OpenEHR::Composition::Elements::CTX', default => \&_set_ctx );
 has report_id => ( is => 'rw', isa => 'Str' );
-has requester_order => ( is => 'rw', isa => 'ArrayRef[OpenEHR::Composition::Elements::Radiology::RequesterOrder]');
-has receiver_order => ( is => 'rw', isa => 'ArrayRef[OpenEHR::Composition::Elements::Radiology::ReceiverOrder]');
-has report_reference => ( is => 'rw', isa => 'ArrayRef[OpenEHR::Composition::Elements::Radiology::ReportReference]');
+has request_details => ( is => 'rw', isa => 'ArrayRef[OpenEHR::Composition::Elements::ImagingExam::RequestDetail]' );
+has exam_result => ( is => 'rw', isa => 'ArrayRef[OpenEHR::Composition::Elements::ImagingExam::ExamResult]' );
 has patient_comment => ( is => 'rw', isa => 'Str' );
 
 =head1 _set_ctx
@@ -40,196 +40,50 @@ sub compose {
             $requester_order->composition_format( $self->composition_format );
         }
     }
-    if ($self->receiver_order) {
-        for my $receiver_order ( @{ $self->receiver_order } ) {
-            $receiver_order->composition_format( $self->composition_format );
-        }
-    }
-    if ($self->report_reference) {
-        for my $report_reference ( @{ $self->report_reference } ) {
-            $report_reference->composition_format( $self->composition_format );
-        }
-    }
-
 
     my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
 }
 
-sub compose_structured {
-    my $self            = shift;
-    my $patient_comment = [
-        {   'encoding' => [
-                {   '|code'        => $self->encoding_code,
-                    '|terminology' => $self->encoding_terminology
-                }
-            ],
-            'comment'  => [ $self->patient_comment ],
-            'language' => [
-                {   '|terminology' => $self->language_terminology,
-                    '|code'        => $self->language_code
-                }
-            ]
-        }
-    ];
-    my $laboratory_test;
-    for my $labtest ( @{ $self->labtests } ) {
-        push @{$laboratory_test}, $labtest->compose();
-    }
-
-    my $ctx = $self->ctx->compose;
-
-    my $composition = {
-        'laboratory_result_report' => {
-            'laboratory_test' => $laboratory_test,
-            'patient_comment' => $patient_comment,
-            context => {
-                report_id => $self->report_id,
-            },
-        },
-        ctx => $ctx,
-    };
-
-    return $composition;
-}
-
-sub compose_raw {
-    my $self = shift;
-    my ($composer, $content,           $territory,
-        $category, $class,             $laboratory_test,
-        $language, $uid,               $archetype_node_id,
-        $name,     $archetype_details, $context,
-    );
-    $content = [];
-    for my $labtest ( @{ $self->labtests } ) {
-        push @{$content}, $labtest->compose();
-    }
-    my $evaluation = {
-        'encoding' => {
-            'code_string'    => $self->encoding_code,
-            '@class'         => 'CODE_PHRASE',
-            'terminology_id' => {
-                '@class' => 'TERMINOLOGY_ID',
-                'value'  => $self->encoding_terminology,
-            },
-        },
-        'language' => {
-            '@class'         => 'CODE_PHRASE',
-            'code_string'    => $self->language_code,
-            'terminology_id' => {
-                '@class' => 'TERMINOLOGY_ID',
-                'value'  => $self->language_terminology,
-            }
-        },
-        'data' => {
-            '@class' => 'ITEM_TREE',
-            'name'   => {
-                '@class' => 'DV_TEXT',
-                'value'  => 'List',
-            },
-            'items' => [
-                {   '@class' => 'ELEMENT',
-                    'value'  => {
-                        'value'  => $self->patient_comment,
-                        '@class' => 'DV_TEXT'
-                    },
-                    'name' => {
-                        'value'  => 'Comment',
-                        '@class' => 'DV_TEXT'
-                    },
-                    'archetype_node_id' => 'at0002'
-                }
-            ],
-            'archetype_node_id' => 'at0001'
-        },
-        'archetype_details' => {
-            'archetype_id' => {
-                '@class' => 'ARCHETYPE_ID',
-                'value'  => 'openEHR-EHR-EVALUATION.clinical_synopsis.v1'
-            },
-            'rm_version' => '1.0.1',
-            '@class'     => 'ARCHETYPED'
-        },
-        'name' => {
-            'value'  => 'Patient comment',
-            '@class' => 'DV_TEXT'
-        },
-        '@class'            => 'EVALUATION',
-        'subject'           => { '@class' => 'PARTY_SELF' },
-        'archetype_node_id' => 'openEHR-EHR-EVALUATION.clinical_synopsis.v1'
-    };
-    push @$content, $evaluation if $evaluation;
-
-    $class = 'COMPOSITION';
-
-    my $ctx = $self->ctx->compose;
-
-    $ctx->{context}->{other_context} = {
-            'name' => {
-                '@class' => 'DV_TEXT',
-                'value'  => 'Tree'
-            },
-            '@class' => 'ITEM_TREE',
-            'items'  => [
-                {   'value' => {
-                        'value'  => $self->report_id,    #'17V444999',
-                        '@class' => 'DV_TEXT'
-                    },
-                    'archetype_node_id' => 'at0002',
-                    '@class'            => 'ELEMENT',
-                    'name'              => {
-                        '@class' => 'DV_TEXT',
-                        'value'  => 'Report ID'
-                    }
-                }
-            ],
-            'archetype_node_id' => 'at0001'
-    };
-
-    $archetype_node_id = 'openEHR-EHR-COMPOSITION.report-result.v1';
-
-    $name = {
-        '@class' => 'DV_TEXT',
-        'value'  => 'Laboratory Result Report'
-    };
-
-    $archetype_details = {
-        '@class'       => 'ARCHETYPED',
-        'archetype_id' => {
-            '@class' => 'ARCHETYPE_ID',
-            'value'  => 'openEHR-EHR-COMPOSITION.report-result.v1'
-        },
-        'rm_version'  => '1.0.1',
-        'template_id' => {
-            '@class' => 'TEMPLATE_ID',
-            'value'  => 'GEL - Generic Lab Report import.v0'
-        }
-    };
-
-    my $composition = {
-        content           => $content,
-        '@class'          => $class,
-        archetype_node_id => $archetype_node_id,
-        name              => $name,
-        archetype_details => $archetype_details,
-    };
-    $composition = { %{$composition}, %{$ctx} };
-
-    return $composition;
-}
-
 sub compose_flat {
-    my $self          = shift;
-    my $ctx = $self->ctx->compose;
+    my $self = shift;
 
     my $composition = {
-        %{ $ctx },
-    'radiology_result_report/context/report_id' => $self->report_id,
+    'radiology_result_report/context/report_id' => 'Report ID 95',
+# CTX
+    %{ $self->ctx->compose },
 # Request Details
 'radiology_result_report/imaging_examination_result:0/examination_request_details:0/dicom_study_identifier'
       => 'http://example.com/path/resource',
 'radiology_result_report/imaging_examination_result:0/examination_request_details:0/examination_requested_name:0'
       => 'Examination requested name 16',
+# Requester
+'radiology_result_report/imaging_examination_result:0/examination_request_details:0/requester_order_identifier|type'
+      => 'Prescription',
+'radiology_result_report/imaging_examination_result:0/examination_request_details:0/requester_order_identifier|issuer'
+      => 'Issuer',
+'radiology_result_report/imaging_examination_result:0/examination_request_details:0/requester_order_identifier|assigner'
+      => 'Assigner',
+'radiology_result_report/imaging_examination_result:0/examination_request_details:0/requester_order_identifier'
+      => '0cfc0ff7-5aca-4dc1-870b-ab5197a86bab',
+# Report Reference
+'radiology_result_report/imaging_examination_result:0/examination_request_details:0/imaging_report_reference|type'
+      => 'Prescription',
+'radiology_result_report/imaging_examination_result:0/examination_request_details:0/imaging_report_reference|issuer'
+      => 'Issuer',
+'radiology_result_report/imaging_examination_result:0/examination_request_details:0/imaging_report_reference'
+      => '8987968c-347e-452a-907b-3268d844881d',
+'radiology_result_report/imaging_examination_result:0/examination_request_details:0/imaging_report_reference|assigner'
+      => 'Assigner',
+# Order ID
+'radiology_result_report/imaging_examination_result:0/examination_request_details:0/receiver_order_identifier|type'
+      => 'Prescription',
+'radiology_result_report/imaging_examination_result:0/examination_request_details:0/receiver_order_identifier|assigner'
+      => 'Assigner',
+'radiology_result_report/imaging_examination_result:0/examination_request_details:0/receiver_order_identifier'
+      => 'ee61cc8e-a19b-4d6c-84aa-a7d1fad60829',
+'radiology_result_report/imaging_examination_result:0/examination_request_details:0/receiver_order_identifier|issuer'
+      => 'Issuer',
 # Event Data
 'radiology_result_report/imaging_examination_result:0/any_event:0/clinical_information_provided'
       => 'Clinical information provided 50',
@@ -256,49 +110,17 @@ sub compose_flat {
 'radiology_result_report/imaging_examination_result:0/any_event:0/multimedia_resource:0/image_file_reference'
       => 'Image file reference 97',
     };
+    return $composition;
+}
 
-    if ($self->requester_order) {
-        my $requester_index = '0';
-        my $requester_comp = {};
-        for my $requester_order ( @{ $self->requester_order } ) {
-            my $composition_fragment = $requester_order->compose;
-            for my $key ( keys %{ $composition_fragment } ) {
-                my $new_key = $key;
-                $new_key =~ s/__REQ__/$requester_index/;
-                $requester_comp->{$new_key} = $composition_fragment->{$key};
-            }
-        }
-        $composition = { %{ $composition }, %{ $requester_comp } };
-    }
+sub compose_structured {
+    my $self            = shift;
 
-    if ($self->receiver_order) {
-        my $receiver_index = '0';
-        my $receiver_comp = {};
-        for my $receiver_order ( @{ $self->receiver_order } ) {
-            my $composition_fragment = $receiver_order->compose;
-            for my $key ( keys %{ $composition_fragment } ) {
-                my $new_key = $key;
-                $new_key =~ s/__REC__/$receiver_index/;
-                $receiver_comp->{$new_key} = $composition_fragment->{$key};
-            }
-        }
-        $composition = { %{ $composition }, %{ $receiver_comp } };
-    }
-    
-    if ($self->report_reference) {
-        my $report_index = '0';
-        my $report_comp = {};
-        for my $report_reference ( @{ $self->report_reference } ) {
-            my $composition_fragment = $report_reference->compose;
-            for my $key ( keys %{ $composition_fragment } ) {
-                my $new_key = $key;
-                $new_key =~ s/__REF__/$report_index/;
-                $report_comp->{$new_key} = $composition_fragment->{$key};
-            }
-        }
-        $composition = { %{ $composition }, %{ $report_comp } };
-    }
-    
+    return $composition;
+}
+
+sub compose_raw {
+    my $self = shift;
     return $composition;
 }
 
