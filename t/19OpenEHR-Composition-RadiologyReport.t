@@ -1,12 +1,11 @@
 use strict;
 use warnings;
+
 use Test::More;
-use DateTime::Format::DateParse;
 use Data::Dumper;
-use JSON;
+use DateTime;
 
 use OpenEHR::Composition::RadiologyReport;
-use OpenEHR::REST::Composition;
 
 my $requester = OpenEHR::Composition::Elements::ImagingExam::Requester->new(
     id => '1232341234234',
@@ -46,7 +45,7 @@ my $imaging_report2 = OpenEHR::Composition::Elements::ImagingExam::ImagingReport
     imaging_diagnosis => ['Imaging diagnosis 31', 'Imaging Diagnosis 32'],
     findings => 'Findings 70',
     modality => 'Modality 40',
-    anatomical_side => 'at0007',
+    anatomical_side => 'at0008',
     result_date => '2018-09-14T12:55:54.769+01:00',
     anatomical_site => ['Anatomical site 5', 'Anatomical Site 6'],
     imaging_code => 'Imaging code 88',
@@ -57,34 +56,24 @@ my $imaging_report2 = OpenEHR::Composition::Elements::ImagingExam::ImagingReport
 
 
 my $imaging_exam = OpenEHR::Composition::Elements::ImagingExam->new(
-    request_details => [$request_detail],
+    request_details => [$request_detail, $request_detail],
     reports => [$imaging_report1, $imaging_report2],
 );
 
 ok( my $radiology_report = OpenEHR::Composition::RadiologyReport->new(
     report_id => '0001111333',
-    imaging_exam => [$imaging_exam, $imaging_exam],
+    imaging_exam => [$imaging_exam],
 ), 'RadiologyReport Constructor');
 
-my $rest_client = OpenEHR::REST::Composition->new();
 
-note('Testing submit_new method with FLAT composition');
-ok( $radiology_report->composition_format('FLAT'), 'Set FLAT composition format' );
 
-my $compos = $radiology_report->compose;
-print Dumper $compos;
+for my $format ( (qw/FLAT/) ) {
+    ok($radiology_report->composition_format($format), "Set format to $format");
+    ok(my $composition = $radiology_report->compose, "Called compose for $format format");
+    is(ref($composition), "HASH", "Composition is a HASHREF");
+    ok(my $json = $radiology_report->print_json, "Called print_json for $format format");
+    print Dumper $composition;
+}
 
-ok( $rest_client->composition($radiology_report),
-    'Add composition object to rest client'
-);
-ok( $rest_client->template_id('GEL Generic radiology report import.v0'),
-    'Add template_id for FLAT composition' );
-ok( $rest_client->submit_new( $radiology_report->test_ehrid ), 'Submit composition' );
-diag( $rest_client->err_msg ) if $rest_client->err_msg;
-ok( !$rest_client->err_msg, 'No Error Message set' );
-is( $rest_client->action, 'CREATE', 'Action is CREATE' );
-ok( $rest_client->compositionUid, 'Composition UID set' );
-ok( $rest_client->href,           'HREF set' );
-note( 'Composition can be found at: ' . $rest_client->href );
 
 done_testing;

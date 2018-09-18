@@ -13,8 +13,7 @@ use version; our $VERSION = qv('0.0.2');
 
 has ctx       => ( is => 'rw', isa => 'OpenEHR::Composition::Elements::CTX', default => \&_set_ctx );
 has report_id => ( is => 'rw', isa => 'Str' );
-has request_details => ( is => 'rw', isa => 'ArrayRef[OpenEHR::Composition::Elements::ImagingExam::RequestDetail]' );
-has exam_result => ( is => 'rw', isa => 'ArrayRef[OpenEHR::Composition::Elements::ImagingExam::ExamResult]' );
+has imaging_exam => ( is => 'rw', isa => 'ArrayRef[OpenEHR::Composition::Elements::ImagingExam]' );
 has patient_comment => ( is => 'rw', isa => 'Str' );
 
 =head1 _set_ctx
@@ -34,10 +33,11 @@ sub compose {
     $self->composition_format('RAW')
         if ( $self->composition_format eq 'TDD' );
 
-    $self->ctx->composition_format( $self->composition_format ) if $self->ctx;
-    if ($self->requester_order) {
-        for my $requester_order ( @{ $self->requester_order } ) {
-            $requester_order->composition_format( $self->composition_format );
+    $self->ctx->composition_format( $self->composition_format ) ;
+
+    if ( $self->imaging_exam ) {
+        for my $imaging_exam ( @{ $self->imaging_exam } ) {
+            $imaging_exam->composition_format( $self->composition_format );
         }
     }
 
@@ -48,79 +48,38 @@ sub compose {
 sub compose_flat {
     my $self = shift;
 
+    my $imaging_exam_index = '0';
+    my $imaging_exam_comp = {};
+    for my $imaging_exam ( @{ $self->imaging_exam } ) {
+        my $composition_fragment = $imaging_exam->compose();
+        for my $key ( keys %{$composition_fragment} ) {
+            my $new_key = $key;
+            $new_key =~ s/__EXAM__/$imaging_exam_index/;
+            $imaging_exam_comp->{$new_key} =
+                $composition_fragment->{$key};
+        }
+        $imaging_exam_index++;
+    }
+
     my $composition = {
-    'radiology_result_report/context/report_id' => 'Report ID 95',
-# CTX
-    %{ $self->ctx->compose },
-# Request Details
-'radiology_result_report/imaging_examination_result:0/examination_request_details:0/dicom_study_identifier'
-      => 'http://example.com/path/resource',
-'radiology_result_report/imaging_examination_result:0/examination_request_details:0/examination_requested_name:0'
-      => 'Examination requested name 16',
-# Requester
-'radiology_result_report/imaging_examination_result:0/examination_request_details:0/requester_order_identifier|type'
-      => 'Prescription',
-'radiology_result_report/imaging_examination_result:0/examination_request_details:0/requester_order_identifier|issuer'
-      => 'Issuer',
-'radiology_result_report/imaging_examination_result:0/examination_request_details:0/requester_order_identifier|assigner'
-      => 'Assigner',
-'radiology_result_report/imaging_examination_result:0/examination_request_details:0/requester_order_identifier'
-      => '0cfc0ff7-5aca-4dc1-870b-ab5197a86bab',
-# Report Reference
-'radiology_result_report/imaging_examination_result:0/examination_request_details:0/imaging_report_reference|type'
-      => 'Prescription',
-'radiology_result_report/imaging_examination_result:0/examination_request_details:0/imaging_report_reference|issuer'
-      => 'Issuer',
-'radiology_result_report/imaging_examination_result:0/examination_request_details:0/imaging_report_reference'
-      => '8987968c-347e-452a-907b-3268d844881d',
-'radiology_result_report/imaging_examination_result:0/examination_request_details:0/imaging_report_reference|assigner'
-      => 'Assigner',
-# Order ID
-'radiology_result_report/imaging_examination_result:0/examination_request_details:0/receiver_order_identifier|type'
-      => 'Prescription',
-'radiology_result_report/imaging_examination_result:0/examination_request_details:0/receiver_order_identifier|assigner'
-      => 'Assigner',
-'radiology_result_report/imaging_examination_result:0/examination_request_details:0/receiver_order_identifier'
-      => 'ee61cc8e-a19b-4d6c-84aa-a7d1fad60829',
-'radiology_result_report/imaging_examination_result:0/examination_request_details:0/receiver_order_identifier|issuer'
-      => 'Issuer',
-# Event Data
-'radiology_result_report/imaging_examination_result:0/any_event:0/clinical_information_provided'
-      => 'Clinical information provided 50',
-    'radiology_result_report/imaging_examination_result:0/any_event:0/comment:0'
-      => 'Comment 44',
-'radiology_result_report/imaging_examination_result:0/any_event:0/imaging_report_text'
-      => 'Imaging report text 62',
-'radiology_result_report/imaging_examination_result:0/any_event:0/imaging_diagnosis:0'
-      => 'Imaging diagnosis 29',
-    'radiology_result_report/imaging_examination_result:0/any_event:0/findings'
-      => 'Findings 69',
-    'radiology_result_report/imaging_examination_result:0/any_event:0/modality'
-      => 'Modality 39',
-'radiology_result_report/imaging_examination_result:0/any_event:0/anatomical_side/anatomical_side|code'
-      => 'at0007',
-'radiology_result_report/imaging_examination_result:0/any_event:0/datetime_result_issued'
-      => '2018-09-14T12:45:54.769+01:00',
-'radiology_result_report/imaging_examination_result:0/any_event:0/anatomical_location:0/anatomical_site'
-      => 'Anatomical site 3',
-'radiology_result_report/imaging_examination_result:0/any_event:0/imaging_code'
-      => 'Imaging code 87',
-'radiology_result_report/imaging_examination_result:0/any_event:0/overall_result_status|code'
-      => 'at0009',
-'radiology_result_report/imaging_examination_result:0/any_event:0/multimedia_resource:0/image_file_reference'
-      => 'Image file reference 97',
+        'radiology_result_report/context/report_id' => $self->report_id,
+        %{ $self->ctx->compose },
+        %{ $imaging_exam_comp },
     };
+
     return $composition;
 }
 
 sub compose_structured {
     my $self            = shift;
+    my $composition = {};
 
     return $composition;
 }
 
 sub compose_raw {
     my $self = shift;
+    my $composition = {};
     return $composition;
 }
 
