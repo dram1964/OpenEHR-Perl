@@ -9,6 +9,9 @@ use OpenEHR::Composition::RadiologyReport;
 ok( my $imaging_exam = OpenEHR::Composition::Elements::ImagingExam->new(),
     'Setup elements namespace' );
 
+my $report_id = 'AAACMEReport123';
+
+
 my $request_id1   = 'TQ00112233';
 my $receiver_id1  = 'RIS123123';
 my $report_id1    = $receiver_id1 . 'REP';
@@ -245,6 +248,16 @@ ok( my $imaging_exam_report2 = $imaging_exam->element('ImagingExam')->new(
 is_deeply( $imaging_exam_report2->compose, $target_imaging_exam2, 
     'Imaging Exam composition matches target');
 
+
+ok( my $radiology_report = OpenEHR::Composition::RadiologyReport->new(
+    report_id => $report_id,
+    imaging_exam => [$imaging_exam_report1, $imaging_exam_report2],
+    ),
+    'Radiology Report Constructor with two imaging exams'
+);
+is_deeply( $radiology_report->compose, $target, 
+    'Radiology Report matches target');
+
 done_testing;
 
 sub get_structured_radiology_report {
@@ -280,7 +293,7 @@ sub get_structured_radiology_report {
                             '|value'       => 'other care'
                         }
                     ],
-                    'report_id' => ['0001111333']
+                    'report_id' => [$report_id],
                 }
             ],
             'category' => [
@@ -292,7 +305,7 @@ sub get_structured_radiology_report {
             ],
             'composer' => [
                 {
-                    '|name' => 'OpenEHR-Perl-FLAT'
+                    '|name' => 'OpenEHR-Perl-STRUCTURED'
                 }
             ],
             'imaging_examination_result' => [
