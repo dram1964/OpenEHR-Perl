@@ -42,69 +42,29 @@ sub compose {
 sub compose_structured {
     my $self        = shift;
     my $composition = {
-        'event_date'         => [ DateTime->now->datetime ],
+                'language' => [
+                    {
+                        '|code'        => 'en',
+                        '|terminology' => 'ISO_639-1'
+                    }
+                ],
+                'encoding' => [
+                    {
+                        '|code'        => 'UTF-8',
+                        '|terminology' => 'IANA_character-sets'
+                    }
+                ]
     };
-    if ( $self->testicular_staging ) {
-        for my $testicular_staging ( @{ $self->testicular_staging } ) {
-            push @{ $composition->{testicular_staging} },
-                $testicular_staging->compose;
+    if ( $self->request_details ) {
+        for my $details ( @{ $self->request_details } ) {
+            push @{ $composition->{examination_request_details} },
+                $details->compose;
         }
     }
-    if ( $self->final_figo_stage ) {
-        for my $final_figo_stage ( @{ $self->final_figo_stage } ) {
-            push @{ $composition->{final_figo_stage} },
-                $final_figo_stage->compose;
-        }
-    }
-    if ( $self->cancer_diagnosis ) {
-        for my $cancer_diagnosis ( @{ $self->cancer_diagnosis } ) {
-            push @{ $composition->{cancer_diagnosis} },
-                $cancer_diagnosis->compose;
-        }
-    }
-    if ( $self->inrg_staging ) {
-        for my $inrg_staging ( @{ $self->inrg_staging } ) {
-            push @{ $composition->{inrg_staging} },
-                $inrg_staging->compose;
-        }
-    }
-    if ( $self->upper_gi_staging ) {
-        for my $upper_gi_staging ( @{ $self->upper_gi_staging } ) {
-            push @{ $composition->{upper_gi_staging} },
-                $upper_gi_staging->compose;
-        }
-    }
-    if ( $self->clinical_evidence ) {
-        for my $clinical_evidence ( @{ $self->clinical_evidence } ) {
-            push @{ $composition->{clinical_evidence} },
-                $clinical_evidence->compose;
-        }
-    }
-    if ( $self->tumour_id ) {
-        for my $tumour_id ( @{ $self->tumour_id } ) {
-            push @{ $composition->{tumour_id} }, $tumour_id->compose;
-        }
-    }
-    if ( $self->modified_dukes ) {
-        for my $modified_dukes ( @{ $self->modified_dukes } ) {
-            push @{ $composition->{modified_dukes_stage} },
-                $modified_dukes->compose;
-        }
-    }
-    if ( $self->colorectal_diagnosis ) {
-        for my $colorectal_diagnosis ( @{ $self->colorectal_diagnosis } ) {
-            push @{ $composition->{colorectal_diagnosis} },
-                $colorectal_diagnosis->compose;
-        }
-    }
-    if ( $self->diagnosis ) {
-        for my $diagnosis ( @{ $self->diagnosis } ) {
-            push @{ $composition->{diagnosis} }, $diagnosis->compose;
-        }
-    }
-    if ( $self->ajcc_stage ) {
-        for my $ajcc_stage ( @{ $self->ajcc_stage } ) {
-            push @{ $composition->{ajcc_stage} }, $ajcc_stage->compose;
+    if ( $self->reports ) {
+        for my $report ( @{ $self->reports } ) {
+            push @{ $composition->{any_event} },
+                $report->compose;
         }
     }
     return $composition;

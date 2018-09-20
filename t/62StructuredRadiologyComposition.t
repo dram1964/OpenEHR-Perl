@@ -28,20 +28,27 @@ my $findings1 = 'Findings 69';
 my $anatomical_side1 = 'at0007';
 my $diagnosis1 = [qw/ K3123 X0038/];
 
-my $target = &get_structured_radiology_report;
-my $target_request_detail =
-  $target->{radiology_result_report}->{imaging_examination_result}->[0]
-  ->{examination_request_details}->[0];
-my $target_requester_order =
-  $target_request_detail->{requester_order_identifier}->[0];
-my $target_receiver_order =
-  $target_request_detail->{receiver_order_identifier}->[0];
-my $target_report_reference =
-  $target_request_detail->{imaging_report_reference}->[0];
-my $target_imaging_report1 =
-  $target->{radiology_result_report}->{imaging_examination_result}->[0]->{any_event}->[0];
+my $result_status2 = 'at0010'; 
+my $result_date2 = '2018-09-14T12:55:54.769+01:00'; 
+my $clinical_info2 = 'Clinical information provided 51'; 
+my $report_text2 = 'Imaging report text 63'; 
+my $modality2 = 'Modality 40';
+my $image_file2 = ['Image file reference 99', 'Image File Reference 96']; 
+my $imaging_code2 = 'Imaging code 88';
+my $comment2 = [ 'Comment 47', 'Comment 46' ];
+my $anatomical_site2 = ['Anatomical site 5', 'Anatomical Site 6'];
+my $findings2 = 'Findings 70';
+my $anatomical_side2 = 'at0007';
+my $diagnosis2 = [qw/ K3123 MT331/];
 
-print Dumper $target_imaging_report1;
+my $target = &get_structured_radiology_report;
+my $target_imaging_exam1 = $target->{radiology_result_report}->{imaging_examination_result}->[0];
+my $target_request_detail = $target_imaging_exam1->{examination_request_details}->[0];
+my $target_requester_order = $target_request_detail->{requester_order_identifier}->[0];
+my $target_receiver_order = $target_request_detail->{receiver_order_identifier}->[0];
+my $target_report_reference = $target_request_detail->{imaging_report_reference}->[0];
+my $target_imaging_report1 = $target_imaging_exam1->{any_event}->[0];
+my $target_imaging_report2 = $target_imaging_exam1->{any_event}->[1];
 
 ok(
     my $requester = $imaging_exam->element('Requester')->new(
@@ -99,11 +106,40 @@ ok(
         imaging_code    => $imaging_code1,
         image_file      => $image_file1,
     ),
-    'Construct Imaging Report object'
+    'construct first imaging report object'
 );
 
 is_deeply( $imaging_report1->compose, $target_imaging_report1, 
-    'First imaging report matches');
+    'first imaging report matches');
+
+ok(
+    my $imaging_report2 = $imaging_exam->element('ImagingReport')->new(
+        clinical_info   => $clinical_info2,
+        comment         => $comment2,
+        diagnosis       => $diagnosis2,
+        report_text     => $report_text2,
+        findings        => $findings2,
+        modality        => $modality2,
+        anatomical_side => $anatomical_side2,
+        anatomical_site => $anatomical_site2,
+        result_date     => $result_date2,
+        result_status   => $result_status2,
+        imaging_code    => $imaging_code2,
+        image_file      => $image_file2,
+    ),
+    'construct second imaging report object'
+);
+is_deeply( $imaging_report2->compose, $target_imaging_report2, 
+    'second imaging report matches');
+
+ok( my $imaging_exam_report1 = $imaging_exam->element('ImagingExam')->new(
+    reports => [$imaging_report1, $imaging_report2],
+    request_details => [$request_detail],
+    ),
+    'Imaging Examination Report Constructor'
+);
+is_deeply( $imaging_exam_report1->compose, $target_imaging_exam1, 
+    'Imaging Exam composition matches target');
 
 done_testing;
 
@@ -245,44 +281,44 @@ sub get_structured_radiology_report {
                         {
                             'overall_result_status' => [
                                 {
-                                    '|code'        => 'at0010',
+                                    '|code'        => $result_status2,
                                     '|terminology' => 'local',
                                     '|value'       => 'Interim'
                                 }
                             ],
                             'datetime_result_issued' =>
-                              ['2018-09-14T12:55:54.769+01:00'],
+                              [$result_date2],
                             'clinical_information_provided' =>
-                              ['Clinical information provided 51'],
-                            'time' => ['2018-09-19T12:47:05.725+01:00'],
-                            'imaging_report_text' => ['Imaging report text 63'],
-                            'modality'            => ['Modality 40'],
+                              [$clinical_info2 ],
+                            'imaging_report_text' => [$report_text2],
+                            'modality'            => [$modality2],
                             'multimedia_resource' => [
                                 {
                                     'image_file_reference' =>
-                                      ['Image file reference 99']
+                                      [$image_file2->[0]]
                                 },
                                 {
                                     'image_file_reference' =>
-                                      ['Image File Reference 96']
+                                      [$image_file2->[1]]
                                 }
                             ],
-                            'imaging_code' => ['Imaging code 88'],
-                            'comment'      => [ 'Comment 47', 'Comment 46' ],
+                            'imaging_diagnosis' => $diagnosis2,
+                            'imaging_code' => [$imaging_code2],
+                            'comment'      => $comment2,
                             'anatomical_location' => [
                                 {
-                                    'anatomical_site' => ['Anatomical site 5']
+                                    'anatomical_site' => [$anatomical_site2->[0]]
                                 },
                                 {
-                                    'anatomical_site' => ['Anatomical Site 6']
+                                    'anatomical_site' => [$anatomical_site2->[1]]
                                 }
                             ],
-                            'findings'        => ['Findings 70'],
+                            'findings'        => [$findings2],
                             'anatomical_side' => [
                                 {
                                     'anatomical_side' => [
                                         {
-                                            '|code'        => 'at0007',
+                                            '|code'        => $anatomical_side2,
                                             '|terminology' => 'local',
                                             '|value'       => 'Not known'
                                         }
