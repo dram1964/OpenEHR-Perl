@@ -9,11 +9,17 @@ use OpenEHR::Composition::RadiologyReport;
 ok( my $imaging_exam = OpenEHR::Composition::Elements::ImagingExam->new(),
     'Setup elements namespace' );
 
-my $request_id   = 'TQ00112233';
-my $receiver_id  = 'RIS123123';
-my $report_id    = $receiver_id . 'REP';
-my $dicom_url    = 'http://uclh.dicom.store/image_1';
-my $exam_request = [ 'Request1', 'Request2' ];
+my $request_id1   = 'TQ00112233';
+my $receiver_id1  = 'RIS123123';
+my $report_id1    = $receiver_id1 . 'REP';
+my $dicom_url1    = 'http://uclh.dicom.store/image_1';
+my $exam_request1 = [ 'Request1', 'Request2' ];
+
+my $request_id2   = 'TQ00223344';
+my $receiver_id2  = 'RIS345345';
+my $report_id2    = $receiver_id2 . 'REP';
+my $dicom_url2    = 'http://uclh.dicom.store/image_2';
+my $exam_request2 = [ 'Request1', 'Request2' ];
 
 my $result_status1 = 'at0009'; 
 my $result_date1 = '2018-09-14T12:45:54.769+01:00'; 
@@ -43,52 +49,59 @@ my $diagnosis2 = [qw/ K3123 MT331/];
 
 my $target = &get_structured_radiology_report;
 my $target_imaging_exam1 = $target->{radiology_result_report}->{imaging_examination_result}->[0];
-my $target_request_detail = $target_imaging_exam1->{examination_request_details}->[0];
-my $target_requester_order = $target_request_detail->{requester_order_identifier}->[0];
-my $target_receiver_order = $target_request_detail->{receiver_order_identifier}->[0];
-my $target_report_reference = $target_request_detail->{imaging_report_reference}->[0];
+my $target_imaging_exam2 = $target->{radiology_result_report}->{imaging_examination_result}->[1];
+my $target_request_detail1 = $target_imaging_exam1->{examination_request_details}->[0];
+my $target_request_detail2 = $target_imaging_exam2->{examination_request_details}->[0];
+my $target_requester_order1 = $target_request_detail1->{requester_order_identifier}->[0];
+my $target_requester_order2 = $target_request_detail2->{requester_order_identifier}->[0];
+my $target_receiver_order1 = $target_request_detail1->{receiver_order_identifier}->[0];
+my $target_receiver_order2 = $target_request_detail2->{receiver_order_identifier}->[0];
+my $target_report_reference1 = $target_request_detail1->{imaging_report_reference}->[0];
+my $target_report_reference2 = $target_request_detail2->{imaging_report_reference}->[0];
 my $target_imaging_report1 = $target_imaging_exam1->{any_event}->[0];
 my $target_imaging_report2 = $target_imaging_exam1->{any_event}->[1];
+my $target_imaging_report3 = $target_imaging_exam2->{any_event}->[0];
+my $target_imaging_report4 = $target_imaging_exam2->{any_event}->[1];
 
 ok(
-    my $requester = $imaging_exam->element('Requester')->new(
-        id => $request_id,
+    my $requester1 = $imaging_exam->element('Requester')->new(
+        id => $request_id1,
     ),
     'Construct Requester Element'
 );
-is_deeply( $requester->compose, $target_requester_order,
+is_deeply( $requester1->compose, $target_requester_order1,
     'Requester composition matches target' );
 
 ok(
-    my $receiver = $imaging_exam->element('Receiver')->new(
-        id => $receiver_id,
+    my $receiver1 = $imaging_exam->element('Receiver')->new(
+        id => $receiver_id1,
     ),
     'Construct Receiver Element'
 );
-is_deeply( $receiver->compose, $target_receiver_order,
+is_deeply( $receiver1->compose, $target_receiver_order1,
     'Receiver composition matches target' );
 
 ok(
-    my $report_reference = $imaging_exam->element('ReportReference')->new(
-        id => $report_id,
+    my $report_reference1 = $imaging_exam->element('ReportReference')->new(
+        id => $report_id1,
     ),
     'Construct Report Reference Element'
 );
-is_deeply( $report_reference->compose,
-    $target_report_reference, 'Report Reference composition matches target' );
+is_deeply( $report_reference1->compose,
+    $target_report_reference1, 'Report Reference composition matches target' );
 
 ok(
-    my $request_detail = $imaging_exam->element('RequestDetail')->new(
-        requester        => $requester,
-        receiver         => $receiver,
-        report_reference => $report_reference,
-        dicom_url        => $dicom_url,
-        exam_request     => $exam_request,
+    my $request_detail1 = $imaging_exam->element('RequestDetail')->new(
+        requester        => $requester1,
+        receiver         => $receiver1,
+        report_reference => $report_reference1,
+        dicom_url        => $dicom_url1,
+        exam_request     => $exam_request1,
     ),
     'Construct Request Detail from Requester, Receiver and Report Reference'
 );
 
-is_deeply( $request_detail->compose, $target_request_detail,
+is_deeply( $request_detail1->compose, $target_request_detail1,
     'Request Detail composition matches target' );
 
 ok(
@@ -134,11 +147,102 @@ is_deeply( $imaging_report2->compose, $target_imaging_report2,
 
 ok( my $imaging_exam_report1 = $imaging_exam->element('ImagingExam')->new(
     reports => [$imaging_report1, $imaging_report2],
-    request_details => [$request_detail],
+    request_details => [$request_detail1],
     ),
     'Imaging Examination Report Constructor'
 );
 is_deeply( $imaging_exam_report1->compose, $target_imaging_exam1, 
+    'Imaging Exam composition matches target');
+
+ok(
+    my $requester2 = $imaging_exam->element('Requester')->new(
+        id => $request_id2,
+    ),
+    'Construct Second Requester Element'
+);
+is_deeply( $requester2->compose, $target_requester_order2,
+    'Second Requester composition matches target' );
+
+ok(
+    my $receiver2 = $imaging_exam->element('Receiver')->new(
+        id => $receiver_id2,
+    ),
+    'Construct Second Receiver Element'
+);
+is_deeply( $receiver2->compose, $target_receiver_order2,
+    'Second Receiver composition matches target' );
+
+ok(
+    my $report_reference2 = $imaging_exam->element('ReportReference')->new(
+        id => $report_id2,
+    ),
+    'Construct Second Report Reference Element'
+);
+is_deeply( $report_reference2->compose,
+    $target_report_reference2, 'Second Report Reference composition matches target' );
+
+ok(
+    my $request_detail2 = $imaging_exam->element('RequestDetail')->new(
+        requester        => $requester2,
+        receiver         => $receiver2,
+        report_reference => $report_reference2,
+        dicom_url        => $dicom_url2,
+        exam_request     => $exam_request2,
+    ),
+    'Construct Second Request Detail from Requester, Receiver and Report Reference'
+);
+
+is_deeply( $request_detail2->compose, $target_request_detail2,
+    'Second Request Detail composition matches target' );
+
+ok(
+    my $imaging_report3 = $imaging_exam->element('ImagingReport')->new(
+        clinical_info   => $clinical_info1,
+        comment         => $comment1,
+        diagnosis       => $diagnosis1,
+        report_text     => $report_text1,
+        findings        => $findings1,
+        modality        => $modality1,
+        anatomical_side => $anatomical_side1,
+        anatomical_site => $anatomical_site1,
+        result_date     => $result_date1,
+        result_status   => $result_status1,
+        imaging_code    => $imaging_code1,
+        image_file      => $image_file1,
+    ),
+    'construct third imaging report object'
+);
+
+is_deeply( $imaging_report3->compose, $target_imaging_report3, 
+    'third imaging report matches');
+
+ok(
+    my $imaging_report4 = $imaging_exam->element('ImagingReport')->new(
+        clinical_info   => $clinical_info2,
+        comment         => $comment2,
+        diagnosis       => $diagnosis2,
+        report_text     => $report_text2,
+        findings        => $findings2,
+        modality        => $modality2,
+        anatomical_side => $anatomical_side2,
+        anatomical_site => $anatomical_site2,
+        result_date     => $result_date2,
+        result_status   => $result_status2,
+        imaging_code    => $imaging_code2,
+        image_file      => $image_file2,
+    ),
+    'construct second imaging report object'
+);
+is_deeply( $imaging_report4->compose, $target_imaging_report4, 
+    'fourth imaging report matches');
+
+ok( my $imaging_exam_report2 = $imaging_exam->element('ImagingExam')->new(
+    reports => [$imaging_report3, $imaging_report4],
+    request_details => [$request_detail2],
+    ),
+    'Imaging Examination Report Constructor'
+);
+is_deeply( $imaging_exam_report2->compose, $target_imaging_exam2, 
     'Imaging Exam composition matches target');
 
 done_testing;
@@ -203,7 +307,7 @@ sub get_structured_radiology_report {
                         {
                             'requester_order_identifier' => [
                                 {
-                                    '|id'       => $request_id,
+                                    '|id'       => $request_id1,
                                     '|assigner' => 'UCLH OCS',
                                     '|issuer'   => 'UCLH',
                                     '|type'     => 'local'
@@ -211,7 +315,7 @@ sub get_structured_radiology_report {
                             ],
                             'receiver_order_identifier' => [
                                 {
-                                    '|id'       => $receiver_id,
+                                    '|id'       => $receiver_id1,
                                     '|assigner' => 'PACS OCS',
                                     '|issuer'   => 'UCLH',
                                     '|type'     => 'local'
@@ -219,14 +323,14 @@ sub get_structured_radiology_report {
                             ],
                             'imaging_report_reference' => [
                                 {
-                                    '|id'       => $report_id,
+                                    '|id'       => $report_id1,
                                     '|assigner' => 'UCLH RIS',
                                     '|issuer'   => 'UCLH',
                                     '|type'     => 'local'
                                 }
                             ],
-                            'dicom_study_identifier'     => [$dicom_url],
-                            'examination_requested_name' => $exam_request,
+                            'dicom_study_identifier'     => [$dicom_url1],
+                            'examination_requested_name' => $exam_request1,
                         }
                     ],
                     'any_event' => [
@@ -345,7 +449,7 @@ sub get_structured_radiology_report {
                         {
                             'requester_order_identifier' => [
                                 {
-                                    '|id'       => '1232341234234',
+                                    '|id'       => $request_id2,
                                     '|assigner' => 'UCLH OCS',
                                     '|issuer'   => 'UCLH',
                                     '|type'     => 'local'
@@ -353,7 +457,7 @@ sub get_structured_radiology_report {
                             ],
                             'receiver_order_identifier' => [
                                 {
-                                    '|id'       => 'rec-1235',
+                                    '|id'       => $receiver_id2,
                                     '|assigner' => 'PACS OCS',
                                     '|issuer'   => 'UCLH',
                                     '|type'     => 'local'
@@ -361,60 +465,58 @@ sub get_structured_radiology_report {
                             ],
                             'imaging_report_reference' => [
                                 {
-                                    '|id'       => '99887766',
+                                    '|id'       => $report_id2,
                                     '|assigner' => 'UCLH RIS',
                                     '|issuer'   => 'UCLH',
                                     '|type'     => 'local'
                                 }
                             ],
-                            'dicom_study_identifier' =>
-                              ['http://uclh.dicom.store/image_1'],
-                            'examination_requested_name' =>
-                              [ 'Request1', 'Request2' ]
+                            'dicom_study_identifier'     => [$dicom_url2],
+                            'examination_requested_name' => $exam_request2,
                         }
                     ],
                     'any_event' => [
                         {
                             'overall_result_status' => [
                                 {
-                                    '|code'        => 'at0009',
+                                    '|code'        => $result_status1, 
                                     '|terminology' => 'local',
                                     '|value'       => 'Registered'
                                 }
                             ],
                             'datetime_result_issued' =>
-                              ['2018-09-14T12:45:54.769+01:00'],
+                              [$result_date1],
                             'clinical_information_provided' =>
-                              ['Clinical information provided 50'],
-                            'time' => ['2018-09-19T12:47:05.725+01:00'],
-                            'imaging_report_text' => ['Imaging report text 62'],
-                            'modality'            => ['Modality 39'],
+                              [$clinical_info1],
+                            'imaging_report_text' => [$report_text1],
+                            'modality'            => [$modality1],
                             'multimedia_resource' => [
                                 {
                                     'image_file_reference' =>
-                                      ['Image file reference 97']
+                                      [$image_file1->[0]]
                                 },
                                 {
                                     'image_file_reference' =>
-                                      ['Image File Reference 98']
+                                      [$image_file1->[1]]
                                 }
                             ],
-                            'imaging_code' => ['Imaging code 87'],
-                            'comment'      => [ 'Comment 44', 'Comment 45' ],
+                            'imaging_diagnosis' => $diagnosis1,
+                            'imaging_code' => [$imaging_code1],
+                            'comment'      => $comment1, 
                             'anatomical_location' => [
                                 {
-                                    'anatomical_site' => ['Anatomical site 3']
+                                    'anatomical_site' => [$anatomical_site1->[0]]
                                 },
                                 {
-                                    'anatomical_site' => ['Anatomical Site 4']
+                                    'anatomical_site' => [$anatomical_site1->[1]]
                                 }
                             ],
-                            'findings'        => ['Findings 69'],
+                            'findings'        => [$findings1], 
                             'anatomical_side' => [
                                 {
                                     'anatomical_side' => [
                                         {
-                                            '|code'        => 'at0007',
+                                            '|code'        => $anatomical_side1, 
                                             '|terminology' => 'local',
                                             '|value'       => 'Not known'
                                         }
@@ -425,44 +527,44 @@ sub get_structured_radiology_report {
                         {
                             'overall_result_status' => [
                                 {
-                                    '|code'        => 'at0010',
+                                    '|code'        => $result_status2,
                                     '|terminology' => 'local',
                                     '|value'       => 'Interim'
                                 }
                             ],
                             'datetime_result_issued' =>
-                              ['2018-09-14T12:55:54.769+01:00'],
+                              [$result_date2],
                             'clinical_information_provided' =>
-                              ['Clinical information provided 51'],
-                            'time' => ['2018-09-19T12:47:05.725+01:00'],
-                            'imaging_report_text' => ['Imaging report text 63'],
-                            'modality'            => ['Modality 40'],
+                              [$clinical_info2 ],
+                            'imaging_report_text' => [$report_text2],
+                            'modality'            => [$modality2],
                             'multimedia_resource' => [
                                 {
                                     'image_file_reference' =>
-                                      ['Image file reference 99']
+                                      [$image_file2->[0]]
                                 },
                                 {
                                     'image_file_reference' =>
-                                      ['Image File Reference 96']
+                                      [$image_file2->[1]]
                                 }
                             ],
-                            'imaging_code' => ['Imaging code 88'],
-                            'comment'      => [ 'Comment 47', 'Comment 46' ],
+                            'imaging_diagnosis' => $diagnosis2,
+                            'imaging_code' => [$imaging_code2],
+                            'comment'      => $comment2,
                             'anatomical_location' => [
                                 {
-                                    'anatomical_site' => ['Anatomical site 5']
+                                    'anatomical_site' => [$anatomical_site2->[0]]
                                 },
                                 {
-                                    'anatomical_site' => ['Anatomical Site 6']
+                                    'anatomical_site' => [$anatomical_site2->[1]]
                                 }
                             ],
-                            'findings'        => ['Findings 70'],
+                            'findings'        => [$findings2],
                             'anatomical_side' => [
                                 {
                                     'anatomical_side' => [
                                         {
-                                            '|code'        => 'at0007',
+                                            '|code'        => $anatomical_side2,
                                             '|terminology' => 'local',
                                             '|value'       => 'Not known'
                                         }
@@ -477,7 +579,7 @@ sub get_structured_radiology_report {
                             '|terminology' => 'IANA_character-sets'
                         }
                     ]
-                }
+                },
             ]
         }
     };
