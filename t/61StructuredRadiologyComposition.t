@@ -153,17 +153,17 @@ note('Testing Exam Result 1');
         'first clinical info data');
     like($result2->{time}->[0], qr/^\d{4,4}-\d{2,2}-\d{2,2}/, 'Second result time looks like date');
 
-    ok(my $report_text1 = $result2->{imaging_report_text}->[0], 
+    ok(my $report_text2 = $result2->{imaging_report_text}->[0], 
         'Assigned first result report text');
-    is($report_text1, 'Imaging report text 63', 'Second report text');
+    is($report_text2, 'Imaging report text 63', 'Second report text');
     is($result2->{modality}->[0], 'Modality 40', 'Second report modality');
 
-    ok(my $image_file1 = $result2->{multimedia_resource}->[0]->{image_file_reference}->[0],
+    ok(my $image_file3 = $result2->{multimedia_resource}->[0]->{image_file_reference}->[0],
         'Assigned second result first image file');
-    is($image_file1, 'Image file reference 99', 'Image file1 value');
-    ok(my $image_file2 = $result2->{multimedia_resource}->[1]->{image_file_reference}->[0],
+    is($image_file3, 'Image file reference 99', 'Image file1 value');
+    ok(my $image_file4 = $result2->{multimedia_resource}->[1]->{image_file_reference}->[0],
         'Assigned second result second image file');
-    is($image_file2, 'Image File Reference 96', 'Image file2 value');
+    is($image_file4, 'Image File Reference 96', 'Image file2 value');
 
     is($result2->{imaging_code}->[0], 'Imaging code 88', 'Second result imaging code');
     is($result2->{comment}->[0], 'Comment 47', 'Second result first comment');
@@ -295,12 +295,12 @@ note('Testing Exam Result 2');
     is($report_text1, 'Imaging report text 63', 'Second report text');
     is($result2->{modality}->[0], 'Modality 40', 'Second report modality');
 
-    ok(my $image_file1 = $result2->{multimedia_resource}->[0]->{image_file_reference}->[0],
+    ok(my $image_file3 = $result2->{multimedia_resource}->[0]->{image_file_reference}->[0],
         'Assigned second result first image file');
-    is($image_file1, 'Image file reference 99', 'Image file1 value');
-    ok(my $image_file2 = $result2->{multimedia_resource}->[1]->{image_file_reference}->[0],
+    is($image_file3, 'Image file reference 99', 'Image file1 value');
+    ok(my $image_file4 = $result2->{multimedia_resource}->[1]->{image_file_reference}->[0],
         'Assigned second result second image file');
-    is($image_file2, 'Image File Reference 96', 'Image file2 value');
+    is($image_file4, 'Image File Reference 96', 'Image file2 value');
 
     is($result2->{imaging_code}->[0], 'Imaging code 88', 'Second result imaging code');
     is($result2->{comment}->[0], 'Comment 47', 'Second result first comment');

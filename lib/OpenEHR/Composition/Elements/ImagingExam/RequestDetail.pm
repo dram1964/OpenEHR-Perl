@@ -85,25 +85,23 @@ sub compose {
 
 sub compose_structured {
     my $self        = shift;
-    my $composition = {
-        'event_date'         => [ DateTime->now->datetime ],
-    };
+    my $composition = { };
     if ( $self->requester ) {
-        for my $requester ( @{ $self->requester } ) {
-            push @{ $composition->{requester} },
-                $requester->compose;
-        }
+        $composition->{requester_order_identifier}->[0] = $self->requester->compose;
     }
     if ( $self->receiver ) {
-        for my $receiver ( @{ $self->receiver } ) {
-            push @{ $composition->{receiver} },
-                $receiver->compose;
-        }
+        $composition->{receiver_order_identifier}->[0] = $self->receiver->compose;
     }
     if ( $self->report_reference ) {
-        for my $report_reference ( @{ $self->report_reference } ) {
-            push @{ $composition->{report_reference} },
-                $report_reference->compose;
+        $composition->{imaging_report_reference}->[0] = $self->report_reference->compose;
+    }
+    if ( $self->dicom_url ) {
+        $composition->{dicom_study_identifier} = [$self->dicom_url];
+    }
+    if ( $self->exam_request ) {
+        for my $exam_request ( @{ $self->exam_request } ) {
+            push @{ $composition->{examination_requested_name} }, 
+                $exam_request;
         }
     }
     return $composition;

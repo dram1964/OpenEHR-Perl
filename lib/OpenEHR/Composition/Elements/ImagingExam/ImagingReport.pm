@@ -13,13 +13,13 @@ use version; our $VERSION = qv('0.0.2');
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')
-        if ( $self->composition_format eq 'TDD' );
+      if ( $self->composition_format eq 'TDD' );
     my @properties = qw(
-       
+
     );
     for my $property (@properties) {
-        if ($self->$property) {
-                $self->$property->composition_format($self->composition_format);
+        if ( $self->$property ) {
+            $self->$property->composition_format( $self->composition_format );
         }
     }
 
@@ -30,24 +30,56 @@ sub compose {
 sub compose_structured {
     my $self        = shift;
     my $composition = {
-        'event_date'         => [ DateTime->now->datetime ],
+        'overall_result_status' => [
+            {
+                '|code'        => $self->result_status,
+                '|terminology' => 'local',
+                '|value'       => 'Registered'
+            }
+        ],
+        'datetime_result_issued'        => [$self->result_date],
+        'clinical_information_provided' => [$self->clinical_info],
+        'imaging_report_text'           => [$self->report_text],
+        'modality'                      => [$self->modality],
+        'imaging_code'        => [$self->imaging_code],
+        'findings'        => [$self->findings],
+        'anatomical_side' => [
+            {
+                'anatomical_side' => [
+                    {
+                        '|code'        => $self->anatomical_side,
+                        '|terminology' => 'local',
+                        '|value'       => 'Not known'
+                    }
+                ]
+            }
+        ]
     };
-    if ( $self->requester ) {
-        for my $requester ( @{ $self->requester } ) {
-            push @{ $composition->{requester} },
-                $requester->compose;
+    
+    if ($self->diagnosis) {
+        for my $diagnosis ( @{ $self->diagnosis } ) {
+            push @{ $composition->{imaging_diagnosis} }, $diagnosis;
         }
     }
-    if ( $self->receiver ) {
-        for my $receiver ( @{ $self->receiver } ) {
-            push @{ $composition->{receiver} },
-                $receiver->compose;
+    if ($self->comment) {
+        for my $comment ( @{ $self->comment } ) {
+            push @{ $composition->{comment} }, $comment;
         }
     }
-    if ( $self->report_reference ) {
-        for my $report_reference ( @{ $self->report_reference } ) {
-            push @{ $composition->{report_reference} },
-                $report_reference->compose;
+    if ($self->image_file) {
+        for my $image ( @{ $self->image_file } ) {
+            push @{ $composition->{multimedia_resource} }, 
+                {
+                    image_file_reference => [$image],
+                };
+        }
+    }
+    if ($self->anatomical_site) {
+        for my $site ( @{ $self->anatomical_site } ) {
+            push @{ $composition->{anatomical_location} }, 
+                {
+                    anatomical_site => [$site],
+                };
         }
     }
     return $composition;
@@ -84,11 +116,13 @@ sub compose_raw {
             'archetype_node_id' => 'at0032',
             '@class'            => 'ITEM_TREE',
             'items'             => [
-                {   '@class'            => 'ELEMENT',
+                {
+                    '@class'            => 'ELEMENT',
                     'archetype_node_id' => 'at0070',
                     'value'             => {
                         '@class' => 'DV_DATE_TIME',
-                        'value'  => DateTime->now->datetime, #'2018-07-24T14:05:01.806+01:00'
+                        'value'  => DateTime->now
+                          ->datetime,    #'2018-07-24T14:05:01.806+01:00'
                     },
                     'name' => {
                         '@class' => 'DV_TEXT',
@@ -123,20 +157,17 @@ sub compose_raw {
 
     if ( $self->requester ) {
         for my $requester ( @{ $self->requester } ) {
-            push @{ $composition->{data}->{items} },
-                $requester->compose;
+            push @{ $composition->{data}->{items} }, $requester->compose;
         }
     }
     if ( $self->receiver ) {
         for my $receiver ( @{ $self->receiver } ) {
-            push @{ $composition->{data}->{items} },
-                $receiver->compose;
+            push @{ $composition->{data}->{items} }, $receiver->compose;
         }
     }
     if ( $self->report_reference ) {
         for my $report_reference ( @{ $self->report_reference } ) {
-            push @{ $composition->{data}->{items} },
-                $report_reference->compose;
+            push @{ $composition->{data}->{items} }, $report_reference->compose;
         }
     }
     return $composition;
@@ -149,7 +180,7 @@ Used to get or set clinical information for the Imaging Report element
 =cut
 
 has clinical_info => (
-    is => 'rw',
+    is  => 'rw',
     isa => 'Str',
 );
 
@@ -160,7 +191,7 @@ Used to get or set the comments for the Imaging Report element
 =cut
 
 has comment => (
-    is => 'rw',
+    is  => 'rw',
     isa => 'ArrayRef',
 );
 
@@ -171,7 +202,7 @@ Used to get or set the diagnoses for the Imaging Report element
 =cut
 
 has diagnosis => (
-    is => 'rw',
+    is  => 'rw',
     isa => 'ArrayRef',
 );
 
@@ -182,7 +213,7 @@ Used to get or set the report text for the Imaging Report element
 =cut
 
 has report_text => (
-    is => 'rw',
+    is  => 'rw',
     isa => 'Str',
 );
 
@@ -193,7 +224,7 @@ Used to get or set the report findings for the Imaging Report element
 =cut
 
 has findings => (
-    is => 'rw',
+    is  => 'rw',
     isa => 'Str',
 );
 
@@ -204,7 +235,7 @@ Used to get or set the report modality for the Imaging Report element
 =cut
 
 has modality => (
-    is => 'rw',
+    is  => 'rw',
     isa => 'Str',
 );
 
@@ -215,7 +246,7 @@ Used to get or set the anatomical_side for the Imaging Report element
 =cut
 
 has anatomical_side => (
-    is => 'rw',
+    is  => 'rw',
     isa => 'Str',
 );
 
@@ -226,7 +257,7 @@ Used to get or set the anatomical_site for the Imaging Report element
 =cut
 
 has anatomical_site => (
-    is => 'rw',
+    is  => 'rw',
     isa => 'ArrayRef',
 );
 
@@ -237,7 +268,7 @@ Used to get or set the result_date for the Imaging Report element
 =cut
 
 has result_date => (
-    is => 'rw',
+    is  => 'rw',
     isa => 'Str',
 );
 
@@ -248,7 +279,7 @@ Used to get or set the result_status for the Imaging Report element
 =cut
 
 has result_status => (
-    is => 'rw',
+    is  => 'rw',
     isa => 'Str',
 );
 
@@ -259,7 +290,7 @@ Used to get or set the imaging_code for the Imaging Report element
 =cut
 
 has imaging_code => (
-    is => 'rw',
+    is  => 'rw',
     isa => 'Str',
 );
 
@@ -270,22 +301,26 @@ Used to get or set the image file reference for the Imaging Report element
 =cut
 
 has image_file => (
-    is => 'rw',
+    is  => 'rw',
     isa => 'ArrayRef',
 );
 
-
 sub compose_flat {
-    my $self        = shift;
-    my $path = 'radiology_result_report/imaging_examination_result:__EXAM__/any_event:__REP__/';
-    my $composition =  {
-        $path . 'clinical_information_provided' => $self->clinical_info, #'Clinical information provided 50',
-        $path . 'imaging_report_text' => $self->report_text, #'Imaging report text 62',
-        $path . 'findings' => $self->findings, #'Findings 69',
-        $path . 'modality' => $self->modality, #'Modality 39',
-        $path . 'anatomical_side/anatomical_side|code' => $self->anatomical_side, #'at0007',
-        $path . 'datetime_result_issued' => $self->result_date, #'2018-09-14T12:45:54.769+01:00',
-        $path . 'imaging_code' => $self->imaging_code, #'Imaging code 87',
+    my $self = shift;
+    my $path =
+'radiology_result_report/imaging_examination_result:__EXAM__/any_event:__REP__/';
+    my $composition = {
+        $path . 'clinical_information_provided' =>
+          $self->clinical_info,    #'Clinical information provided 50',
+        $path . 'imaging_report_text' =>
+          $self->report_text,      #'Imaging report text 62',
+        $path . 'findings' => $self->findings,    #'Findings 69',
+        $path . 'modality' => $self->modality,    #'Modality 39',
+        $path . 'anatomical_side/anatomical_side|code' =>
+          $self->anatomical_side,                 #'at0007',
+        $path . 'datetime_result_issued' =>
+          $self->result_date,    #'2018-09-14T12:45:54.769+01:00',
+        $path . 'imaging_code' => $self->imaging_code,    #'Imaging code 87',
         $path . 'overall_result_status|code' => $self->result_status, #'at0009',
     };
     if ( $self->comment ) {
@@ -299,7 +334,7 @@ sub compose_flat {
     if ( $self->diagnosis ) {
         my $index = '0';
         for my $diagnosis ( @{ $self->diagnosis } ) {
-            my $diagnosis_key = $path. 'imaging_diagnosis:' . $index;
+            my $diagnosis_key = $path . 'imaging_diagnosis:' . $index;
             $composition->{$diagnosis_key} = $diagnosis;
             $index++;
         }
@@ -307,7 +342,11 @@ sub compose_flat {
     if ( $self->anatomical_site ) {
         my $index = '0';
         for my $anatomical_site ( @{ $self->anatomical_site } ) {
-            my $anatomical_site_key = $path . 'anatomical_location:' . $index . '/anatomical_site'; #'Anatomical site 3',
+            my $anatomical_site_key =
+                $path
+              . 'anatomical_location:'
+              . $index
+              . '/anatomical_site';    #'Anatomical site 3',
             $composition->{$anatomical_site_key} = $anatomical_site;
             $index++;
         }
@@ -315,7 +354,11 @@ sub compose_flat {
     if ( $self->image_file ) {
         my $index = '0';
         for my $image_file ( @{ $self->image_file } ) {
-            my $image_file_key = $path . 'multimedia_resource:' . $index . '/image_file_reference'; #'Image file reference 97',
+            my $image_file_key =
+                $path
+              . 'multimedia_resource:'
+              . $index
+              . '/image_file_reference';    #'Image file reference 97',
             $composition->{$image_file_key} = $image_file;
             $index++;
         }
