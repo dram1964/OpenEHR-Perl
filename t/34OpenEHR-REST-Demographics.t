@@ -86,29 +86,48 @@ diag( $demog_update->err_msg ) if $demog_update->err_msg;
 is( $demog_update->action, 'UPDATE', 'Response is UPDATE' );
 note( 'Update Party info can be found at: ' . $demog_update->href );
 
-note ('Searching for all Party Records with Surname Tweedle');
-
-my $surname_search = OpenEHR::REST::Demographics->new();
-
-ok( $surname_search->query( { firstNames => '*' }), 'Add last name to query');
-ok( $surname_search->run_query(), 'Run Query');
-diag ( $surname_search->err_msg) if $surname_search->err_msg;
-is( ref($surname_search->parties), 'ARRAY', 'Array of Parties returned');
+note ('Searching with GET for all Party Records with Surname Tweedle');
+my $firstname_get = OpenEHR::REST::Demographics->new();
+ok( $firstname_get->query( { firstNames => '*' }), 'Add last name to query');
+ok( $firstname_get->get_query(), 'Run GET Query');
+diag ( $firstname_get->err_msg) if $firstname_get->err_msg;
+is( ref($firstname_get->parties), 'ARRAY', 'Array of Parties returned');
 my $party_id;
-for my $party ( @{ $surname_search->parties } ) {
+for my $party ( @{ $firstname_get->parties } ) {
     $party_id = $party->{id};
     note("Party ID: ",   $party->{id}, "\n");
 }
 
 note ('Testing delete for Party ID: ', $party_id);
-
 my $delete = OpenEHR::REST::Demographics->new();
 ok($delete->delete_party($party_id), "Delete called for Party $party_id");
 diag( $delete->err_msg) if $delete->err_msg;
 is( $delete->action, 'DELETE', 'Action is DELETE');
-
-
 }
+
+note ('Searching with POST for all Party Records with Surname Tweedle');
+my $firstname_post = OpenEHR::REST::Demographics->new();
+my $params = [
+    {
+        key => 'firstNames',
+        value => 'Tweedle',
+    },
+    {
+        key => 'ehrId',
+        value => '9085f25b-d81a-4fa0-8210-481b6b87f9f5',
+    },
+    {
+        key => 'uk.nhs.nhs_number',
+        value => '6783657507',
+    },
+];
+ok( $firstname_post->post_query( $params ), 'Run POST Query');
+diag ( $firstname_post->err_msg) if $firstname_post->err_msg;
+is( ref($firstname_post->parties), 'ARRAY', 'Array of Parties returned');
+for my $party ( @{ $firstname_post->parties } ) {
+    print Dumper $party;
+}
+
 
 done_testing;
 

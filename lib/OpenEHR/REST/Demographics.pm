@@ -94,13 +94,13 @@ sub update_party() {
     }
 }
 
-=head2 run_query($params) 
+=head2 get_query($params) 
 
 Uses GET to search for matching parties
 
 =cut 
 
-sub run_query() {
+sub get_query() {
     my ($self) = @_;
     $self->resource('demographics/party/query');
     $self->method('GET');
@@ -120,6 +120,35 @@ sub run_query() {
         return 0;
     }
 }
+
+=head2 post_query([{key => $key, value => $value}])
+
+Uses POST to search for matching parties
+
+=cut 
+
+sub post_query() {
+    my ( $self, $params ) = @_;
+    $params = to_json($params);
+    $self->resource('demographics/party/query');
+    $self->method('POST');
+    $self->headers( [ [ 'Content-Type', 'application/json' ] ] );
+    $self->submit_rest_call($params);
+    if ( $self->response_code eq '200' ) {
+        my $response = from_json( $self->response );
+        $self->action( $response->{action} );
+        $self->href( $response->{meta}->{href} );
+        $self->err_msg('');
+        $self->parties( $response->{parties} );
+        return 1;
+    }
+    else {
+        carp $self->response_code;
+        $self->err_msg( $self->response );
+        return 0;
+    }
+}
+
 
 =head2 delete_party($party_id)
 
