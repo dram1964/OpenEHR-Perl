@@ -121,6 +121,30 @@ sub run_query() {
     }
 }
 
+=head2 delete_party($party_id)
+
+Deletes a party by party_id
+
+=cut 
+
+sub delete_party() {
+    my ($self, $party_id) = @_; 
+    $self->resource("demographics/party/$party_id");
+    $self->method('DELETE');
+    $self->submit_rest_call;
+    if ( $self->response_code eq '200') {
+        my $response = from_json( $self->response );
+        $self->action( $response->{action} );
+        $self->err_msg('');
+        return 1;
+    }
+    else {
+        carp $self->response_code;
+        $self->err_msg( $self->response );
+        return 0;
+    }
+}
+
 
 no Moose;
 
