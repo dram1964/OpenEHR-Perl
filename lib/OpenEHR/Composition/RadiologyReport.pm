@@ -128,9 +128,11 @@ sub compose_structured {
             ],
         }
     };
-    for my $imaging_exam (@{ $self->imaging_exam } ) {
-        push @{ $composition->{radiology_result_report}->{imaging_examination_result} }, 
-            $imaging_exam->compose;
+    if ( $self->imaging_exam ) {
+        for my $imaging_exam (@{ $self->imaging_exam } ) {
+            push @{ $composition->{radiology_result_report}->{imaging_examination_result} }, 
+                $imaging_exam->compose;
+        }
     }
 
     return $composition;
