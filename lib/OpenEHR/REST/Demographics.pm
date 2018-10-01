@@ -4,59 +4,122 @@ use warnings;
 use strict;
 use Carp;
 use Data::Dumper;
+use JSON;
 use Moose;
 extends 'OpenEHR::REST';
 
 use version; our $VERSION = qv('0.0.2');
 
-has resource => (is => 'rw', isa => 'Str', default => 'demographics');
+has resource => ( is => 'rw', isa => 'Str', default => 'demographics' );
+has href     => ( is => 'rw', isa => 'Str' );
+has action   => ( is => 'rw', isa => 'Str' );
+has err_msg  => ( is => 'rw', isa => 'Str' );
+has party    => ( is => 'rw', isa => 'HashRef' );
+has parties => ( is => 'rw', isa => 'ArrayRef' );
 
-has action	    => (is => 'rw', isa => 'Str');
-has err_msg	    => (is => 'rw', isa => 'Str');
-
-=head2 get_by_ehrid
+=head2 get_by_ehrid( $ehrid )
 
 Retrieves demographics information for specified ehrid
 
 =cut 
 
 sub get_by_ehrid {
-    my ($self, $ehrid) = @_;
+    my ( $self, $ehrid ) = @_;
     $self->resource("demographics/ehr/$ehrid/party");
     $self->submit_rest_call;
-    if ($self->response_code eq '200') {
-        $self->action($self->response->{action});
+    if ( $self->response_code eq '200' ) {
+        my $response = from_json( $self->response );
+        $self->party( $response->{party} );
+        $self->action( $response->{action} );
+        $self->href( $response->{meta}->{href} );
         $self->err_msg('');
+        return 1;
     }
     else {
         carp $self->response_code;
-        $self->err_msg($self->response);
+        $self->err_msg( $self->response );
+        return 0;
     }
 }
 
 =head2 add_party
 
-Retrieves demographics information for specified ehrid
+Adds demographics information for specified ehrid
 
 =cut 
 
 sub add_party {
-    my ($self, $party) = @_;
+    my ( $self, $party ) = @_;
     $self->resource('demographics/party');
     $self->method('POST');
-    $self->headers([['Content-Type', 'application/json']]);
+    $self->headers( [ [ 'Content-Type', 'application/json' ] ] );
     $self->submit_rest_call($party);
-    if ($self->response_code eq '200') {
-        $self->action($self->response->{action});
+    if ( $self->response_code eq '201' ) {
+        my $response = from_json( $self->response );
+        $self->action( $response->{action} );
+        $self->href( $response->{meta}->{href} );
         $self->err_msg('');
+        return 1;
     }
     else {
         carp $self->response_code;
-        $self->err_msg($self->response);
+        $self->err_msg( $self->response );
+        return 0;
     }
 }
 
+=head2 update_party($party)
 
+Updates demographics information 
+
+=cut
+
+sub update_party() {
+    my ( $self, $party ) = @_;
+    $self->resource('demographics/party');
+    $self->method('PUT');
+    $self->headers( [ [ 'Content-Type', 'application/json' ] ] );
+    $self->submit_rest_call($party);
+    if ( $self->response_code eq '200' ) {
+        my $response = from_json( $self->response );
+        $self->action( $response->{action} );
+        $self->href( $response->{meta}->{href} );
+        $self->err_msg('');
+        return 1;
+    }
+    else {
+        carp $self->response_code;
+        $self->err_msg( $self->response );
+        return 0;
+    }
+}
+
+=head2 run_query($params) 
+
+Uses GET to search for matching parties
+
+=cut 
+
+sub run_query() {
+    my ($self) = @_;
+    $self->resource('demographics/party/query');
+    $self->method('GET');
+    $self->query( $self->query ); 
+    $self->submit_rest_call;
+    if ( $self->response_code eq '200' ) {
+        my $response = from_json( $self->response );
+        $self->action( $response->{action} );
+        $self->href( $response->{meta}->{href} );
+        $self->err_msg('');
+        $self->parties( $response->{parties} );
+        return 1;
+    }
+    else {
+        carp $self->response_code;
+        $self->err_msg( $self->response );
+        return 0;
+    }
+}
 
 
 no Moose;
