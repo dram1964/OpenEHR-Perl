@@ -15,7 +15,9 @@ my $collected =
 my $received =
     DateTime::Format::DateParse->parse_datetime('2017-12-01T01:30:00');
 my $resulted =
-    DateTime::Format::DateParse->parse_datetime('2017-12-01T01:30:00');
+    DateTime::Format::DateParse->parse_datetime('2017-12-01T02:30:00');
+my $authorised =
+    DateTime::Format::DateParse->parse_datetime('2017-12-01T05:30:00');
 
 my $data = {
     ordercode      => 'ELL',
@@ -71,6 +73,7 @@ This is the sodium comment',
 ok( my $report = OpenEHR::Composition::LabResultReport->new(),
     'Construct a blank LabResultReport object' );
 ok( $report->report_id('1112233322233'),   'report_id mutator' );
+ok( $report->report_date($authorised),   'report_date mutator' );
 ok( $report->patient_comment('Hello EHR'), 'comment mutator' );
 ok( $report->add_labtests($data),          'Add Labtests from hash table' );
 ok( $report->composer_name('David Ramlakhan'),

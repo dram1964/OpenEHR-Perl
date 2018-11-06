@@ -11,6 +11,13 @@ my $labtest = &get_labtest_data();
 
 ok( my $labreport = OpenEHR::Composition::LabResultReport->new(
         report_id       => '17V999333',
+        report_date => DateTime->new(
+            year   => 2017,
+            month  => 11,
+            day    => 10,
+            hour   => 14,
+            minute => 12
+        ),
         labtests        => [$labtest],
         patient_comment => 'Patient feeling poorly',
     ),

@@ -13,6 +13,7 @@ use version; our $VERSION = qv('0.0.2');
 
 has ctx       => ( is => 'rw', isa => 'OpenEHR::Composition::Elements::CTX', default => \&_set_ctx );
 has report_id => ( is => 'rw', isa => 'Str' );
+has report_date => ( is => 'rw', isa => 'DateTime' );
 has labtests  => (
     is      => 'rw',
     isa     => 'ArrayRef[OpenEHR::Composition::Elements::LabTest]',
@@ -171,6 +172,7 @@ sub compose_structured {
             'patient_comment' => $patient_comment,
             context => {
                 report_id => $self->report_id,
+                start_time => $self->report_date->datetime,
             },
         },
         ctx => $ctx,
@@ -271,6 +273,10 @@ sub compose_raw {
             ],
             'archetype_node_id' => 'at0001'
     };
+    $ctx->{context}->{start_time} = {
+        'value' => $self->report_date->datetime,
+        '@class' => 'DV_DATE_TIME',
+    };
 
     $archetype_node_id = 'openEHR-EHR-COMPOSITION.report-result.v1';
 
@@ -324,6 +330,7 @@ sub compose_flat {
     my $composition = {
         %{ $ctx },
         $path . 'context/report_id'     => $self->report_id,
+        $path . 'context/start_time'     => $self->report_date->datetime,
         %{$labtest_comp},
         $path . 'patient_comment/comment' => $self->patient_comment,
     };
@@ -352,6 +359,13 @@ This document describes OpenEHR::Composition::LabResultReport version 0.0.2
     use OpenEHR::Composition::LabResultReport;
     my $labreport = OpenEHR::Composition::LabResultReport->new(
             report_id       => '17V999333',
+            report_date       => DateTime->new(
+                year => 2018
+                month => 11,
+                day => 5
+                hour => 11,
+                minute => 15,
+            ),
             labtests        => [$labtest_object],
             patient_comment => 'Patient feeling poorly',
     );
@@ -378,6 +392,10 @@ server using OpenEHR::REST::Composition module.
 =head2 report_id
 
 Unique identifier for the LabResultReport object
+
+=head2 report_date
+
+Datetime object representing the datetime the report was issued
 
 =head2 labtests 
 

@@ -229,7 +229,7 @@ this is the flourosine result'
                     }
                 ],
                 'report_id'  => [ '17V999333' ],
-                'start_time' => [ '2018-09-06T16:55:24.208+01:00' ],
+                'start_time' => [ $self->report_date->datetime ],
                 '_health_care_facility' => [
                     {   '|id'           => 'RRV',
                         '|id_scheme'    => 'UCLH-NS',
