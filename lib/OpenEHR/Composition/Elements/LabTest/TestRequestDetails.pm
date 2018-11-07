@@ -16,9 +16,8 @@ has requester =>
 
 sub compose {
     my $self = shift;
-    $self->composition_format('RAW')
-      if ( $self->composition_format eq 'TDD' );
-    $self->placer->composition_format( $self->composition_format );
+    $self->composition_format('RAW') if ( $self->composition_format eq 'TDD' );
+    $self->placer->composition_format( $self->composition_format ) if $self->placer;
     $self->filler->composition_format( $self->composition_format );
     $self->requester->composition_format( $self->composition_format );
     my $formatter = 'compose_' . lc( $self->composition_format );

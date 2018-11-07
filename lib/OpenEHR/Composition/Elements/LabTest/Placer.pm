@@ -16,15 +16,10 @@ has order_number => (
 has issuer => (
     is       => 'rw',
     isa      => 'Str',
-    required => 1,
-    default  => 'UCLH',
-
 );
 has assigner => (
     is       => 'rw',
     isa      => 'Str',
-    required => 1,
-    default  => 'TQuest',
 );
 has type => (
     is       => 'rw',

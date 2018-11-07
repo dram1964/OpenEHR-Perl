@@ -1,10 +1,11 @@
 use strict;
 use warnings;
-use Genomes_100K::Model;
+use Genomes_100K_Test::Model;
 
-my $schema = Genomes_100K::Model->connect('CRIUGenomesTest');
+my $schema = Genomes_100K_Test::Model->connect('CRIUGenomesLiveTest');
 
-my $lab_results_rs = $schema->resultset('PathologyResult');
+my $lab_results_rs = $schema->resultset('PathologyResult')->search(
+    lab_number => '98U900001');
 
 while ( my $result = $lab_results_rs->next ) {
     print

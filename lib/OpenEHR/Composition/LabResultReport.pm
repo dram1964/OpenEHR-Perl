@@ -11,10 +11,14 @@ use OpenEHR::Composition::Elements::CTX;
 
 use version; our $VERSION = qv('0.0.2');
 
-has ctx       => ( is => 'rw', isa => 'OpenEHR::Composition::Elements::CTX', default => \&_set_ctx );
-has report_id => ( is => 'rw', isa => 'Str' );
+has ctx => (
+    is      => 'rw',
+    isa     => 'OpenEHR::Composition::Elements::CTX',
+    default => \&_set_ctx
+);
+has report_id   => ( is => 'rw', isa => 'Str' );
 has report_date => ( is => 'rw', isa => 'DateTime' );
-has labtests  => (
+has labtests    => (
     is      => 'rw',
     isa     => 'ArrayRef[OpenEHR::Composition::Elements::LabTest]',
     default => sub { [] }
@@ -29,7 +33,7 @@ Adds the context and ctx elements to the Information Order
 
 sub _set_ctx {
     my $self = shift;
-    my $ctx = OpenEHR::Composition::Elements::CTX->new();
+    my $ctx  = OpenEHR::Composition::Elements::CTX->new();
     $self->ctx($ctx);
 }
 
@@ -45,7 +49,7 @@ sub add_labtests {
         terminology    => 'local',
     );
     if ( $order->{order_mapping} ) {
-        $request->order_mapping($order->{order_mapping});
+        $request->order_mapping( $order->{order_mapping} );
     }
     my $specimen = $labtest->element('Specimen')->new(
         datetime_collected => $order->{collected},
@@ -60,35 +64,34 @@ sub add_labtests {
 
     my $labresults = [];
     for my $res ( @{ $order->{labresults} } ) {
-        my $labresult = $labtest->element('LabResult')->new(
-            $res
-        );
+        my $labresult = $labtest->element('LabResult')->new( $res );
         push @{$labresults}, $labresult;
     }
 
     my $labpanel =
-        $labtest->element('LabTestPanel')->new(
-        lab_results => $labresults );
+      $labtest->element('LabTestPanel')->new( lab_results => $labresults );
 
-    my $placer = $labtest->element('Placer')->new(
-        order_number => $order->{order_number}->{id},
-        assigner     => $order->{order_number}->{assigner},
-        issuer       => $order->{order_number}->{issuer},
-        type         => 'local',
-    );
+    my $test_request_details;
+    if ( $order->{order_number}->{id} ) {
+        $test_request_details->{placer} = $labtest->element('Placer')->new(
+            order_number => $order->{order_number}->{id},
+            assigner     => $order->{order_number}->{assigner},
+            issuer       => $order->{order_number}->{issuer},
+            type         => 'local',
+        );
+    }
 
-    my $filler = $labtest->element('Filler')->new(
+    $test_request_details->{filler} = $labtest->element('Filler')->new(
         order_number => $order->{labnumber}->{id},
         assigner     => $order->{labnumber}->{assigner},
         issuer       => $order->{labnumber}->{issuer},
         type         => 'local',
     );
 
-    my $ordering_provider =
-        $labtest->element('OrderingProvider')->new(
+    my $ordering_provider = $labtest->element('OrderingProvider')->new(
         given_name  => $order->{location}->{id},
         family_name => $order->{location}->{parent},
-        );
+    );
 
     my $professional = $labtest->element('Professional')->new(
         id       => $order->{clinician}->{id},
@@ -97,19 +100,12 @@ sub add_labtests {
         type     => 'local',
     );
 
-    my $requester = $labtest->element('Requester')->new(
+    $test_request_details->{requester} = $labtest->element('Requester')->new(
         ordering_provider => $ordering_provider,
         professional      => $professional,
     );
 
-    my $request_details =
-        $labtest->element('TestRequestDetails')->new(
-        placer            => $placer,
-        filler            => $filler,
-        ordering_provider => $ordering_provider,
-        professional      => $professional,
-        requester         => $requester,
-        );
+    my $request_details = $labtest->element('TestRequestDetails')->new( $test_request_details );
 
     my $labtests = $labtest->element('LabTest')->new(
         requested_test   => $request,
@@ -132,7 +128,7 @@ sub add_labtests {
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')
-        if ( $self->composition_format eq 'TDD' );
+      if ( $self->composition_format eq 'TDD' );
 
     for my $labtest ( @{ $self->labtests } ) {
         $labtest->composition_format( $self->composition_format );
@@ -146,14 +142,17 @@ sub compose {
 sub compose_structured {
     my $self            = shift;
     my $patient_comment = [
-        {   'encoding' => [
-                {   '|code'        => $self->encoding_code,
+        {
+            'encoding' => [
+                {
+                    '|code'        => $self->encoding_code,
                     '|terminology' => $self->encoding_terminology
                 }
             ],
             'comment'  => [ $self->patient_comment ],
             'language' => [
-                {   '|terminology' => $self->language_terminology,
+                {
+                    '|terminology' => $self->language_terminology,
                     '|code'        => $self->language_code
                 }
             ]
@@ -170,8 +169,8 @@ sub compose_structured {
         'laboratory_result_report' => {
             'laboratory_test' => $laboratory_test,
             'patient_comment' => $patient_comment,
-            context => {
-                report_id => $self->report_id,
+            context           => {
+                report_id  => $self->report_id,
                 start_time => $self->report_date->datetime,
             },
         },
@@ -183,7 +182,8 @@ sub compose_structured {
 
 sub compose_raw {
     my $self = shift;
-    my ($composer, $content,           $territory,
+    my (
+        $composer, $content,           $territory,
         $category, $class,             $laboratory_test,
         $language, $uid,               $archetype_node_id,
         $name,     $archetype_details, $context,
@@ -216,7 +216,8 @@ sub compose_raw {
                 'value'  => 'List',
             },
             'items' => [
-                {   '@class' => 'ELEMENT',
+                {
+                    '@class' => 'ELEMENT',
                     'value'  => {
                         'value'  => $self->patient_comment,
                         '@class' => 'DV_TEXT'
@@ -253,28 +254,29 @@ sub compose_raw {
     my $ctx = $self->ctx->compose;
 
     $ctx->{context}->{other_context} = {
-            'name' => {
-                '@class' => 'DV_TEXT',
-                'value'  => 'Tree'
-            },
-            '@class' => 'ITEM_TREE',
-            'items'  => [
-                {   'value' => {
-                        'value'  => $self->report_id,    #'17V444999',
-                        '@class' => 'DV_TEXT'
-                    },
-                    'archetype_node_id' => 'at0002',
-                    '@class'            => 'ELEMENT',
-                    'name'              => {
-                        '@class' => 'DV_TEXT',
-                        'value'  => 'Report ID'
-                    }
+        'name' => {
+            '@class' => 'DV_TEXT',
+            'value'  => 'Tree'
+        },
+        '@class' => 'ITEM_TREE',
+        'items'  => [
+            {
+                'value' => {
+                    'value'  => $self->report_id,    #'17V444999',
+                    '@class' => 'DV_TEXT'
+                },
+                'archetype_node_id' => 'at0002',
+                '@class'            => 'ELEMENT',
+                'name'              => {
+                    '@class' => 'DV_TEXT',
+                    'value'  => 'Report ID'
                 }
-            ],
-            'archetype_node_id' => 'at0001'
+            }
+        ],
+        'archetype_node_id' => 'at0001'
     };
     $ctx->{context}->{start_time} = {
-        'value' => $self->report_date->datetime,
+        'value'  => $self->report_date->datetime,
         '@class' => 'DV_DATE_TIME',
     };
 
@@ -328,9 +330,9 @@ sub compose_flat {
     my $ctx = $self->ctx->compose;
 
     my $composition = {
-        %{ $ctx },
-        $path . 'context/report_id'     => $self->report_id,
-        $path . 'context/start_time'     => $self->report_date->datetime,
+        %{$ctx},
+        $path . 'context/report_id'  => $self->report_id,
+        $path . 'context/start_time' => $self->report_date->datetime,
         %{$labtest_comp},
         $path . 'patient_comment/comment' => $self->patient_comment,
     };

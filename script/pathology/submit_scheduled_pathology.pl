@@ -6,11 +6,11 @@ use DBI;
 
 use OpenEHR::Composition::LabResultReport;
 use OpenEHR::REST::Composition;
-use Genomes_100K::Model;
+use Genomes_100K_Test::Model;
 use Data::Dumper;
 
 
-my $schema = Genomes_100K::Model->connect('CRIUGenomesTest');
+my $schema = Genomes_100K_Test::Model->connect('CRIUGenomesLiveTest');
 
 my $orders_rs = $schema->resultset('InformationOrder')->search(
     {
@@ -40,7 +40,7 @@ sub select_samples_to_report {
             reported_date => undef,
         },
         {
-            columns => [ qw/laboratory_sample_number nhs_number sample_date order_number / ],
+            columns => [ qw/laboratory_sample_number nhs_number sample_date last_authorised_date order_number / ],
             distinct => 1,
         },
     );
@@ -49,6 +49,7 @@ sub select_samples_to_report {
         my $labreport       = [];
         my $labnumber       = $sample->laboratory_sample_number;
         my $report_id = $labnumber;
+        my $report_date = $sample->last_authorised_date;
         my $order_codes_ref = &get_order_codes($labnumber);
 
         for my $order ( @{$order_codes_ref} ) {
@@ -58,10 +59,11 @@ sub select_samples_to_report {
                 $order->order_name,                $sample->sample_date,
                 $start_date,                       $end_date ),
               "\n";
-            $report_id = $report_id . '-' . $order->order_code;
+            #$report_id = $report_id . '-' . $order->order_code;
             my $data = {};
 
             if ($sample->order_number) {
+                print Dumper $sample->order_number;
                 $data->{order_number} = {
                     id       => $sample->order_number,
                     assigner => 'TQuest',
@@ -148,7 +150,7 @@ Need to replace this statement with collect_method lookup
             }
             push @{$labreport}, $data;
         }
-        if (my $composition = &submit_report($labreport, $ehrid, $report_id)) {
+        if (my $composition = &submit_report($labreport, $ehrid, $report_id, $report_date)) {
             &update_report_date($labnumber, $composition);
         }
         $row++;
@@ -304,9 +306,10 @@ sub update_report_date() {
 }
 
 sub submit_report() {
-    my ( $labreport, $ehrid, $report_id ) = @_;
+    my ( $labreport, $ehrid, $report_id, $report_date ) = @_;
     my $report    = OpenEHR::Composition::LabResultReport->new();
     $report->report_id($report_id);
+    $report->report_date(DateTime::Format::DateParse->parse_datetime($report_date));
 
     for my $order ( @{$labreport} ) {
         $report->add_labtests($order);
