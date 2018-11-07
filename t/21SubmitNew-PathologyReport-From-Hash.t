@@ -80,6 +80,26 @@ This is the potassium comment',
                     }
                 ],
             },
+            {   
+                result_value           => ' 1.0%  0.9
+This is the basophil comment',
+                unit                   => 'x10^9/L',
+                range_low              => '0.0',
+                range_high          => '0.1',
+                testcode               => 'BA',
+                testname               => 'Basophils',
+                result_status          => 'Final',
+                result_mapping     => [
+                    {
+                        code => '5193-3',
+                        terminology => 'LOINC',
+                    },
+                    {
+                        code => '35389',
+                        terminology => 'GEL',
+                    }
+                ],
+            },
         ],
         order_number => {
             id       => 'TQ00112233',

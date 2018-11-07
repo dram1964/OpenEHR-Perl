@@ -177,7 +177,7 @@ sub result_status_lookup {
 
 sub _format_result {
     my $self = shift;
-    my ( $result, $magnitude, $magnitude_status, $unit, $comment );
+    my ( $result, $magnitude, $magnitude_status, $unit, $result_text, $comment );
     $result = $self->result_value;
 
     # Treat first line as result
@@ -203,11 +203,18 @@ sub _format_result {
     elsif ( $result =~ /^(\d*\.{0,1}\d*)$/ ) {
         $magnitude = $1;
     }
+    elsif ( $result =~ /(\d{1,}\.{0,}\d{0,}\%\s{1,}(\d{1,}\.{0,}\d{1,}))$/ ) {
+        ($result_text, $magnitude) = ($1, $2);
+    }
 
     # Set Magnitude for numeric results
     # if units provided
     # Or result_text for non-numeric results
-    if ( $magnitude && $self->unit ) {
+    if ( $magnitude && $result_text ) {
+        $self->magnitude($magnitude);
+        $self->result_text($result_text);
+    }
+    elsif ( $magnitude && $self->unit ) {
         $self->magnitude($magnitude);
     }
     elsif ( $magnitude && $magnitude_status ) {

@@ -266,6 +266,7 @@ is( $labtest->result_text,
 is( $labtest->comment, 'Note new haematology ranges effective 05/10/15',
     'comment set from remainder of result'
 );
+is( $labtest->magnitude,   '0.10', 'Test code set by constructor param' );
 is( $labtest->testcode,   'BA', 'Test code set by constructor param' );
 is( $labtest->testname,   'BA', 'Test name set by constructor param' );
 is( $labtest->range_low,  '0.0',    'Range low set by constructor param' );
@@ -273,7 +274,6 @@ is( $labtest->range_high, '0.1',    'Range high set by constructor param' );
 is( $labtest->ref_range,  '0.0 - 0.1',    'Ref range derived from ranges' );
 is( $labtest->unit, 'x10^9/L', 'Unit set by constructor param' );
 ok( !( defined( $labtest->magnitude_status ) ), 'No magnitude_status set' );
-ok( !( defined( $labtest->magnitude ) ),        'No magnitude set' );
 
 $data = {
           'range_high' => '0.8',
@@ -288,6 +288,7 @@ ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, )
 );
 is( $labtest->result_text,
     ' 4.0%  0.40 x10^9/L', 'Result text set from double numeric result on first line');
+is( $labtest->magnitude,   '0.40', 'Test code set by constructor param' );
 is( $labtest->testcode,   'EO', 'Test code set by constructor param' );
 is( $labtest->testname,   'EO', 'Test name set by constructor param' );
 is( $labtest->range_low,  '0.0',    'Range low set by constructor param' );
@@ -295,7 +296,6 @@ is( $labtest->range_high, '0.8',    'Range high set by constructor param' );
 is( $labtest->ref_range,  '0.0 - 0.8',    'Ref range derived from ranges' );
 is( $labtest->unit, 'x10^9/L', 'Unit set by constructor param' );
 ok( !( defined( $labtest->magnitude_status ) ), 'No magnitude_status set' );
-ok( !( defined( $labtest->magnitude ) ),        'No magnitude set' );
 ok( !( defined( $labtest->comment ) ),        'No comment set' );
 
 $data = {
@@ -363,13 +363,13 @@ ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, )
     'Construct new lab test object with double numeric value and no initial whitespace'
 );
 is( $labtest->result_text, '20.0%  2.00 x10^9/L', 'Result text set properly');
+is( $labtest->magnitude, '2.00', 'Result text set properly');
 is( $labtest->testcode,   'LY', 'Test code set by constructor param' );
 is( $labtest->testname,   'LY', 'Test name set by constructor param' );
 is( $labtest->range_low,  '1.5',    'Range low set by constructor param' );
 is( $labtest->range_high, '7.0',    'Range high set by constructor param' );
 is( $labtest->ref_range,  '1.5 - 7.0',    'Ref range derived from ranges' );
 is( $labtest->unit, 'x10^9/L', 'Unit set by constructor param' );
-ok( !( defined( $labtest->magnitude ) ), 'No magnitude set' );
 ok( !( defined( $labtest->magnitude_status ) ), 'No magnitude_status set' );
 ok( !( defined( $labtest->comment ) ),        'No comment set' );
 
