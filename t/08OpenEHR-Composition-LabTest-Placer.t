@@ -34,8 +34,8 @@ ok( my $placer2 = OpenEHR::Composition::Elements::LabTest::Placer->new(
 );
 
 is( $placer2->order_number, 'TQ002222666', 'id set' );
-is( $placer2->assigner,     'TQuest',      'assigner set from default' );
-is( $placer2->issuer,       'UCLH',        'issuer set from default' );
+ok(! $placer2->assigner, 'order assigner not set from default' );
+ok(! $placer2->issuer, 'order issuer not set from default' );
 is( $placer2->type,         'local',       'type set from default' );
 
 eval { my $placer3 = OpenEHR::Composition::Elements::LabTest::Placer->new(); };
