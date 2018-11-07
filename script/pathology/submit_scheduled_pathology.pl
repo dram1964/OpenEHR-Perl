@@ -49,7 +49,7 @@ sub select_samples_to_report {
         my $labreport       = [];
         my $labnumber       = $sample->laboratory_sample_number;
         my $report_id = $labnumber;
-        my $report_date = $sample->last_authorised_date;
+        my $sample_report_date = $sample->last_authorised_date;
         my $order_codes_ref = &get_order_codes($labnumber);
 
         for my $order ( @{$order_codes_ref} ) {
@@ -150,7 +150,7 @@ Need to replace this statement with collect_method lookup
             }
             push @{$labreport}, $data;
         }
-        if (my $composition = &submit_report($labreport, $ehrid, $report_id, $report_date)) {
+        if (my $composition = &submit_report($labreport, $ehrid, $report_id, $sample_report_date)) {
             &update_report_date($labnumber, $composition);
         }
         $row++;
@@ -306,10 +306,10 @@ sub update_report_date() {
 }
 
 sub submit_report() {
-    my ( $labreport, $ehrid, $report_id, $report_date ) = @_;
+    my ( $labreport, $ehrid, $report_id, $sample_report_date ) = @_;
     my $report    = OpenEHR::Composition::LabResultReport->new();
     $report->report_id($report_id);
-    $report->report_date(DateTime::Format::DateParse->parse_datetime($report_date));
+    $report->report_date(DateTime::Format::DateParse->parse_datetime($sample_report_date));
 
     for my $order ( @{$labreport} ) {
         $report->add_labtests($order);

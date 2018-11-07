@@ -136,7 +136,7 @@ sub submit_new {
 
     $self->headers([['Content-Type', 'application/json']]);
     $self->method('POST');
-    $self->submit_rest_call( to_json( $self->composition->compose() ) );
+    $self->submit_rest_call( encode_json( $self->composition->compose() ) );
     if ($self->response_code eq '201') {
 		my $post_response = from_json( $self->response);
 		$self->compositionUid($post_response->{compositionUid});

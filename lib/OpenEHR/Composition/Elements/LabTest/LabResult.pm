@@ -43,7 +43,6 @@ has magnitude_status => (
 
 has unit => (
     is      => 'rw',
-    isa     => 'Str',
     trigger => \&_format_unit,
 );
 
@@ -71,12 +70,10 @@ has status => (
 
 has range_high => (
     is  => 'rw',
-    isa => 'Str',
 );
 
 has range_low => (
     is  => 'rw',
-    isa => 'Str',
 );
 
 has ref_range => (
@@ -211,7 +208,7 @@ sub _format_result {
     # if units provided
     # Or result_text for non-numeric results
     if ( $magnitude && $result_text ) {
-        $self->magnitude($magnitude);
+        $self->magnitude($magnitude) if $self->unit;
         $self->result_text($result_text);
     }
     elsif ( $magnitude && $self->unit ) {
