@@ -33,8 +33,13 @@ ok(
         end_date      => $end_date,
         timing        => $timing,
         expiry_time   => $expiry_time,
-    )
+    ), 'Constructor called'
 );
+
+is( $planned_order->service_type, 'pathology', 'Service Type Defaulted' );
+ok( $planned_order->service_type('radiology'), 'Service Type mutator' );
+is( $planned_order->service_type,
+    'radiology', 'Service Type changed by mutator' );
 
 is( $planned_order->current_state, 'planned', 'Current State accessor' );
 is( $planned_order->current_state_code, '526', 'Current State Code accessor' );

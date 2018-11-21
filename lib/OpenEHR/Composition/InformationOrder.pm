@@ -15,6 +15,8 @@ use version; our $VERSION = qv('0.0.2');
 
 enum 'CurrentState' => [qw( planned scheduled aborted complete )];
 
+enum 'ServiceType' => [qw( pathology radiology cancer )];
+
 =head1 _set_ctx
 
 Adds the context and ctx elements to the Information Order
@@ -44,7 +46,7 @@ has current_state_code => (
 );
 has service_type => (
     is      => 'rw',
-    isa     => 'Str',
+    isa     => 'ServiceType',
     default => 'pathology',
 );
 has service_name => (
@@ -362,7 +364,7 @@ sub compose_raw {
                                 {
                                     'archetype_node_id' => 'at0148',
                                     'value'             => {
-                                        'value'  => 'pathology',
+                                        'value'  => $self->service_type,
                                         '@class' => 'DV_TEXT'
                                     },
                                     'name' => {
@@ -504,7 +506,7 @@ sub compose_raw {
                         {
                             'archetype_node_id' => 'at0014',
                             'value'             => {
-                                'value'  => 'pathology',
+                                'value'  => $self->service_type,
                                 '@class' => 'DV_TEXT'
                             },
                             'name' => {

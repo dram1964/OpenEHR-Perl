@@ -7,7 +7,7 @@ make_schema_at(
         dump_directory => './lib',
     },
     [
-        'dbi:ODBC:DSN=CRIUGenomesTest',
+        'dbi:ODBC:DSN=CRIUGenomesLiveTest',
         'dr00', 'letmein', { LongReadLen => 80, LongTruncOk => 1 }
     ],
 );

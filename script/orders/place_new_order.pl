@@ -1,12 +1,25 @@
 use strict;
 use warnings;
 use DateTime;
+use Getopt::Long;
 use OpenEHR::REST::EHR;
 use OpenEHR::Composition::InformationOrder;
 use OpenEHR::REST::Composition;
 
+=for removal
 # Create a ndw EHR
 my $nhs_number = $ARGV[0];
+=cut
+
+my ($nhs_number, $service_type, $help);
+
+GetOptions (
+    "nhs_number=s" => \$nhs_number,
+    "type=s" => \$service_type,
+    "help" => \$help,
+    )
+or &usage("Error in command line arguments\n");
+
 die &usage unless $nhs_number;
 
 if ($nhs_number eq 'rand') {
@@ -55,6 +68,7 @@ my $planned_order =
         timing        => $timing,
         expiry_time   => $expiry_time,
         request_id    => $request_id,
+        service_type  => $service_type,
 );
 my $format = 'STRUCTURED';
 $planned_order->composition_format($format);
@@ -84,14 +98,25 @@ sub generate_random_nhs_number() {
 }
 
 sub usage() {
+    my $error_message = shift;
+    print $error_message if $error_message;
     my $message = << "END_USAGE";
 Usage: 
-$0 [ nhs_number | rand ]
+$0 -n [ nhs_number | rand ] -t [pathology | cancer | radiology]
 
 You must provide an NHS Number (10 digits) or the keyword rand 
 to place an order
 
+OPTIONS
+
+-n --nhs_number     Specify nhs_number or 'rand' for a randomly
+                    generated number
+-t --type           Specify the Service Type for the order. 
+                    Must be one of: 
+                    [ pathology | cancer | radiology ]
+
 END_USAGE
 
     print $message;
+    exit 0;
 }
