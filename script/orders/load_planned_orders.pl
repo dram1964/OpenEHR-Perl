@@ -36,8 +36,6 @@ sub update_state {
     my $composition = $retrieval->composition_response;
     print "Original order can be found at: " . $retrieval->href . "\n";
 
-    #print Dumper $composition;
-
     # Recompose the composition with new state
     my $recompose = OpenEHR::Composition::InformationOrder->new();
     $recompose->decompose_structured($composition),

@@ -2,6 +2,8 @@ use strict;
 use warnings;
 use DateTime;
 use Getopt::Long;
+use DateTime::Format::DateParse;
+
 use OpenEHR::REST::EHR;
 use OpenEHR::Composition::InformationOrder;
 use OpenEHR::REST::Composition;
@@ -11,11 +13,12 @@ use OpenEHR::REST::Composition;
 my $nhs_number = $ARGV[0];
 =cut
 
-my ($nhs_number, $service_type, $help);
+my ($nhs_number, $service_type, $start_date, $help);
 
 GetOptions (
     "nhs_number=s" => \$nhs_number,
     "type=s" => \$service_type,
+    "start_date=s" => \$start_date,
     "help" => \$help,
     )
 or &usage("Error in command line arguments\n");
@@ -43,11 +46,16 @@ else {
 }
 
 # Create a new Order Object
+=for removal
 my $start_date = DateTime->new(
     year    => 2011,
     month   => 1,
     day     => 1,
 );
+=cut 
+
+$start_date = DateTime::Format::DateParse->parse_datetime($start_date);
+
 my $end_date = DateTime->new(
     year    => 2017,
     month   => 12,
@@ -114,6 +122,14 @@ OPTIONS
 -t --type           Specify the Service Type for the order. 
                     Must be one of: 
                     [ pathology | cancer | radiology ]
+-s --start_date     Start Date for order: reports will only be
+                    select for reporting if their report_date
+                    is greater than this date. Format:
+                    'yyyy-mm-dd'
+-s --end_date       End Date for order: reports will only be
+                    select for reporting if their report_date
+                    is less than this date. Format:
+                    'yyyy-mm-dd'
 
 END_USAGE
 

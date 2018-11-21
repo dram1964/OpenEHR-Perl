@@ -6,11 +6,11 @@ use DBI;
 
 use OpenEHR::Composition::LabResultReport;
 use OpenEHR::REST::Composition;
-use Genomes_100K_Test::Model;
+use Genomes_100K::Model;
 use Data::Dumper;
 
 
-my $schema = Genomes_100K_Test::Model->connect('CRIUGenomesLiveTest');
+my $schema = Genomes_100K::Model->connect('CRIUGenomesLiveTest');
 
 my $orders_rs = $schema->resultset('InformationOrder')->search(
     {
