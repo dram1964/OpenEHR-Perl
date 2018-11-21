@@ -111,14 +111,16 @@ sub decompose_structured {
 
     $self->current_state(
         $service->{ism_transition}->[0]->{current_state}->[0]->{'|value'} );
+    $self->service_type(
+        $service_request->{request}->[0]->{service_type}->[0] );
 
     my $expiry_time = &format_datetime( $service_request->{expiry_time}->[0] );
     $self->expiry_time($expiry_time);
 
     my $start_date;
-    if ($request_details->{patient_information_request_start_date}) {
+    if ($request_details->{patient_information_request_start_date} ) {
         $start_date = &format_datetime(
-            $request_details->{patient_information_request_start_date}->[0] 
+            $request_details->{patient_information_request_start_date}->[0]
         );
     }
     elsif($context->{start_time}) {
@@ -129,7 +131,7 @@ sub decompose_structured {
     $self->start_date($start_date);
 
     my $end_date;
-    if ($request_details->{patient_information_request_end_date}) {
+    if ($request_details->{patient_information_request_end_date} ) {
         $end_date = &format_datetime( 
             $request_details->{patient_information_request_end_date}->[0]
         );

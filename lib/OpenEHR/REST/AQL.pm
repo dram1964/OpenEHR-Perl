@@ -124,13 +124,13 @@ sub find_orders_by_state {
     contains CLUSTER f[openEHR-EHR-CLUSTER.information_request_details_gel.v0]
     and ACTION a[openEHR-EHR-ACTION.service.v0])
     where i/activities[at0001]/description[at0009]/items[at0121]/value = 'GEL Information data request'
-    and i/activities[at0001]/description[at0009]/items[at0148]/value/value = 'pathology'
     and a/ism_transition/current_state/value = '$state'
 END_STMT
     $self->statement($statement);
     $self->run_query;
 }
 =head1 REMOVAL
+    and i/activities[at0001]/description[at0009]/items[at0148]/value/value = 'pathology'
  c/context/start_time/value as data_start_date,
  c/context/end_time/value as data_end_date,
 =cut
