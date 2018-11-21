@@ -46,6 +46,10 @@ sub report_cancer {
         },
     );
     while ( my $report = $reports_rs->next ) {
-        print Dumper $report;
+        print join(":",
+            $report->patient_hospital_number,
+            $report->nhs_number,
+            $report->event_date_diagnosis,
+            ), "\n";
     }
 }

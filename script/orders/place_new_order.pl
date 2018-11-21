@@ -2,28 +2,27 @@ use strict;
 use warnings;
 use DateTime;
 use Getopt::Long;
+use DateTime;
 use DateTime::Format::DateParse;
 
 use OpenEHR::REST::EHR;
 use OpenEHR::Composition::InformationOrder;
 use OpenEHR::REST::Composition;
 
-=for removal
-# Create a ndw EHR
-my $nhs_number = $ARGV[0];
-=cut
-
-my ($nhs_number, $service_type, $start_date, $help);
+my ($nhs_number, $service_type, $start_date, $end_date, $help);
 
 GetOptions (
     "nhs_number=s" => \$nhs_number,
     "type=s" => \$service_type,
     "start_date=s" => \$start_date,
+    "end_date=s" => \$end_date,
     "help" => \$help,
     )
 or &usage("Error in command line arguments\n");
 
 die &usage unless $nhs_number;
+
+$end_date = DateTime->now->ymd unless $end_date;
 
 if ($nhs_number eq 'rand') {
     $nhs_number = &generate_random_nhs_number();
@@ -46,21 +45,9 @@ else {
 }
 
 # Create a new Order Object
-=for removal
-my $start_date = DateTime->new(
-    year    => 2011,
-    month   => 1,
-    day     => 1,
-);
-=cut 
-
 $start_date = DateTime::Format::DateParse->parse_datetime($start_date);
+$end_date = DateTime::Format::DateParse->parse_datetime($end_date);
 
-my $end_date = DateTime->new(
-    year    => 2017,
-    month   => 12,
-    day     => 31,
-);
 my $timing  = DateTime->now();
 my $expiry_time = DateTime->new(
     year    => 2019,
