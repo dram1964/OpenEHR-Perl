@@ -4,24 +4,48 @@ use warnings;
 use strict;
 use Carp;
 use Moose;
+use Moose::Util::TypeConstraints;
 use DateTime;
 use Data::Dumper;
 extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
+enum 'TumourValue' => [qw( B R L M 9 8 )];
+
 has code => (
     is  => 'rw',
     isa => 'Str',
+    lazy => 1,
+    builder => '_build_code_value',
 );
 has value => (
     is  => 'rw',
-    isa => 'Str',
+    isa => 'TumourValue',
 );
 has terminology => (
     is  => 'rw',
     isa => 'Str',
 );
+
+=head2 _build_code_value
+
+Sets the Tumour Laterality value based on the provided code
+
+=cut
+
+sub _build_code_value {
+    my $self = shift;
+    my $tumour_laterality = {
+        'B' => 'at0029', # The tumour is situated on both sides of the body
+        'R' => 'at0030', # The tumour is situated on the right side of the body
+        'L' => 'at0031', # The tumour is situated on the left side of the body
+        'M' => 'at0032', # The tumour is situated midline
+        '9' => 'at0033', # Tumour laterality is unknown
+        '8' => 'at0034', # Tumour laterality is not applicable
+    };
+    $self->code( $tumour_laterality->{ $self->value } );
+}
 
 sub compose {
     my $self = shift;

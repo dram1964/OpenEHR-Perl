@@ -4,24 +4,45 @@ use warnings;
 use strict;
 use Carp;
 use Moose;
+use Moose::Util::TypeConstraints;
 use DateTime;
 use Data::Dumper;
 extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
+enum 'RecurrenceIndicator' => [qw( YL YD NN )];
+
 has code => (
     is  => 'rw',
     isa => 'Str',
+    lazy => 1, 
+    builder => '_build_code_value'
 );
 has value => (
     is  => 'rw',
-    isa => 'Str',
+    isa => 'RecurrenceIndicator',
 );
 has terminology => (
     is  => 'rw',
     isa => 'Str',
 );
+
+=head2 _build_code_value
+
+Sets the Tumour Laterality value based on the provided code
+
+=cut
+
+sub _build_code_value {
+    my $self = shift;
+    my $recurrence_indicator = {
+        'YL' => 'at0014', # Yes, including local recurrence
+        'YD' => 'at0015', # Yes, not including recurrence
+        'NN' => 'at0016', # No, not recurrence
+    };
+    $self->code( $recurrence_indicator->{ $self->value } );
+}
 
 sub compose {
     my $self = shift;

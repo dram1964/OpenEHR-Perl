@@ -74,8 +74,7 @@ sub report_cancer {
         my $cancer_diagnosis = $pd->element('CancerDiagnosis')->new();
         if ( $report->tumour_laterality ) {
             my $tumour_laterality = $pd->element('TumourLaterality')->new(
-                code        => $report->tumour_laterality,
-                value       => $report->tumour_laterality,
+                value        => $report->tumour_laterality,
                 terminology => 'local',
             );
             $cancer_diagnosis->tumour_laterality( [$tumour_laterality] );
@@ -91,7 +90,6 @@ sub report_cancer {
         if ( $report->cancer_recurrence_care_plan_indicator ) {
             my $recurrence_indicator =
               $pd->element('RecurrenceIndicator')->new(
-                code        => $report->cancer_recurrence_care_plan_indicator,
                 value       => $report->cancer_recurrence_care_plan_indicator,
                 terminology => 'local',
               );
@@ -105,10 +103,29 @@ sub report_cancer {
         }
         $problem_diagnosis->cancer_diagnosis( [$cancer_diagnosis] );
 
+
+        $diagnosis = $pd->element('Diagnosis')->new(
+            diagnosis => 'Colorectal Cancer'
+        );
+        $problem_diagnosis->diagnosis( [ $diagnosis ] );
+
         $cancer_report->problem_diagnoses( [ $problem_diagnosis ] );
         $cancer_report->report_id( $ehrid . 'CREP' );
         $cancer_report->composition_format('STRUCTURED');
         my $composition = $cancer_report->compose;
-        print Dumper $composition;
+        #print Dumper $composition;
+
+        my $query = OpenEHR::REST::Composition->new();
+        $query->composition( $cancer_report );
+        $query->template_id('GEL Cancer diagnosis input.v0');
+        $query->submit_new( $ehrid );
+        if ( $query->err_msg ) {
+            print 'Error occurred in submission: ' . $query->err_msg;
+        }
+        else {
+            print 'Action is: ', $query->action, "\n";
+            print 'Composition UID: ', $query->compositionUid, "\n";
+            print 'Composition can be found at: ', $query->href, "\n";
+        }
     }
 }
