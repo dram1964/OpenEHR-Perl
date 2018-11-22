@@ -4,24 +4,64 @@ use warnings;
 use strict;
 use Carp;
 use Moose;
+use Moose::Util::TypeConstraints;
 use DateTime;
 use Data::Dumper;
 extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
+enum 'Dukes_Code' => [
+    qw( A B C1 C2 D 99)
+];
+
 has code => (
     is  => 'rw',
     isa => 'Str',
+    lazy => 1,
+    builder => '_get_dukes_code',
 );
 has value => (
     is  => 'rw',
     isa => 'Str',
+    lazy => 1,
+    builder => '_get_dukes_value',
 );
 has terminology => (
     is  => 'rw',
     isa => 'Str',
+    default => 'local',
 );
+has local_code => (
+    is => 'rw', 
+    isa => 'Dukes_Code',
+);
+
+sub _get_dukes_code {
+    my $self = shift;
+    my $dukes_codes = {
+        A => 'at0002',
+        B => 'at0003',
+        C1 => 'at0004',
+        C2 => 'at0005',
+        D => 'at0006',
+        99 => 'at0007',
+    };
+    $self->code( $dukes_codes->{ $self->local_code } );
+}
+
+sub _get_dukes_value {
+    my $self = shift;
+    my $dukes_values = {
+        A => 'Dukes A Tumour confined to wall of bowel, nodes negative.',
+        B => 'Dukes B Tumour penetrates through the muscularis propia to involve extramural tissues, nodes negative.',
+        C1 => 'Dukes C1 Metastases confined to regional lymph nodes (node/s positive but apical node negative.',
+        C2 => 'Dukes C2 Metastases present in nodes at mesenteric artery ligature (apical node positive).',
+        D => 'Dukes D Metastatic spread outside the operative field.',
+        99 => 'Dukes stage is not known',
+    };
+    $self->value( $dukes_values->{ $self->local_code } );
+}
 
 sub compose {
     my $self = shift;

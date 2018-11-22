@@ -4,9 +4,9 @@ use warnings;
 use strict;
 use Carp;
 use Moose;
+use Moose::Util::TypeConstraints;
 use DateTime;
 use Data::Dumper;
-use Moose::Util::TypeConstraints;
 extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');

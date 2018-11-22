@@ -39,9 +39,7 @@ ok( my $final_figo_stage =
 
 ok( my $modified_dukes =
         $pd->element('ModifiedDukes')->new(
-        code        => 'at0006',
-        value       => 'Dukes Stage D',
-        terminology => 'local',
+        local_code => 'B'
         ),
     'Create new Modified Dukes object'
 );
