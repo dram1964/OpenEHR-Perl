@@ -70,9 +70,7 @@ ok( my $bclc_stage =
 
 ok( my $portal_invasion =
         OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::PortalInvasion->new(
-        code        => 'at0006',
-        value       => 'N Not present',
-        terminology => 'local',
+        value       => 'N',
         ),
     'Create new Portal Invasion object'
 );

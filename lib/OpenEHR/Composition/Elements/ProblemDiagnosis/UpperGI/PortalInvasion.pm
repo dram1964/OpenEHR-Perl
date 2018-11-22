@@ -4,25 +4,48 @@ use warnings;
 use strict;
 use Carp;
 use Moose;
+use Moose::Util::TypeConstraints;
 use DateTime;
 use Data::Dumper;
 extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
+enum 'Portal_Code' => [
+    qw( Y N 9),
+];
+
 has code => (
     is  => 'rw',
     isa => 'Str',
+    lazy => 1,
+    builder => '_get_portal_code',
 );
 has value => (
     is  => 'rw',
-    isa => 'Str',
+    isa => 'Portal_Code',
 );
 has terminology => (
     is  => 'rw',
     isa => 'Str',
+    default => 'local',
 );
 
+=head2 _get_portal_code
+
+Private method to derive the Figo Code from the value parameter provided
+
+=cut
+
+sub _get_portal_code {
+    my $self       = shift;
+    my $portal_codes = {
+        Y => 'at0004', # Findings indicate that portal invasion is present
+        N => 'at0005', # Findings indicate that portal invasion is not present
+        9 => 'at0006', # It is not known whether portal invasion is present
+    };
+    $self->code( $portal_codes->{ $self->value } );
+}
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')

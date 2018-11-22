@@ -61,7 +61,7 @@ sub report_cancer {
         my (
             $colorectal_diagnosis, $final_figo_stage,
                   $tumour_id,
-            $clinical_evidence,    $bclc_stage,
+            $clinical_evidence,    
             $portal_invasion,      $pancreatic_clinical_stage,
             $child_pugh_score,     $tace,
             $upper_gi,             $tumour_laterality,
@@ -92,6 +92,10 @@ sub report_cancer {
             my $bclc_stage = &get_bclc_stage($report, $pd);
             $problem_diagnosis->bclc_stage([ $bclc_stage ]);
         }
+        if ($report->portal_invasion_upper_gi) {
+            my $portal_invasion = &get_portal_invasion($report, $pd);
+            $problem_diagnosis->portal_invasion([ $portal_invasion ]);
+        }
 
 
 
@@ -115,6 +119,15 @@ sub report_cancer {
             print 'Composition can be found at: ', $query->href, "\n";
         }
     }
+}
+
+sub get_portal_invasion {
+    my $report = shift;
+    my $pd = shift;
+    my $portal_invasion = $pd->element('PortalInvasion')->new(
+        value => $report->portal_invasion_upper_gi
+    );
+    return $portal_invasion;
 }
 
 sub get_bclc_stage {

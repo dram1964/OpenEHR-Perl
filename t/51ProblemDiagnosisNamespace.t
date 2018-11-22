@@ -74,9 +74,7 @@ ok(
 
 ok(
     my $portal_invasion = $pd->element('PortalInvasion')->new(
-        code        => 'at0006',
-        value       => 'N Not present',
-        terminology => 'local',
+        value       => 'N',
     ),
     'Create new Portal Invasion object'
 );
