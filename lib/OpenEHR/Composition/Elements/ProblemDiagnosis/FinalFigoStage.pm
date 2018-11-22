@@ -4,33 +4,103 @@ use warnings;
 use strict;
 use Carp;
 use Moose;
+use Moose::Util::TypeConstraints;
 use DateTime;
 use Data::Dumper;
 extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
+enum 'FigoCode' => [
+    qw( i ii iii iv ia ib ic1 ic2 ic3 iia
+      iib iiia1_i iiia1_ii iiia2 iiib iiic iva ivb iiia iiic1 iiic2 ic iiia1
+      I II III IV IA IB IC1 IC2 IC3 IIA
+      IIB IIIA1_I IIIA1_II IIIA2 IIIB IIIC IVA IVB IIIA IIIC1 IIIC2 IC IIIA1 )
+];
 has code => (
-    is  => 'rw',
-    isa => 'Str',
+    is      => 'rw',
+    isa     => 'Str',
+    lazy    => 1,
+    builder => '_get_figo_code',
 );
 has value => (
     is  => 'rw',
-    isa => 'Str',
+    isa => 'FigoCode',
 );
 has terminology => (
     is  => 'rw',
     isa => 'Str',
+    default => 'local',
 );
 has version => (
     is  => 'rw',
     isa => 'Str',
+    default => 'Figo Version 89',
 );
+
+=head2 _get_figo_code
+
+Private method to derive the Figo Code from the value parameter provided
+
+=cut
+
+sub _get_figo_code {
+    my $self       = shift;
+    my $figo_codes = {
+        i        => 'at0002',
+        ii       => 'at0003',
+        iii      => 'at0004',
+        iv       => 'at0006',
+        ia       => 'at0007',
+        ib       => 'at0008',
+        ic1      => 'at0009',
+        ic2      => 'at0010',
+        ic3      => 'at0011',
+        iia      => 'at0012',
+        iib      => 'at0013',
+        iiia1_i  => 'at0014',
+        iiia1_ii => 'at0015',
+        iiia2    => 'at0016',
+        iiib     => 'at0017',
+        iiic     => 'at0018',
+        iva      => 'at0019',
+        ivb      => 'at0020',
+        iiia     => 'at0021',
+        iiic1    => 'at0022',
+        iiic2    => 'at0023',
+        ic       => 'at0024',
+        iiia1    => 'at0025',
+        I        => 'at0002',
+        II       => 'at0003',
+        III      => 'at0004',
+        IV       => 'at0006',
+        IA       => 'at0007',
+        IB       => 'at0008',
+        IC1      => 'at0009',
+        IC2      => 'at0010',
+        IC3      => 'at0011',
+        IIA      => 'at0012',
+        IIB      => 'at0013',
+        IIIA1_I  => 'at0014',
+        IIIA1_II => 'at0015',
+        IIIA2    => 'at0016',
+        IIIB     => 'at0017',
+        IIIC     => 'at0018',
+        IVA      => 'at0019',
+        IVB      => 'at0020',
+        IIIA     => 'at0021',
+        IIIC1    => 'at0022',
+        IIIC2    => 'at0023',
+        IC       => 'at0024',
+        IIIA1    => 'at0025',
+    };
+    $self->code( $figo_codes->{ $self->value } );
+}
 
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')
-        if ( $self->composition_format eq 'TDD' );
+      if ( $self->composition_format eq 'TDD' );
 
     my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
@@ -38,14 +108,14 @@ sub compose {
 
 sub compose_structured {
     my $self        = shift;
-    my $composition = {   
-        'figo_version' => [$self->version],
-        'figo_grade'   => [ 
-            { 
-                '|code' => $self->code,
-                '|value' => $self->value,
+    my $composition = {
+        'figo_version' => [ $self->version ],
+        'figo_grade'   => [
+            {
+                '|code'        => $self->code,
+                '|value'       => $self->value,
                 '|terminology' => $self->terminology,
-            } 
+            }
         ]
     };
     return $composition;
@@ -54,68 +124,69 @@ sub compose_structured {
 sub compose_raw {
     my $self        = shift;
     my $composition = {
-        '@class' => 'CLUSTER',
-                    'archetype_node_id' =>
-                        'openEHR-EHR-CLUSTER.figo_grade.v0',
-                    'items' => [
-                        {   'archetype_node_id' => 'at0001',
-                            '@class'            => 'ELEMENT',
-                            'name'              => {
-                                '@class' => 'DV_TEXT',
-                                'value'  => 'FIGO grade'
-                            },
-                            'value' => {
-                                'value'         => $self->value, #'ib',
-                                'defining_code' => {
-                                    'code_string'    => $self->code, #'at0008',
-                                    '@class'         => 'CODE_PHRASE',
-                                    'terminology_id' => {
-                                        '@class' => 'TERMINOLOGY_ID',
-                                        'value'  => $self->terminology, #'local'
-                                    }
-                                },
-                                '@class' => 'DV_CODED_TEXT'
-                            }
-                        },
-                        {   'archetype_node_id' => 'at0005',
-                            '@class'            => 'ELEMENT',
-                            'name'              => {
-                                'value'  => 'FIGO version',
-                                '@class' => 'DV_TEXT'
-                            },
-                            'value' => {
-                                'value'  => $self->version, #'FIGO version 99',
-                                '@class' => 'DV_TEXT'
-                            }
+        '@class'            => 'CLUSTER',
+        'archetype_node_id' => 'openEHR-EHR-CLUSTER.figo_grade.v0',
+        'items'             => [
+            {
+                'archetype_node_id' => 'at0001',
+                '@class'            => 'ELEMENT',
+                'name'              => {
+                    '@class' => 'DV_TEXT',
+                    'value'  => 'FIGO grade'
+                },
+                'value' => {
+                    'value'         => $self->value,    #'ib',
+                    'defining_code' => {
+                        'code_string'    => $self->code,     #'at0008',
+                        '@class'         => 'CODE_PHRASE',
+                        'terminology_id' => {
+                            '@class' => 'TERMINOLOGY_ID',
+                            'value'  => $self->terminology,    #'local'
                         }
-                    ],
-                    'name' => {
-                        'value'  => 'Final FIGO stage',
-                        '@class' => 'DV_TEXT'
                     },
-                    'archetype_details' => {
-                        '@class'       => 'ARCHETYPED',
-                        'rm_version'   => '1.0.1',
-                        'archetype_id' => {
-                            'value'  => 'openEHR-EHR-CLUSTER.figo_grade.v0',
-                            '@class' => 'ARCHETYPE_ID'
-                        }
-                    }
-                };
+                    '@class' => 'DV_CODED_TEXT'
+                }
+            },
+            {
+                'archetype_node_id' => 'at0005',
+                '@class'            => 'ELEMENT',
+                'name'              => {
+                    'value'  => 'FIGO version',
+                    '@class' => 'DV_TEXT'
+                },
+                'value' => {
+                    'value'  => $self->version,    #'FIGO version 99',
+                    '@class' => 'DV_TEXT'
+                }
+            }
+        ],
+        'name' => {
+            'value'  => 'Final FIGO stage',
+            '@class' => 'DV_TEXT'
+        },
+        'archetype_details' => {
+            '@class'       => 'ARCHETYPED',
+            'rm_version'   => '1.0.1',
+            'archetype_id' => {
+                'value'  => 'openEHR-EHR-CLUSTER.figo_grade.v0',
+                '@class' => 'ARCHETYPE_ID'
+            }
+        }
+    };
     return $composition;
 }
 
 sub compose_flat {
     my $self        = shift;
     my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/final_figo_stage:__DIAG__/figo_grade|code'
-            => $self->code, #'at0008',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/final_figo_stage:__DIAG__/figo_grade|value'
-            => $self->value, #'ib',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/final_figo_stage:__DIAG__/figo_version'
-            => $self->version, #'FIGO version 99',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/final_figo_stage:__DIAG__/figo_grade|terminology'
-            => $self->terminology, #'local',
+'gel_cancer_diagnosis/problem_diagnosis:__TEST__/final_figo_stage:__DIAG__/figo_grade|code'
+          => $self->code,    #'at0008',
+'gel_cancer_diagnosis/problem_diagnosis:__TEST__/final_figo_stage:__DIAG__/figo_grade|value'
+          => $self->value,    #'ib',
+'gel_cancer_diagnosis/problem_diagnosis:__TEST__/final_figo_stage:__DIAG__/figo_version'
+          => $self->version,    #'FIGO version 99',
+'gel_cancer_diagnosis/problem_diagnosis:__TEST__/final_figo_stage:__DIAG__/figo_grade|terminology'
+          => $self->terminology,    #'local',
     };
     return $composition;
 }

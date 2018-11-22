@@ -10,7 +10,7 @@ BEGIN { use_ok('OpenEHR::Composition::CancerReport'); }
 ok( my $pd = OpenEHR::Composition::Elements::ProblemDiagnosis->new(), 'Setup ProblemDiagnosis Schema');
 
 ok( my $ajcc_stage = $pd->element('AJCC_Stage')->new(
-        ajcc_code => '1b',
+        ajcc_code => '1B',
     ),
     'Create new AJCC Stage object'
 );
@@ -32,10 +32,7 @@ ok( my $colorectal_diagnosis =
 
 ok( my $final_figo_stage =
         $pd->element('FinalFigoStage')->new(
-        code        => 'at0008',
         value       => 'ib',
-        terminology => 'local',
-        version     => 'Figo Version 89',
         ),
     'Create new Final Figo object'
 );

@@ -11,8 +11,10 @@ extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
-enum 'AJCC_Code' =>
-  [ '1', '1a', '1b', '2', '2a', '2b', '2c', '3', '3a', '3b', '3c', '4', ];
+enum 'AJCC_Code' => [
+    '1',  '1a', '1b', '2',  '2a', '2b', '2c', '3',  '3a', '3b',
+    '3c', '4',  '1A', '1B', '2A', '2B', '2C', '3A', '3B', '3C',
+];
 
 has ajcc_code => (
     is  => 'rw',
@@ -25,6 +27,11 @@ has ajcc_stage_grouping => (
     lazy    => 1,
     builder => '_get_ajcc_stage_group',
 );
+has version => (
+    is  => 'rw',
+    isa => 'Str', 
+    default => 'AJCC Stage version 55',
+);
 
 =head2 _get_ajcc_stage_group
 
@@ -33,22 +40,30 @@ Private method to return the correct ajcc_stage_grouping based on the provided a
 =cut 
 
 sub _get_ajcc_stage_group {
-    my $self      = shift;
-    my $ajcc_code = {
+    my $self       = shift;
+    my $ajcc_codes = {
         '1'  => 'Stage I',
+        '2'  => 'Stage II',
+        '3'  => 'Stage III',
+        '4'  => 'Stage 4',
         '1a' => 'Stage IA',
         '1b' => 'Stage IB',
-        '2'  => 'Stage II',
         '2a' => 'Stage IIA',
         '2b' => 'Stage IIB',
         '2c' => 'Stage IIC',
-        '3'  => 'Stage III',
         '3a' => 'Stage IIIA',
         '3b' => 'Stage IIIB',
         '3c' => 'Stage IIIC',
-        '4'  => 'Stage 4',
+        '1A' => 'Stage IA',
+        '1B' => 'Stage IB',
+        '2A' => 'Stage IIA',
+        '2B' => 'Stage IIB',
+        '2C' => 'Stage IIC',
+        '3A' => 'Stage IIIA',
+        '3B' => 'Stage IIIB',
+        '3C' => 'Stage IIIC',
     };
-    $self->ajcc_stage_grouping( $ajcc_code->{ $self->ajcc_code } );
+    $self->ajcc_stage_grouping( $ajcc_codes->{ $self->ajcc_code } );
 }
 
 sub compose {
@@ -63,7 +78,7 @@ sub compose {
 sub compose_structured {
     my $self        = shift;
     my $composition = {
-        ajcc_stage_version  => ['AJCC Stage version 55'],
+        ajcc_stage_version  => [ $self->version ],
         ajcc_stage_grouping => [ $self->ajcc_stage_grouping ],
     };
     return $composition;
@@ -97,7 +112,7 @@ sub compose_raw {
                 },
                 'value' => {
                     '@class' => 'DV_TEXT',
-                    'value'  => 'AJCC Stage version 55'
+                    'value'  => $self->version,
                 }
             }
         ],
@@ -121,7 +136,7 @@ sub compose_flat {
     my $self        = shift;
     my $composition = {
 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/ajcc_stage:__AJCC__/ajcc_stage_version'
-          => 'AJCC Stage version 55',
+          => $self->version,
 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/ajcc_stage:__AJCC__/ajcc_stage_grouping'
           => $self->ajcc_stage_grouping,
     };

@@ -59,7 +59,6 @@ sub report_cancer {
         my $problem_diagnosis = $pd->element('ProblemDiagnosis')->new();
 
         my (
-            $ajcc_stage,           
             $colorectal_diagnosis, $final_figo_stage,
             $modified_dukes,       $tumour_id,
             $clinical_evidence,    $bclc_stage,
@@ -81,6 +80,11 @@ sub report_cancer {
             my $ajcc_stage = &get_ajcc_stage($report, $pd);
             $problem_diagnosis->ajcc_stage([ $ajcc_stage ]);
         }
+        if ($report->figo_stage_group_skin) {
+            my $figo_stage = &get_figo_stage($report, $pd);
+            $problem_diagnosis->figo_stage([ $figo_stage ]);
+        }
+
 
 
 
@@ -112,6 +116,15 @@ sub get_ajcc_stage {
         ajcc_stage_grouping => $report->ajcc_tnm_stage_group_skin
     );
     return $ajcc_stage;
+}
+
+sub get_figo_stage {
+    my $report = shift;
+    my $pd = shift;
+    my $figo_stage = $pd->element('FinalFigoStage')->new(
+        value => $report->figo_stage_group_skin,
+    );
+    return $figo_stage;
 }
 
 sub get_diagnosis {

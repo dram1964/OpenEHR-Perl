@@ -30,10 +30,7 @@ ok( my $colorectal_diagnosis =
 
 ok( my $final_figo_stage =
         OpenEHR::Composition::Elements::ProblemDiagnosis::FinalFigoStage->new(
-        code        => 'at0008',
-        value       => 'ib',
-        terminology => 'local',
-        version     => 'Figo Version 89',
+        value       => 'IB',
         ),
     'Create new Final Figo object'
 );
