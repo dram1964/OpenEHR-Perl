@@ -4,24 +4,74 @@ use warnings;
 use strict;
 use Carp;
 use Moose;
+use Moose::Util::TypeConstraints;
 use DateTime;
 use Data::Dumper;
 extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
+enum 'PancCode' => [
+    qw( 10 20 30 31 32 ),
+];
+
 has code => (
     is  => 'rw',
     isa => 'Str',
+    lazy    => 1,
+    builder => '_get_panc_code',
 );
 has value => (
     is  => 'rw',
     isa => 'Str',
+    lazy    => 1,
+    builder => '_get_panc_value',
+);
+has local_code => (
+    is => 'rw',
+    isa => 'PancCode',
 );
 has terminology => (
     is  => 'rw',
     isa => 'Str',
+    default => 'local',
 );
+
+=head2 _get_panc_code
+
+Private method to derive the Pancreatic Cancer Code from the local code parameter provided
+
+=cut
+
+sub _get_panc_code {
+    my $self       = shift;
+    my $panc_scores = {
+        10 => 'at0009',
+        20 => 'at0010',
+        30 => 'at0011', 
+        31 => 'at0012',
+        32 => 'at0013',
+    };
+    $self->code( $panc_scores->{ $self->local_code } );
+}
+
+=head2 _get_panc_value
+
+Private method to derive the Pancreatic Cancer Value from the local value parameter provided
+
+=cut
+
+sub _get_panc_value {
+    my $self       = shift;
+    my $panc_scores = {
+        10 => 'Stage is deemed to be localised and resectable.',
+        20 => 'Stage is deemed to be borderline resectable.',
+        30 => 'Stage is deemed to be unresectable (locally advanced or metastatic).', 
+        31 => 'Stage is deemed to be unresectable (locally advanced).',
+        32 => 'Stage is deemed to be unrectable (metastatic).',
+    };
+    $self->value( $panc_scores->{ $self->local_code } );
+}
 
 sub compose {
     my $self = shift;

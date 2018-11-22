@@ -82,9 +82,7 @@ ok(
 ok(
     my $pancreatic_clinical_stage =
       $pd->element('PancreaticClinicalStage')->new(
-        code        => 'at0012',
-        value       => 'Unresectable',
-        terminology => 'local',
+        local_code => 31,
       ),
     'Create new Pancreatic Clinical Stage object'
 );
@@ -98,9 +96,7 @@ ok(
 
 ok(
     my $tace = $pd->element('TACE')->new(
-        code        => 'at0015',
-        value       => 'Y Yes',
-        terminology => 'local',
+        local_code => 'Y',
     ),
     'Create new TACE object'
 );

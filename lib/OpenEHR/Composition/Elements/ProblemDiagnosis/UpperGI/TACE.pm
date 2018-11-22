@@ -4,24 +4,70 @@ use warnings;
 use strict;
 use Carp;
 use Moose;
+use Moose::Util::TypeConstraints;
 use DateTime;
 use Data::Dumper;
 extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
+enum 'TaceCode' => [
+    qw( Y N 9 ),
+];
+
 has code => (
     is  => 'rw',
     isa => 'Str',
+    lazy    => 1,
+    builder => '_get_tace_code',
 );
 has value => (
     is  => 'rw',
     isa => 'Str',
+    lazy    => 1,
+    builder => '_get_tace_value',
+);
+has local_code => (
+    is => 'rw',
+    isa => 'TaceCode',
 );
 has terminology => (
     is  => 'rw',
     isa => 'Str',
+    default => 'local',
 );
+
+=head2 _get_tace_code
+
+Private method to derive the TACE Code from the local code parameter provided
+
+=cut
+
+sub _get_tace_code {
+    my $self       = shift;
+    my $tace_scores = {
+        Y => 'at0015',
+        N => 'at0016',
+        9 => 'at0017',
+    };
+    $self->code( $tace_scores->{ $self->local_code } );
+}
+
+=head2 _get_tace_value
+
+Private method to derive the Pugh Score Value from the local value parameter provided
+
+=cut
+
+sub _get_tace_value {
+    my $self       = shift;
+    my $tace_scores = {
+        Y => 'Transarterial chemoembolisation is deemed to be present.',
+        N => 'Transarterial chemoembolisation is not deemed to be present.',
+        9 => 'It is not known whether transarterial chemoembolistion is present.',
+    };
+    $self->value( $tace_scores->{ $self->local_code } );
+}
 
 sub compose {
     my $self = shift;

@@ -78,9 +78,7 @@ ok( my $portal_invasion =
 ok( my $pancreatic_clinical_stage =
         OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::PancreaticClinicalStage
         ->new(
-        code        => 'at0012',
-        value       => 'Unresectable',
-        terminology => 'local',
+        local_code        => '10',
         ),
     'Create new Pancreatic Clinical Stage object'
 );
@@ -93,9 +91,7 @@ ok( my $child_pugh_score =
 );
 
 ok( my $tace = OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::TACE->new(
-        code        => 'at0015',
-        value       => 'Y Yes',
-        terminology => 'local',
+        local_code        => 'Y',
     ),
     'Create new TACE object'
 );
