@@ -124,7 +124,7 @@ ok( my $tumour_laterality =
         OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::TumourLaterality
         ->new(
         code        => 'at0033',
-        value       => 'Not known',
+        value       => '9',
         terminology => 'local',
         ),
     'Create new Tumour Laterality object'

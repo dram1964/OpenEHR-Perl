@@ -10,7 +10,7 @@ BEGIN { use_ok('OpenEHR::Composition::CancerReport'); }
 ok( my $pd = OpenEHR::Composition::Elements::ProblemDiagnosis->new(), 'Setup ProblemDiagnosis Schema');
 
 ok( my $ajcc_stage = $pd->element('AJCC_Stage')->new(
-        ajcc_stage_grouping => 'Stage IB',
+        ajcc_code => '1b',
     ),
     'Create new AJCC Stage object'
 );
@@ -123,8 +123,8 @@ ok( my $upper_gi = $pd->element('UpperGI')->new(
 
 ok( my $tumour_laterality =
         $pd->element('TumourLaterality')->new(
-        code        => 'at0033',
-        value       => 'Not known',
+        code        => 'at0029',
+        value       => 'B',
         terminology => 'local',
         ),
     'Create new Tumour Laterality object'
