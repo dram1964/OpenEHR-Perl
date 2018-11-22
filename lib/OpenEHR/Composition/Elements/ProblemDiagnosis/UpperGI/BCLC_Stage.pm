@@ -4,29 +4,53 @@ use warnings;
 use strict;
 use Carp;
 use Moose;
+use Moose::Util::TypeConstraints;
 use DateTime;
 use Data::Dumper;
 extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
+enum 'BCLC_Code' => [ '0', 'A', 'B', 'C', 'D', ];
+
 has code => (
-    is  => 'rw',
-    isa => 'Str',
+    is      => 'rw',
+    isa     => 'Str',
+    lazy    => 1,
+    builder => '_get_bclc_code',
 );
 has value => (
     is  => 'rw',
-    isa => 'Str',
+    isa => 'BCLC_Code',
 );
 has terminology => (
-    is  => 'rw',
-    isa => 'Str',
+    is      => 'rw',
+    isa     => 'Str',
+    default => 'local',
 );
+
+=head2 _get_bclc_code
+
+Private method to return the correct bclc_code based on the provided value
+
+=cut 
+
+sub _get_bclc_code {
+    my $self       = shift;
+    my $bclc_codes = {
+        '0' => 'at0003',    # Very early stage
+        'A' => 'at0004',    # Early stage
+        'B' => 'at0005',    # Intermediate stage
+        'C' => 'at0006',    # Advanced stage
+        'D' => 'at0007',    # Termial stage
+    };
+    $self->code( $bclc_codes->{ $self->value } );
+}
 
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')
-        if ( $self->composition_format eq 'TDD' );
+      if ( $self->composition_format eq 'TDD' );
 
     my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
@@ -35,11 +59,13 @@ sub compose {
 sub compose_structured {
     my $self        = shift;
     my $composition = {
-        bclc_stage => [{
-            '|code'        => $self->code,
-            '|value'       => $self->value,
-            '|terminology' => $self->terminology,
-        }],
+        bclc_stage => [
+            {
+                '|code'        => $self->code,
+                '|value'       => $self->value,
+                '|terminology' => $self->terminology,
+            }
+        ],
     };
     return $composition;
 }
@@ -50,7 +76,8 @@ sub compose_raw {
         'archetype_node_id' => 'openEHR-EHR-CLUSTER.bclc_stage.v0',
         '@class'            => 'CLUSTER',
         'items'             => [
-            {   'value' => {
+            {
+                'value' => {
                     '@class'        => 'DV_CODED_TEXT',
                     'defining_code' => {
                         'terminology_id' => {
@@ -89,12 +116,12 @@ sub compose_raw {
 sub compose_flat {
     my $self        = shift;
     my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/bclc_stage:__DIAG2__/bclc_stage|value'
-            => $self->value,    #'D',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/bclc_stage:__DIAG2__/bclc_stage|code'
-            => $self->code,     #'at0007',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/bclc_stage:__DIAG2__/bclc_stage|terminology'
-            => $self->terminology,    #'local',
+'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/bclc_stage:__DIAG2__/bclc_stage|value'
+          => $self->value,    #'D',
+'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/bclc_stage:__DIAG2__/bclc_stage|code'
+          => $self->code,     #'at0007',
+'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/bclc_stage:__DIAG2__/bclc_stage|terminology'
+          => $self->terminology,    #'local',
     };
     return $composition;
 }

@@ -7,44 +7,48 @@ use OpenEHR::REST::Composition;
 
 BEGIN { use_ok('OpenEHR::Composition::CancerReport'); }
 
-ok( my $pd = OpenEHR::Composition::Elements::ProblemDiagnosis->new(), 'Setup ProblemDiagnosis Schema');
+ok( my $pd = OpenEHR::Composition::Elements::ProblemDiagnosis->new(),
+    'Setup ProblemDiagnosis Schema' );
 
-ok( my $ajcc_stage = $pd->element('AJCC_Stage')->new(
+ok(
+    my $ajcc_stage = $pd->element('AJCC_Stage')->new(
         ajcc_code => '1B',
     ),
     'Create new AJCC Stage object'
 );
 
-ok( my $diagnosis = $pd->element('Diagnosis')->new(
+ok(
+    my $diagnosis = $pd->element('Diagnosis')->new(
         diagnosis => 'Colorectal Cancer'
     ),
     'Create new Diagnosis object'
 );
 
-ok( my $colorectal_diagnosis =
-        $pd->element('ColorectalDiagnosis')->new(
+ok(
+    my $colorectal_diagnosis = $pd->element('ColorectalDiagnosis')->new(
         code        => 'at0003',
         value       => '2 Appendix',
         terminology => 'local',
-        ),
+    ),
     'Create new Diagnosis object'
 );
 
-ok( my $final_figo_stage =
-        $pd->element('FinalFigoStage')->new(
-        value       => 'ib',
-        ),
+ok(
+    my $final_figo_stage = $pd->element('FinalFigoStage')->new(
+        value => 'ib',
+    ),
     'Create new Final Figo object'
 );
 
-ok( my $modified_dukes =
-        $pd->element('ModifiedDukes')->new(
+ok(
+    my $modified_dukes = $pd->element('ModifiedDukes')->new(
         local_code => 'B'
-        ),
+    ),
     'Create new Modified Dukes object'
 );
 
-ok( my $tumour_id = $pd->element('TumourID')->new(
+ok(
+    my $tumour_id = $pd->element('TumourID')->new(
         id       => 'aassdddffee',
         issuer   => 'uclh',
         assigner => 'cancer care',
@@ -53,51 +57,51 @@ ok( my $tumour_id = $pd->element('TumourID')->new(
     'Create new Tumour ID object'
 );
 
-ok( my $clinical_evidence =
-        $pd->element('ClinicalEvidence')->new(
+ok(
+    my $clinical_evidence = $pd->element('ClinicalEvidence')->new(
         evidence =>
-            '2 Clinical investigation including all diagnostic techniques',
-        ),
+          '2 Clinical investigation including all diagnostic techniques',
+    ),
     'Create new Clinical Evidence object'
 );
 
-ok( my $bclc_stage =
-        $pd->element('BCLC_Stage')->new(
-        code        => 'at0007',
-        value       => 'D',
-        terminology => 'local',
-        ),
+ok(
+    my $bclc_stage = $pd->element('BCLC_Stage')->new(
+        value => 'D',
+    ),
     'Create new BCLC Stage object'
 );
 
-ok( my $portal_invasion =
-        $pd->element('PortalInvasion')->new(
+ok(
+    my $portal_invasion = $pd->element('PortalInvasion')->new(
         code        => 'at0006',
         value       => 'N Not present',
         terminology => 'local',
-        ),
+    ),
     'Create new Portal Invasion object'
 );
 
-ok( my $pancreatic_clinical_stage =
-        $pd->element('PancreaticClinicalStage')->new(
+ok(
+    my $pancreatic_clinical_stage =
+      $pd->element('PancreaticClinicalStage')->new(
         code        => 'at0012',
         value       => 'Unresectable',
         terminology => 'local',
-        ),
+      ),
     'Create new Pancreatic Clinical Stage object'
 );
 
-ok( my $child_pugh_score =
-        $pd->element('ChildPughScore')->new(
+ok(
+    my $child_pugh_score = $pd->element('ChildPughScore')->new(
         code        => 'at0027',
         value       => 'Class B 7 to 8 points',
         terminology => 'local',
-        ),
+    ),
     'Create new Child-Pugh Score object'
 );
 
-ok( my $tace = $pd->element('TACE')->new(
+ok(
+    my $tace = $pd->element('TACE')->new(
         code        => 'at0015',
         value       => 'Y Yes',
         terminology => 'local',
@@ -105,7 +109,8 @@ ok( my $tace = $pd->element('TACE')->new(
     'Create new TACE object'
 );
 
-ok( my $upper_gi = $pd->element('UpperGI')->new(
+ok(
+    my $upper_gi = $pd->element('UpperGI')->new(
         bclc_stage                => [$bclc_stage],
         portal_invasion           => [$portal_invasion],
         pancreatic_clinical_stage => [$pancreatic_clinical_stage],
@@ -116,92 +121,93 @@ ok( my $upper_gi = $pd->element('UpperGI')->new(
     'Create new Upper GI object'
 );
 
-ok( my $tumour_laterality =
-        $pd->element('TumourLaterality')->new(
+ok(
+    my $tumour_laterality = $pd->element('TumourLaterality')->new(
         code        => 'at0029',
         value       => 'B',
         terminology => 'local',
-        ),
+    ),
     'Create new Tumour Laterality object'
 );
 
-ok( my $metastatic_site =
-        $pd->element('MetastaticSite')->new(
+ok(
+    my $metastatic_site = $pd->element('MetastaticSite')->new(
         code        => 'at0023',
         value       => '08 Skin',
         terminology => 'local',
-        ),
+    ),
     'Create new Metastatic Site object'
 );
 
-ok( my $recurrence_indicator =
-        $pd->element('RecurrenceIndicator')->new(
+ok(
+    my $recurrence_indicator = $pd->element('RecurrenceIndicator')->new(
         code        => 'at0016',
         value       => 'NN',
         terminology => 'local',
-        ),
+    ),
     'Create new Recurrence Indicator object'
 );
 
-ok( my $cancer_diagnosis =
-        $pd->element('CancerDiagnosis')->new(
+ok(
+    my $cancer_diagnosis = $pd->element('CancerDiagnosis')->new(
         tumour_laterality    => [$tumour_laterality],
         metastatic_site      => [$metastatic_site],
         recurrence_indicator => [$recurrence_indicator],
         morphology           => 'Morphology String',
         topography           => 'Topography String',
-        ),
+    ),
     'Create new Cancer Diagnosis object'
 );
 
-ok( my $integrated_tnm =
-        $pd->element('Integrated_TNM')->new(
+ok(
+    my $integrated_tnm = $pd->element('Integrated_TNM')->new(
         integrated_t         => 'Integrated T 90',
         integrated_m         => 'Integrated M 25',
         stage_grouping       => 'Integrated Stage grouping 31',
         tnm_edition          => 'Integrated TNM Edition 44',
         integrated_n         => 'Integrated N 15',
         grading_at_diagnosis => 'G4 Undifferentiated / anaplastic',
-        ),
+    ),
     'Create new Integrated TNM object'
 );
 
-ok( my $inrg_staging =
-        $pd->element('INRG_Staging')->new(
+ok(
+    my $inrg_staging = $pd->element('INRG_Staging')->new(
         code        => 'at0005',
         value       => 'N',
         terminology => 'local',
-        ),
+    ),
     'Create new INRG Staging object'
 );
 
-ok( my $lung_metastases =
-        $pd->element('LungMetastases')->new(
+ok(
+    my $lung_metastases = $pd->element('LungMetastases')->new(
         code        => 'at0021',
         value       => 'L1 less than or equal to 4 metastases',
         terminology => 'local',
-        ),
+    ),
     'Create new Lung Metastases object'
 );
 
-ok( my $stage_group_testicular =
-        $pd->element('StageGroupTesticular')->new(
+ok(
+    my $stage_group_testicular = $pd->element('StageGroupTesticular')->new(
         terminology => 'local',
         code        => 'at0010',
         value       => '3C adjusted',
-        ),
+    ),
     'Create new Lung Metastases object'
 );
 
-ok( my $testicular_staging =
-        $pd->element('TesticularStaging')->new(
+ok(
+    my $testicular_staging = $pd->element('TesticularStaging')->new(
         lung_metastases        => [$lung_metastases],
         stage_group_testicular => [$stage_group_testicular],
-        ),
+    ),
     'Create new Testicular Staging object'
 );
 
-ok( my $problem_diagnosis = $pd->element('ProblemDiagnosis')->new(
+ok(
+    my $problem_diagnosis = $pd->element('ProblemDiagnosis')->new(
         ajcc_stage           => [$ajcc_stage],
         diagnosis            => [$diagnosis],
         colorectal_diagnosis => [$colorectal_diagnosis],
@@ -229,17 +235,17 @@ for my $format (@formats) {
     }
     note( 'EhrId: ' . $ehr1->ehr_id );
     note( 'SubjectId: ' . $ehr1->subject_id );
-    ok( my $cancer_report = OpenEHR::Composition::CancerReport->new(
+    ok(
+        my $cancer_report = OpenEHR::Composition::CancerReport->new(
             problem_diagnoses => [$problem_diagnosis],
-            report_id => $ehr1->ehr_id . 'CREP',
+            report_id         => $ehr1->ehr_id . 'CREP',
         ),
         'Create New Cancer Report Object'
     );
     ok( $cancer_report->composition_format($format),
         "Set $format composition format" );
 
-    ok( my $query = OpenEHR::REST::Composition->new(),
-        "Construct REST query" );
+    ok( my $query = OpenEHR::REST::Composition->new(), "Construct REST query" );
     ok( $query->composition($cancer_report), "Add composition to new query" );
     ok( $query->template_id('GEL Cancer diagnosis input.v0'),
         "Added template for $format composition" );
@@ -249,8 +255,8 @@ for my $format (@formats) {
         diag( "Error occurred in submission: " . $query->err_msg );
     }
     is( $query->action, "CREATE", "Action is CREATE" );
-    note( $query->compositionUid );   # the returned CompositionUid;
-    note( $query->href );             # URL to view the submitted composition;
+    note( $query->compositionUid );    # the returned CompositionUid;
+    note( $query->href );              # URL to view the submitted composition;
 }
 
 done_testing;

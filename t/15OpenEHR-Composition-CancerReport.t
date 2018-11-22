@@ -63,9 +63,7 @@ ok( my $clinical_evidence =
 
 ok( my $bclc_stage =
         OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::BCLC_Stage->new(
-        code        => 'at0007',
         value       => 'D',
-        terminology => 'local',
         ),
     'Create new BCLC Stage object'
 );

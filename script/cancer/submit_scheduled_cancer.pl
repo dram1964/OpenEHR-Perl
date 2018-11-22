@@ -88,6 +88,10 @@ sub report_cancer {
             my $modified_dukes = &get_modified_dukes($report, $pd);
             $problem_diagnosis->modified_dukes([ $modified_dukes ]);
         }
+        if ($report->bclc_stage_upper_gi) {
+            my $bclc_stage = &get_bclc_stage($report, $pd);
+            $problem_diagnosis->bclc_stage([ $bclc_stage ]);
+        }
 
 
 
@@ -111,6 +115,15 @@ sub report_cancer {
             print 'Composition can be found at: ', $query->href, "\n";
         }
     }
+}
+
+sub get_bclc_stage {
+    my $report = shift;
+    my $pd = shift;
+    my $bclc_stage = $pd->element('BCLC_Stage')->new(
+        value => $report->bclc_stage_upper_gi
+    );
+    return $bclc_stage;
 }
 
 sub get_modified_dukes {
