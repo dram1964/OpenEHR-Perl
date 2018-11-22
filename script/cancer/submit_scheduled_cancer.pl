@@ -62,7 +62,7 @@ sub report_cancer {
             $colorectal_diagnosis, $final_figo_stage,
                   $tumour_id,
             $clinical_evidence,    
-            $portal_invasion,      $pancreatic_clinical_stage,
+            $pancreatic_clinical_stage,
             $child_pugh_score,     $tace,
             $upper_gi,             $tumour_laterality,
             $metastatic_site,      $recurrence_indicator,
@@ -96,6 +96,10 @@ sub report_cancer {
             my $portal_invasion = &get_portal_invasion($report, $pd);
             $problem_diagnosis->portal_invasion([ $portal_invasion ]);
         }
+        if ($report->child_pugh_score_upper_gi) {
+            my $child_pugh_score = &get_child_pugh_score($report, $pd);
+            $problem_diagnosis->child_pugh_score([ $child_pugh_score ]);
+        }
 
 
 
@@ -119,6 +123,15 @@ sub report_cancer {
             print 'Composition can be found at: ', $query->href, "\n";
         }
     }
+}
+
+sub get_child_pugh_score {
+    my $report = shift;
+    my $pd = shift;
+    my $child_pugh_score = $pd->element('ChildPughScore')->new(
+        local_code => $report->child_pugh_score_upper_gi
+    );
+    return $child_pugh_score;
 }
 
 sub get_portal_invasion {

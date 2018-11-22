@@ -4,24 +4,70 @@ use warnings;
 use strict;
 use Carp;
 use Moose;
+use Moose::Util::TypeConstraints;
 use DateTime;
 use Data::Dumper;
 extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
+enum 'PughScore' => [
+    qw( A B C ),
+];
+
 has code => (
     is  => 'rw',
     isa => 'Str',
+    lazy    => 1,
+    builder => '_get_pugh_code',
 );
 has value => (
     is  => 'rw',
     isa => 'Str',
+    lazy    => 1,
+    builder => '_get_pugh_value',
 );
 has terminology => (
     is  => 'rw',
     isa => 'Str',
+    default => 'local',
 );
+has local_code => (
+    is => 'rw', 
+    isa => 'PughScore',
+);
+
+=head2 _get_pugh_code
+
+Private method to derive the Pugh Score Code from the local code parameter provided
+
+=cut
+
+sub _get_pugh_code {
+    my $self       = shift;
+    my $pugh_scores = {
+        A => 'at0027',
+        B => 'at0028',
+        C => 'at0029',
+    };
+    $self->code( $pugh_scores->{ $self->local_code } );
+}
+
+=head2 _get_pugh_value
+
+Private method to derive the Pugh Score Value from the local value parameter provided
+
+=cut
+
+sub _get_pugh_value {
+    my $self       = shift;
+    my $pugh_scores = {
+        A => 'Class A 5 to 6 points.',
+        B => 'The Child-Pugh grade is Class B with a total score of 7 to 9 points.',
+        C => 'The Child-Pugh grade is Class C with a total score of 10 to 15 points.',
+    };
+    $self->value( $pugh_scores->{ $self->local_code } );
+}
 
 sub compose {
     my $self = shift;

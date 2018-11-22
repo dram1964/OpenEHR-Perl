@@ -87,9 +87,7 @@ ok( my $pancreatic_clinical_stage =
 
 ok( my $child_pugh_score =
         OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::ChildPughScore->new(
-        code        => 'at0027',
-        value       => 'Class B 7 to 8 points',
-        terminology => 'local',
+        local_code        => 'B',
         ),
     'Create new Child-Pugh Score object'
 );
