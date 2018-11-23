@@ -1,4 +1,4 @@
-#c2374981-e030-4f7c-8781-1e5911c266b1::default::1
+#52610f3a-be02-41e5-8d03-cb52342374a1::default::1
 $VAR1 = {
     'gel_cancer_diagnosis' => {
         'territory' => [
@@ -23,7 +23,7 @@ $VAR1 = {
                         '|id_scheme'    => 'UCLH-NS'
                     }
                 ],
-                'start_time' => [ '2018-11-23T10:35:41.253Z' ],
+                'start_time' => [ '2018-11-23T14:27:39.759Z' ],
                 'setting'    => [
                     {
                         '|code'        => '238',
@@ -51,7 +51,7 @@ $VAR1 = {
                         ]
                     }
                 ],
-                'report_id' => [ '436e93d8-18e8-498c-9b1a-45011d562374CREP' ]
+                'report_id' => [ 'a7e6deb1-4fee-4c29-93b2-e9f652bf220dCREP' ]
             }
         ],
         'category' => [
@@ -209,7 +209,7 @@ $VAR1 = {
                             {
                                 '|code'        => 'at0016',
                                 '|terminology' => 'local',
-                                '|value'       => 'NN'
+                                '|value'       => 'No, not recurrence'
                             }
                         ],
                         'tumour_laterality' => [
@@ -224,11 +224,18 @@ $VAR1 = {
                             {
                                 '|code'        => 'at0023',
                                 '|terminology' => 'local',
-                                '|value'       => '08 Skin'
+                                '|value' =>
+                                  'Metastatic disease is located in the skin'
                             }
                         ],
                         'topography' => [ 'Topography String' ],
-                        'morphology' => [ 'Morphology String' ]
+                        'morphology' => [
+                            {
+                                '|code'        => '8071/3',
+                                '|terminology' => 'local',
+                                '|value'       => '8071/3'
+                            }
+                        ]
                     }
                 ],
                 'final_figo_stage' => [
@@ -249,7 +256,7 @@ $VAR1 = {
                         '|terminology' => 'IANA_character-sets'
                     }
                 ],
-                'event_date'         => [ '2018-11-23T10:35:41Z' ],
+                'event_date'         => [ '2018-11-23T14:27:39Z' ],
                 'testicular_staging' => [
                     {
                         'lung_metastases_sub-stage_grouping' => [
@@ -278,6 +285,6 @@ $VAR1 = {
                 ]
             }
         ],
-        '_uid' => [ 'c2374981-e030-4f7c-8781-1e5911c266b1::default::1' ]
+        '_uid' => [ '52610f3a-be02-41e5-8d03-cb52342374a1::default::1' ]
     }
 };

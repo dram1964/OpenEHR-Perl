@@ -252,19 +252,23 @@ sub get_cancer_diagnosis {
         $cancer_diagnosis->tumour_laterality( [$tumour_laterality] );
     }
     if ( $report->metastatic_site ) {
-        my $metastatic_site = $pd->element('MetastaticSite')->new(
-            local_code        => $report->metastatic_site,
-        );
+        my $metastatic_site = $pd->element('MetastaticSite')
+          ->new( local_code => $report->metastatic_site, );
         $cancer_diagnosis->metastatic_site( [$metastatic_site] );
     }
     if ( $report->cancer_recurrence_care_plan_indicator ) {
-        my $recurrence_indicator = $pd->element('RecurrenceIndicator')->new(
-            local_code       => $report->cancer_recurrence_care_plan_indicator,
-        );
+        my $recurrence_indicator =
+          $pd->element('RecurrenceIndicator')
+          ->new( local_code => $report->cancer_recurrence_care_plan_indicator,
+          );
         $cancer_diagnosis->recurrence_indicator( [$recurrence_indicator] );
     }
     if ( $report->morphology_icd03 ) {
-        $cancer_diagnosis->morphology( $report->morphology_icd03 );
+        my $morphology =
+          $pd->element('RecurrenceIndicator')
+          ->new( local_code => $report->morphology_icd03 ,
+          );
+        $cancer_diagnosis->morphology( [$morphology] );
     }
     if ( $report->topography_icd03 ) {
         $cancer_diagnosis->topography( $report->topography_icd03 );

@@ -158,12 +158,22 @@ ok(
 );
 
 ok(
+    my $morphology =
+      OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::Morphology
+      ->new(
+        local_code       => '8071/3',
+      ),
+    'Create new Morphology object'
+);
+
+
+ok(
     my $cancer_diagnosis =
       OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis->new(
         tumour_laterality    => [$tumour_laterality],
         metastatic_site      => [$metastatic_site],
         recurrence_indicator => [$recurrence_indicator],
-        morphology           => 'Morphology String',
+        morphology           => [$morphology],
         topography           => 'Topography String',
       ),
     'Create new Cancer Diagnosis object'

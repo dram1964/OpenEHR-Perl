@@ -51,7 +51,7 @@ Used to get or set the Morphology item of the Cancer Diagnosis item
 
 has morphology => (
     is  => 'rw',
-    isa => 'Str',
+    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::Morphology]',
 );
 
 =head1 topography($topography)
@@ -69,7 +69,7 @@ sub compose {
     my $self = shift;
     $self->composition_format('RAW')
         if ( $self->composition_format eq 'TDD' );
-    my @properties = qw(metastatic_site recurrence_indicator tumour_laterality);
+    my @properties = qw(metastatic_site recurrence_indicator tumour_laterality morphology);
 
     for my $property (@properties) {
         if ($self->$property) {
@@ -86,7 +86,6 @@ sub compose {
 sub compose_structured {
     my $self        = shift;
     my $composition = {
-        'morphology'           => [$self->morphology],
         'topography'           => [$self->topography],
     };
     if ( $self->recurrence_indicator ) {
@@ -107,6 +106,12 @@ sub compose_structured {
                 $tumour_laterality->compose;
         }
     }
+    if ( $self->morphology ) {
+        for my $morphology ( @{ $self->morphology } ) {
+            push @{ $composition->{'morphology'} },
+                $morphology->compose;
+        }
+    }
     return $composition;
 }
 
@@ -120,17 +125,6 @@ sub compose_raw {
             '@class' => 'DV_TEXT'
         },
         'items' => [
-            {   'value' => {
-                    'value'  => $self->morphology, #'Morphology 46',
-                    '@class' => 'DV_TEXT'
-                },
-                'name' => {
-                    '@class' => 'DV_TEXT',
-                    'value'  => 'Morphology'
-                },
-                '@class'            => 'ELEMENT',
-                'archetype_node_id' => 'at0001'
-            },
             {   'archetype_node_id' => 'at0002',
                 '@class'            => 'ELEMENT',
                 'name'              => {
@@ -152,6 +146,12 @@ sub compose_raw {
             'rm_version' => '1.0.1'
         }
     };
+    if ( $self->morphology ) {
+        for my $morphology ( @{ $self->morphology } ) {
+            push @{ $composition->{items} },
+                $morphology->compose;
+        }
+    }
     if ( $self->recurrence_indicator ) {
         for my $recurrence_indicator ( @{ $self->recurrence_indicator } ) {
             push @{ $composition->{items} },
@@ -178,11 +178,24 @@ sub compose_flat {
     my $composition = {
 
         # Cancer Diagnosis
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/morphology:0'
-            => $self->morphology, #'Morphology 46',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/topography'
             => $self->topography, #'Topography 75',
     };
+    if ( $self->morphology ) {
+        my $morphology_index = '0';
+        my $morphology_comp;
+        for my $morphology ( @{ $self->morphology } ) {
+            my $composition_fragment = $morphology->compose;
+            for my $key ( keys %{$composition_fragment} ) {
+                my $new_key = $key;
+                $new_key =~ s/__DIAG2__/$morphology_index/;
+                $morphology_comp->{$new_key} =
+                    $composition_fragment->{$key};
+            }
+            $morphology_index++;
+            $composition = { ( %$composition, %{$morphology_comp} ) };
+        }
+    }
     if ( $self->recurrence_indicator ) {
         my $recurrence_indicator_index = '0';
         my $recurrence_indicator_comp;
