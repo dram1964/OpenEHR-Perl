@@ -253,16 +253,13 @@ sub get_cancer_diagnosis {
     }
     if ( $report->metastatic_site ) {
         my $metastatic_site = $pd->element('MetastaticSite')->new(
-            code        => $report->metastatic_site,
-            value       => $report->metastatic_site,
-            terminology => 'local',
+            local_code        => $report->metastatic_site,
         );
         $cancer_diagnosis->metastatic_site( [$metastatic_site] );
     }
     if ( $report->cancer_recurrence_care_plan_indicator ) {
         my $recurrence_indicator = $pd->element('RecurrenceIndicator')->new(
-            value       => $report->cancer_recurrence_care_plan_indicator,
-            terminology => 'local',
+            local_code       => $report->cancer_recurrence_care_plan_indicator,
         );
         $cancer_diagnosis->recurrence_indicator( [$recurrence_indicator] );
     }

@@ -17,31 +17,54 @@ has code => (
     is  => 'rw',
     isa => 'Str',
     lazy => 1, 
-    builder => '_build_code_value'
+    builder => '_build_code'
 );
 has value => (
     is  => 'rw',
-    isa => 'RecurrenceIndicator',
+    isa => 'Str',
+    lazy => 1, 
+    builder => '_build_value'
 );
 has terminology => (
     is  => 'rw',
     isa => 'Str',
+    default => 'local',
+);
+has local_code => (
+    is  => 'rw',
+    isa => 'RecurrenceIndicator',
 );
 
-=head2 _build_code_value
+=head2 _build_code
 
-Sets the Tumour Laterality value based on the provided code
+Sets the Recurrence Indicator code based on the provided local code
 
 =cut
 
-sub _build_code_value {
+sub _build_code {
     my $self = shift;
     my $recurrence_indicator = {
         'YL' => 'at0014', # Yes, including local recurrence
         'YD' => 'at0015', # Yes, not including recurrence
         'NN' => 'at0016', # No, not recurrence
     };
-    $self->code( $recurrence_indicator->{ $self->value } );
+    $self->code( $recurrence_indicator->{ $self->local_code } );
+}
+
+=head2 _build_value
+
+Sets the Recurrence Indicator value based on the provided local value
+
+=cut
+
+sub _build_value {
+    my $self = shift;
+    my $recurrence_indicator = {
+        'YL' => 'Yes, including local recurrence',
+        'YD' => 'Yes, not including recurrence',
+        'NN' => 'No, not recurrence',
+    };
+    $self->value( $recurrence_indicator->{ $self->local_code } );
 }
 
 sub compose {

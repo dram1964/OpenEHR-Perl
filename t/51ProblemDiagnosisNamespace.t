@@ -130,9 +130,7 @@ ok(
 
 ok(
     my $recurrence_indicator = $pd->element('RecurrenceIndicator')->new(
-        code        => 'at0016',
-        value       => 'NN',
-        terminology => 'local',
+        local_code       => 'NN',
     ),
     'Create new Recurrence Indicator object'
 );

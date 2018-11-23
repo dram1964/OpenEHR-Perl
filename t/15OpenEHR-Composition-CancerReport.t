@@ -152,9 +152,7 @@ ok(
     my $recurrence_indicator =
       OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::RecurrenceIndicator
       ->new(
-        code        => 'at0016',
-        value       => 'NN',
-        terminology => 'local',
+        local_code       => 'NN',
       ),
     'Create new Recurrence Indicator object'
 );
