@@ -4,24 +4,82 @@ use warnings;
 use strict;
 use Carp;
 use Moose;
+use Moose::Util::TypeConstraints;
 use DateTime;
 use Data::Dumper;
 extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
+enum 'MetastaticCode' => [ '02', '03', '04', '06', '07', '08', '09', '10', '11', '99' ];
+
 has code => (
     is  => 'rw',
     isa => 'Str',
+    lazy => 1,
+    builder => '_build_code',
 );
 has value => (
     is  => 'rw',
     isa => 'Str',
+    lazy => 1,
+    builder => '_build_value',
 );
 has terminology => (
     is  => 'rw',
     isa => 'Str',
+    default => 'local',
 );
+has local_code => (
+    is => 'rw',
+    isa => 'MetastaticCode',
+);
+
+=head2 _build_code
+
+Sets the Metastatic Site code based on the provided local code
+
+=cut
+
+sub _build_code {
+    my $self = shift;
+    my $metastatic_site = {
+        '02' => 'at0018', 
+        '03' => 'at0019', 
+        '04' => 'at0020', 
+        '06' => 'at0021', 
+        '07' => 'at0022', 
+        '08' => 'at0023', 
+        '09' => 'at0024', 
+        '10' => 'at0025', 
+        '11' => 'at0026', 
+        '99' => 'at0027',
+    };
+    $self->code( $metastatic_site->{ $self->local_code} );
+}
+
+=head2 _build_value
+
+Sets the Metastatic Site value based on the provided local code
+
+=cut
+
+sub _build_value {
+    my $self = shift;
+    my $metastatic_site = {
+        '02' => 'Metastatic disease is located in the brain.', 
+        '03' => 'Metastatic disease is located in the liver.', 
+        '04' => 'Metastatic disease is located in the lung.', 
+        '06' => 'Metastatic disease is located in multiple sites.', 
+        '07' => 'The site of metastatic disease is unknown.', 
+        '08' => 'Metastatic disease is located in the skin', 
+        '09' => 'Metastatic disease is located in distant lymph nodes', 
+        '10' => 'Metastatic disease is located in the bone excluding bone marrow', 
+        '11' => 'Metastatic disease is located in the bone marrow', 
+        '99' => 'Metastatic disease is located in another site',
+    };
+    $self->value( $metastatic_site->{ $self->local_code } );
+}
 
 sub compose {
     my $self = shift;

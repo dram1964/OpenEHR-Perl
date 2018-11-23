@@ -143,9 +143,7 @@ ok(
     my $metastatic_site =
       OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::MetastaticSite
       ->new(
-        code        => 'at0023',
-        value       => '08 Skin',
-        terminology => 'local',
+        local_code       => '08',
       ),
     'Create new Metastatic Site object'
 );
