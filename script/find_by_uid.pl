@@ -2,6 +2,12 @@ use strict;
 use warnings;
 use Data::Dumper;
 
+=head1  find_by_UID composition_uid composition_format
+
+Use this script to dump a composition in the format specified
+
+=cut
+
 use OpenEHR::REST::Composition;
 
 my $path_report1 = OpenEHR::REST::Composition->new();

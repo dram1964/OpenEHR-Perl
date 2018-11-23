@@ -10,28 +10,45 @@ extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
-has diagnosis => (
+has code => (
     is  => 'rw',
     isa => 'Str',
+);
+has value => (
+    is  => 'rw',
+    isa => 'Str',
+);
+has terminology => (
+    is      => 'rw',
+    isa     => 'Str',
+    default => 'ICD-10',
 );
 
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')
-        if ( $self->composition_format eq 'TDD' );
+      if ( $self->composition_format eq 'TDD' );
 
     my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
 }
 
 sub compose_structured {
-    my $self        = shift;
-    my $composition = $self->diagnosis;    # 'Diagnosis 33'
+    my $self = shift;
+
+    #    my $composition = $self->diagnosis;    # 'Diagnosis 33'
+    my $composition = {
+        '|code'        => $self->code,
+        '|terminology' => $self->terminology,
+        '|value'       => $self->value,
+    };
     return $composition;
 }
 
 sub compose_raw {
-    my $self        = shift;
+    my $self = shift;
+
+=for removal
     my $composition = {
         'name' => {
             '@class' => 'DV_TEXT',
@@ -44,14 +61,41 @@ sub compose_raw {
         'archetype_node_id' => 'at0002',
         '@class'            => 'ELEMENT'
     };
+=cut
+
+    my $composition = {
+        'archetype_node_id' => 'at0002',
+        'value'             => {
+            'value'         => $self->value,
+            'defining_code' => {
+                'terminology_id' => {
+                    'value'  => $self->terminology,
+                    '@class' => 'TERMINOLOGY_ID'
+                },
+                'code_string' => $self->code,
+                '@class'      => 'CODE_PHRASE'
+            },
+            '@class' => 'DV_CODED_TEXT'
+        },
+        'name' => {
+            'value'  => 'Diagnosis',
+            '@class' => 'DV_TEXT'
+        },
+        '@class' => 'ELEMENT'
+    };
     return $composition;
 }
 
 sub compose_flat {
-    my $self = shift;
-    my $composition =
-        { 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/diagnosis:__DIAG__'
-            => $self->diagnosis, };
+    my $self        = shift;
+    my $composition = {
+'gel_cancer_diagnosis/problem_diagnosis:__TEST__/diagnosis:__DIAG__|code'
+          => $self->code,
+'gel_cancer_diagnosis/problem_diagnosis:__TEST__/diagnosis:__DIAG__|value'
+          => $self->value,
+'gel_cancer_diagnosis/problem_diagnosis:__TEST__/diagnosis:__DIAG__|terminology'
+          => $self->terminology,
+    };
     return $composition;
 }
 

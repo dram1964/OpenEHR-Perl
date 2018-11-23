@@ -19,7 +19,8 @@ ok(
 
 ok(
     my $diagnosis = $pd->element('Diagnosis')->new(
-        diagnosis => 'Colorectal Cancer'
+        code => 'C71.6',
+        value => 'Malignant neoplasm of cerebrum, cerebellum',
     ),
     'Create new Diagnosis object'
 );

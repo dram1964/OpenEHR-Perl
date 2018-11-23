@@ -18,7 +18,8 @@ ok(
 ok(
     my $diagnosis =
       OpenEHR::Composition::Elements::ProblemDiagnosis::Diagnosis->new(
-        diagnosis => 'Colorectal Cancer'
+        code => 'C71.6',
+        value => 'Malignant neoplasm of cerebrum, cerebellum',
       ),
     'Create new Diagnosis object'
 );

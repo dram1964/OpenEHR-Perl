@@ -67,7 +67,6 @@ sub report_cancer {
             $testicular_staging
         );
 
-
         my $diagnosis = &get_diagnosis( $report, $pd );
         $problem_diagnosis->diagnosis( [$diagnosis] );
 
@@ -96,6 +95,7 @@ sub report_cancer {
             my $portal_invasion = &get_portal_invasion( $report, $pd );
             $upper_gi->portal_invasion( [$portal_invasion] );
         }
+
 =head1 Placeholder
 
 Placeholder for pancreated clinical stage
@@ -106,6 +106,7 @@ This data is not currently in the Infoflex Extract
         }
 
 =cut
+
         if ( $report->number_of_lesions_cns ) {
             my $number_lesions = &get_number_lesions( $report, $pd );
             $upper_gi->lesions($number_lesions);
@@ -225,39 +226,29 @@ sub get_diagnosis {
     my $report         = shift;
     my $pd             = shift;
     my $diagnosis_code = $report->event_icd10_diagnosis_code;
-    my $diagnosis =
-      $pd->element('Diagnosis')->new( diagnosis => $diagnosis_code, );
+    my $diagnosis = $pd->element('Diagnosis')->new( code => $diagnosis_code, );
     if ($diagnosis_code) {
         my $search_code = $diagnosis_code;
         $search_code =~ s/\.//;
-        my $code_name_rs = $schema->resultset('CodesIcd10')->search(
-            {
-                code => $search_code,
-            },
-            {
-                rows => 1,
-            },
-        );
+        my $code_name_rs = $schema->resultset('CodesIcd10')
+          ->search( { code => $search_code, }, { rows => 1, }, );
         if ( my $code_name = $code_name_rs->first ) {
             my $description = $code_name->description;
             if ($description) {
-                $diagnosis_code = $diagnosis_code . ' - ' . $description;
-                $diagnosis->diagnosis($diagnosis_code);
+                $diagnosis->value($description);
             }
         }
     }
     return $diagnosis;
 }
 
-#diagnosis => 'Colorectal Cancer'
 sub get_cancer_diagnosis {
     my $report           = shift;
     my $pd               = shift;
     my $cancer_diagnosis = $pd->element('CancerDiagnosis')->new();
     if ( $report->tumour_laterality ) {
-        my $tumour_laterality = $pd->element('TumourLaterality')->new(
-            local_code       => $report->tumour_laterality,
-        );
+        my $tumour_laterality = $pd->element('TumourLaterality')
+          ->new( local_code => $report->tumour_laterality, );
         $cancer_diagnosis->tumour_laterality( [$tumour_laterality] );
     }
     if ( $report->metastatic_site ) {
