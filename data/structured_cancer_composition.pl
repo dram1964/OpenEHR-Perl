@@ -1,4 +1,4 @@
-#52610f3a-be02-41e5-8d03-cb52342374a1::default::1
+#dd08d80c-f5a7-4ab7-a50e-68afd6879bb5::default::1
 $VAR1 = {
     'gel_cancer_diagnosis' => {
         'territory' => [
@@ -23,7 +23,7 @@ $VAR1 = {
                         '|id_scheme'    => 'UCLH-NS'
                     }
                 ],
-                'start_time' => [ '2018-11-23T14:27:39.759Z' ],
+                'start_time' => [ '2018-11-23T16:40:57.212Z' ],
                 'setting'    => [
                     {
                         '|code'        => '238',
@@ -51,7 +51,7 @@ $VAR1 = {
                         ]
                     }
                 ],
-                'report_id' => [ 'a7e6deb1-4fee-4c29-93b2-e9f652bf220dCREP' ]
+                'report_id' => [ '7275aa5d-50b0-4bad-b9c6-d296c528fa52CREP' ]
             }
         ],
         'category' => [
@@ -228,7 +228,13 @@ $VAR1 = {
                                   'Metastatic disease is located in the skin'
                             }
                         ],
-                        'topography' => [ 'Topography String' ],
+                        'topography' => [
+                            {
+                                '|code'        => 'C06.9',
+                                '|terminology' => 'local',
+                                '|value'       => 'C06.9'
+                            }
+                        ],
                         'morphology' => [
                             {
                                 '|code'        => '8071/3',
@@ -256,7 +262,7 @@ $VAR1 = {
                         '|terminology' => 'IANA_character-sets'
                     }
                 ],
-                'event_date'         => [ '2018-11-23T14:27:39Z' ],
+                'event_date'         => [ '2018-11-23T16:40:57Z' ],
                 'testicular_staging' => [
                     {
                         'lung_metastases_sub-stage_grouping' => [
@@ -285,6 +291,6 @@ $VAR1 = {
                 ]
             }
         ],
-        '_uid' => [ '52610f3a-be02-41e5-8d03-cb52342374a1::default::1' ]
+        '_uid' => [ 'dd08d80c-f5a7-4ab7-a50e-68afd6879bb5::default::1' ]
     }
 };

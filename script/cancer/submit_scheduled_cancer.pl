@@ -265,13 +265,17 @@ sub get_cancer_diagnosis {
     }
     if ( $report->morphology_icd03 ) {
         my $morphology =
-          $pd->element('RecurrenceIndicator')
+          $pd->element('Morphology')
           ->new( local_code => $report->morphology_icd03 ,
           );
         $cancer_diagnosis->morphology( [$morphology] );
     }
     if ( $report->topography_icd03 ) {
-        $cancer_diagnosis->topography( $report->topography_icd03 );
+        my $topography =
+          $pd->element('Topography')
+          ->new( local_code => $report->topography_icd03 ,
+          );
+        $cancer_diagnosis->topography( [$topography] );
     }
     return $cancer_diagnosis;
 }

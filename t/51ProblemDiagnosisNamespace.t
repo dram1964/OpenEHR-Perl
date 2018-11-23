@@ -134,11 +134,19 @@ ok(
     ),
     'Create new Recurrence Indicator object'
 );
+
 ok( 
     my $morphology = $pd->element('Morphology')->new(
         local_code      => '8071/3',
     ),
     'Create new Morphology object'
+);
+
+ok( 
+    my $topography = $pd->element('Topography')->new(
+        local_code      => 'C06.9',
+    ),
+    'Create new Topography object'
 );
 
 ok(
@@ -147,7 +155,7 @@ ok(
         metastatic_site      => [$metastatic_site],
         recurrence_indicator => [$recurrence_indicator],
         morphology           => [$morphology],
-        topography           => 'Topography String',
+        topography           => [$topography],
     ),
     'Create new Cancer Diagnosis object'
 );

@@ -17,8 +17,9 @@ Used to get or set the Tumour Laterality item of the Cancer Diagnosis item
 =cut
 
 has tumour_laterality => (
-    is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::TumourLaterality]',
+    is => 'rw',
+    isa =>
+'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::TumourLaterality]',
 );
 
 =head1 metastatic_site($metastatic_site_object)
@@ -28,8 +29,9 @@ Used to get or set the Metastatic Site item of the Cancer Diagnosis item
 =cut
 
 has metastatic_site => (
-    is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::MetastaticSite]',
+    is => 'rw',
+    isa =>
+'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::MetastaticSite]',
 );
 
 =head1 recurrence_indicator($recurrence_indicator_object)
@@ -39,8 +41,9 @@ Used to get or set the Metastatic Site item of the Cancer Diagnosis item
 =cut
 
 has recurrence_indicator => (
-    is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::RecurrenceIndicator]',
+    is => 'rw',
+    isa =>
+'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::RecurrenceIndicator]',
 );
 
 =head1 morphology($morphology)
@@ -50,8 +53,9 @@ Used to get or set the Morphology item of the Cancer Diagnosis item
 =cut
 
 has morphology => (
-    is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::Morphology]',
+    is => 'rw',
+    isa =>
+'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::Morphology]',
 );
 
 =head1 topography($topography)
@@ -61,20 +65,22 @@ Used to get or set the Topography item of the Cancer Diagnosis item
 =cut
 
 has topography => (
-    is  => 'rw',
-    isa => 'Str',
+    is => 'rw',
+    isa =>
+'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::Topography]',
 );
 
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')
-        if ( $self->composition_format eq 'TDD' );
-    my @properties = qw(metastatic_site recurrence_indicator tumour_laterality morphology);
+      if ( $self->composition_format eq 'TDD' );
+    my @properties =
+      qw(metastatic_site recurrence_indicator tumour_laterality morphology topography);
 
     for my $property (@properties) {
-        if ($self->$property) {
+        if ( $self->$property ) {
             for my $compos ( @{ $self->$property } ) {
-                $compos->composition_format($self->composition_format);
+                $compos->composition_format( $self->composition_format );
             }
         }
     }
@@ -84,32 +90,34 @@ sub compose {
 }
 
 sub compose_structured {
-    my $self        = shift;
-    my $composition = {
-        'topography'           => [$self->topography],
-    };
+    my $self = shift;
+    my $composition = {};
     if ( $self->recurrence_indicator ) {
         for my $recurrence_indicator ( @{ $self->recurrence_indicator } ) {
             push @{ $composition->{'recurrence_indicator'} },
-                $recurrence_indicator->compose;
+              $recurrence_indicator->compose;
         }
     }
     if ( $self->metastatic_site ) {
         for my $metastatic_site ( @{ $self->metastatic_site } ) {
             push @{ $composition->{'metastatic_site'} },
-                $metastatic_site->compose;
+              $metastatic_site->compose;
         }
     }
     if ( $self->tumour_laterality ) {
         for my $tumour_laterality ( @{ $self->tumour_laterality } ) {
             push @{ $composition->{'tumour_laterality'} },
-                $tumour_laterality->compose;
+              $tumour_laterality->compose;
         }
     }
     if ( $self->morphology ) {
         for my $morphology ( @{ $self->morphology } ) {
-            push @{ $composition->{'morphology'} },
-                $morphology->compose;
+            push @{ $composition->{'morphology'} }, $morphology->compose;
+        }
+    }
+    if ( $self->topography ) {
+        for my $topography ( @{ $self->topography } ) {
+            push @{ $composition->{'topography'} }, $topography->compose;
         }
     }
     return $composition;
@@ -124,19 +132,7 @@ sub compose_raw {
             'value'  => 'Cancer diagnosis',
             '@class' => 'DV_TEXT'
         },
-        'items' => [
-            {   'archetype_node_id' => 'at0002',
-                '@class'            => 'ELEMENT',
-                'name'              => {
-                    '@class' => 'DV_TEXT',
-                    'value'  => 'Topography'
-                },
-                'value' => {
-                    '@class' => 'DV_TEXT',
-                    'value'  => $self->topography, #'Topography 75'
-                }
-            },
-        ],
+        'items' => [ ],
         'archetype_details' => {
             '@class'       => 'ARCHETYPED',
             'archetype_id' => {
@@ -148,26 +144,27 @@ sub compose_raw {
     };
     if ( $self->morphology ) {
         for my $morphology ( @{ $self->morphology } ) {
-            push @{ $composition->{items} },
-                $morphology->compose;
+            push @{ $composition->{items} }, $morphology->compose;
+        }
+    }
+    if ( $self->topography ) {
+        for my $topography ( @{ $self->topography } ) {
+            push @{ $composition->{items} }, $topography->compose;
         }
     }
     if ( $self->recurrence_indicator ) {
         for my $recurrence_indicator ( @{ $self->recurrence_indicator } ) {
-            push @{ $composition->{items} },
-                $recurrence_indicator->compose;
+            push @{ $composition->{items} }, $recurrence_indicator->compose;
         }
     }
     if ( $self->metastatic_site ) {
         for my $metastatic_site ( @{ $self->metastatic_site } ) {
-            push @{ $composition->{items} },
-                $metastatic_site->compose;
+            push @{ $composition->{items} }, $metastatic_site->compose;
         }
     }
     if ( $self->tumour_laterality ) {
         for my $tumour_laterality ( @{ $self->tumour_laterality } ) {
-            push @{ $composition->{items} },
-                $tumour_laterality->compose;
+            push @{ $composition->{items} }, $tumour_laterality->compose;
         }
     }
     return $composition;
@@ -175,12 +172,23 @@ sub compose_raw {
 
 sub compose_flat {
     my $self        = shift;
-    my $composition = {
+    my $composition = {};
 
         # Cancer Diagnosis
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/topography'
-            => $self->topography, #'Topography 75',
-    };
+    if ( $self->topography ) {
+        my $topography_index = '0';
+        my $topography_comp;
+        for my $topography ( @{ $self->topography } ) {
+            my $composition_fragment = $topography->compose;
+            for my $key ( keys %{$composition_fragment} ) {
+                my $new_key = $key;
+                $new_key =~ s/__DIAG2__/$topography_index/;
+                $topography_comp->{$new_key} = $composition_fragment->{$key};
+            }
+            $topography_index++;
+            $composition = { ( %$composition, %{$topography_comp} ) };
+        }
+    }
     if ( $self->morphology ) {
         my $morphology_index = '0';
         my $morphology_comp;
@@ -189,8 +197,7 @@ sub compose_flat {
             for my $key ( keys %{$composition_fragment} ) {
                 my $new_key = $key;
                 $new_key =~ s/__DIAG2__/$morphology_index/;
-                $morphology_comp->{$new_key} =
-                    $composition_fragment->{$key};
+                $morphology_comp->{$new_key} = $composition_fragment->{$key};
             }
             $morphology_index++;
             $composition = { ( %$composition, %{$morphology_comp} ) };
@@ -205,7 +212,7 @@ sub compose_flat {
                 my $new_key = $key;
                 $new_key =~ s/__DIAG2__/$recurrence_indicator_index/;
                 $recurrence_indicator_comp->{$new_key} =
-                    $composition_fragment->{$key};
+                  $composition_fragment->{$key};
             }
             $recurrence_indicator_index++;
             $composition = { ( %$composition, %{$recurrence_indicator_comp} ) };
@@ -220,7 +227,7 @@ sub compose_flat {
                 my $new_key = $key;
                 $new_key =~ s/__DIAG2__/$metastatic_site_index/;
                 $metastatic_site_comp->{$new_key} =
-                    $composition_fragment->{$key};
+                  $composition_fragment->{$key};
             }
             $metastatic_site_index++;
             $composition = { ( %$composition, %{$metastatic_site_comp} ) };
@@ -235,7 +242,7 @@ sub compose_flat {
                 my $new_key = $key;
                 $new_key =~ s/__DIAG2__/$tumour_laterality_index/;
                 $tumour_laterality_comp->{$new_key} =
-                    $composition_fragment->{$key};
+                  $composition_fragment->{$key};
             }
             $tumour_laterality_index++;
             $composition = { ( %$composition, %{$tumour_laterality_comp} ) };

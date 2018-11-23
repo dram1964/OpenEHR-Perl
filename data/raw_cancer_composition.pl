@@ -1,4 +1,4 @@
-#52610f3a-be02-41e5-8d03-cb52342374a1::default::1
+#dd08d80c-f5a7-4ab7-a50e-68afd6879bb5::default::1
 $VAR1 = {
     'territory' => {
         'terminology_id' => {
@@ -18,7 +18,7 @@ $VAR1 = {
     },
     'archetype_node_id' => 'openEHR-EHR-COMPOSITION.report.v1',
     'uid'               => {
-        'value'  => '52610f3a-be02-41e5-8d03-cb52342374a1::default::1',
+        'value'  => 'dd08d80c-f5a7-4ab7-a50e-68afd6879bb5::default::1',
         '@class' => 'OBJECT_VERSION_ID'
     },
     'content' => [
@@ -33,7 +33,7 @@ $VAR1 = {
                     {
                         'archetype_node_id' => 'at0070',
                         'value'             => {
-                            'value'  => '2018-11-23T14:27:39Z',
+                            'value'  => '2018-11-23T16:40:57Z',
                             '@class' => 'DV_DATE_TIME'
                         },
                         'name' => {
@@ -218,8 +218,16 @@ $VAR1 = {
                             {
                                 'archetype_node_id' => 'at0002',
                                 'value'             => {
-                                    'value'  => 'Topography String',
-                                    '@class' => 'DV_TEXT'
+                                    'value'         => 'C06.9',
+                                    'defining_code' => {
+                                        'terminology_id' => {
+                                            'value'  => 'local',
+                                            '@class' => 'TERMINOLOGY_ID'
+                                        },
+                                        'code_string' => 'C06.9',
+                                        '@class'      => 'CODE_PHRASE'
+                                    },
+                                    '@class' => 'DV_CODED_TEXT'
                                 },
                                 'name' => {
                                     'value'  => 'Topography',
@@ -879,7 +887,7 @@ $VAR1 = {
     '@class'  => 'COMPOSITION',
     'context' => {
         'start_time' => {
-            'value'  => '2018-11-23T14:27:39.759Z',
+            'value'  => '2018-11-23T16:40:57.212Z',
             '@class' => 'DV_DATE_TIME'
         },
         'health_care_facility' => {
@@ -906,7 +914,7 @@ $VAR1 = {
                 {
                     'archetype_node_id' => 'at0002',
                     'value'             => {
-                        'value'  => 'a7e6deb1-4fee-4c29-93b2-e9f652bf220dCREP',
+                        'value'  => '7275aa5d-50b0-4bad-b9c6-d296c528fa52CREP',
                         '@class' => 'DV_TEXT'
                     },
                     'name' => {

@@ -166,6 +166,14 @@ ok(
     'Create new Morphology object'
 );
 
+ok(
+    my $topography =
+      OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::Topography
+      ->new(
+        local_code       => 'C06.9',
+      ),
+    'Create new Topography object'
+);
 
 ok(
     my $cancer_diagnosis =
@@ -174,7 +182,7 @@ ok(
         metastatic_site      => [$metastatic_site],
         recurrence_indicator => [$recurrence_indicator],
         morphology           => [$morphology],
-        topography           => 'Topography String',
+        topography           => [$topography],
       ),
     'Create new Cancer Diagnosis object'
 );
