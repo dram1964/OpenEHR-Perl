@@ -17,24 +17,31 @@ has code => (
     is  => 'rw',
     isa => 'Str',
     lazy => 1,
-    builder => '_build_code_value',
+    builder => '_build_code',
 );
 has value => (
     is  => 'rw',
-    isa => 'TumourValue',
+    isa => 'Str',
+    lazy => 1,
+    builder => '_build_value',
 );
 has terminology => (
     is  => 'rw',
     isa => 'Str',
+    default => 'local',
+);
+has local_code => (
+    is  => 'rw',
+    isa => 'TumourValue',
 );
 
-=head2 _build_code_value
+=head2 _build_code
 
-Sets the Tumour Laterality value based on the provided code
+Sets the Tumour Laterality code based on the provided local code
 
 =cut
 
-sub _build_code_value {
+sub _build_code {
     my $self = shift;
     my $tumour_laterality = {
         'B' => 'at0029', # The tumour is situated on both sides of the body
@@ -44,7 +51,26 @@ sub _build_code_value {
         '9' => 'at0033', # Tumour laterality is unknown
         '8' => 'at0034', # Tumour laterality is not applicable
     };
-    $self->code( $tumour_laterality->{ $self->value } );
+    $self->code( $tumour_laterality->{ $self->local_code} );
+}
+
+=head2 _build_value
+
+Sets the Tumour Laterality value based on the provided local code
+
+=cut
+
+sub _build_value {
+    my $self = shift;
+    my $tumour_laterality = {
+        'B' => 'The tumour is situated on both sides of the body.', 
+        'R' => 'The tumour is situated on the right side of the body.', 
+        'L' => 'The tumour is situated on the left side of the body.',
+        'M' => 'The tumour is situated midline.',
+        '9' => 'Tumour laterality is unknown.',
+        '8' => 'Tumour laterality is not applicable.',
+    };
+    $self->value( $tumour_laterality->{ $self->local_code } );
 }
 
 sub compose {

@@ -115,9 +115,7 @@ ok(
 
 ok(
     my $tumour_laterality = $pd->element('TumourLaterality')->new(
-        code        => 'at0029',
-        value       => 'B',
-        terminology => 'local',
+        local_code       => 'B',
     ),
     'Create new Tumour Laterality object'
 );

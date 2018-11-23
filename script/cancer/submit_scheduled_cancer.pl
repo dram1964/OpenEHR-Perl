@@ -256,8 +256,7 @@ sub get_cancer_diagnosis {
     my $cancer_diagnosis = $pd->element('CancerDiagnosis')->new();
     if ( $report->tumour_laterality ) {
         my $tumour_laterality = $pd->element('TumourLaterality')->new(
-            value       => $report->tumour_laterality,
-            terminology => 'local',
+            local_code       => $report->tumour_laterality,
         );
         $cancer_diagnosis->tumour_laterality( [$tumour_laterality] );
     }
