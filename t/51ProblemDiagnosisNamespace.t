@@ -132,8 +132,16 @@ ok(
 );
 
 ok( 
-    my $morphology = $pd->element('Morphology')->new(
+    my $morphology1 = $pd->element('Morphology')->new(
         local_code      => '8071/3',
+    ),
+    'Create new Morphology object'
+);
+
+ok( 
+    my $morphology2 = $pd->element('Morphology')->new(
+        local_code      => 'M80713',
+        terminology => 'SNOMED-NK'
     ),
     'Create new Morphology object'
 );
@@ -150,7 +158,7 @@ ok(
         tumour_laterality    => [$tumour_laterality],
         metastatic_site      => [$metastatic_site],
         recurrence_indicator => [$recurrence_indicator],
-        morphology           => [$morphology],
+        morphology           => [$morphology1, $morphology2],
         topography           => [$topography],
     ),
     'Create new Cancer Diagnosis object'
