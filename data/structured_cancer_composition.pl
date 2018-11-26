@@ -1,4 +1,4 @@
-#dd08d80c-f5a7-4ab7-a50e-68afd6879bb5::default::1
+#cb1a8913-905d-4002-80c2-db23ae8f22bf::default::1
 $VAR1 = {
     'gel_cancer_diagnosis' => {
         'territory' => [
@@ -23,7 +23,7 @@ $VAR1 = {
                         '|id_scheme'    => 'UCLH-NS'
                     }
                 ],
-                'start_time' => [ '2018-11-23T16:40:57.212Z' ],
+                'start_time' => [ '2018-11-26T12:11:27.200Z' ],
                 'setting'    => [
                     {
                         '|code'        => '238',
@@ -51,7 +51,7 @@ $VAR1 = {
                         ]
                     }
                 ],
-                'report_id' => [ '7275aa5d-50b0-4bad-b9c6-d296c528fa52CREP' ]
+                'report_id' => [ 'TT123123Z' ]
             }
         ],
         'category' => [
@@ -102,10 +102,9 @@ $VAR1 = {
                     {
                         'modified_dukes_stage' => [
                             {
-                                '|code'        => 'at0003',
+                                '|code'        => 'at0006',
                                 '|terminology' => 'local',
-                                '|value' =>
-'Dukes B Tumour penetrates through the muscularis propia to involve extramural tissues, nodes negative.'
+                                '|value'       => 'Dukes Stage D'
                             }
                         ]
                     }
@@ -150,19 +149,20 @@ $VAR1 = {
                             {
                                 'grade' => [
                                     {
-                                        '|code'        => 'at0027',
+                                        '|code'        => 'at0028',
                                         '|terminology' => 'local',
-                                        '|value' => 'Class A 5 to 6 points.'
+                                        '|value' =>
+'The Child-Pugh grade is Class B with a total score of 7 to 9 points.'
                                     }
                                 ]
                             }
                         ],
                         'pancreatic_clinical_stage' => [
                             {
-                                '|code'        => 'at0012',
+                                '|code'        => 'at0009',
                                 '|terminology' => 'local',
                                 '|value' =>
-'Stage is deemed to be unresectable (locally advanced).'
+'Stage is deemed to be localised and resectable.'
                             }
                         ],
                         'bclc_stage' => [
@@ -196,9 +196,9 @@ $VAR1 = {
                     {
                         'inrg_stage' => [
                             {
-                                '|code'        => 'at0005',
+                                '|code'        => 'at0004',
                                 '|terminology' => 'local',
-                                '|value'       => 'N'
+                                '|value'       => 'M'
                             }
                         ]
                     }
@@ -214,10 +214,9 @@ $VAR1 = {
                         ],
                         'tumour_laterality' => [
                             {
-                                '|code'        => 'at0029',
+                                '|code'        => 'at0033',
                                 '|terminology' => 'local',
-                                '|value' =>
-'The tumour is situated on both sides of the body.'
+                                '|value' => 'Tumour laterality is unknown.'
                             }
                         ],
                         'metastatic_site' => [
@@ -250,7 +249,7 @@ $VAR1 = {
                             {
                                 '|code'        => 'at0008',
                                 '|terminology' => 'local',
-                                '|value'       => 'ib'
+                                '|value'       => 'IB'
                             }
                         ],
                         'figo_version' => [ 'Figo Version 89' ]
@@ -262,7 +261,7 @@ $VAR1 = {
                         '|terminology' => 'IANA_character-sets'
                     }
                 ],
-                'event_date'         => [ '2018-11-23T16:40:57Z' ],
+                'event_date'         => [ '2018-11-26T12:11:27Z' ],
                 'testicular_staging' => [
                     {
                         'lung_metastases_sub-stage_grouping' => [
@@ -270,14 +269,14 @@ $VAR1 = {
                                 '|code'        => 'at0021',
                                 '|terminology' => 'local',
                                 '|value' =>
-                                  'L1 less than or equal to 4 metastases'
+'Less than or equal to 3 lung metastases are present.'
                             }
                         ],
                         'extranodal_metastases' => [
                             {
-                                '|code'        => 'at0019',
+                                '|code'        => 'at0016',
                                 '|terminology' => 'local',
-                                '|value'       => 'L Lung involvement'
+                                '|value' => 'Brain involvement is present.'
                             }
                         ],
                         'stage_grouping_testicular' => [
@@ -291,6 +290,6 @@ $VAR1 = {
                 ]
             }
         ],
-        '_uid' => [ 'dd08d80c-f5a7-4ab7-a50e-68afd6879bb5::default::1' ]
+        '_uid' => [ 'cb1a8913-905d-4002-80c2-db23ae8f22bf::default::1' ]
     }
 };

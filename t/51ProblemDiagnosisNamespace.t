@@ -181,18 +181,21 @@ ok(
 
 ok(
     my $lung_metastases = $pd->element('LungMetastases')->new(
-        code        => 'at0021',
-        value       => 'L1 less than or equal to 4 metastases',
-        terminology => 'local',
+        local_code       => 'L1',
     ),
     'Create new Lung Metastases object'
 );
 
 ok(
+    my $extranodal_metastases = $pd->element('ExtranodalMetastases')->new(
+        local_code       => 'L',
+    ),
+    'Create new Extranodal Metastases object'
+);
+
+ok(
     my $stage_group_testicular = $pd->element('StageGroupTesticular')->new(
-        terminology => 'local',
-        code        => 'at0010',
-        value       => '3C adjusted',
+        local_code       => '3A',
     ),
     'Create new Lung Metastases object'
 );
@@ -200,6 +203,7 @@ ok(
 ok(
     my $testicular_staging = $pd->element('TesticularStaging')->new(
         lung_metastases        => [$lung_metastases],
+        extranodal_metastases        => [$extranodal_metastases],
         stage_group_testicular => [$stage_group_testicular],
     ),
     'Create new Testicular Staging object'

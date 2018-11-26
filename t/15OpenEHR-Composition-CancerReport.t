@@ -212,20 +212,25 @@ ok(
     my $lung_metastases =
       OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::LungMetastases
       ->new(
-        code        => 'at0021',
-        value       => 'L1 less than or equal to 4 metastases',
-        terminology => 'local',
+        local_code       => 'L1',
       ),
     'Create new Lung Metastases object'
+);
+
+ok(
+    my $extranodal_metastases =
+      OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::ExtranodalMetastases
+      ->new(
+        local_code        => 'B',
+      ),
+    'Create new Extranodal Metastases object'
 );
 
 ok(
     my $stage_group_testicular =
       OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::StageGroupTesticular
       ->new(
-        terminology => 'local',
-        code        => 'at0010',
-        value       => '3C adjusted',
+        local_code       => '3C',
       ),
     'Create new Lung Metastases object'
 );
@@ -234,6 +239,7 @@ ok(
     my $testicular_staging =
       OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging->new(
         lung_metastases        => [$lung_metastases],
+        extranodal_metastases => [$extranodal_metastases],
         stage_group_testicular => [$stage_group_testicular],
       ),
     'Create new Testicular Staging object'
@@ -260,7 +266,6 @@ ok(
 
 my @formats = qw( FLAT STRUCTURED RAW);
 
-#@formats = qw(FLAT);
 for my $format (@formats) {
     note("Testing $format format composition");
     my $ehr1 = &get_new_random_subject();

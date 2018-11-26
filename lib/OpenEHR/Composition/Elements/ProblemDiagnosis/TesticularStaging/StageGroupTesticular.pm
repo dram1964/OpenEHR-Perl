@@ -4,24 +4,86 @@ use warnings;
 use strict;
 use Carp;
 use Moose;
+use Moose::Util::TypeConstraints;
 use DateTime;
 use Data::Dumper;
 extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
+enum 'Group_Code' => [ qw( 1 1S 1M 2A 2B 2C 3A 3B 3C 4A 4B 4C ) ];
+
 has code => (
-    is  => 'rw',
-    isa => 'Str',
+    is      => 'rw',
+    isa     => 'Str',
+    lazy    => 1,
+    builder => '_build_code',
 );
 has value => (
-    is  => 'rw',
-    isa => 'Str',
+    is      => 'rw',
+    isa     => 'Str',
+    lazy    => 1,
+    builder => '_build_value',
 );
 has terminology => (
-    is  => 'rw',
-    isa => 'Str',
+    is      => 'rw',
+    isa     => 'Str',
+    default => 'local',
 );
+has local_code => (
+    is  => 'rw',
+    isa => 'Group_Code',
+);
+
+=head2 _build_code
+
+Private method to derive the Lung Metastatic Substage Code from the local code provided
+
+=cut
+
+sub _build_code {
+    my $self       = shift;
+    my $lung_codes = {
+        '1' => 'at0002', 
+        '1S' => 'at0003',
+        '1M' => 'at0004',
+        '2A' => 'at0005',
+        '2B' => 'at0006',
+        '2C' => 'at0007',
+        '3A' => 'at0008',
+        '3B' => 'at0009',
+        '3C' => 'at0010',
+        '4A' => 'at0011',
+        '4B' => 'at0012',
+        '4C' => 'at0013', 
+    };
+    $self->code( $lung_codes->{ $self->local_code } );
+}
+
+=head2 _build_value
+
+Private method to derive the Extranodal Code from the local code provided
+
+=cut
+
+sub _build_value {
+    my $self       = shift;
+    my $lung_codes = {
+        '1' => 'Stage 1', 
+        '1S' => 'Stage 1S',
+        '1M' => 'Stage 1M',
+        '2A' => 'Stage 2A',
+        '2B' => 'Stage 2B',
+        '2C' => 'Stage 2C',
+        '3A' => 'Stage 3A',
+        '3B' => 'Stage 3B',
+        '3C' => 'Stage 3C',
+        '4A' => 'Stage 4A',
+        '4B' => 'Stage 4B',
+        '4C' => 'Stage 4C', 
+    };
+    $self->value( $lung_codes->{ $self->local_code } );
+}
 
 sub compose {
     my $self = shift;

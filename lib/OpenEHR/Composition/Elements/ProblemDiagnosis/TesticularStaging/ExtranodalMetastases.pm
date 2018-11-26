@@ -1,4 +1,4 @@
-package OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::LungMetastases;
+package OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::ExtranodalMetastases;
 
 use warnings;
 use strict;
@@ -11,60 +11,62 @@ extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
-enum 'Lung_Code' => [
-    qw( L1 L2 L3 )
-];
+enum 'Extranodal_Code' => [ qw( H B M N L ) ];
 
 has code => (
-    is  => 'rw',
-    isa => 'Str',
+    is      => 'rw',
+    isa     => 'Str',
     lazy    => 1,
     builder => '_build_code',
 );
 has value => (
-    is  => 'rw',
-    isa => 'Str',
+    is      => 'rw',
+    isa     => 'Str',
     lazy    => 1,
     builder => '_build_value',
 );
 has terminology => (
-    is  => 'rw',
-    isa => 'Str',
+    is      => 'rw',
+    isa     => 'Str',
     default => 'local',
 );
 has local_code => (
-    is => 'rw',
-    isa => 'Lung_Code',
+    is  => 'rw',
+    isa => 'Extranodal_Code',
 );
 
 =head2 _build_code
 
-Private method to derive the Lung Code from the local code provided
+Private method to derive the Extranodal Code from the local code provided
 
 =cut
 
 sub _build_code {
     my $self       = shift;
     my $lung_codes = {
-        L1 => 'at0021',
-        L2 => 'at0022',
-        L3 => 'at0023',
+        H => 'at0015',
+        B => 'at0016',
+        M => 'at0017',
+        N => 'at0018',
+        L => 'at0019',
     };
     $self->code( $lung_codes->{ $self->local_code } );
 }
 
 =head2 _build_value
 
-Private method to derive the Lung Code from the local code provided
+Private method to derive the Extranodal Code from the local code provided
 
 =cut
 
 sub _build_value {
     my $self       = shift;
     my $lung_codes = {
-        L1 => 'Less than or equal to 3 lung metastases are present.',
-        L2 => 'Greater than 3 lung metastases are present.',
-        L3 => 'Greater then 3 metastases, one or more greater than or equal to 2cm diameter are present.',
+        H => 'Liver involvement is present.',
+        B => 'Brain involvement is present.',
+        M => 'Mediastinal involvement is present.',
+        N => 'Neck nodes are present.',
+        L => 'Lung involvement is present.',
     };
     $self->value( $lung_codes->{ $self->local_code } );
 }
@@ -72,7 +74,7 @@ sub _build_value {
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')
-        if ( $self->composition_format eq 'TDD' );
+      if ( $self->composition_format eq 'TDD' );
 
     my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
@@ -91,39 +93,37 @@ sub compose_structured {
 sub compose_raw {
     my $self        = shift;
     my $composition = {
-        'name' => {
-                                'value' =>
-                                    'Lung metastases sub-stage grouping',
-                                '@class' => 'DV_TEXT'
-                            },
-                            'value' => {
-                                'value' =>
-                                    $self->value, #'L1 less than or equal to 3 metastases',
-                                'defining_code' => {
-                                    'terminology_id' => {
-                                        '@class' => 'TERMINOLOGY_ID',
-                                        'value'  => $self->terminology, #'local'
-                                    },
-                                    'code_string' => $self->code, #'at0021',
-                                    '@class'      => 'CODE_PHRASE'
-                                },
-                                '@class' => 'DV_CODED_TEXT'
-                            },
-                            'archetype_node_id' => 'at0020',
-                            '@class'            => 'ELEMENT'
-                        };
-    return $composition;
+        'archetype_node_id' => 'at0014',
+        '@class'            => 'ELEMENT',
+        'name'              => {
+            '@class' => 'DV_TEXT',
+            'value'  => 'Extranodal metastases'
+        },
+        'value' => {
+            '@class'        => 'DV_CODED_TEXT',
+            'defining_code' => {
+                'code_string'    => $self->code,
+                '@class'         => 'CODE_PHRASE',
+                'terminology_id' => {
+                    'value'  => $self->terminology,
+                    '@class' => 'TERMINOLOGY_ID'
+                }
+            },
+            'value' => $self->value,
+        }
+      };
+      return $composition;
 }
 
 sub compose_flat {
     my $self        = shift;
     my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/lung_metastases_sub-stage_grouping:__DIAG2__|code'
-            => $self->code, #'at0021',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/lung_metastases_sub-stage_grouping:__DIAG2__|value'
-            => $self->value, #'L1 less than or equal to 3 metastases',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/lung_metastases_sub-stage_grouping:__DIAG2__|terminology'
-            => $self->terminology, #'local',
+'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/extranodal_metastases:__DIAG2__|code'
+          => $self->code,    #'at0021',
+'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/extranodal_metastases:__DIAG2__|value'
+          => $self->value,    #'L1 less than or equal to 3 metastases',
+'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/extranodal_metastases:__DIAG2__|terminology'
+          => $self->terminology,    #'local',
     };
     return $composition;
 }
@@ -136,18 +136,18 @@ __END__
 
 =head1 NAME
 
-OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::LungMetastases - composition element
+OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::ExtranodalMetastases - composition element
 
 
 =head1 VERSION
 
-This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::LungMetastases version 0.0.2
+This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::ExtranodalMetastases version 0.0.2
 
 
 =head1 SYNOPSIS
 
-    use OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::LungMetastases;
-    my $template = OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::LungMetastases->new(
+    use OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::ExtranodalMetastases;
+    my $template = OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::ExtranodalMetastases->new(
     );
     my $template_hash = $template->compose();
 
@@ -165,15 +165,15 @@ Used to create a template element for adding to a Problem Diagnosis composition 
 
 =head2 code($code)
 
-Used to get or set the Lung Metastases code
+Used to get or set the Extranodal Metastases code
 
 =head2 value($value)
 
-Used to get or set the Lung Metastases value
+Used to get or set the Extranodal Metastases value
 
 =head2 terminology($terminology)
 
-Used to get or set the Lung Metastases terminology
+Used to get or set the Extranodal Metastases terminology
 
 =head2 compose
 
@@ -197,7 +197,7 @@ None
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::LungMetastases requires no configuration files or 
+OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::ExtranodalMetastases requires no configuration files or 
 environment variables.
 
 
