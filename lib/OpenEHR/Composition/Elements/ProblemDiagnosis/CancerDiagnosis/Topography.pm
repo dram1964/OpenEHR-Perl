@@ -26,7 +26,7 @@ has value => (
 has terminology => (
     is      => 'rw',
     isa     => 'Str',
-    default => 'local',
+    default => 'ICD-O-3',
 );
 has local_code => (
     is  => 'rw',

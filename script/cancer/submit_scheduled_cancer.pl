@@ -61,8 +61,6 @@ sub report_cancer {
         my (
             $colorectal_diagnosis, $tumour_id,
             $clinical_evidence,    
-            $lung_metastases,      $stage_group_testicular,
-            $testicular_staging
         );
 
         my $diagnosis = &get_diagnosis( $report, $pd );
@@ -102,16 +100,6 @@ This data is not currently in the Infoflex Extract
             $problem_diagnosis->modified_dukes( [$modified_dukes] );
         }
 
-        my $upper_gi = $pd->element('UpperGI')->new();
-        if ( $report->bclc_stage_upper_gi ) {
-            my $bclc_stage = &get_bclc_stage( $report, $pd );
-            $upper_gi->bclc_stage( [$bclc_stage] );
-        }
-        if ( $report->portal_invasion_upper_gi ) {
-            my $portal_invasion = &get_portal_invasion( $report, $pd );
-            $upper_gi->portal_invasion( [$portal_invasion] );
-        }
-
 =head1 Placeholder
 
 Placeholder for pancreated clinical stage
@@ -122,6 +110,15 @@ This data is not currently in the Infoflex Extract
         }
 =cut
 
+        my $upper_gi = $pd->element('UpperGI')->new();
+        if ( $report->bclc_stage_upper_gi ) {
+            my $bclc_stage = &get_bclc_stage( $report, $pd );
+            $upper_gi->bclc_stage( [$bclc_stage] );
+        }
+        if ( $report->portal_invasion_upper_gi ) {
+            my $portal_invasion = &get_portal_invasion( $report, $pd );
+            $upper_gi->portal_invasion( [$portal_invasion] );
+        }
         if ( $report->number_of_lesions_cns ) {
             my $number_lesions = &get_number_lesions( $report, $pd );
             $upper_gi->lesions($number_lesions);

@@ -4,24 +4,82 @@ use warnings;
 use strict;
 use Carp;
 use Moose;
+use Moose::Util::TypeConstraints;
 use DateTime;
 use Data::Dumper;
 extends 'OpenEHR::Composition';
 
-use version; our $VERSION = qv('0.0.2');
+enum 'Tumour_Indicator' => [
+    qw( 1 2 3 4 5 6 7 8 9 10 )
+];
 
 has code => (
     is  => 'rw',
     isa => 'Str',
+    lazy    => 1,
+    builder => '_build_code',
 );
 has value => (
     is  => 'rw',
     isa => 'Str',
+    lazy    => 1,
+    builder => '_build_value',
 );
 has terminology => (
     is  => 'rw',
     isa => 'Str',
+    default => 'local',
 );
+has local_code => (
+    is => 'rw',
+    isa => 'Tumour_Indicator',
+);
+
+=head2 _build_code
+
+Private method to derive the Tumour indicator code from the local code provided
+
+=cut
+
+sub _build_code {
+    my $self       = shift;
+    my $lung_codes = {
+        1 => 'at0002',
+        2 => 'at0003',
+        3 => 'at0004',
+        4 => 'at0005',
+        5 => 'at0006',
+        6 => 'at0007',
+        7 => 'at0008',
+        8 => 'at0009',
+        9 => 'at0010',
+        10 => 'at0011',
+    };
+    $self->code( $lung_codes->{ $self->local_code } );
+}
+
+=head2 _build_value
+
+Private method to derive the Lung Code from the local code provided
+
+=cut
+
+sub _build_value {
+    my $self       = shift;
+    my $lung_codes = {
+        1 => 'Synchronous tumour in caecum.',
+        2 => 'Synchronous tumour in appendix.',
+        3 => 'Synchronous tumour in ascending colon.',
+        4 => 'Synchronous tumour in hepatic flexure.',
+        5 => 'Synchronous tumour in transverse colon.',
+        6 => 'Synchronous tumour in splenic flexure.',
+        7 => 'Synchronous tumour indescending colon.',
+        8 => 'Synchronous tumour in sigmoid colon.',
+        9 => 'Synchronous tumour in rectosigmoid.',
+        10 => 'Synchronous tumour in rectum.',
+    };
+    $self->value( $lung_codes->{ $self->local_code } );
+}
 
 sub compose {
     my $self = shift;

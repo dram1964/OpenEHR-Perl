@@ -18,7 +18,7 @@ ok(
 ok(
     my $diagnosis =
       OpenEHR::Composition::Elements::ProblemDiagnosis::Diagnosis->new(
-        code => 'C71.6',
+        code  => 'C71.6',
         value => 'Malignant neoplasm of cerebrum, cerebellum',
       ),
     'Create new Diagnosis object'
@@ -67,8 +67,7 @@ ok(
 ok(
     my $clinical_evidence =
       OpenEHR::Composition::Elements::ProblemDiagnosis::ClinicalEvidence->new(
-        evidence =>
-          '2 Clinical investigation including all diagnostic techniques',
+        local_code => '2',
       ),
     'Create new Clinical Evidence object'
 );
@@ -143,7 +142,7 @@ ok(
     my $metastatic_site =
       OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::MetastaticSite
       ->new(
-        local_code       => '08',
+        local_code => '08',
       ),
     'Create new Metastatic Site object'
 );
@@ -152,7 +151,7 @@ ok(
     my $recurrence_indicator =
       OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::RecurrenceIndicator
       ->new(
-        local_code       => 'NN',
+        local_code => 'NN',
       ),
     'Create new Recurrence Indicator object'
 );
@@ -161,7 +160,7 @@ ok(
     my $morphology =
       OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::Morphology
       ->new(
-        local_code       => '8071/3',
+        local_code => '8071/3',
       ),
     'Create new Morphology object'
 );
@@ -170,7 +169,7 @@ ok(
     my $topography =
       OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::Topography
       ->new(
-        local_code       => 'C06.9',
+        local_code => 'C06.9',
       ),
     'Create new Topography object'
 );
@@ -203,7 +202,7 @@ ok(
 ok(
     my $inrg_staging =
       OpenEHR::Composition::Elements::ProblemDiagnosis::INRG_Staging->new(
-        local_code       => 'M',
+        local_code => 'M',
       ),
     'Create new INRG Staging object'
 );
@@ -212,7 +211,7 @@ ok(
     my $lung_metastases =
       OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::LungMetastases
       ->new(
-        local_code       => 'L1',
+        local_code => 'L1',
       ),
     'Create new Lung Metastases object'
 );
@@ -221,7 +220,7 @@ ok(
     my $extranodal_metastases =
       OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::ExtranodalMetastases
       ->new(
-        local_code        => 'B',
+        local_code => 'B',
       ),
     'Create new Extranodal Metastases object'
 );
@@ -230,7 +229,7 @@ ok(
     my $stage_group_testicular =
       OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::StageGroupTesticular
       ->new(
-        local_code       => '3C',
+        local_code => '3C',
       ),
     'Create new Lung Metastases object'
 );
@@ -239,7 +238,7 @@ ok(
     my $testicular_staging =
       OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging->new(
         lung_metastases        => [$lung_metastases],
-        extranodal_metastases => [$extranodal_metastases],
+        extranodal_metastases  => [$extranodal_metastases],
         stage_group_testicular => [$stage_group_testicular],
       ),
     'Create new Testicular Staging object'

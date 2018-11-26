@@ -27,9 +27,7 @@ ok(
 
 ok(
     my $colorectal_diagnosis = $pd->element('ColorectalDiagnosis')->new(
-        code        => 'at0003',
-        value       => '2 Appendix',
-        terminology => 'local',
+        local_code       => '2',
     ),
     'Create new Diagnosis object'
 );
@@ -60,9 +58,7 @@ ok(
 
 ok(
     my $clinical_evidence = $pd->element('ClinicalEvidence')->new(
-        evidence =>
-          '2 Clinical investigation including all diagnostic techniques',
-    ),
+        local_code => '0',),
     'Create new Clinical Evidence object'
 );
 

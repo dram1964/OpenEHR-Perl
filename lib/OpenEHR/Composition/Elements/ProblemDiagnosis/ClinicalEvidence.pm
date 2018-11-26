@@ -4,16 +4,76 @@ use warnings;
 use strict;
 use Carp;
 use Moose;
+use Moose::Util::TypeConstraints;
 use DateTime;
 use Data::Dumper;
 extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
-has evidence => (
+enum 'BaseOfDiag' => [
+    qw( 0 1 2 4 5 6 7 9  )
+];
+
+has code => (
     is  => 'rw',
     isa => 'Str',
+    lazy    => 1,
+    builder => '_build_code',
 );
+has value => (
+    is  => 'rw',
+    isa => 'Str',
+    lazy    => 1,
+    builder => '_build_value',
+);
+has terminology => (
+    is  => 'rw',
+    isa => 'Str',
+    default => 'local',
+);
+has local_code => (
+    is => 'rw',
+    isa => 'BaseOfDiag',
+);
+
+=head2 _build_code
+
+Private method to derive the Lung Code from the local code provided
+
+=cut
+
+sub _build_code {
+    my $self       = shift;
+    my $diag_codes = {
+        '0' => '0 Death Certificate',
+        '1' => '1 Diagnosis made before death but without evidence',
+        '2' => '2 Clinical investigation including all diagnostic techniques',
+        '4' => '4 Specific tumour markers',
+        '5' => '5 Cytology',
+        '6' => '6 Histology of metastasis',
+        '7' => '7 Histology of primary tumour',
+        '9' => '9 Unknown',
+    };
+    $self->code( $diag_codes->{ $self->local_code } );
+}
+
+=head2 _build_value
+
+Private method to derive the Lung Code from the local code provided
+
+=cut
+
+sub _build_value {
+    my $self       = shift;
+    my $diag_codes = {
+        L1 => 'Less than or equal to 3 lung metastases are present.',
+        L2 => 'Greater than 3 lung metastases are present.',
+        L3 => 'Greater then 3 metastases, one or more greater than or equal to 2cm diameter are present.',
+    };
+    $self->value( $diag_codes->{ $self->local_code } );
+}
+
 
 sub compose {
     my $self = shift;
@@ -28,7 +88,7 @@ sub compose_structured {
     my $self        = shift;
     my $composition = {
         'base_of_diagnosis' => [
-            $self->evidence
+            $self->code
             ,  #'2 Clinical investigation including all diagnostic techniques'
         ]
     };
@@ -53,7 +113,7 @@ sub compose_raw {
         'items' => [
             {   'value' => {
                     '@class' => 'DV_TEXT',
-                    'value'  => $self->evidence,  #'6 Histology of metastasis'
+                    'value'  => $self->code,  #'6 Histology of metastasis'
                 },
                 'name' => {
                     '@class' => 'DV_TEXT',
@@ -73,7 +133,7 @@ sub compose_flat {
     my $self        = shift;
     my $composition = {
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/clinical_evidence:__DIAG__/base_of_diagnosis'
-            => $self->evidence,    #'6 Histology of metastasis',
+            => $self->code,    #'6 Histology of metastasis',
     };
     return $composition;
 }
