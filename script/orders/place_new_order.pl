@@ -113,7 +113,7 @@ OPTIONS
                     select for reporting if their report_date
                     is greater than this date. Format:
                     'yyyy-mm-dd'
--s --end_date       End Date for order: reports will only be
+-e --end_date       (Optional) End Date for order: reports will only be
                     select for reporting if their report_date
                     is less than this date. Format:
                     'yyyy-mm-dd'
