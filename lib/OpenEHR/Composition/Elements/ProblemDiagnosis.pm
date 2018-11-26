@@ -182,6 +182,12 @@ sub compose_structured {
     my $composition = {
         'event_date'         => [ DateTime->now->datetime ],
     };
+    if ( $self->integrated_tnm ) {
+        for my $integrated_tnm ( @{ $self->integrated_tnm } ) {
+            push @{ $composition->{integrated_tnm} },
+                $integrated_tnm->compose;
+        }
+    }
     if ( $self->testicular_staging ) {
         for my $testicular_staging ( @{ $self->testicular_staging } ) {
             push @{ $composition->{testicular_staging} },

@@ -91,7 +91,7 @@ sub compose_structured {
         'integrated_m'              => [ $self->integrated_m ],
         'integrated_t'              => [ $self->integrated_t ],
         'integrated_stage_grouping' => [ $self->stage_grouping ],
-        'integrated_n'              => [ $self->integrated_m ],
+        'integrated_n'              => [ $self->integrated_n ],
         'grading_at_diagnosis'      => [ $self->grading_at_diagnosis ],
         'integrated_tnm_edition'    => [ $self->tnm_edition ],
     };

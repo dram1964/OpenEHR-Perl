@@ -73,6 +73,10 @@ sub report_cancer {
         my $cancer_diagnosis = &get_cancer_diagnosis( $report, $pd );
         $problem_diagnosis->cancer_diagnosis( [$cancer_diagnosis] );
 
+        if ( my $integrated_tnm = &get_integrated_tnm( $report, $pd ) ) {
+            $problem_diagnosis->integrated_tnm( [$integrated_tnm] );
+        }
+
         if ( $report->ajcc_tnm_stage_group_skin ) {
             my $ajcc_stage = &get_ajcc_stage( $report, $pd );
             $problem_diagnosis->ajcc_stage( [$ajcc_stage] );
@@ -158,6 +162,46 @@ sub get_number_lesions {
     return $number_lesions;
 }
 
+sub get_integrated_tnm {
+    my $report = shift;
+    my $pd             = shift;
+    my $integrated_tnm = $pd->element('Integrated_TNM')->new();
+    my $items_found = 0;
+    if ($report->t_category) {
+        $integrated_tnm->integrated_t( $report->t_category );
+        $items_found++;
+    }
+    if ($report->n_category) {
+        $integrated_tnm->integrated_n( $report->n_category );
+        $items_found++;
+    }
+    if ($report->m_category) {
+        $integrated_tnm->integrated_m( $report->m_category );
+        $items_found++;
+    }
+    if ($report->tnm_stage_grouping) {
+        $integrated_tnm->stage_grouping( $report->tnm_stage_grouping );
+        $items_found++;
+    }
+    if ($report->tnm_edition_number) {
+        $integrated_tnm->tnm_edition( $report->tnm_edition_number );
+        $items_found++;
+    }
+    if ($report->grade_of_differentiation) {
+        $integrated_tnm->grading_at_diagnosis( $report->grade_of_differentiation );
+        $items_found++;
+    }
+    if ( $items_found > 0) {
+        return $integrated_tnm;
+    }
+    else {
+        return 0;
+    }
+}
+
+
+
+
 sub get_tace {
     my $report = shift;
     my $pd     = shift;
@@ -226,20 +270,27 @@ sub get_diagnosis {
     my $report         = shift;
     my $pd             = shift;
     my $diagnosis_code = $report->event_icd10_diagnosis_code;
-    my $diagnosis = $pd->element('Diagnosis')->new( code => $diagnosis_code, );
     if ($diagnosis_code) {
+        my $diagnosis = $pd->element('Diagnosis')->new( code => $diagnosis_code, );
         my $search_code = $diagnosis_code;
         $search_code =~ s/\.//;
         my $code_name_rs = $schema->resultset('CodesIcd10')
           ->search( { code => $search_code, }, { rows => 1, }, );
-        if ( my $code_name = $code_name_rs->first ) {
+        my $code_name = $code_name_rs->first; 
+        if ($code_name) {
             my $description = $code_name->description;
             if ($description) {
                 $diagnosis->value($description);
             }
         }
+        else {
+            $diagnosis->value( $diagnosis_code );
+        }
+        return $diagnosis;
     }
-    return $diagnosis;
+    else {
+        return 0;
+    }
 }
 
 sub get_cancer_diagnosis {
