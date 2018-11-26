@@ -44,7 +44,7 @@ sub _set_ctx {
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')
-        if ( $self->composition_format eq 'TDD' );
+      if ( $self->composition_format eq 'TDD' );
 
     for my $problem_diagnosis ( @{ $self->problem_diagnoses } ) {
         $problem_diagnosis->composition_format( $self->composition_format );
@@ -60,30 +60,7 @@ sub compose_structured {
     my $composition = {
         ctx                    => $ctx,
         'gel_cancer_diagnosis' => {
-            'context' => [
-                {   
-                    'participant' => [
-                        {   'study_identifier' => [
-                                {   '|assigner' => 'Assigner',
-                                    '|id' =>
-                                        '718ffece-da5e-4d17-8e13-470aff5e98a8',
-                                    '|issuer' => 'Issuer',
-                                    '|type'   => 'Prescription'
-                                }
-                            ],
-                            'participant_identifier' => [
-                                {   '|type'   => 'Prescription',
-                                    '|issuer' => 'Issuer',
-                                    '|id' =>
-                                        '4227c2cb-8f0c-49b6-bd93-345b6174324b',
-                                    '|assigner' => 'Assigner'
-                                }
-                            ]
-                        }
-                    ],
-                    'report_id' => $self->report_id,
-                }
-            ]
+            'context' => [ { 'report_id' => $self->report_id, } ]
         },
     };
     my $problem_diagnoses;
@@ -91,7 +68,7 @@ sub compose_structured {
         push @{$problem_diagnoses}, $problem_diagnosis->compose;
     }
     $composition->{gel_cancer_diagnosis}->{problem_diagnosis} =
-        $problem_diagnoses;
+      $problem_diagnoses;
 
     return $composition;
 }
@@ -105,7 +82,8 @@ sub compose_raw {
             'value'  => 'Tree'
         },
         'items' => [
-            {   'value' => {
+            {
+                'value' => {
                     'value'  => $self->report_id,
                     '@class' => 'DV_TEXT'
                 },
@@ -116,52 +94,6 @@ sub compose_raw {
                 '@class'            => 'ELEMENT',
                 'archetype_node_id' => 'at0002'
             },
-            {   'archetype_node_id' =>
-                    'openEHR-EHR-CLUSTER.participant_gel.v0',
-                '@class'            => 'CLUSTER',
-                'archetype_details' => {
-                    'rm_version'   => '1.0.1',
-                    'archetype_id' => {
-                        'value'  => 'openEHR-EHR-CLUSTER.participant_gel.v0',
-                        '@class' => 'ARCHETYPE_ID'
-                    },
-                    '@class' => 'ARCHETYPED'
-                },
-                'items' => [
-                    {   'name' => {
-                            'value'  => 'Participant identifier',
-                            '@class' => 'DV_TEXT'
-                        },
-                        'value' => {
-                            'issuer' => 'Issuer',
-                            'id' => '85e10b15-7b79-46c0-8d94-892cad063048',
-                            'assigner' => 'Assigner',
-                            'type'     => 'Prescription',
-                            '@class'   => 'DV_IDENTIFIER'
-                        },
-                        'archetype_node_id' => 'at0015',
-                        '@class'            => 'ELEMENT'
-                    },
-                    {   'value' => {
-                            'id' => '0a9db4b5-44cb-4254-ae23-722c1178c265',
-                            'issuer'   => 'Issuer',
-                            '@class'   => 'DV_IDENTIFIER',
-                            'type'     => 'Prescription',
-                            'assigner' => 'Assigner'
-                        },
-                        'name' => {
-                            '@class' => 'DV_TEXT',
-                            'value'  => 'Study identifier'
-                        },
-                        '@class'            => 'ELEMENT',
-                        'archetype_node_id' => 'at0016'
-                    }
-                ],
-                'name' => {
-                    'value'  => 'Participant',
-                    '@class' => 'DV_TEXT'
-                }
-            }
         ],
         '@class'            => 'ITEM_TREE',
         'archetype_node_id' => 'at0001'
@@ -211,8 +143,7 @@ sub compose_flat {
         for my $key ( keys %{$composition_fragment} ) {
             my $new_key = $key;
             $new_key =~ s/__TEST__/$problem_diagnosis_index/;
-            $problem_diagnosis_comp->{$new_key} =
-                $composition_fragment->{$key};
+            $problem_diagnosis_comp->{$new_key} = $composition_fragment->{$key};
         }
         $problem_diagnosis_index++;
     }
@@ -220,25 +151,7 @@ sub compose_flat {
     my $ctx = $self->ctx->compose;
     $composition = {
         %{$ctx},
-        # Context
         'gel_cancer_diagnosis/context/report_id' => $self->report_id,
-        'gel_cancer_diagnosis/context/participant/participant_identifier|type'
-            => 'Prescription',
-        'gel_cancer_diagnosis/context/participant/participant_identifier|assigner'
-            => 'Assigner',
-        'gel_cancer_diagnosis/context/participant/participant_identifier' =>
-            '85e10b15-7b79-46c0-8d94-892cad063048',
-        'gel_cancer_diagnosis/context/participant/participant_identifier|issuer'
-            => 'Issuer',
-        'gel_cancer_diagnosis/context/participant/study_identifier|type' =>
-            'Prescription',
-        'gel_cancer_diagnosis/context/participant/study_identifier|assigner'
-            => 'Assigner',
-        'gel_cancer_diagnosis/context/participant/study_identifier' =>
-            '0a9db4b5-44cb-4254-ae23-722c1178c265',
-        'gel_cancer_diagnosis/context/participant/study_identifier|issuer' =>
-            'Issuer',
-
         %{$problem_diagnosis_comp},
     };
     return $composition;
