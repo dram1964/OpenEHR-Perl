@@ -60,9 +60,7 @@ sub report_cancer {
 
         my (
             $colorectal_diagnosis, $tumour_id,
-            $clinical_evidence,    $tumour_laterality,
-            $metastatic_site,      $recurrence_indicator,
-            $integrated_tnm,       $inrg_staging,
+            $clinical_evidence,    
             $lung_metastases,      $stage_group_testicular,
             $testicular_staging
         );
@@ -72,6 +70,15 @@ sub report_cancer {
 
         my $cancer_diagnosis = &get_cancer_diagnosis( $report, $pd );
         $problem_diagnosis->cancer_diagnosis( [$cancer_diagnosis] );
+
+=head1 Placeholder
+
+Placeholder for INRG stage
+This data is not currently in the Infoflex Extract
+        if ( my $inrg_staging = &get_inrg_staging( $report, $pd ) ) {
+            $problem_diagnosis->inrg_staging( [$inrg_staging] );
+        }
+=cut
 
         if ( my $integrated_tnm = &get_integrated_tnm( $report, $pd ) ) {
             $problem_diagnosis->integrated_tnm( [$integrated_tnm] );
@@ -108,7 +115,6 @@ This data is not currently in the Infoflex Extract
             my $panc_stage = &get_panc_stage( $report, $pd );
             $upper_gi->pancreatic_clinical_stage( [$panc_stage] );
         }
-
 =cut
 
         if ( $report->number_of_lesions_cns ) {
@@ -160,6 +166,12 @@ sub get_number_lesions {
     my $pd             = shift;
     my $number_lesions = $report->number_of_lesions_cns;
     return $number_lesions;
+}
+
+sub get_inrg_staging {
+    my $report = shift;
+    my $pd             = shift;
+    return 0;
 }
 
 sub get_integrated_tnm {

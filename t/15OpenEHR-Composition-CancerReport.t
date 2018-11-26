@@ -203,9 +203,7 @@ ok(
 ok(
     my $inrg_staging =
       OpenEHR::Composition::Elements::ProblemDiagnosis::INRG_Staging->new(
-        code        => 'at0005',
-        value       => 'N',
-        terminology => 'local',
+        local_code       => 'M',
       ),
     'Create new INRG Staging object'
 );

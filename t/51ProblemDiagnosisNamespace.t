@@ -174,9 +174,7 @@ ok(
 
 ok(
     my $inrg_staging = $pd->element('INRG_Staging')->new(
-        code        => 'at0005',
-        value       => 'N',
-        terminology => 'local',
+        local_code=> 'M',
     ),
     'Create new INRG Staging object'
 );

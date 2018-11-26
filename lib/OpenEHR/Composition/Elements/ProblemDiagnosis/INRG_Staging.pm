@@ -4,24 +4,72 @@ use warnings;
 use strict;
 use Carp;
 use Moose;
+use Moose::Util::TypeConstraints;
 use DateTime;
 use Data::Dumper;
 extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
+enum 'INRG_Code' => [
+    qw( L1 L2 M MS)
+];
+
 has code => (
     is  => 'rw',
     isa => 'Str',
+    lazy    => 1,
+    builder => '_build_code',
 );
 has value => (
     is  => 'rw',
     isa => 'Str',
+    lazy    => 1,
+    builder => '_build_value',
 );
 has terminology => (
     is  => 'rw',
     isa => 'Str',
+    default => 'local',
 );
+has local_code => (
+    is => 'rw',
+    isa => 'INRG_Code',
+);
+
+=head2 _build_code
+
+Private method to derive the INRG Code from the local code provided
+
+=cut
+
+sub _build_code {
+    my $self       = shift;
+    my $inrg_codes = {
+        L1 => 'at0002',
+        L2 => 'at0003',
+        M => 'at0004',
+        MS => 'at0005',
+    };
+    $self->code( $inrg_codes->{ $self->local_code } );
+}
+
+=head2 _build_value
+
+Private method to derive the INRG Code from the local code provided
+
+=cut
+
+sub _build_value {
+    my $self       = shift;
+    my $inrg_codes = {
+        L1 => 'Stage L1: The Tumour is located only in the area where it started; no IDRFs are found on imaging scans, such as CT or MR',
+        L2 => 'Stage L2: The tumour has not spread beyond the area where is started and the nearby tissue; IDRFs are found on imaging scans, such as CT or MR',
+        M => 'Stage M: The tumour has spread to other parts of the body (except stage MS)',
+        MS => 'Stage MS: The tumour has spread to only the skin, liver, and/or bone marrow (less than 10% marrow involvement) in patients less than 18 months',
+    };
+    $self->value( $inrg_codes->{ $self->local_code } );
+}
 
 sub compose {
     my $self = shift;
@@ -38,7 +86,7 @@ sub compose_structured {
         'inrg_stage' => [ 
             { 
                 '|code' => $self->code, #'at0004', 
-                '|value'    => $self->value, #'M',
+                '|value'    => $self->local_code, #'M',
                 '|terminology' => $self->terminology, #'local',
             }, 
         ], 
@@ -72,7 +120,7 @@ sub compose_raw {
                                         '@class' => 'TERMINOLOGY_ID'
                                     }
                                 },
-                                'value' => $self->value, #'M'
+                                'value' => $self->local_code, #'M'
                             },
                             'name' => {
                                 '@class' => 'DV_TEXT',
@@ -95,7 +143,7 @@ sub compose_flat {
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/inrg_staging:__DIAG__/inrg_stage|code'
             => $self->code, #'at0004',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/inrg_staging:__DIAG__/inrg_stage|value'
-            => $self->value, #'M',
+            => $self->local_code, #'M',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/inrg_staging:__DIAG__/inrg_stage|terminology'
             => $self->terminology, #'local',
     };
