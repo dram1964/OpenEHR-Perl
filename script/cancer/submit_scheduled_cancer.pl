@@ -71,6 +71,11 @@ sub report_cancer {
         my $cancer_diagnosis = &get_cancer_diagnosis( $report, $pd );
         $problem_diagnosis->cancer_diagnosis( [$cancer_diagnosis] );
 
+        if ( my $testicular_staging = &get_testicular_staging( $report, $pd ) ) {
+            $problem_diagnosis->testicular_staging( [$testicular_staging] );
+        }
+
+
 =head1 Placeholder
 
 Placeholder for INRG stage
@@ -299,6 +304,38 @@ sub get_diagnosis {
             $diagnosis->value( $diagnosis_code );
         }
         return $diagnosis;
+    }
+    else {
+        return 0;
+    }
+}
+
+sub get_testicular_staging {
+    my $report           = shift;
+    my $pd               = shift;
+    my $testicular_staging = $pd->element('TesticularStaging')->new();
+    my $items_found = 0;
+    if ( $report->stage_grouping_testicular ) {
+        my $stage_group_testicular = $pd->element('TesticularStaging')
+          ->new( local_code => $report->stage_grouping_testicular, );
+        $testicular_staging->stage_group_testicular( [$stage_group_testicular] );
+        $items_found++;
+    }
+    if ( $report->extranodal_metastases_urology ) {
+        my $extranodal_metastases_urology = $pd->element('ExtranodalMetastases')
+          ->new( local_code => $report->extranodal_metastases_urology, );
+        $testicular_staging->extranodal_metastases( [$extranodal_metastases_urology] );
+        $items_found++;
+    }
+    if ( $report->lung_metastases_urology ) {
+        my $lung_metastases = $pd->element('LungMetastases')
+          ->new( local_code => $report->lung_metastases_urology,
+          );
+        $testicular_staging->lung_metastases( [$lung_metastases] );
+        $items_found++;
+    }
+    if ( $items_found > 0 ) {
+        return $testicular_staging;
     }
     else {
         return 0;
