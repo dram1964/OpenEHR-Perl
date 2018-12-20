@@ -36,24 +36,29 @@ sub get_by_ehrid {
         return 1;
     }
     else {
-        carp $self->response_code;
-        $self->err_msg( $self->response );
+        #carp $self->response_code;
+        #$self->err_msg( $self->response );
         return 0;
     }
 }
 
-=head2 add_party
+=head2 submit_new_party
 
 Adds demographics information for specified ehrid
 
 =cut 
 
-sub add_party {
-    my ( $self, $party ) = @_;
+sub submit_new_party {
+    my ( $self ) = @_;
     $self->resource('demographics/party');
     $self->method('POST');
     $self->headers( [ [ 'Content-Type', 'application/json' ] ] );
-    $self->submit_rest_call($party);
+    if (! $self->party ) {
+        croak "No party info provided";
+        return 0;
+    }
+    my $party_json = to_json( $self->party );
+    $self->submit_rest_call($party_json);
     if ( $self->response_code eq '201' ) {
         my $response = from_json( $self->response );
         $self->action( $response->{action} );
@@ -68,18 +73,23 @@ sub add_party {
     }
 }
 
-=head2 update_party($party)
+=head2 submit_update_party($party)
 
 Updates demographics information 
 
 =cut
 
-sub update_party() {
-    my ( $self, $party ) = @_;
+sub submit_update_party() {
+    my ( $self ) = @_;
     $self->resource('demographics/party');
     $self->method('PUT');
     $self->headers( [ [ 'Content-Type', 'application/json' ] ] );
-    $self->submit_rest_call($party);
+    if (! $self->party ) {
+        croak "No party info provided";
+        return 0;
+    }
+    my $party_json = to_json( $self->party );
+    $self->submit_rest_call($party_json);
     if ( $self->response_code eq '200' ) {
         my $response = from_json( $self->response );
         $self->action( $response->{action} );

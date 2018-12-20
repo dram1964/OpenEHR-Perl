@@ -4,9 +4,9 @@ use Data::Dumper;
 use OpenEHR::REST::AQL;
 use OpenEHR::REST::Composition;
 use OpenEHR::Composition::InformationOrder;
-use Genomes_100K_Test::Model;
+use Genomes_100K::Model;
 
-my $schema = Genomes_100K_Test::Model->connect('CRIUGenomesLiveTest');
+my $schema = Genomes_100K::Model->connect('CRIUGenomesTest');
 
 my $state = 'planned';
 

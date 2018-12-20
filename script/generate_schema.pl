@@ -11,3 +11,16 @@ make_schema_at(
         'dr00', 'letmein', { LongReadLen => 80, LongTruncOk => 1 }
     ],
 );
+
+
+make_schema_at(
+    'Carecast::Schema',
+    {
+        debug          => 1,
+        dump_directory => './lib',
+    },
+    [
+        'dbi:ODBC:DSN=CRIUCarecastTest',
+        'dr00', 'letmein', { LongReadLen => 80, LongTruncOk => 1 }
+    ],
+);

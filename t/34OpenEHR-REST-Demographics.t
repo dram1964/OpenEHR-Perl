@@ -93,11 +93,10 @@ SKIP: {
     ok( $firstname_get->get_query(), 'Run GET Query' );
     diag( $firstname_get->err_msg ) if $firstname_get->err_msg;
     is( ref( $firstname_get->parties ), 'ARRAY', 'Array of Parties returned' );
-    my $party_id;
 
+    my $party_id;
     for my $party ( @{ $firstname_get->parties } ) {
         $party_id = $party->{id};
-        note( "Party ID: ", $party->{id}, "\n" );
     }
 
     note( 'Testing delete for Party ID: ', $party_id );
@@ -106,29 +105,6 @@ SKIP: {
     diag( $delete->err_msg ) if $delete->err_msg;
     is( $delete->action, 'DELETE', 'Action is DELETE' );
 
-    note('Searching with POST for all Party Records with Surname Tweedle');
-    my $firstname_post = OpenEHR::REST::Demographics->new();
-    my $params         = [
-        {
-            key   => 'firstNames',
-            value => 'Tweedle',
-        },
-        {
-            key   => 'ehrId',
-            value => '9085f25b-d81a-4fa0-8210-481b6b87f9f5',
-        },
-        {
-            key   => 'uk.nhs.nhs_number',
-            value => '6783657507',
-        },
-    ];
-    ok( $firstname_post->post_query($params), 'Run POST Query' );
-    diag( $firstname_post->err_msg ) if $firstname_post->err_msg;
-    is( ref( $firstname_post->parties ), 'ARRAY', 'Array of Parties returned' );
-
-    for my $party ( @{ $firstname_post->parties } ) {
-        print Dumper $party;
-    }
 
 }
 
