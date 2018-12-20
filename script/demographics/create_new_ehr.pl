@@ -46,6 +46,7 @@ my $ehr = OpenEHR::REST::EHR->new(
 );
 $ehr->find_or_new;
 
+my $update_status = &update_party( $carecast_demographics, $ehr );
 if ( $ehr->action eq 'CREATE' ) {
     print 'EHR can be found at ', $ehr->href, "\n";
     &add_demographics( $carecast_demographics, $ehr );
@@ -59,7 +60,7 @@ else {
     print "Error in submission:\n";
     print $ehr->err_msg;
 }
-&update_party( $carecast_demographics, $ehr );
+
 
 sub add_demographics() {
     my ( $carecast_demographics, $ehr ) = @_;
@@ -75,6 +76,7 @@ sub add_demographics() {
             death_flag          => $carecast_demographics->death_flag,
             date_of_death       => $carecast_demographics->date_of_death,
             subject_ehr_id      => $ehr->ehr_id,
+            demographic_status  => $update_status,
         }
     );
 }
@@ -97,17 +99,42 @@ sub update_demographics() {
             sex                 => $carecast_demographics->sex,
             death_flag          => $carecast_demographics->death_flag,
             date_of_death       => $carecast_demographics->date_of_death,
-            subject_ehr_id      => $ehr->ehr_id
+            subject_ehr_id      => $ehr->ehr_id,
+            demographic_status  => $update_status,
         }
     );
 }
 
 sub update_party() {
     my ( $carecast_demographics, $ehr ) = @_;
+    
+    my $gender_code = $carecast_demographics->sex;
+    my $gender;
+    if ($gender_code eq 'F') {
+        $gender = 'FEMALE';
+    }
+    elsif ($gender_code eq 'M') {
+        $gender = 'MALE';
+    }
+    else {
+        $gender = 'UNKNOWN';
+    }
+
+    my $date_of_birth = $carecast_demographics->date_of_birth;
+    if ( $date_of_birth =~ /(\d{4,4}-\d{2,2}-\d{2,2})/ ) {
+        $date_of_birth = $1;
+    }
+
+    my $first_names = $carecast_demographics->fname1;
+    if ( $carecast_demographics->fname2 ) {
+        $first_names = $first_names . ' ' . $carecast_demographics->fname2;
+    }
+    
     my $party = {
-        firstNames          => $carecast_demographics->fname1,
+        firstNames          => $first_names,
         lastNames           => $carecast_demographics->surname,
-        gender              => 'FEMALE', #$carecast_demographics->sex,
+        gender              => $gender,
+        dateOfBirth         => $date_of_birth,
         partyAdditionalInfo => [
             { key => "ehrId", value => $ehr->ehr_id, },
             {
@@ -124,6 +151,8 @@ sub update_party() {
     $openehr_demographics->update_or_new( $ehr->ehr_id );
     if ($openehr_demographics->err_msg) {
         print $openehr_demographics->err_msg;
+        return 0;
     }
     print "Party info at: " . $openehr_demographics->href . "\n";
+    return 1;
 }
