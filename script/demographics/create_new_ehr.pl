@@ -59,6 +59,7 @@ else {
     print "Error in submission:\n";
     print $ehr->err_msg;
 }
+&update_party( $carecast_demographics, $ehr );
 
 sub add_demographics() {
     my ( $carecast_demographics, $ehr ) = @_;
@@ -73,33 +74,9 @@ sub add_demographics() {
             sex                 => $carecast_demographics->sex,
             death_flag          => $carecast_demographics->death_flag,
             date_of_death       => $carecast_demographics->date_of_death,
-            subject_ehr_id      => $ehr->subject_id,
+            subject_ehr_id      => $ehr->ehr_id,
         }
     );
-
-    my $party = {
-        "firstNames"          => $carecast_demographics->fname1,
-        "lastNames"           => $carecast_demographics->surname,
-        "gender"              => $carecast_demographics->sex,
-        "dateOfBirth"         => $carecast_demographics->date_of_birth,
-        "partyAdditionalInfo" => [
-            { "key" => "ehrId", "value" => $ehr->subject_id, },
-            {
-                "key"   => "uk.nhs.nhs_number",
-                "value" => $carecast_demographics->nhs_number
-            },
-        ]
-    };
-    my $party_json = to_json($party);
-
-    my $demographics = OpenEHR::REST::Demographics->new();
-    $demographics->add_party($party_json);
-    if ( $demographics->action eq 'CREATE' ) {
-        print "Party information added\n";
-    }
-    else {
-        print $demographics->err_msg;
-    }
 }
 
 sub update_demographics() {
@@ -120,44 +97,33 @@ sub update_demographics() {
             sex                 => $carecast_demographics->sex,
             death_flag          => $carecast_demographics->death_flag,
             date_of_death       => $carecast_demographics->date_of_death,
-            subject_ehr_id      => $ehr->subject_id
+            subject_ehr_id      => $ehr->ehr_id
         }
     );
+}
 
+sub update_party() {
+    my ( $carecast_demographics, $ehr ) = @_;
     my $party = {
-        "firstNames"          => $carecast_demographics->fname1,
-        "lastNames"           => $carecast_demographics->surname,
-        "gender"              => $carecast_demographics->sex,
-        "dateOfBirth"         => $carecast_demographics->date_of_birth,
-        "partyAdditionalInfo" => [
-            { "key" => "ehrId", "value" => $ehr->subject_id, },
+        firstNames          => $carecast_demographics->fname1,
+        lastNames           => $carecast_demographics->surname,
+        gender              => 'FEMALE', #$carecast_demographics->sex,
+        partyAdditionalInfo => [
+            { key => "ehrId", value => $ehr->ehr_id, },
             {
-                "key"   => "uk.nhs.nhs_number",
-                "value" => $carecast_demographics->nhs_number,
+                key   => "uk.nhs.nhs_number",
+                value => $carecast_demographics->nhs_number,
             },
         ]
     };
-    my $party_json = to_json($party);
-    my $openehr_demographics = OpenEHR::REST::Demographics->new();
-    if ( $openehr_demographics->get_by_ehrid( $ehr->ehr_id ) ) {
-        $openehr_demographics->update_party($party_json);
-
-        if ( $openehr_demographics->action eq 'UPDATE' ) {
-            print "Party information added\n";
+    my $openehr_demographics = OpenEHR::REST::Demographics->new(
+        {
+            party => $party
         }
-        else {
-            print $openehr_demographics->action,  "\n";
-            print $openehr_demographics->err_msg, "\n";
-        }
+    );
+    $openehr_demographics->update_or_new( $ehr->ehr_id );
+    if ($openehr_demographics->err_msg) {
+        print $openehr_demographics->err_msg;
     }
-    else {
-        $openehr_demographics->add_party($party);
-        if ( $openehr_demographics->action eq 'CREATE' ) {
-            print "Party information added\n";
-        }
-        else {
-            print "Unable to update party information \n";
-            print $openehr_demographics->err_msg;
-        }
-    }
+    print "Party info at: " . $openehr_demographics->href . "\n";
 }
