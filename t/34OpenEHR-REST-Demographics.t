@@ -64,10 +64,10 @@ SKIP: {
             },
         ],
     };
-    my $party_json = to_json($party);
     my $demog_new  = OpenEHR::REST::Demographics->new();
+    ok( $demog_new->party($party), 'Add party info for new ehr');
+    ok( $demog_new->submit_new_party, 'Submit new party info');
 
-    ok( $demog_new->add_party($party_json), 'Added party info for new ehr ' );
     diag( $demog_new->err_msg ) if $demog_new->err_msg;
     is( $demog_new->action, 'CREATE', 'Response is CREATE' );
     note( 'New Party info can be found at: ' . $demog_new->href );
@@ -77,9 +77,8 @@ SKIP: {
     $demog_update->get_by_ehrid( $ehr1->ehr_id );
     $demog_update->party->{lastNames} = "Dum";
 
-    $party_json = to_json( $demog_update->party );
     ok(
-        $demog_update->update_party($party_json),
+        $demog_update->submit_party_update,
         'Updated party info for previous ehr'
     );
     diag( $demog_update->err_msg ) if $demog_update->err_msg;

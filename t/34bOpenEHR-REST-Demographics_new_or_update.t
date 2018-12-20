@@ -47,25 +47,19 @@ my $party = {
 };
 
 my $demog_new  = OpenEHR::REST::Demographics->new();
-ok( $demog_new->party($party), 'Added party info for new ehr ' );
-ok( $demog_new->submit_new_party, 'Submitted new party data');
+ok( $demog_new->party($party), 'Add party info for new ehr');
+ok( $demog_new->update_or_new($ehr1->ehr_id), 'Using update_or_new for new party info' );
+is( $demog_new->action, 'CREATE', 'Action is CREATE for new party info');
 note( 'New Party info can be found at: ' . $demog_new->href );
 
-my $demog_retrieve = OpenEHR::REST::Demographics->new();
-ok( $demog_retrieve->get_by_ehrid( $ehr1->ehr_id ), 'Retrieve existing demographics from EHRID');
-is( $demog_retrieve->action, 'RETRIEVE', 'Action set to retrieve when party found');
-is( ref($demog_retrieve->party), 'HASH', 'Party set to hashref');
-my $party_info = $demog_retrieve->party;
-
-$party_info->{gender} = 'FEMALE';
-$party_info->{firstNames} = 'Tweedle Deedle';
-$party_info->{lastNames} = 'Dum';
-$party_info->{dateOfBirth} = '1952-12-12';
-my $demog_update_multi = OpenEHR::REST::Demographics->new();
-ok( $demog_update_multi->party($party_info), 'Set party for update');
-ok( $demog_update_multi->submit_party_update, 'Updated multiple attributes');
-is( $demog_update_multi->action, 'UPDATE', 'Action set to update when party updated');
-note( 'Update info can be found at: ' . $demog_update_multi->href );
+my $demog_update = OpenEHR::REST::Demographics->new();
+$party->{firstNames} = 'Tweedle Deedle';
+ok( $demog_update->party($party), 'Add party update for existing ehr');
+is( $demog_update->party->{firstNames}, 'Tweedle Deedle', 'Party updated with new value');
+ok( $demog_update->update_or_new($ehr1->ehr_id), 'Using update_or_new for existing party info' );
+print $demog_update->err_msg if( $demog_update->err_msg);
+is( $demog_update->action, 'UPDATE', 'Action is update for existing party info');
+note( 'Updated Party info can be found at: ' . $demog_update->href );
 
 done_testing();
 

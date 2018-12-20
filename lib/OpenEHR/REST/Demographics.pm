@@ -15,7 +15,26 @@ has href     => ( is => 'rw', isa => 'Str' );
 has action   => ( is => 'rw', isa => 'Str' );
 has err_msg  => ( is => 'rw', isa => 'Str' );
 has party    => ( is => 'rw', isa => 'HashRef' );
-has parties => ( is => 'rw', isa => 'ArrayRef' );
+has party_update => ( is => 'rw', isa => 'HashRef' );
+has parties      => ( is => 'rw', isa => 'ArrayRef' );
+
+=head2 update_or_new( $ehr_id )
+
+Updates a party if it exists otherwise creates a new one
+
+=cut 
+
+sub update_or_new {
+    my ( $self, $ehrid ) = @_;
+    my $party = $self->party;
+    if ( $self->get_by_ehrid($ehrid) ) {
+        $self->party_update($party);
+        $self->submit_party_update;
+    }
+    else {
+        $self->submit_new_party;
+    }
+}
 
 =head2 get_by_ehrid( $ehrid )
 
@@ -24,7 +43,7 @@ Retrieves demographics information for specified ehrid
 =cut 
 
 sub get_by_ehrid {
-    my ( $self, $ehrid ) = @_;
+    my ( $self, $ehrid, $no_party_retrieval ) = @_;
     $self->resource("demographics/ehr/$ehrid/party");
     $self->submit_rest_call;
     if ( $self->response_code eq '200' ) {
@@ -37,23 +56,23 @@ sub get_by_ehrid {
     }
     else {
         #carp $self->response_code;
-        #$self->err_msg( $self->response );
+        $self->err_msg( $self->response );
         return 0;
     }
 }
 
 =head2 submit_new_party
 
-Adds demographics information for specified ehrid
+Adds demographics information for the objects party attribute
 
 =cut 
 
 sub submit_new_party {
-    my ( $self ) = @_;
+    my ($self) = @_;
     $self->resource('demographics/party');
     $self->method('POST');
     $self->headers( [ [ 'Content-Type', 'application/json' ] ] );
-    if (! $self->party ) {
+    if ( !$self->party ) {
         croak "No party info provided";
         return 0;
     }
@@ -73,20 +92,23 @@ sub submit_new_party {
     }
 }
 
-=head2 submit_update_party($party)
+=head2 submit_party_update
 
-Updates demographics information 
+Updates demographics information for the objects party
 
 =cut
 
-sub submit_update_party() {
-    my ( $self ) = @_;
+sub submit_party_update() {
+    my ($self) = @_;
     $self->resource('demographics/party');
     $self->method('PUT');
     $self->headers( [ [ 'Content-Type', 'application/json' ] ] );
-    if (! $self->party ) {
+    if ( !$self->party ) {
         croak "No party info provided";
         return 0;
+    }
+    if ( $self->party_update ) {
+        $self->party( { %{ $self->party }, %{ $self->party_update } } );
     }
     my $party_json = to_json( $self->party );
     $self->submit_rest_call($party_json);
@@ -114,7 +136,7 @@ sub get_query() {
     my ($self) = @_;
     $self->resource('demographics/party/query');
     $self->method('GET');
-    $self->query( $self->query ); 
+    $self->query( $self->query );
     $self->submit_rest_call;
     if ( $self->response_code eq '200' ) {
         my $response = from_json( $self->response );
@@ -159,7 +181,6 @@ sub post_query() {
     }
 }
 
-
 =head2 delete_party($party_id)
 
 Deletes a party by party_id
@@ -167,11 +188,11 @@ Deletes a party by party_id
 =cut 
 
 sub delete_party() {
-    my ($self, $party_id) = @_; 
+    my ( $self, $party_id ) = @_;
     $self->resource("demographics/party/$party_id");
     $self->method('DELETE');
     $self->submit_rest_call;
-    if ( $self->response_code eq '200') {
+    if ( $self->response_code eq '200' ) {
         my $response = from_json( $self->response );
         $self->action( $response->{action} );
         $self->err_msg('');
@@ -183,7 +204,6 @@ sub delete_party() {
         return 0;
     }
 }
-
 
 no Moose;
 
