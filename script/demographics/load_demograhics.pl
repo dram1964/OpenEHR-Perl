@@ -8,62 +8,80 @@ use Genomes_100K::Model;
 use Data::Dumper;
 use JSON;
 
-my $patient_number = $ARGV[0];
-die "Please specify an nhs_number to update" unless $patient_number;
+my $carecast_schema          = Carecast::Model->connect('CRIUCarecastTest');
+my $genomes_schema = Genomes_100K::Model->connect('CRIUGenomesTest');
+
 my $subject_namespace = 'uk.nhs.nhs_number';
 
-my $carecast_schema          = Carecast::Model->connect('CRIUCarecastTest');
-my $carecast_demographics_rs = $carecast_schema->resultset('Patient')->search(
+my $patient_list_rs = $genomes_schema->resultset('InformationOrder')->search(
+    { },
     {
-        nhs_number => $patient_number,
-    },
-    {
-        columns => [
-            qw/nhs_number hospital_patient_id surname fname1 fname2 date_of_birth sex death_flag date_of_death/
-        ]
-    },
-);
-my $carecast_demographics = $carecast_demographics_rs->first;
-die "No Carecast Demographics found for: $patient_number\n"
-  unless $carecast_demographics->hospital_patient_id;
-
-my $genomes_schema = Genomes_100K::Model->connect('CRIUGenomesTest');
-my $order_rs       = $genomes_schema->resultset('InformationOrder')->search(
-    {
-        subject_id      => $patient_number,
-        subject_id_type => $subject_namespace,
+        join => 'demographic', 
+        '+columns' => ['demographic.nhs_number' ],
+        where => { 'demographic.nhs_number' => undef }
     }
 );
-my $order = $order_rs->first;
-die "No orders found for $patient_number\n" unless defined($order);
 
-my $ehr = OpenEHR::REST::EHR->new(
-    {
-        subject_id        => $patient_number,
-        subject_namespace => 'uk.nhs.nhs_number',
-        committer_name    => 'Committer Name',
+while (my $patient = $patient_list_rs->next) {
+    my $patient_number = $patient->subject_id;
+    print "Processing $patient_number\n";
+
+    my $carecast_demographics_rs = $carecast_schema->resultset('Patient')->search(
+        {
+            nhs_number => $patient_number,
+        },
+        {
+            columns => [
+                qw/nhs_number hospital_patient_id surname fname1 fname2 date_of_birth sex death_flag date_of_death/
+            ]
+        },
+    );
+    if ( $carecast_demographics_rs == 0 ) {
+        print "No Carecast Demographics found for: $patient_number\n";
+        next;
     }
-);
-$ehr->find_or_new;
+    my $carecast_demographics = $carecast_demographics_rs->first;
 
-my $update_status = &update_party( $carecast_demographics, $ehr );
-if ( $ehr->action eq 'CREATE' ) {
-    print 'EHR can be found at ', $ehr->href, "\n";
-    &add_demographics( $carecast_demographics, $ehr );
-}
-elsif ( $ehr->action eq 'RETRIEVE' ) {
-    print "EHR already exists for this subject (", $ehr->subject_id, ")\n";
-    print 'EHR can be found at ',                  $ehr->href,       "\n";
-    &update_demographics( $carecast_demographics, $ehr );
-}
-else {
-    print "Error in submission:\n";
-    print $ehr->err_msg;
+    my $order_rs       = $genomes_schema->resultset('InformationOrder')->search(
+        {
+            subject_id      => $patient_number,
+            subject_id_type => $subject_namespace,
+        }
+    );
+    if ( $order_rs->count == 0 ) {
+        print "No orders found for $patient_number\n";
+        next;
+    }
+    my $order = $order_rs->first;
+
+    my $ehr = OpenEHR::REST::EHR->new(
+        {
+            subject_id        => $patient_number,
+            subject_namespace => 'uk.nhs.nhs_number',
+            committer_name    => 'Committer Name',
+        }
+    );
+    $ehr->find_or_new;
+
+    my $update_status = &update_party( $carecast_demographics, $ehr );
+    if ( $ehr->action eq 'CREATE' ) {
+        print 'EHR can be found at ', $ehr->href, "\n";
+        &add_demographics( $carecast_demographics, $ehr, $update_status );
+    }
+    elsif ( $ehr->action eq 'RETRIEVE' ) {
+        print "EHR already exists for this subject (", $ehr->subject_id, ")\n";
+        print 'EHR can be found at ',                  $ehr->href,       "\n";
+        &update_demographics( $carecast_demographics, $ehr, $update_status );
+    }
+    else {
+        print "Error in submission:\n";
+        print $ehr->err_msg;
+    }
 }
 
 
 sub add_demographics() {
-    my ( $carecast_demographics, $ehr ) = @_;
+    my ( $carecast_demographics, $ehr, $update_status ) = @_;
     $genomes_schema->resultset('Demographic')->create(
         {
             nhs_number          => $carecast_demographics->nhs_number,
@@ -82,7 +100,7 @@ sub add_demographics() {
 }
 
 sub update_demographics() {
-    my ( $carecast_demographics, $ehr ) = @_;
+    my ( $carecast_demographics, $ehr, $update_status ) = @_;
     my $genomes_demographics = $genomes_schema->resultset('Demographic')->find(
         {
             nhs_number => $carecast_demographics->nhs_number,

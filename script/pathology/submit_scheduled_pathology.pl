@@ -10,7 +10,7 @@ use Genomes_100K::Model;
 use Data::Dumper;
 
 
-my $schema = Genomes_100K::Model->connect('CRIUGenomesLiveTest');
+my $schema = Genomes_100K::Model->connect('CRIUGenomesTest');
 
 my $orders_rs = $schema->resultset('InformationOrder')->search(
     {
