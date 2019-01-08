@@ -44,7 +44,8 @@ while ( my $request = $scheduled_requests_rs->next ) {
 
 =head2 get_order_data_hash
 
-Creates the data hash for adding to the Laboratory Report
+Creates the data hash for an order in a request for adding to the 
+Laboratory Report
 Need to add logic for test_status lookup and collect_method
 
 =cut 

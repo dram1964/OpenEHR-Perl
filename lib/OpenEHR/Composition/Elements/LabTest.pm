@@ -111,7 +111,7 @@ sub compose_structured {
         push @{ $composition->{specimen} }, $specimen->compose();
     }
     $composition->{conclusion} = [ $self->conclusion ];
-    $composition->{time}       = [ DateTime->now->datetime ];
+    $composition->{time}       = [ $self->test_status_time->datetime ]; #[ DateTime->now->datetime ];
     $composition->{language}   = [
         {   '|terminology' => 'ISO_639-1',
             '|code'        => 'en'
@@ -266,7 +266,7 @@ sub compose_raw {
                     },
                     'archetype_node_id' => 'at0002',
                     'time'              => {
-                        'value'  => DateTime->now->datetime,
+                        'value'  => $self->test_status_time->datetime, #DateTime->now->datetime,
                         '@class' => 'DV_DATE_TIME'
                     },
                     'name' => {
@@ -331,11 +331,12 @@ sub compose_flat {
         $panel_index++;
     }
     my $composition = {
-        $path . 'history_origin'    => $self->history_origin->datetime,
+        #$path . 'history_origin'    => $self->history_origin->datetime,
         $path . 'test_status|value' => $self->test_status_lookup->{value},
         $path . 'test_status|code'  => $self->test_status_lookup->{code},
         $path . 'test_status|terminology' => 'local',
         $path . 'test_status_timestamp' => $self->test_status_time->datetime,
+        $path . 'time' => $self->test_status_time->datetime,
         $path . 'clinical_information_provided' => $self->clinical_info,
         $path . 'conclusion'                    => $self->conclusion,
         $path
