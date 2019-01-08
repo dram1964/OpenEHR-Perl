@@ -25,7 +25,7 @@ while ( my $request = $scheduled_requests_rs->next ) {
     my $order_item_number = 1;
     while ( my $sample = $samples_rs->next ) {
         my $labreport          = [];
-        my $labnumber          = $sample->laboratory_sample_number;
+        my $labnumber          = $sample->lab_number;
         my $report_id          = $labnumber;
         my $sample_report_date = $sample->last_authorised_date;
         my $orders_ref         = &get_sample_orders($labnumber);
@@ -52,7 +52,7 @@ Need to add logic for test_status lookup and collect_method
 
 sub get_order_data_hash {
     my ( $sample, $order, $order_item_number, $start_date, $end_date ) = @_;
-    my $labnumber = $sample->laboratory_sample_number;
+    my $labnumber = $sample->lab_number;
     print join( ":",
         "$order_item_number) ", $sample->nhs_number, $labnumber,
         $order->order_code,     $order->order_name,  $sample->sample_date,
@@ -312,7 +312,7 @@ sub update_report_date() {
     my ( $labnumber, $composition ) = @_;
     my $search = $schema->resultset('PathologySample')->search(
         {
-            laboratory_sample_number => $labnumber,
+            lab_number => $labnumber,
         }
     );
     my $now = DateTime->now->datetime;
@@ -438,7 +438,7 @@ sub get_sample_orders() {
     my $sample_number = shift;
     my $order_code_rs = $schema->resultset('PathologySample')->search(
         {
-            laboratory_sample_number => $sample_number,
+            lab_number => $sample_number,
         },
         {
             columns => [qw/ order_code order_name /],
@@ -466,7 +466,7 @@ sub select_samples_to_report {
         },
         {
             columns => [
-                qw/laboratory_sample_number nhs_number sample_date last_authorised_date order_number /
+                qw/lab_number nhs_number sample_date last_authorised_date order_number /
             ],
             distinct => 1,
         },
