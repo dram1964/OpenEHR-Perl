@@ -10,8 +10,8 @@ $subjectId .= '0000000000';
 if ( $subjectId =~ /^([\d]{10,10}).*/ ) {
     $subjectId = $1;
 }
-
 print "Subject ID: $subjectId\n";
+
 
 my $ehr6 = OpenEHR::REST::EHR->new(
     {
@@ -45,10 +45,10 @@ my $party = {
         { "key" => "uk.nhs.nhs_number", "value" => "$subjectId" },
     ]
 };
-my $party_json = to_json($party);
 
 my $demographics = OpenEHR::REST::Demographics->new();
-$demographics->add_party($party_json);
+$demographics->party($party);
+$demographics->update_or_new($ehr6->ehr_id);
 if ($demographics->action eq 'CREATE') {
     print "Party information added\n";
 }
@@ -67,4 +67,3 @@ The generated EHR ID can be added into the OpenEHR.conf prior to running
 the OpenEHR test suite
 
 =cut
-
