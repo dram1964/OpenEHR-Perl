@@ -85,6 +85,7 @@ sub date_format() {
         $date = DateTime->now->datetime;
     }
         
+    $date =~ s/\+\d{2,2}:\d{2,2}//;
     $date =~ s/T/ / if defined($date);
     $date =~ s/Z// if defined($date);
     return $date;

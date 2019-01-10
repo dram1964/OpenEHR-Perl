@@ -71,7 +71,7 @@ while (my $patient = $patient_list_rs->next) {
     elsif ( $ehr->action eq 'RETRIEVE' ) {
         print "EHR already exists for this subject (", $ehr->subject_id, ")\n";
         print 'EHR can be found at ',                  $ehr->href,       "\n";
-        &update_demographics( $carecast_demographics, $ehr, $update_status );
+        &add_demographics( $carecast_demographics, $ehr, $update_status );
     }
     else {
         print "Error in submission:\n";
@@ -82,7 +82,7 @@ while (my $patient = $patient_list_rs->next) {
 
 sub add_demographics() {
     my ( $carecast_demographics, $ehr, $update_status ) = @_;
-    $genomes_schema->resultset('Demographic')->create(
+    $genomes_schema->resultset('Demographic')->update_or_create(
         {
             nhs_number          => $carecast_demographics->nhs_number,
             hospital_patient_id => $carecast_demographics->hospital_patient_id,
