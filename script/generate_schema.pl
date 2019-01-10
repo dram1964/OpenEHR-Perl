@@ -5,6 +5,7 @@ make_schema_at(
     {
         debug          => 1,
         dump_directory => './lib',
+        skip_load_external => 1,
     },
     [
         'dbi:ODBC:DSN=CRIUGenomesTest',
