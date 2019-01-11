@@ -8,7 +8,7 @@ use Genomes_100K::Model;
 
 my $schema = Genomes_100K::Model->connect('CRIUGenomesTest');
 
-my $state = 'planned';
+my $state = 'scheduled';
 
 my $query = OpenEHR::REST::AQL->new();
 $query->find_orders_by_state($state);
@@ -28,11 +28,13 @@ for my $result ( @{ $query->resultset } ) {
 
 sub update_state {
     my $uid = shift;
+    my $uid1 = $uid;
+    $uid1 =~ s/::5$/::1/;
     my $template_id = 'GEL - Data request Summary.v1';
     # Retrieve the composition
     my $retrieval = OpenEHR::REST::Composition->new();
     $retrieval->request_format('STRUCTURED');
-    $retrieval->find_by_uid($uid);
+    $retrieval->find_by_uid($uid1);
     my $composition = $retrieval->composition_response;
     print "Original order can be found at: " . $retrieval->href . "\n";
 
@@ -41,7 +43,7 @@ sub update_state {
     $recompose->decompose_structured($composition),
     $recompose->current_state('scheduled');
     $recompose->composition_format('STRUCTURED');
-    $recompose->compose;
+    #$recompose->compose;
     
     # Submit the update
     my $order_update = OpenEHR::REST::Composition->new();

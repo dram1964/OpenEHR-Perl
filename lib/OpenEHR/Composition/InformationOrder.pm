@@ -109,6 +109,11 @@ sub decompose_structured {
       $service_request->{request}->[0]->{gel_information_request_details}->[0];
     my $context = $composition->{gel_data_request_summary}->{context}->[0];
 
+    $self->facility_id( $context->{'_health_care_facility'}->[0]->{'|id'} );
+    $self->facility_name( $context->{'_health_care_facility'}->[0]->{'|name'} );
+    $self->id_namespace( $context->{'_health_care_facility'}->[0]->{'|id_namespace'} );
+    $self->id_scheme( $context->{'_health_care_facility'}->[0]->{'|id_scheme'} );
+
     $self->current_state(
         $service->{ism_transition}->[0]->{current_state}->[0]->{'|value'} );
     $self->service_type(
@@ -150,6 +155,7 @@ sub decompose_structured {
     $self->timing($timing);
 
     $self->request_id( $service_request->{requestor_identifier}->[0] );
+    $self->composer_name( $composition->{gel_data_request_summary}->{composer}->[0]->{'|name'} );
 
 }
 
@@ -213,6 +219,7 @@ sub format_datetime {
         $date = $part1 . $part2;
     }
     $date =~ s/T/ /;
+    $date =~ s/(\d{2,2}:\d{2,2}:\d{2,2})Z/$1/;
     $date =~ s/Z/\:00/;
     eval { $date = DateTime::Format::Pg->parse_datetime($date); };
     if ($@) {
@@ -264,14 +271,6 @@ sub compose_structured {
                     'service_name'         => [ $self->service_name ],
 #                    'comment'              => ['Comment 25'],
                     'time'                 => [ DateTime->now->datetime ],
-                    'requestor_identifier' => [
-                        {
-                            '|id'       => $self->request_id,
-                            '|assigner' => 'OpenEHR-Perl',
-                            '|issuer'   => 'UCLH',
-                            '|type'     => 'Test'
-                        }
-                    ],
                     'ism_transition' => [
                         {
                             'current_state' => [
