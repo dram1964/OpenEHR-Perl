@@ -30,6 +30,8 @@ is($target->facility_id, 'GOSH', 'facility_id set from composition');
 is($target->facility_name, 'Great Ormond Street Hospital', 'facility_name set from composition');
 is($target->id_namespace, 'NTGMC_NAMESPACE', 'id_namespace set from composition');
 is($target->id_scheme, 'NTGMC_SCHEME', 'id_scheme set from composition');
+is($target->language_code, 'en', 'language code set from composition');
+is($target->territory_code, 'GB', 'territory code set from composition');
 ok($target->current_state('aborted'), "Change state to aborted");
 is($target->current_state_code, 531, "Current state code updated to 531");
 
