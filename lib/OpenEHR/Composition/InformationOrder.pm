@@ -36,6 +36,7 @@ sub _set_ctx {
 
 has narrative => (
     is => 'rw',
+    isa => 'Str',
     lazy => 1,
     default => \&_set_narrative,
 );
@@ -49,7 +50,8 @@ service_name and service_type with ' - '
 
 sub _set_narrative {
     my $self = shift;
-    return $self->service_name . ' - ' , $self->service_type;
+    my $narrative = $self->service_name . ' - ' . $self->service_type;
+    $self->narrative($narrative);
 }
 
 has requestor_id => (
