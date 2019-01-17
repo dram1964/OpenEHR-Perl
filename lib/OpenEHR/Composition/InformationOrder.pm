@@ -600,7 +600,13 @@ sub compose_flat {
     my $self        = shift;
     my $ctx         = $self->ctx->compose;
     my $composition = {
-        %{$ctx},
+        'ctx/language'                  => $self->language_code,
+        'ctx/territory'                 => $self->territory_code,
+        'ctx/composer_name'             => $self->composer_name . '-' . $self->composition_format,
+        'ctx/id_namespace'              => $self->id_namespace,
+        'ctx/id_scheme'                 => $self->id_scheme, 
+        'ctx/health_care_facility|name' => $self->facility_name,
+        'ctx/health_care_facility|id'   => $self->facility_id,
         'gel_data_request_summary/service_request:0/request:0/service_name' =>
           $self->service_name,
         'gel_data_request_summary/service_request:0/request:0/service_type' =>
