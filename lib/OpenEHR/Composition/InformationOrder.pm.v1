@@ -17,11 +17,6 @@ enum 'CurrentState' => [qw( planned scheduled aborted complete )];
 
 enum 'ServiceType' => [qw( pathology radiology cancer )];
 
-=for implementation
-        narrative => 'GEL pathology data request',
-        requestor_id => '834y5jkdk-ssxhs',
-=cut
-
 =head1 _set_ctx
 
 Adds the context and ctx elements to the Information Order
@@ -33,29 +28,6 @@ sub _set_ctx {
     my $ctx = OpenEHR::Composition::Elements::CTX->new();
     $self->ctx($ctx);
 }
-
-has narrative => (
-    is => 'rw',
-    lazy => 1,
-    default => \&_set_narrative,
-);
-
-=head2 _set_narrative
-
-Returns default value for narrative by concatenating
-service_name and service_type with ' - '
-
-=cut
-
-sub _set_narrative {
-    my $self = shift;
-    return $self->service_name . ' - ' , $self->service_type;
-}
-
-has requestor_id => (
-    is =>  'rw',
-    isa => 'Str',
-);
 
 has ctx => (
     is => 'rw',
