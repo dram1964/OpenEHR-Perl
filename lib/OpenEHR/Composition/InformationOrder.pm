@@ -324,8 +324,72 @@ sub compose_structured {
 
 sub compose_raw {
     my $self        = shift;
-    my $ctx         = $self->ctx->compose;
     my $composition = {
+        category => {
+            'value'         => 'event',
+            '@class'        => 'DV_CODED_TEXT',
+            'defining_code' => {
+                'code_string'    => '433',
+                '@class'         => 'CODE_PHRASE',
+                'terminology_id' => {
+                    '@class' => 'TERMINOLOGY_ID',
+                    'value'  => 'openehr'
+                }
+            }
+        },
+        'territory' => {
+            'terminology_id' => {
+                'value'  => $self->territory_terminology,
+                '@class' => 'TERMINOLOGY_ID'
+            },
+            'code_string' => $self->territory_code,
+            '@class'      => 'CODE_PHRASE'
+        },
+        'language' => {
+            'terminology_id' => {
+                'value'  => $self->language_terminology,
+                '@class' => 'TERMINOLOGY_ID'
+            },
+            'code_string' => $self->language_code,
+            '@class'      => 'CODE_PHRASE'
+        },
+        'context' => {
+            'start_time' => {
+                'value'  => DateTime->now->datetime,
+                '@class' => 'DV_DATE_TIME'
+            },
+            'health_care_facility' => {
+                'name'         => $self->facility_name,
+                'external_ref' => {
+                    'namespace' => $self->id_namespace,
+                    'type'      => 'PARTY',
+                    'id'        => {
+                        'value'  => $self->facility_id,
+                        'scheme' => $self->id_scheme,
+                        '@class' => 'GENERIC_ID'
+                    },
+                    '@class' => 'PARTY_REF'
+                },
+                '@class' => 'PARTY_IDENTIFIED'
+            },
+            'setting' => {
+                'value'         => 'other care',
+                'defining_code' => {
+                    'terminology_id' => {
+                        'value'  => 'openehr',
+                        '@class' => 'TERMINOLOGY_ID'
+                    },
+                    'code_string' => '238',
+                    '@class'      => 'CODE_PHRASE'
+                },
+                '@class' => 'DV_CODED_TEXT',
+            },
+        '@class' => 'EVENT_CONTEXT',
+        },
+        'composer' => {
+            'name'   => $self->composer_name . '-' . $self->composition_format,
+            '@class' => 'PARTY_IDENTIFIED'
+        },
         'archetype_node_id' => 'openEHR-EHR-COMPOSITION.report.v1',
         'content'           => [
             {
@@ -600,7 +664,6 @@ sub compose_raw {
         },
         '@class' => 'COMPOSITION',
     };
-    $composition = { %{$composition}, %{$ctx} };
     return $composition;
 }
 
