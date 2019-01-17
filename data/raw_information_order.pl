@@ -1,65 +1,4 @@
-use strict;
-use warnings;
-
-use Test::More;
-use Data::Dumper;
-use OpenEHR::REST::AQL;
-use OpenEHR::REST::Composition;
-use OpenEHR::Composition::InformationOrder;
-
-my $uid =  '4c76ad9d-24c5-4ba6-a3c9-7439c48baf8f::default::1'; #$ENV{TEST_UID};
-note("UID: $uid");
-
-my $retrieval = OpenEHR::REST::Composition->new();
-$retrieval->request_format('STRUCTURED');
-$retrieval->find_by_uid($uid);
-my $composition = $retrieval->composition_response;
-print "Original order can be found at: " . $retrieval->href . "\n";
-
-if ( $retrieval->response_code eq '204' ) {
-    print "No orders found for $uid\n";
-    exit 1;
-}
-if ( $retrieval->err_msg ) {
-    die $retrieval->err_msg;
-}
-
-ok(my $target = OpenEHR::Composition::InformationOrder->new(), "Create blank Information Order");
-ok($target->decompose_structured($composition), "Populate the Order with data from an existing Order");
-is($target->composer_name, 'OpenEHR-Perl-STRUCTURED', 'composer_name set from composition');
-is($target->facility_id, 'RRV', 'facility_id set from composition');
-is($target->facility_name, 'UCLH', 'facility_name set from composition');
-is($target->id_namespace, 'UCLH-NAMESPACE', 'id_namespace set from composition');
-is($target->id_scheme, 'UCLH-SCHEME', 'id_scheme set from composition');
-ok($target->current_state('planned'), "Change state to aborted");
-is($target->current_state_code, 529, "Current state code updated to 531");
-
-#print Dumper $target->compose;
-
-my $data = {
-    subject_ehr_id     => '',
-    subject_id_type    => '',
-    composition_uid    => '',
-    narrative          => '',
-    order_type         => '',
-    ordered_by         => '',
-    order_id           => '',
-    unique_message_id  => '',
-    start_date         => '',
-    end_date           => '',
-    service_type       => '',
-    data_start_date    => '',
-    data_end_date      => '',
-    current_state      => '',
-    current_state_code => '',
-};
-
-
-done_testing;
-
-__DATA__
-
-my $result = {
+$VAR1 = {
     'territory' => {
         'terminology_id' => {
             'value'  => 'ISO_3166-1',
@@ -78,7 +17,7 @@ my $result = {
     },
     'archetype_node_id' => 'openEHR-EHR-COMPOSITION.report.v1',
     'uid'               => {
-        'value'  => '22ae73c6-9fcd-4324-abf6-5829c87c9c1e::default::2',
+        'value'  => '79fa1261-5fe2-44a2-b3fb-e594ea4c0463::default::1',
         '@class' => 'OBJECT_VERSION_ID'
     },
     'content' => [
@@ -93,7 +32,7 @@ my $result = {
                     {
                         'archetype_node_id' => 'at0010',
                         'value'             => {
-                            'value'  => '2-20190110-784044',
+                            'value'  => '1-20190110-656620',
                             '@class' => 'DV_TEXT'
                         },
                         'name' => {
@@ -115,7 +54,7 @@ my $result = {
             },
             'archetype_node_id' => 'openEHR-EHR-INSTRUCTION.request.v0',
             'uid'               => {
-                'value'  => '67c5456e-f3c1-4705-80a8-5716269efe3e',
+                'value'  => 'a98526fb-fdcb-4665-967c-103f300b6435',
                 '@class' => 'HIER_OBJECT_ID'
             },
             'subject' => {
@@ -125,7 +64,7 @@ my $result = {
                 {
                     'action_archetype_id' => '/.*/',
                     'timing'              => {
-                        'value'     => '2019-01-10T13:52:37',
+                        'value'     => '2019-01-10T13:52:35',
                         'formalism' => 'timing',
                         '@class'    => 'DV_PARSABLE'
                     },
@@ -231,10 +170,6 @@ my $result = {
                 },
                 '@class' => 'ARCHETYPED'
             },
-            'expiry_time' => {
-                'value'  => '2019-01-10T16:01:31Z',
-                '@class' => 'DV_DATE_TIME'
-            },
             '@class'    => 'INSTRUCTION',
             'narrative' => {
                 'value'  => 'GEL Information data request - pathology',
@@ -250,31 +185,6 @@ my $result = {
             }
         },
         {
-            'protocol' => {
-                'archetype_node_id' => 'at0015',
-                'name'              => {
-                    'value'  => 'Tree',
-                    '@class' => 'DV_TEXT'
-                },
-                'items' => [
-                    {
-                        'archetype_node_id' => 'at0016',
-                        'value'             => {
-                            'type'     => 'Test',
-                            'id'       => '2-20190110-784044',
-                            'issuer'   => 'UCLH',
-                            'assigner' => 'OpenEHR-Perl',
-                            '@class'   => 'DV_IDENTIFIER'
-                        },
-                        'name' => {
-                            'value'  => 'Requestor identifier',
-                            '@class' => 'DV_TEXT'
-                        },
-                        '@class' => 'ELEMENT'
-                    }
-                ],
-                '@class' => 'ITEM_TREE'
-            },
             'language' => {
                 'terminology_id' => {
                     'value'  => 'ISO_639-1',
@@ -285,7 +195,7 @@ my $result = {
             },
             'archetype_node_id' => 'openEHR-EHR-ACTION.service.v0',
             'time'              => {
-                'value'  => '2019-01-10T16:01:31Z',
+                'value'  => '2019-01-10T13:52:35Z',
                 '@class' => 'DV_DATE_TIME'
             },
             'subject' => {
@@ -340,13 +250,13 @@ my $result = {
             '@class'         => 'ACTION',
             'ism_transition' => {
                 'current_state' => {
-                    'value'         => 'scheduled',
+                    'value'         => 'planned',
                     'defining_code' => {
                         'terminology_id' => {
                             'value'  => 'openehr',
                             '@class' => 'TERMINOLOGY_ID'
                         },
-                        'code_string' => '529',
+                        'code_string' => '526',
                         '@class'      => 'CODE_PHRASE'
                     },
                     '@class' => 'DV_CODED_TEXT'
@@ -382,17 +292,17 @@ my $result = {
     '@class'  => 'COMPOSITION',
     'context' => {
         'start_time' => {
-            'value'  => '2019-01-10T16:01:31.421Z',
+            'value'  => '2019-01-10T13:52:35Z',
             '@class' => 'DV_DATE_TIME'
         },
         'health_care_facility' => {
-            'name'         => 'UCLH NHS Foundation Trust',
+            'name'         => 'Great Ormond Street Hospital',
             'external_ref' => {
-                'namespace' => 'UCLH-NS',
+                'namespace' => 'NTGMC_NAMESPACE',
                 'type'      => 'PARTY',
                 'id'        => {
-                    'value'  => 'RRV',
-                    'scheme' => 'UCLH-NS',
+                    'value'  => 'GOSH',
+                    'scheme' => 'NTGMC_SCHEME',
                     '@class' => 'GENERIC_ID'
                 },
                 '@class' => 'PARTY_REF'
@@ -426,7 +336,7 @@ my $result = {
         '@class' => 'DV_CODED_TEXT'
     },
     'composer' => {
-        'name'   => 'OpenEHR-Perl-STRUCTURED',
+        'name'   => 'GENIE',
         '@class' => 'PARTY_IDENTIFIED'
     }
 };
