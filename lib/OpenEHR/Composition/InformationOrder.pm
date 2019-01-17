@@ -17,51 +17,21 @@ enum 'CurrentState' => [qw( planned scheduled aborted complete )];
 
 enum 'ServiceType' => [qw( pathology radiology cancer )];
 
-=for implementation
-        narrative => 'GEL pathology data request',
-        requestor_id => '834y5jkdk-ssxhs',
-=cut
-
-=head1 _set_ctx
-
-Adds the context and ctx elements to the Information Order
-
-=cut 
-
-sub _set_ctx {
-    my $self = shift;
-    my $ctx = OpenEHR::Composition::Elements::CTX->new();
-    $self->ctx($ctx);
-}
-
 has narrative => (
-    is => 'rw',
-    isa => 'Str',
-    lazy => 1,
+    is      => 'rw',
+    isa     => 'Str',
+    lazy    => 1,
     default => \&_set_narrative,
 );
 
-=head2 _set_narrative
-
-Returns default value for narrative by concatenating
-service_name and service_type with ' - '
-
-=cut
-
-sub _set_narrative {
-    my $self = shift;
-    my $narrative = $self->service_name . ' - ' . $self->service_type;
-    $self->narrative($narrative);
-}
-
 has requestor_id => (
-    is =>  'rw',
+    is  => 'rw',
     isa => 'Str',
 );
 
 has ctx => (
-    is => 'rw',
-    isa => 'OpenEHR::Composition::Elements::CTX',
+    is      => 'rw',
+    isa     => 'OpenEHR::Composition::Elements::CTX',
     default => \&_set_ctx,
 );
 
@@ -105,15 +75,27 @@ has request_id => (
     isa => 'Str',
 );
 
+sub _set_ctx {
+    my $self = shift;
+    my $ctx  = OpenEHR::Composition::Elements::CTX->new();
+    $self->ctx($ctx);
+}
+
 sub _set_state_code {
     my $self   = shift;
     my $states = {
         planned   => 526,
         scheduled => 529,
         aborted   => 531,
-        complete => 532,
+        complete  => 532,
     };
     $self->current_state_code( $states->{ $self->current_state } );
+}
+
+sub _set_narrative {
+    my $self      = shift;
+    my $narrative = $self->service_name . ' - ' . $self->service_type;
+    $self->narrative($narrative);
 }
 
 sub compose {
@@ -121,8 +103,7 @@ sub compose {
     $self->composition_format('RAW')
       if ( $self->composition_format eq 'TDD' );
 
-    $self->ctx->composition_format($self->composition_format);
-
+    $self->ctx->composition_format( $self->composition_format );
 
     my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
@@ -141,8 +122,10 @@ sub decompose_structured {
 
     $self->facility_id( $context->{'_health_care_facility'}->[0]->{'|id'} );
     $self->facility_name( $context->{'_health_care_facility'}->[0]->{'|name'} );
-    $self->id_namespace( $context->{'_health_care_facility'}->[0]->{'|id_namespace'} );
-    $self->id_scheme( $context->{'_health_care_facility'}->[0]->{'|id_scheme'} );
+    $self->id_namespace(
+        $context->{'_health_care_facility'}->[0]->{'|id_namespace'} );
+    $self->id_scheme(
+        $context->{'_health_care_facility'}->[0]->{'|id_scheme'} );
 
     $self->current_state(
         $service->{ism_transition}->[0]->{current_state}->[0]->{'|value'} );
@@ -153,28 +136,24 @@ sub decompose_structured {
     $self->expiry_time($expiry_time);
 
     my $start_date;
-    if ($request_details->{patient_information_request_start_date} ) {
-        $start_date = &format_datetime(
-            $request_details->{patient_information_request_start_date}->[0]
-        );
+    if ( $request_details->{patient_information_request_start_date} ) {
+        $start_date =
+          &format_datetime(
+            $request_details->{patient_information_request_start_date}->[0] );
     }
-    elsif($context->{start_time}) {
-        $start_date = &format_datetime(
-            $context->{start_time}->[0]
-        );
+    elsif ( $context->{start_time} ) {
+        $start_date = &format_datetime( $context->{start_time}->[0] );
     }
     $self->start_date($start_date);
 
     my $end_date;
-    if ($request_details->{patient_information_request_end_date} ) {
-        $end_date = &format_datetime( 
-            $request_details->{patient_information_request_end_date}->[0]
-        );
+    if ( $request_details->{patient_information_request_end_date} ) {
+        $end_date =
+          &format_datetime(
+            $request_details->{patient_information_request_end_date}->[0] );
     }
-    elsif ($context->{_end_time}->[0]) {
-        $end_date = &format_datetime( 
-            $context->{_end_time}->[0]
-         );
+    elsif ( $context->{_end_time}->[0] ) {
+        $end_date = &format_datetime( $context->{_end_time}->[0] );
     }
     $end_date = $end_date ? $end_date : DateTime->now;
     $self->end_date($end_date);
@@ -185,51 +164,66 @@ sub decompose_structured {
     $self->timing($timing);
 
     $self->request_id( $service_request->{requestor_identifier}->[0] );
-    $self->composer_name( $composition->{gel_data_request_summary}->{composer}->[0]->{'|name'} );
+    $self->composer_name(
+        $composition->{gel_data_request_summary}->{composer}->[0]->{'|name'} );
 
 }
 
 sub decompose_raw {
     my ( $self, $composition ) = @_;
     for my $content ( @{ $composition->{content} } ) {
-        if ( $content->{archetype_node_id} eq 'openEHR-EHR-ACTION.service.v0' ) {
+        if ( $content->{archetype_node_id} eq 'openEHR-EHR-ACTION.service.v0' )
+        {
             $self->current_state(
                 $content->{ism_transition}->{current_state}->{value} );
             $self->current_state_code(
-                $content->{ism_transition}->{current_state}->{defining_code}->{code_string} );
+                $content->{ism_transition}->{current_state}->{defining_code}
+                  ->{code_string} );
         }
-        elsif ( $content->{archetype_node_id} eq 'openEHR-EHR-INSTRUCTION.request.v0' ) {
-            $self->request_id( $content->{protocol}->{items}->[0]->{value}->{value} );
-            my $timing = &format_datetime(
+        elsif ( $content->{archetype_node_id} eq
+            'openEHR-EHR-INSTRUCTION.request.v0' )
+        {
+            $self->request_id(
+                $content->{protocol}->{items}->[0]->{value}->{value} );
+            my $timing =
+              &format_datetime(
                 $content->{activities}->[0]->{timing}->{value} );
-            $self->timing( $timing );
+            $self->timing($timing);
 
-            my $expiry_time = &format_datetime(
-                $content->{expiry_time}->{value} );
+            my $expiry_time =
+              &format_datetime( $content->{expiry_time}->{value} );
             $self->expiry_time($expiry_time);
 
-            for my $request_item (@{ $content->{activities}->[0]->{description}->{items} } ) {
-                if ($request_item->{archetype_node_id} eq 'openEHR-EHR-CLUSTER.information_request_details_gel.v0') {
-                    for my $request_date (@{ $request_item->{items} } ) {
-                        if ($request_date->{archetype_node_id} eq 'at0001') {
-                            my $start_date = &format_datetime( $request_date->{value}->{value} );
+            for my $request_item (
+                @{ $content->{activities}->[0]->{description}->{items} } )
+            {
+                if ( $request_item->{archetype_node_id} eq
+                    'openEHR-EHR-CLUSTER.information_request_details_gel.v0' )
+                {
+                    for my $request_date ( @{ $request_item->{items} } ) {
+                        if ( $request_date->{archetype_node_id} eq 'at0001' ) {
+                            my $start_date =
+                              &format_datetime(
+                                $request_date->{value}->{value} );
                             $self->start_date($start_date);
                         }
-                        elsif ($request_date->{archetype_node_id} eq 'at0002') {
-                            my $end_date = &format_datetime( $request_date->{value}->{value} );
+                        elsif ( $request_date->{archetype_node_id} eq 'at0002' )
+                        {
+                            my $end_date =
+                              &format_datetime(
+                                $request_date->{value}->{value} );
                             $self->end_date($end_date);
                         }
                     }
                 }
-                elsif ($request_item->{archetype_node_id} eq 'at0121') {
-                    $self->service_name($request_item->{value}->{value});
+                elsif ( $request_item->{archetype_node_id} eq 'at0121' ) {
+                    $self->service_name( $request_item->{value}->{value} );
                 }
-                elsif ($request_item->{archetype_node_id} eq 'at0148') {
-                    $self->service_type($request_item->{value}->{value});
+                elsif ( $request_item->{archetype_node_id} eq 'at0148' ) {
+                    $self->service_type( $request_item->{value}->{value} );
                 }
             }
         }
-
 
     }
     return 1;
@@ -237,14 +231,14 @@ sub decompose_raw {
 
 sub format_datetime {
     my $date = shift;
-    if (!defined($date)) {
+    if ( !defined($date) ) {
         $date = DateTime->now->datetime;
     }
-    if ($date eq 'R1') {
+    if ( $date eq 'R1' ) {
         $date = DateTime->now->datetime;
     }
-    if ($date =~ /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})(\+\d{2}:\d{2})/) {
-        my ($part1, $part2) = ($1, $2);
+    if ( $date =~ /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})(\+\d{2}:\d{2})/ ) {
+        my ( $part1, $part2 ) = ( $1, $2 );
         $part1 .= ':00';
         $date = $part1 . $part2;
     }
@@ -263,10 +257,10 @@ sub format_datetime {
 
 sub compose_structured {
     my $self        = shift;
-    my $ctx = $self->ctx->compose;
+    my $ctx         = $self->ctx->compose;
     my $composition = {
-        ctx => $ctx,
-        'gel_data_request_summary'      => {
+        ctx                        => $ctx,
+        'gel_data_request_summary' => {
             'service_request' => [
                 {
                     'narrative' =>
@@ -291,16 +285,18 @@ sub compose_structured {
                             'service_name' => [ $self->service_name ]
                         }
                     ],
-                    'requestor_identifier' => $self->request_id, # | [ DateTime->now()->epoch() ],
-                    'expiry_time'          => $self->expiry_time->datetime,
+                    'requestor_identifier' =>
+                      $self->request_id,    # | [ DateTime->now()->epoch() ],
+                    'expiry_time' => $self->expiry_time->datetime,
                 }
             ],
             'service' => [
                 {
-                    'service_type'         => [ $self->service_type ],
-                    'service_name'         => [ $self->service_name ],
-#                    'comment'              => ['Comment 25'],
-                    'time'                 => [ DateTime->now->datetime ],
+                    'service_type' => [ $self->service_type ],
+                    'service_name' => [ $self->service_name ],
+
+                  #                    'comment'              => ['Comment 25'],
+                    'time'           => [ DateTime->now->datetime ],
                     'ism_transition' => [
                         {
                             'current_state' => [
@@ -320,10 +316,10 @@ sub compose_structured {
 
 sub compose_raw {
     my $self        = shift;
-    my $ctx = $self->ctx->compose;
+    my $ctx         = $self->ctx->compose;
     my $composition = {
         'archetype_node_id' => 'openEHR-EHR-COMPOSITION.report.v1',
-        'content' => [
+        'content'           => [
             {
                 'protocol' => {
                     'archetype_node_id' => 'at0008',
@@ -405,7 +401,8 @@ sub compose_raw {
                                     '@class' => 'ELEMENT'
                                 },
                                 {
-                                    'archetype_node_id' => 'openEHR-EHR-CLUSTER.information_request_details_gel.v0',
+                                    'archetype_node_id' =>
+'openEHR-EHR-CLUSTER.information_request_details_gel.v0',
                                     'name' => {
                                         'value' =>
                                           'GEL information request details',
@@ -414,7 +411,8 @@ sub compose_raw {
                                     'archetype_details' => {
                                         'rm_version'   => '1.0.1',
                                         'archetype_id' => {
-                                            'value' => 'openEHR-EHR-CLUSTER.information_request_details_gel.v0',
+                                            'value' =>
+'openEHR-EHR-CLUSTER.information_request_details_gel.v0',
                                             '@class' => 'ARCHETYPE_ID'
                                         },
                                         '@class' => 'ARCHETYPED'
@@ -428,7 +426,8 @@ sub compose_raw {
                                                 '@class' => 'DV_DATE_TIME'
                                             },
                                             'name' => {
-                                                'value' => 'Patient information request start date',
+                                                'value' =>
+'Patient information request start date',
                                                 '@class' => 'DV_TEXT'
                                             },
                                             '@class' => 'ELEMENT'
@@ -441,7 +440,8 @@ sub compose_raw {
                                                 '@class' => 'DV_DATE_TIME'
                                             },
                                             'name' => {
-                                                'value' => 'Patient information request end date',
+                                                'value' =>
+'Patient information request end date',
                                                 '@class' => 'DV_TEXT'
                                             },
                                             '@class' => 'ELEMENT'
@@ -591,7 +591,7 @@ sub compose_raw {
             },
             '@class' => 'ARCHETYPED'
         },
-        '@class'  => 'COMPOSITION',
+        '@class' => 'COMPOSITION',
     };
     $composition = { %{$composition}, %{$ctx} };
     return $composition;
@@ -599,9 +599,9 @@ sub compose_raw {
 
 sub compose_flat {
     my $self        = shift;
-    my $ctx = $self->ctx->compose;
+    my $ctx         = $self->ctx->compose;
     my $composition = {
-        %{ $ctx }, 
+        %{$ctx},
         'gel_data_request_summary/service_request:0/request:0/service_name' =>
           $self->service_name,
         'gel_data_request_summary/service_request:0/request:0/service_type' =>
@@ -631,7 +631,6 @@ sub compose_flat {
 
     return $composition;
 }
-
 
 no Moose;
 
@@ -711,6 +710,27 @@ recieved from a call to OpenEHR::REST::Composition->find_by_uid
 
 Populates an InformationOrder object with the composition_response data 
 recieved from a call to OpenEHR::REST::Composition->find_by_uid
+
+=head1 PRIVATE METHODS
+
+=head1 _set_state_code
+
+Derives the state_code attribute from the value of current_state
+
+=cut
+
+=head1 _set_ctx
+
+Adds the context and ctx elements to the Information Order
+
+=cut 
+
+=head2 _set_narrative
+
+Returns default value for narrative by concatenating
+service_name and service_type with ' - '
+
+=cut
 
 =head1 DIAGNOSTICS
 
