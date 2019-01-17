@@ -8,7 +8,6 @@ use Moose::Util::TypeConstraints;
 use DateTime;
 use Data::Dumper;
 use DateTime::Format::Pg;
-use OpenEHR::Composition::Elements::CTX;
 extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
@@ -27,12 +26,6 @@ has narrative => (
 has requestor_id => (
     is  => 'rw',
     isa => 'Str',
-);
-
-has ctx => (
-    is      => 'rw',
-    isa     => 'OpenEHR::Composition::Elements::CTX',
-    default => \&_set_ctx,
 );
 
 has current_state => (
@@ -75,12 +68,6 @@ has request_id => (
     isa => 'Str',
 );
 
-sub _set_ctx {
-    my $self = shift;
-    my $ctx  = OpenEHR::Composition::Elements::CTX->new();
-    $self->ctx($ctx);
-}
-
 sub _set_state_code {
     my $self   = shift;
     my $states = {
@@ -102,8 +89,6 @@ sub compose {
     my $self = shift;
     $self->composition_format('RAW')
       if ( $self->composition_format eq 'TDD' );
-
-    $self->ctx->composition_format( $self->composition_format );
 
     my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
@@ -257,7 +242,6 @@ sub format_datetime {
 
 sub compose_structured {
     my $self        = shift;
-    my $ctx         = $self->ctx->compose;
     my $composition = {
         ctx => {
             'language'      => $self->language_code,
@@ -669,7 +653,6 @@ sub compose_raw {
 
 sub compose_flat {
     my $self        = shift;
-    my $ctx         = $self->ctx->compose;
     my $composition = {
         'ctx/language'      => $self->language_code,
         'ctx/territory'     => $self->territory_code,
@@ -795,12 +778,6 @@ recieved from a call to OpenEHR::REST::Composition->find_by_uid
 Derives the state_code attribute from the value of current_state
 
 =cut
-
-=head1 _set_ctx
-
-Adds the context and ctx elements to the Information Order
-
-=cut 
 
 =head2 _set_narrative
 
