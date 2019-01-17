@@ -1,5 +1,7 @@
 requires 'Test::More';
 requires 'Test::Perl::Critic';
+requires 'Test::Pod';
+requires 'Test::Pod::Coverage';
 requires 'version';
 requires 'Carp';
 requires 'JSON';
