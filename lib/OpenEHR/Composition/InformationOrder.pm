@@ -103,75 +103,32 @@ sub decompose {
     $self->$formatter($composition);
 }
 
+
+
 sub decompose_flat {
     my ( $self, $composition ) = @_;
     $self->composition_uid( $composition->{'gel_data_request_summary/_uid'} );
-    $self->requestor_id(
-        $composition->{
-          'gel_data_request_summary/service_request:0/requestor_identifier'
-        } );
-    $self->current_state(
-        $composition->{
-'gel_data_request_summary/service:0/ism_transition/current_state|value'
-        }
-    );
-    $self->start_date(
-        format_datetime( $composition->{
-'gel_data_request_summary/service_request:0/request:0/gel_information_request_details:0/patient_information_request_start_date'
-        } )
-    );
-    $self->end_date(
-        format_datetime( $composition->{
-'gel_data_request_summary/service_request:0/request:0/gel_information_request_details:0/patient_information_request_end_date'
-        } )
-    );
-    $self->timing(
-        format_datetime( $composition->{
-            'gel_data_request_summary/service_request:0/request:0/timing'} ) );
-    $self->expiry_time(
-        format_datetime( $composition->{'gel_data_request_summary/service_request:0/expiry_time'} )
-    );
-    $self->composer_name(
-        $composition->{'gel_data_request_summary/composer|name'} );
-    $self->facility_id(
-        $composition->{
-            'gel_data_request_summary/context/_health_care_facility|id'} );
-    $self->facility_name(
-        $composition->{
-            'gel_data_request_summary/context/_health_care_facility|name'} );
-    $self->id_scheme(
-        $composition->{
-            'gel_data_request_summary/context/_health_care_facility|id_scheme'}
-    );
-    $self->id_namespace(
-        $composition->{
-'gel_data_request_summary/context/_health_care_facility|id_namespace'
-        }
-    );
-    $self->language_code(
-        $composition->{'gel_data_request_summary/language|code'} );
-    $self->language_terminology(
-        $composition->{'gel_data_request_summary/language|terminology'} );
-    $self->service_name(
-        $composition->{'gel_data_request_summary/service:0/service_name'} );
-    $self->service_type(
-        $composition->{'gel_data_request_summary/service:0/service_type'} );
-    $self->encoding_code(
-        $composition->{'gel_data_request_summary/service:0/encoding|code'} );
-    $self->encoding_terminology(
-        $composition->{
-            'gel_data_request_summary/service:0/encoding|terminology'} );
-    $self->narrative(
-        $composition->{'gel_data_request_summary/service_request:0/narrative'}
-    );
-    $self->requestor_id(
-        $composition->{
-            'gel_data_request_summary/service_request:0/requestor_identifier'}
-    );
-    $self->territory_code(
-        $composition->{'gel_data_request_summary/territory|code'} );
-    $self->territory_terminology(
-        $composition->{'gel_data_request_summary/territory|terminology'} );
+    $self->requestor_id( $composition->{ 'gel_data_request_summary/service_request:0/requestor_identifier' } );
+    $self->current_state( $composition->{ 'gel_data_request_summary/service:0/ism_transition/current_state|value' });
+    $self->start_date( format_datetime( $composition->{ 'gel_data_request_summary/service_request:0/request:0/gel_information_request_details:0/patient_information_request_start_date' } ));
+    $self->end_date( format_datetime( $composition->{ 'gel_data_request_summary/service_request:0/request:0/gel_information_request_details:0/patient_information_request_end_date' } ));
+    $self->timing( format_datetime( $composition->{ 'gel_data_request_summary/service_request:0/request:0/timing'} ) );
+    $self->expiry_time( format_datetime( $composition->{'gel_data_request_summary/service_request:0/expiry_time'} ));
+    $self->composer_name( $composition->{'gel_data_request_summary/composer|name'} );
+    $self->facility_id( $composition->{ 'gel_data_request_summary/context/_health_care_facility|id'} );
+    $self->facility_name( $composition->{ 'gel_data_request_summary/context/_health_care_facility|name'} );
+    $self->id_scheme( $composition->{ 'gel_data_request_summary/context/_health_care_facility|id_scheme'});
+    $self->id_namespace( $composition->{ 'gel_data_request_summary/context/_health_care_facility|id_namespace' });
+    $self->language_code( $composition->{'gel_data_request_summary/language|code'} );
+    $self->language_terminology( $composition->{'gel_data_request_summary/language|terminology'} );
+    $self->service_name( $composition->{'gel_data_request_summary/service:0/service_name'} );
+    $self->service_type( $composition->{'gel_data_request_summary/service:0/service_type'} );
+    $self->encoding_code( $composition->{'gel_data_request_summary/service:0/encoding|code'} );
+    $self->encoding_terminology( $composition->{ 'gel_data_request_summary/service:0/encoding|terminology'} );
+    $self->narrative( $composition->{'gel_data_request_summary/service_request:0/narrative'});
+    $self->requestor_id( $composition->{ 'gel_data_request_summary/service_request:0/requestor_identifier'});
+    $self->territory_code( $composition->{'gel_data_request_summary/territory|code'} );
+    $self->territory_terminology( $composition->{'gel_data_request_summary/territory|terminology'} );
 }
 
 sub decompose_structured {
@@ -179,32 +136,23 @@ sub decompose_structured {
     croak "Not an information order compostion"
       if ( !defined( $composition->{gel_data_request_summary} ) );
     my $service = $composition->{gel_data_request_summary}->{service}->[0];
-    my $service_request =
-      $composition->{gel_data_request_summary}->{service_request}->[0];
-    my $request_details =
-      $service_request->{request}->[0]->{gel_information_request_details}->[0];
+    my $service_request = $composition->{gel_data_request_summary}->{service_request}->[0];
+    my $request_details = $service_request->{request}->[0]->{gel_information_request_details}->[0];
     my $context = $composition->{gel_data_request_summary}->{context}->[0];
 
     $self->facility_id( $context->{'_health_care_facility'}->[0]->{'|id'} );
     $self->facility_name( $context->{'_health_care_facility'}->[0]->{'|name'} );
-    $self->id_namespace(
-        $context->{'_health_care_facility'}->[0]->{'|id_namespace'} );
-    $self->id_scheme(
-        $context->{'_health_care_facility'}->[0]->{'|id_scheme'} );
+    $self->id_namespace( $context->{'_health_care_facility'}->[0]->{'|id_namespace'} );
+    $self->id_scheme( $context->{'_health_care_facility'}->[0]->{'|id_scheme'} );
 
-    $self->current_state(
-        $service->{ism_transition}->[0]->{current_state}->[0]->{'|value'} );
-    $self->service_type(
-        $service_request->{request}->[0]->{service_type}->[0] );
+    $self->current_state( $service->{ism_transition}->[0]->{current_state}->[0]->{'|value'} );
 
     my $expiry_time = &format_datetime( $service_request->{expiry_time}->[0] );
     $self->expiry_time($expiry_time);
 
     my $start_date;
     if ( $request_details->{patient_information_request_start_date} ) {
-        $start_date =
-          &format_datetime(
-            $request_details->{patient_information_request_start_date}->[0] );
+        $start_date = &format_datetime( $request_details->{patient_information_request_start_date}->[0] );
     }
     elsif ( $context->{start_time} ) {
         $start_date = &format_datetime( $context->{start_time}->[0] );
@@ -213,9 +161,7 @@ sub decompose_structured {
 
     my $end_date;
     if ( $request_details->{patient_information_request_end_date} ) {
-        $end_date =
-          &format_datetime(
-            $request_details->{patient_information_request_end_date}->[0] );
+        $end_date = &format_datetime( $request_details->{patient_information_request_end_date}->[0] );
     }
     elsif ( $context->{_end_time}->[0] ) {
         $end_date = &format_datetime( $context->{_end_time}->[0] );
@@ -223,16 +169,50 @@ sub decompose_structured {
     $end_date = $end_date ? $end_date : DateTime->now;
     $self->end_date($end_date);
 
-    my $timing =
-      &format_datetime(
-        $service_request->{request}->[0]->{timing}->[0]->{'|value'} );
+    my $timing = &format_datetime( $service_request->{request}->[0]->{timing}->[0]->{'|value'} );
     $self->timing($timing);
 
-    $self->request_id( $service_request->{requestor_identifier}->[0] );
-    $self->composer_name(
-        $composition->{gel_data_request_summary}->{composer}->[0]->{'|name'} );
+    $self->requestor_id( $service_request->{requestor_identifier}->[0] );
+    $self->composer_name( $composition->{gel_data_request_summary}->{composer}->[0]->{'|name'} );
+    $self->composition_uid( $composition->{gel_data_request_summary}->{'_uid'}->[0] );
+    $self->requestor_id( $service_request->{requestor_identifier}->[0] );
+    $self->language_code( $composition->{gel_data_request_summary}->{language}->[0]->{'|code'} );
+    $self->language_terminology( $composition->{gel_data_request_summary}->{language}->[0]->{'|terminology'} );
+    $self->service_name( $service->{service_name}->[0] );
+    $self->service_type( $service->{service_type}->[0] );
+    $self->encoding_code( $service->{encoding}->[0]->{'|code'} );
+    $self->encoding_terminology( $service->{encoding}->[0]->{'|terminology'} );
+    $self->narrative( $service_request->{narrative}->[0] );
+    $self->territory_code( $composition->{gel_data_request_summary}->{territory}->[0]->{'|code'} );
+    $self->territory_terminology( $composition->{gel_data_request_summary}->{territory}->[0]->{'|terminology'} );
+
 
 }
+
+=head1 attribute_list
+$self->composition_uid
+$self->requestor_id
+$self->current_state
+$self->start_date
+$self->end_date
+$self->timing
+$self->expiry_time
+$self->composer_name
+$self->facility_id
+$self->facility_name
+$self->id_scheme
+$self->id_namespace
+$self->language_code
+$self->language_terminology
+$self->service_name
+$self->service_type
+$self->encoding_code
+$self->encoding_terminology
+$self->narrative
+$self->requestor_id
+$self->territory_code
+$self->territory_terminology
+=cut
 
 sub decompose_raw {
     my ( $self, $composition ) = @_;
@@ -326,8 +306,7 @@ sub compose_structured {
         ctx => {
             'language'      => $self->language_code,
             'territory'     => $self->territory_code,
-            'composer_name' => $self->composer_name . '-'
-              . $self->composition_format,
+            'composer_name' => $self->composer_name,
             'id_namespace'              => $self->id_namespace,
             'id_scheme'                 => $self->id_scheme,
             'health_care_facility|name' => $self->facility_name,
@@ -357,8 +336,7 @@ sub compose_structured {
                             'service_name' => [ $self->service_name ]
                         }
                     ],
-                    'requestor_identifier' =>
-                      $self->request_id,    # | [ DateTime->now()->epoch() ],
+                    'requestor_identifier' => $self->requestor_id,
                     'expiry_time' => $self->expiry_time->datetime,
                 }
             ],
@@ -366,8 +344,6 @@ sub compose_structured {
                 {
                     'service_type' => [ $self->service_type ],
                     'service_name' => [ $self->service_name ],
-
-                  #                    'comment'              => ['Comment 25'],
                     'time'           => [ DateTime->now->datetime ],
                     'ism_transition' => [
                         {
