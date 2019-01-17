@@ -259,13 +259,21 @@ sub compose_structured {
     my $self        = shift;
     my $ctx         = $self->ctx->compose;
     my $composition = {
-        ctx                        => $ctx,
+        ctx => {
+            'language'      => $self->language_code,
+            'territory'     => $self->territory_code,
+            'composer_name' => $self->composer_name . '-'
+              . $self->composition_format,
+            'id_namespace'              => $self->id_namespace,
+            'id_scheme'                 => $self->id_scheme,
+            'health_care_facility|name' => $self->facility_name,
+            'health_care_facility|id'   => $self->facility_id,
+        },
         'gel_data_request_summary' => {
             'service_request' => [
                 {
-                    'narrative' =>
-                      [ $self->narrative ],
-                    'request' => [
+                    'narrative' => [ $self->narrative ],
+                    'request'   => [
                         {
                             'gel_information_request_details' => [
                                 {
@@ -473,7 +481,7 @@ sub compose_raw {
                 },
                 '@class'    => 'INSTRUCTION',
                 'narrative' => {
-                    'value' => $self->narrative,
+                    'value'  => $self->narrative,
                     '@class' => 'DV_TEXT'
                 },
                 'encoding' => {
@@ -600,11 +608,12 @@ sub compose_flat {
     my $self        = shift;
     my $ctx         = $self->ctx->compose;
     my $composition = {
-        'ctx/language'                  => $self->language_code,
-        'ctx/territory'                 => $self->territory_code,
-        'ctx/composer_name'             => $self->composer_name . '-' . $self->composition_format,
+        'ctx/language'      => $self->language_code,
+        'ctx/territory'     => $self->territory_code,
+        'ctx/composer_name' => $self->composer_name . '-'
+          . $self->composition_format,
         'ctx/id_namespace'              => $self->id_namespace,
-        'ctx/id_scheme'                 => $self->id_scheme, 
+        'ctx/id_scheme'                 => $self->id_scheme,
         'ctx/health_care_facility|name' => $self->facility_name,
         'ctx/health_care_facility|id'   => $self->facility_id,
         'gel_data_request_summary/service_request:0/request:0/service_name' =>
