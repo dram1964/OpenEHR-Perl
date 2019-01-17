@@ -94,6 +94,86 @@ sub compose {
     $self->$formatter();
 }
 
+sub decompose {
+    my ( $self, $composition ) = @_;
+    $self->composition_format('RAW')
+      if ( $self->composition_format eq 'TDD' );
+
+    my $formatter = 'decompose_' . lc( $self->composition_format );
+    $self->$formatter($composition);
+}
+
+sub decompose_flat {
+    my ( $self, $composition ) = @_;
+    $self->composition_uid( $composition->{'gel_data_request_summary/_uid'} );
+    $self->requestor_id(
+        $composition->{
+          'gel_data_request_summary/service_request:0/requestor_identifier'
+        } );
+    $self->current_state(
+        $composition->{
+'gel_data_request_summary/service:0/ism_transition/current_state|value'
+        }
+    );
+    $self->start_date(
+        format_datetime( $composition->{
+'gel_data_request_summary/service_request:0/request:0/gel_information_request_details:0/patient_information_request_start_date'
+        } )
+    );
+    $self->end_date(
+        format_datetime( $composition->{
+'gel_data_request_summary/service_request:0/request:0/gel_information_request_details:0/patient_information_request_end_date'
+        } )
+    );
+    $self->timing(
+        format_datetime( $composition->{
+            'gel_data_request_summary/service_request:0/request:0/timing'} ) );
+    $self->expiry_time(
+        format_datetime( $composition->{'gel_data_request_summary/service_request:0/expiry_time'} )
+    );
+    $self->composer_name(
+        $composition->{'gel_data_request_summary/composer|name'} );
+    $self->facility_id(
+        $composition->{
+            'gel_data_request_summary/context/_health_care_facility|id'} );
+    $self->facility_name(
+        $composition->{
+            'gel_data_request_summary/context/_health_care_facility|name'} );
+    $self->id_scheme(
+        $composition->{
+            'gel_data_request_summary/context/_health_care_facility|id_scheme'}
+    );
+    $self->id_namespace(
+        $composition->{
+'gel_data_request_summary/context/_health_care_facility|id_namespace'
+        }
+    );
+    $self->language_code(
+        $composition->{'gel_data_request_summary/language|code'} );
+    $self->language_terminology(
+        $composition->{'gel_data_request_summary/language|terminology'} );
+    $self->service_name(
+        $composition->{'gel_data_request_summary/service:0/service_name'} );
+    $self->service_type(
+        $composition->{'gel_data_request_summary/service:0/service_type'} );
+    $self->encoding_code(
+        $composition->{'gel_data_request_summary/service:0/encoding|code'} );
+    $self->encoding_terminology(
+        $composition->{
+            'gel_data_request_summary/service:0/encoding|terminology'} );
+    $self->narrative(
+        $composition->{'gel_data_request_summary/service_request:0/narrative'}
+    );
+    $self->requestor_id(
+        $composition->{
+            'gel_data_request_summary/service_request:0/requestor_identifier'}
+    );
+    $self->territory_code(
+        $composition->{'gel_data_request_summary/territory|code'} );
+    $self->territory_terminology(
+        $composition->{'gel_data_request_summary/territory|terminology'} );
+}
+
 sub decompose_structured {
     my ( $self, $composition ) = @_;
     croak "Not an information order compostion"
@@ -368,7 +448,7 @@ sub compose_raw {
                 },
                 '@class' => 'DV_CODED_TEXT',
             },
-        '@class' => 'EVENT_CONTEXT',
+            '@class' => 'EVENT_CONTEXT',
         },
         'composer' => {
             'name'   => $self->composer_name . '-' . $self->composition_format,
@@ -656,8 +736,7 @@ sub compose_flat {
     my $composition = {
         'ctx/language'      => $self->language_code,
         'ctx/territory'     => $self->territory_code,
-        'ctx/composer_name' => $self->composer_name . '-'
-          . $self->composition_format,
+        'ctx/composer_name' => $self->composer_name,
         'ctx/id_namespace'              => $self->id_namespace,
         'ctx/id_scheme'                 => $self->id_scheme,
         'ctx/health_care_facility|name' => $self->facility_name,
@@ -687,6 +766,7 @@ sub compose_flat {
           => $self->start_date->datetime,
 'gel_data_request_summary/service_request:0/request:0/gel_information_request_details:0/patient_information_request_end_date'
           => $self->end_date->datetime,
+          'gel_data_request_summary/service_request:0/requestor_identifier' => $self->requestor_id,
     };
 
     return $composition;
@@ -760,6 +840,10 @@ Returns a hashref of the object in FLAT format
 =head2 format_datetime
 
 Takes a date value in 'yyyy-dd-mmThh:mmZ' format and converts it to 'yyyy-mm-dd hh:mm' format
+
+=head2 decompose
+
+Populates an InformationOrder object with the values from a composition hashref
 
 =head2 decompose_structured
 

@@ -175,6 +175,7 @@ This document describes OpenEHR::REST::Composition version 0.0.1
 
     my $path_report1 = OpenEHR::REST::Composition->new();
     $path_report->composition($labreport); # add a composition object
+    $path_report->template_id('GEL - Data request Summary.v1');
 
     $path_report1->submit_new($ehr->ehrId);
     warn ("Error occurred in submission: " . $path_report1->err_msg)

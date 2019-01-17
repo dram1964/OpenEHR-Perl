@@ -18,6 +18,8 @@ my $cfg = new Config::Simple($config_file)
 
 enum 'CompositionFormat' => [qw( FLAT STRUCTURED RAW TDD )];
 
+has composition_uid => ( is => 'rw' );
+
 has composition_format => (
     is       => 'rw',
     isa      => 'CompositionFormat',
