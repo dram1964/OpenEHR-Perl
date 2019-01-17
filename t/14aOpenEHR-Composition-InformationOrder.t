@@ -144,35 +144,32 @@ is( $planned_order->territory_terminology,
     'ISO_3166-2', 'territory_terminology accessor' );
 }
 
-TODO: {
-    local $TODO = "Not yet implemented";
-    is( $planned_order->composition_format,
-        'STRUCTURED', 'Default composition format is STRUCTURED' );
+is( $planned_order->composition_format,
+    'STRUCTURED', 'Default composition format is STRUCTURED' );
 
-    ok( $planned_order->composition_format('FLAT'),
-        'Set composition to FLAT format' );
-    ok(
-        my $composition = $planned_order->compose,
-        'Called compose for FLAT composition'
-    );
+ok( $planned_order->composition_format('FLAT'),
+    'Set composition to FLAT format' );
+ok(
+    my $composition = $planned_order->compose,
+    'Called compose for FLAT composition'
+);
 
-    ok(
-        $planned_order->composition_format('STRUCTURED'),
-        'Set composition to STRUCTURED format'
-    );
-    ok(
-        $composition = $planned_order->compose,
-        'Called compose for STRUCTURED composition'
-    );
+ok(
+    $planned_order->composition_format('STRUCTURED'),
+    'Set composition to STRUCTURED format'
+);
+ok(
+    $composition = $planned_order->compose,
+    'Called compose for STRUCTURED composition'
+);
 
-    ok( $planned_order->composition_format('RAW'),
-        'Set composition to RAW format' );
-    ok(
-        $composition = $planned_order->compose,
-        'Called compose for RAW composition'
-    );
+ok( $planned_order->composition_format('RAW'),
+    'Set composition to RAW format' );
+ok(
+    $composition = $planned_order->compose,
+    'Called compose for RAW composition'
+);
 
-}
 
 done_testing;
 
