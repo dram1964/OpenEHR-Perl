@@ -1,0 +1,15 @@
+requires 'Test::More';
+requires 'Test::Perl::Critic';
+requires 'version';
+requires 'Carp';
+requires 'JSON';
+requires 'Moose';
+requires 'DateTime';
+requires 'DateTime::Format::DateParse';
+requires 'DateTime::Format::Pg';
+requires 'Config::Simple';
+requires 'Data::Dumper';
+requires 'Moose::Util::TypeConstraints';
+requires 'URI::Encode';
+requires 'Module::Find';
+requires 'REST::Client';

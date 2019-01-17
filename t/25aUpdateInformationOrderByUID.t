@@ -7,7 +7,8 @@ use OpenEHR::REST::AQL;
 use OpenEHR::REST::Composition;
 use OpenEHR::Composition::InformationOrder;
 
-my $uid = '22ae73c6-9fcd-4324-abf6-5829c87c9c1e::default::1';
+my $uid =  '4c76ad9d-24c5-4ba6-a3c9-7439c48baf8f::default::1'; #$ENV{TEST_UID};
+note("UID: $uid");
 
 my $retrieval = OpenEHR::REST::Composition->new();
 $retrieval->request_format('STRUCTURED');
@@ -25,15 +26,15 @@ if ( $retrieval->err_msg ) {
 
 ok(my $target = OpenEHR::Composition::InformationOrder->new(), "Create blank Information Order");
 ok($target->decompose_structured($composition), "Populate the Order with data from an existing Order");
-is($target->composer_name, 'GENIE', 'composer_name set from composition');
-is($target->facility_id, 'GOSH', 'facility_id set from composition');
-is($target->facility_name, 'Great Ormond Street Hospital', 'facility_name set from composition');
-is($target->id_namespace, 'NTGMC_NAMESPACE', 'id_namespace set from composition');
-is($target->id_scheme, 'NTGMC_SCHEME', 'id_scheme set from composition');
-ok($target->current_state('aborted'), "Change state to aborted");
-is($target->current_state_code, 531, "Current state code updated to 531");
+is($target->composer_name, 'OpenEHR-Perl-STRUCTURED', 'composer_name set from composition');
+is($target->facility_id, 'RRV', 'facility_id set from composition');
+is($target->facility_name, 'UCLH', 'facility_name set from composition');
+is($target->id_namespace, 'UCLH-NAMESPACE', 'id_namespace set from composition');
+is($target->id_scheme, 'UCLH-SCHEME', 'id_scheme set from composition');
+ok($target->current_state('planned'), "Change state to aborted");
+is($target->current_state_code, 529, "Current state code updated to 531");
 
-print Dumper $target->compose;
+#print Dumper $target->compose;
 
 my $data = {
     subject_ehr_id     => '',

@@ -1,4 +1,6 @@
 init.sh
+_build
+Build
 !Build/
 /META.yml
 /META.json
@@ -20,4 +22,3 @@ lib/Genomes_100K
 lib/Genomes_100K_Test
 lib/Carecast
 OpenEHR.conf
-
