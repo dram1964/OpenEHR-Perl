@@ -26,51 +26,123 @@ my $end_date    = DateTime::Format::Pg->parse_datetime('2018-01-01');
 my $timing      = DateTime::Format::Pg->parse_datetime('2018-07-01');
 my $expiry_time = DateTime::Format::Pg->parse_datetime('2018-12-31');
 
+my $planned_order;
+
+{
 ok(
-    my $planned_order = OpenEHR::Composition::InformationOrder->new(
-        current_state => 'planned',
-        start_date    => $start_date,
-        end_date      => $end_date,
-        timing        => $timing,
-        expiry_time   => $expiry_time,
-    ), 'Constructor called'
+    $planned_order = OpenEHR::Composition::InformationOrder->new(
+        current_state         => 'planned',
+        start_date            => $start_date,
+        end_date              => $end_date,
+        timing                => $timing,
+        expiry_time           => $expiry_time,
+        requestor_id          => '834y5jkdk-ssxhs',
+    ),
+    'Constructor called'
 );
 
-is( $planned_order->service_type, 'pathology', 'Service Type Defaulted' );
-ok( $planned_order->service_type('radiology'), 'Service Type mutator' );
-is( $planned_order->service_type,
-    'radiology', 'Service Type changed by mutator' );
-
-is( $planned_order->current_state, 'planned', 'Current State accessor' );
-is( $planned_order->current_state_code, '526', 'Current State Code accessor' );
-
-ok(
-    $planned_order->current_state('scheduled'),
-    'Current State changed to scheduled'
+note("Testing default attribute accessors");
+is( $planned_order->current_state, 'planned',    'current_state accessor' );
+is( $planned_order->start_date,    $start_date,  'start_date accessor' );
+is( $planned_order->end_date,      $end_date,    'end_date accessor' );
+is( $planned_order->timing,        $timing,      'timing accessor' );
+is( $planned_order->expiry_time,   $expiry_time, 'expiry_time accessor' );
+is( $planned_order->composer_name, 'OpenEHR-Perl',      'composer_name accessor' );
+is( $planned_order->facility_id,   'RRV',       'facility_id accessor' );
+is(
+    $planned_order->facility_name,
+    'UCLH NHS Foundation Trust',
+    'facility_name accessor'
 );
-is( $planned_order->current_state_code,
-    '529', 'Current State Code updated for scheduled' );
-
-ok(
-    $planned_order->current_state('aborted'),
-    'Current State changed to aborted'
+is( $planned_order->id_scheme,     'UCLH-NS', 'id_scheme accessor' );
+is( $planned_order->id_namespace,  'UCLH-NS',     'id_namespace accessor' );
+is( $planned_order->language_code, 'en',          'language accessor' );
+is( $planned_order->language_terminology,
+    'ISO_639-1', 'language_code accessor' );
+is(
+    $planned_order->service_name,
+    'GEL Information data request',
+    'service_name accessor'
 );
-is( $planned_order->current_state_code,
-    '531', 'Current State Code updated for aborted' );
-
-ok(
-    $planned_order->current_state('complete'),
-    'Current State changed to complete'
+is( $planned_order->service_type,  'pathology', 'service_type accessor' );
+is( $planned_order->encoding_code, 'UTF-8',     'encoding_code accessor' );
+is( $planned_order->encoding_terminology,
+    'IANA_character-sets', 'encoding_terminology accessor' );
+is(
+    $planned_order->narrative,
+    $planned_order->service_name . ' - ' . $planned_order->service_type,
+    'narrative accessor'
 );
-is( $planned_order->current_state_code,
-    '532', 'Current State Code updated for complete' );
+is( $planned_order->requestor_id, '834y5jkdk-ssxhs', 'requestor_id accessor' );
+is( $planned_order->territory_code, 'GB', 'territory_code accessor' );
+is( $planned_order->territory_terminology,
+    'ISO_3166-1', 'territory_terminology accessor' );
+}
 
+{
 ok(
-    $planned_order->current_state('planned'),
-    'Current State changed to planned'
+    $planned_order = OpenEHR::Composition::InformationOrder->new(
+        current_state         => 'planned',
+        start_date            => $start_date,
+        end_date              => $end_date,
+        timing                => $timing,
+        expiry_time           => $expiry_time,
+        composer_name         => 'GENIE',
+        facility_id           => 'GOSH',
+        facility_name         => 'Great Ormond Street',
+        id_scheme             => 'GOSH-SCHEME',
+        id_namespace          => 'GOSH-NS',
+        language_code         => 'es',
+        language_terminology  => 'ISO_639-2',
+        service_name          => 'GEL Information data request',
+        service_type          => 'pathology',
+        encoding_code         => 'UTF-9',
+        encoding_terminology  => 'IANA_charsets',
+        narrative             => 'GEL pathology data request',
+        requestor_id          => '834y5jkdk-ssxhs',
+        territory_code        => 'ES',
+        territory_terminology => 'ISO_3166-2',
+    ),
+    'Constructor called'
 );
-is( $planned_order->current_state_code,
-    '526', 'Current State Code updated for planned' );
+
+note("Testing attribute accessors");
+is( $planned_order->current_state, 'planned',    'current_state accessor' );
+is( $planned_order->start_date,    $start_date,  'start_date accessor' );
+is( $planned_order->end_date,      $end_date,    'end_date accessor' );
+is( $planned_order->timing,        $timing,      'timing accessor' );
+is( $planned_order->expiry_time,   $expiry_time, 'expiry_time accessor' );
+is( $planned_order->composer_name, 'GENIE',      'composer_name accessor' );
+is( $planned_order->facility_id,   'GOSH',       'facility_id accessor' );
+is(
+    $planned_order->facility_name,
+    'Great Ormond Street',
+    'facility_name accessor'
+);
+is( $planned_order->id_scheme,     'GOSH-SCHEME', 'id_scheme accessor' );
+is( $planned_order->id_namespace,  'GOSH-NS',     'id_namespace accessor' );
+is( $planned_order->language_code, 'es',          'language accessor' );
+is( $planned_order->language_terminology,
+    'ISO_639-2', 'language_code accessor' );
+is(
+    $planned_order->service_name,
+    'GEL Information data request',
+    'service_name accessor'
+);
+is( $planned_order->service_type,  'pathology', 'service_type accessor' );
+is( $planned_order->encoding_code, 'UTF-9',     'encoding_code accessor' );
+is( $planned_order->encoding_terminology,
+    'IANA_charsets', 'encoding_terminology accessor' );
+is(
+    $planned_order->narrative,
+    'GEL pathology data request',
+    'narrative accessor'
+);
+is( $planned_order->requestor_id, '834y5jkdk-ssxhs', 'requestor_id accessor' );
+is( $planned_order->territory_code, 'ES', 'territory_code accessor' );
+is( $planned_order->territory_terminology,
+    'ISO_3166-2', 'territory_terminology accessor' );
+}
 
 is( $planned_order->composition_format,
     'STRUCTURED', 'Default composition format is STRUCTURED' );
@@ -91,10 +163,6 @@ ok(
     'Called compose for STRUCTURED composition'
 );
 
-#print Dumper ($composition);
-
-#TODO: {
-#    local $TODO = "Not yet implemented";
 ok( $planned_order->composition_format('RAW'),
     'Set composition to RAW format' );
 ok(
@@ -102,7 +170,6 @@ ok(
     'Called compose for RAW composition'
 );
 
-#}
 
 done_testing;
 
