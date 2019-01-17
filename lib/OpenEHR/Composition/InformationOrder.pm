@@ -264,7 +264,7 @@ sub compose_structured {
             'service_request' => [
                 {
                     'narrative' =>
-                      [ $self->service_name . ' - ' . $self->service_type ],
+                      [ $self->narrative ],
                     'request' => [
                         {
                             'gel_information_request_details' => [
@@ -473,8 +473,7 @@ sub compose_raw {
                 },
                 '@class'    => 'INSTRUCTION',
                 'narrative' => {
-                    'value' => $self->service_name . ' - '
-                      . $self->service_type,
+                    'value' => $self->narrative,
                     '@class' => 'DV_TEXT'
                 },
                 'encoding' => {
@@ -609,7 +608,7 @@ sub compose_flat {
         'gel_data_request_summary/service_request:0/request:0/timing' =>
           $self->timing->datetime,
         'gel_data_request_summary/service_request:0/narrative' =>
-          $self->service_name . ' - ' . $self->service_type,
+          $self->narrative,
         'gel_data_request_summary/service_request:0/requestor_identifier' =>
           $self->request_id,
         'gel_data_request_summary/service_request:0/expiry_time' => =>
