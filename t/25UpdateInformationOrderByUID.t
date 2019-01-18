@@ -18,7 +18,7 @@ note( 'SubjectId: ' . $ehr1->subject_id );
 
 my $template_id = 'GEL - Data request Summary.v1';
 
-for my $format ( ('STRUCTURED') ) {
+for my $format ( ('RAW') ) {
     my $start_date  = DateTime::Format::Pg->parse_datetime('2011-01-01');
     my $end_date    = DateTime::Format::Pg->parse_datetime('2018-01-01');
     my $timing      = DateTime::Format::Pg->parse_datetime('2018-07-01');

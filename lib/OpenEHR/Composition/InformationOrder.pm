@@ -204,6 +204,17 @@ $self->territory_terminology
 sub decompose_raw {
     my ( $self, $composition ) = @_;
     for my $content ( @{ $composition->{content} } ) {
+    $self->composition_uid( $composition->{uid}->{value} );
+    $self->composer_name( $composition->{composer}->{name} );
+    $self->facility_id( $composition->{context}->{health_care_facility}->{external_ref}->{id}->{value} );
+    $self->facility_name( $composition->{context}->{health_care_facility}->{name} );
+    $self->id_scheme( $composition->{context}->{health_care_facility}->{external_ref}->{id}->{scheme} );
+    $self->id_namespace( $composition->{context}->{health_care_facility}->{external_ref}->{namespace} );
+    $self->language_code( $composition->{language}->{code_string} );
+    $self->language_terminology( $composition->{language}->{terminology_id}->{value} );
+    $self->territory_code( $composition->{territory}->{code_string} );
+    $self->territory_terminology( $composition->{territory}->{terminology_id}->{value} );
+
         if ( $content->{archetype_node_id} eq 'openEHR-EHR-ACTION.service.v0' )
         {
             $self->current_state( $content->{ism_transition}->{current_state}->{value} );
@@ -211,6 +222,9 @@ sub decompose_raw {
         }
         elsif ( $content->{archetype_node_id} eq 'openEHR-EHR-INSTRUCTION.request.v0' )
         {
+            $self->narrative( $content->{narrative}->{value} );
+            $self->encoding_code( $content->{encoding}->{code_string} );
+            $self->encoding_terminology( $content->{encoding}->{terminology_id}->{value} );
             $self->requestor_id( $content->{protocol}->{items}->[0]->{value}->{value} );
             my $timing = &format_datetime( $content->{activities}->[0]->{timing}->{value} );
             $self->timing($timing);
@@ -239,7 +253,6 @@ sub decompose_raw {
                 }
             }
         }
-
     }
     return 1;
 }
