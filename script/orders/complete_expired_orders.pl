@@ -18,15 +18,14 @@ my $expired_orders = $schema->resultset('InformationOrder')->search(
     },
 );
 
-for my $order ( $expired_orders->next ) {
-    my $query = OpenEHR::REST::AQL->new();
-    my $composition_uid = $order->composition_uid;
+while ( my $order = $expired_orders->next ) {
 
+    my $query = OpenEHR::REST::AQL->new();
     $query->find_orders_by_uid( $order->composition_uid );
 
     if ( $query->response_code eq '204' ) {
-        print "No $state orders found\n";
-        exit 1;
+        print "No $state orders found on OpenEHR for " . $order->composition_uid . "\n";
+        next;
     }
     if ( $query->err_msg ) {
         die $query->err_msg;
