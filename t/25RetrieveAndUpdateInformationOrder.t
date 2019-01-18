@@ -18,49 +18,40 @@ note( 'SubjectId: ' . $ehr1->subject_id );
 
 my $template_id = 'GEL - Data request Summary.v1';
 
-for my $format ( ('RAW') ) {
+for my $format ( ('FLAT', 'STRUCTURED', 'RAW') ) {
     my $start_date  = DateTime::Format::Pg->parse_datetime('2011-01-01');
     my $end_date    = DateTime::Format::Pg->parse_datetime('2018-01-01');
     my $timing      = DateTime::Format::Pg->parse_datetime('2018-07-01');
     my $expiry_time = DateTime::Format::Pg->parse_datetime('2018-12-31');
     my $order_data  = {
-        current_state  => 'planned',
-        start_date     => $start_date,
-        end_date       => $end_date,
-        timing         => $timing,
-        expiry_time    => $expiry_time,
-        composer_name  => 'GENIE',
-        facility_id    => 'GOSH',
-        facility_name  => 'Great Ormond Street',
-        id_scheme      => 'GOSH-SCHEME',
-        id_namespace   => 'GOSH-NS',
-        language_code  => 'en',
-        service_name   => 'GEL Information data request',
-        service_type   => 'pathology',
-        narrative      => 'GEL pathology data request',
-        requestor_id   => '834y5jkdk-ssxhs',
-        territory_code => 'ES',
+        current_state         => 'planned',
+        start_date            => $start_date,
+        end_date              => $end_date,
+        timing                => $timing,
+        expiry_time           => $expiry_time,
+        composer_name         => 'GENIE',
+        facility_id           => 'GOSH',
+        facility_name         => 'Great Ormond Street',
+        id_scheme             => 'GOSH-SCHEME',
+        id_namespace          => 'GOSH-NS',
+        language_code         => 'en',
+        service_name          => 'GEL Information data request',
+        service_type          => 'pathology',
+        narrative             => 'GEL pathology data request',
+        requestor_id          => '834y5jkdk-ssxhs',
+        territory_code        => 'ES',
+        language_terminology  => 'ISO_639-1',                      # optional
+        encoding_code         => 'UTF-8',                          # optional
+        encoding_terminology  => 'IANA_character-sets',            # optional
+        territory_terminology => 'ISO_3166-1',                     # optional
     };
 
-=for removal 
-        language_terminology  => 'ISO_639-2',
-        encoding_code         => 'UTF-9',
-        encoding_terminology  => 'IANA_charsets',
-        territory_terminology => 'ISO_3166-2',
-    is( $order_update->language_terminology,
-        $planned_order->language_terminology, 'language_terminology for update matches planned_order' );
-    is( $order_update->encoding_code,
-        $planned_order->encoding_code, 'encoding_code for update matches planned_order' );
-    is( $order_update->encoding_terminology,
-        $planned_order->encoding_terminology, 'encoding_terminology for update matches planned_order' );
-    is( $order_update->territory_terminology,
-        $planned_order->territory_terminology, 'territory_terminology for update matches planned_order' );
-=cut
-
+    note("Construct a New Order in $format format");
     my $planned_order =
       OpenEHR::Composition::InformationOrder->new( $order_data, );
     $planned_order->composition_format($format);
 
+    note('Place the New Order');
     ok( my $order = OpenEHR::REST::Composition->new(), "Construct REST order" );
     ok( $order->composition($planned_order), "Add composition to new order" );
     ok( $order->template_id($template_id),   "Add composition to new order" );
@@ -73,6 +64,7 @@ for my $format ( ('RAW') ) {
     note( $order->compositionUid );    # the returned CompositionUid;
     note( $order->href );              # URL to view the submitted composition;
 
+    note("Retrieve the New Order in $format format");
     my $order_retrieval = OpenEHR::REST::Composition->new();
     $order_retrieval->request_format($format);
     ok( $order_retrieval->find_by_uid( $order->compositionUid ),
@@ -103,13 +95,13 @@ for my $format ( ('RAW') ) {
     );
     is( $order_update->service_type,
         'pathology', 'service_type set to default before decompose' );
-    ok( !$order_update->requestor_id,  'requestor_id not set before decompose' );
-    ok( !$order_update->start_date,  'start_date not set before decompose' );
-    ok( !$order_update->end_date,    'end_date not set before decompose' );
-    ok( !$order_update->timing,      'timing not set before decompose' );
-    ok( !$order_update->expiry_time, 'expiry_time not set before decompose' );
+    ok( !$order_update->requestor_id, 'requestor_id not set before decompose' );
+    ok( !$order_update->start_date,   'start_date not set before decompose' );
+    ok( !$order_update->end_date,     'end_date not set before decompose' );
+    ok( !$order_update->timing,       'timing not set before decompose' );
+    ok( !$order_update->expiry_time,  'expiry_time not set before decompose' );
 
-    note('Decomposing composition into InformationOrder object');
+    note("Decompose the composition in $format format");
     ok( $order_update->decompose($composition), 'Decompose the composition' );
     is( $order_update->composition_uid,
         $order->compositionUid,
@@ -153,8 +145,7 @@ for my $format ( ('RAW') ) {
         $planned_order->facility_name,
         'facility_name for update matches planned_order'
     );
-    is( $order_update->id_scheme,
-        $planned_order->id_scheme,
+    is( $order_update->id_scheme, $planned_order->id_scheme,
         'id_scheme for update matches planned_order' );
     is(
         $order_update->id_namespace,
@@ -176,23 +167,45 @@ for my $format ( ('RAW') ) {
         $planned_order->service_type,
         'service_type for update matches planned_order'
     );
-    is( $order_update->narrative,
-        $planned_order->narrative,
+    is( $order_update->narrative, $planned_order->narrative,
         'narrative for update matches planned_order' );
     is(
         $order_update->territory_code,
         $planned_order->territory_code,
         'territory_code for update matches planned_order'
     );
+    is(
+        $order_update->language_terminology,
+        $planned_order->language_terminology,
+        'language_terminology for update matches planned_order'
+    );
+    is(
+        $order_update->encoding_code,
+        $planned_order->encoding_code,
+        'encoding_code for update matches planned_order'
+    );
+    is(
+        $order_update->encoding_terminology,
+        $planned_order->encoding_terminology,
+        'encoding_terminology for update matches planned_order'
+    );
+    is(
+        $order_update->territory_terminology,
+        $planned_order->territory_terminology,
+        'territory_terminology for update matches planned_order'
+    );
 
+    note("Update the state and composer for the order");
     ok(
         $order_update->current_state('scheduled'),
         'Update the current_state to "scheduled"'
     );
     is( $order_update->current_state_code,
         '529', 'current_state_code updated to "529"' );
-    ok( $order_update->composer_name('OpenEHR-Perl-' . $format), 'Update the composer name');
+    ok( $order_update->composer_name( 'OpenEHR-Perl-' . $format ),
+        'Update the composer name' );
 
+    note("Re-submit the updated order");
     ok( my $update_submission = OpenEHR::REST::Composition->new(),
         'Construct REST order update' );
     ok( $update_submission->template_id($template_id),
