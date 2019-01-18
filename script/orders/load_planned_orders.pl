@@ -28,13 +28,11 @@ for my $result ( @{ $query->resultset } ) {
 
 sub update_state {
     my $uid = shift;
-    my $uid1 = $uid;
-    $uid1 =~ s/::5$/::1/;
     my $template_id = 'GEL - Data request Summary.v1';
     # Retrieve the composition
     my $retrieval = OpenEHR::REST::Composition->new();
     $retrieval->request_format('STRUCTURED');
-    $retrieval->find_by_uid($uid1);
+    $retrieval->find_by_uid($uid);
     my $composition = $retrieval->composition_response;
     print "Original order can be found at: " . $retrieval->href . "\n";
 
