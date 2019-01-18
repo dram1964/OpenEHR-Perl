@@ -103,7 +103,7 @@ for my $format ( ('STRUCTURED') ) {
     );
     is( $order_update->service_type,
         'pathology', 'service_type set to default before decompose' );
-    ok( !$order_update->request_id,  'request_id not set before decompose' );
+    ok( !$order_update->requestor_id,  'requestor_id not set before decompose' );
     ok( !$order_update->start_date,  'start_date not set before decompose' );
     ok( !$order_update->end_date,    'end_date not set before decompose' );
     ok( !$order_update->timing,      'timing not set before decompose' );

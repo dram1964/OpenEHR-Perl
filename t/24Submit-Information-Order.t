@@ -51,7 +51,7 @@ for my $format (@formats) {
         end_date      => $end_date,
         timing        => $timing,
         expiry_time   => $expiry_time,
-        request_id    => $request_id,
+        requestor_id    => $request_id,
       );
     $planned_order->composition_format($format);
     $planned_order->compose;

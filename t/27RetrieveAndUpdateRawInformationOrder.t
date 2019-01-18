@@ -25,7 +25,7 @@ my $order_data  = {
     end_date      => $end_date,
     timing        => $timing,
     expiry_time   => $expiry_time,
-    request_id    => 'Dev-Sub-' . int( rand(100000) ),
+    requestor_id    => 'Dev-Sub-' . int( rand(100000) ),
 };
 
 my $scheduled_order =
@@ -70,7 +70,7 @@ is( $order_update->service_name,
 );
 is( $order_update->service_type,
     'pathology', 'service_type set before decompose' );
-ok( !$order_update->request_id,  'request_id not set before decompose' );
+ok( !$order_update->requestor_id,  'requestor_id not set before decompose' );
 ok( !$order_update->start_date,  'start_date not set before decompose' );
 ok( !$order_update->end_date,    'end_date not set before decompose' );
 ok( !$order_update->timing,      'timing not set before decompose' );
@@ -88,7 +88,7 @@ is( $order_update->service_name,
 );
 is( $order_update->service_type,
     'pathology', 'service_type set after decompose' );
-ok( $order_update->request_id, 'request_id set after decompose' );
+ok( $order_update->requestor_id, 'requestor_id set after decompose' );
 is( $order_update->start_date, $start_date,
     'start_date set after decompose' );
 is( $order_update->end_date, $end_date, 'end_date set after decompose' );
