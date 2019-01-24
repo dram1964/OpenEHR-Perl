@@ -22,12 +22,10 @@ has narrative => (
     lazy    => 1,
     default => \&_set_narrative,
 );
-
 has requestor_id => (
     is  => 'rw',
     isa => 'Str',
 );
-
 has current_state => (
     is      => 'rw',
     isa     => 'CurrentState',
@@ -40,12 +38,10 @@ has current_state_code => (
 has service_type => (
     is      => 'rw',
     isa     => 'ServiceType',
-    default => 'pathology',
 );
 has service_name => (
     is      => 'rw',
     isa     => 'Str',
-    default => 'GEL Information data request',
 );
 has start_date => (
     is  => 'rw',
@@ -58,6 +54,7 @@ has end_date => (
 has timing => (
     is  => 'rw',
     isa => 'DateTime',
+    default => sub { return DateTime->now },
 );
 has expiry_time => (
     is  => 'rw',
@@ -97,8 +94,6 @@ sub decompose_flat {
     $self->current_state( $composition->{ 'gel_data_request_summary/service:0/ism_transition/current_state|value' });
     $self->start_date( format_datetime( $composition->{ 'gel_data_request_summary/service_request:0/request:0/gel_information_request_details:0/patient_information_request_start_date' } ));
     $self->end_date( format_datetime( $composition->{ 'gel_data_request_summary/service_request:0/request:0/gel_information_request_details:0/patient_information_request_end_date' } ));
-    $self->timing( format_datetime( $composition->{ 'gel_data_request_summary/service_request:0/request:0/timing'} ) );
-    $self->expiry_time( format_datetime( $composition->{'gel_data_request_summary/service_request:0/expiry_time'} ));
     $self->composer_name( $composition->{'gel_data_request_summary/composer|name'} );
     $self->facility_id( $composition->{ 'gel_data_request_summary/context/_health_care_facility|id'} );
     $self->facility_name( $composition->{ 'gel_data_request_summary/context/_health_care_facility|name'} );
@@ -115,6 +110,8 @@ sub decompose_flat {
     $self->territory_code( $composition->{'gel_data_request_summary/territory|code'} );
     $self->territory_terminology( $composition->{'gel_data_request_summary/territory|terminology'} );
 
+    $self->timing( format_datetime( $composition->{ 'gel_data_request_summary/service_request:0/request:0/timing'} ) );
+    $self->expiry_time( format_datetime( $composition->{'gel_data_request_summary/service_request:0/expiry_time'} ));
     return 1;
 }
 
@@ -133,9 +130,6 @@ sub decompose_structured {
     $self->id_scheme( $context->{'_health_care_facility'}->[0]->{'|id_scheme'} );
 
     $self->current_state( $service->{ism_transition}->[0]->{current_state}->[0]->{'|value'} );
-
-    my $expiry_time = &format_datetime( $service_request->{expiry_time}->[0] );
-    $self->expiry_time($expiry_time);
 
     my $start_date;
     if ( $request_details->{patient_information_request_start_date} ) {
@@ -156,8 +150,6 @@ sub decompose_structured {
     $end_date = $end_date ? $end_date : DateTime->now;
     $self->end_date($end_date);
 
-    my $timing = &format_datetime( $service_request->{request}->[0]->{timing}->[0]->{'|value'} );
-    $self->timing($timing);
 
     $self->requestor_id( $service_request->{requestor_identifier}->[0] );
     $self->composer_name( $composition->{gel_data_request_summary}->{composer}->[0]->{'|name'} );
@@ -173,33 +165,13 @@ sub decompose_structured {
     $self->territory_code( $composition->{gel_data_request_summary}->{territory}->[0]->{'|code'} );
     $self->territory_terminology( $composition->{gel_data_request_summary}->{territory}->[0]->{'|terminology'} );
 
+    my $expiry_time = &format_datetime( $service_request->{expiry_time}->[0] );
+    $self->expiry_time($expiry_time) if $expiry_time;
+    my $timing = &format_datetime( $service_request->{request}->[0]->{timing}->[0]->{'|value'} );
+    $self->timing($timing) if $timing;
+
     return 1;
 }
-
-=head1 attribute_list
-$self->composition_uid
-$self->requestor_id
-$self->current_state
-$self->start_date
-$self->end_date
-$self->timing
-$self->expiry_time
-$self->composer_name
-$self->facility_id
-$self->facility_name
-$self->id_scheme
-$self->id_namespace
-$self->language_code
-$self->language_terminology
-$self->service_name
-$self->service_type
-$self->encoding_code
-$self->encoding_terminology
-$self->narrative
-$self->requestor_id
-$self->territory_code
-$self->territory_terminology
-=cut
 
 sub decompose_raw {
     my ( $self, $composition ) = @_;
@@ -227,10 +199,10 @@ sub decompose_raw {
             $self->encoding_terminology( $content->{encoding}->{terminology_id}->{value} );
             $self->requestor_id( $content->{protocol}->{items}->[0]->{value}->{value} );
             my $timing = &format_datetime( $content->{activities}->[0]->{timing}->{value} );
-            $self->timing($timing);
+            $self->timing($timing) if $timing;
 
             my $expiry_time = &format_datetime( $content->{expiry_time}->{value} );
-            $self->expiry_time($expiry_time);
+            $self->expiry_time($expiry_time) if $expiry_time;
 
             for my $request_item ( @{ $content->{activities}->[0]->{description}->{items} } ) {
                 if ( $request_item->{archetype_node_id} eq 'openEHR-EHR-CLUSTER.information_request_details_gel.v0' ) {
@@ -322,21 +294,19 @@ sub compose_structured {
                             'timing'       => [
                                 {
                                     '|value' => $self->timing->datetime,
-
                                 }
                             ],
                             'service_name' => [ $self->service_name ]
                         }
                     ],
                     'requestor_identifier' => $self->requestor_id,
-                    'expiry_time' => $self->expiry_time->datetime,
                 }
             ],
             'service' => [
                 {
                     'service_type' => [ $self->service_type ],
                     'service_name' => [ $self->service_name ],
-                    'time'           => [ DateTime->now->datetime ],
+                    'time'           => [ $self->timing->datetime ],
                     'ism_transition' => [
                         {
                             'current_state' => [
@@ -351,6 +321,11 @@ sub compose_structured {
             ]
         },
     };
+
+    if ( $self->expiry_time ) {
+        $composition->{gel_data_request_summary}->{service_request}->[0]->{expiry_time} = $self->expiry_time->datetime;
+    }
+
     return $composition;
 }
 
@@ -571,10 +546,6 @@ sub compose_raw {
                     },
                     '@class' => 'ARCHETYPED'
                 },
-                'expiry_time' => {
-                    'value'  => $self->expiry_time->datetime,
-                    '@class' => 'DV_DATE_TIME'
-                },
                 '@class'    => 'INSTRUCTION',
                 'narrative' => {
                     'value'  => $self->narrative,
@@ -600,7 +571,7 @@ sub compose_raw {
                 },
                 'archetype_node_id' => 'openEHR-EHR-ACTION.service.v0',
                 'time'              => {
-                    'value'  => DateTime->now->datetime,
+                    'value'  => $self->timing->datetime,
                     '@class' => 'DV_DATE_TIME'
                 },
                 'subject' => {
@@ -696,6 +667,14 @@ sub compose_raw {
         },
         '@class' => 'COMPOSITION',
     };
+
+    if ( $self->expiry_time ) {
+        $composition->{content}->[0]->{expiry_time} = {
+                    'value'  => $self->expiry_time->datetime,
+                    '@class' => 'DV_DATE_TIME'
+        };
+    }
+
     return $composition;
 }
 
@@ -719,8 +698,6 @@ sub compose_flat {
           $self->narrative,
         'gel_data_request_summary/service_request:0/requestor_identifier' =>
           $self->requestor_id,
-        'gel_data_request_summary/service_request:0/expiry_time' => =>
-          $self->expiry_time->datetime,
         'gel_data_request_summary/service:0/ism_transition/current_state|code'
           => $self->current_state_code,
         'gel_data_request_summary/service:0/ism_transition/current_state|value'
@@ -729,13 +706,18 @@ sub compose_flat {
           $self->service_name,
         'gel_data_request_summary/service:0/service_type' =>
           $self->service_type,
-        'gel_data_request_summary/service:0/time' => DateTime->now->datetime,
+        'gel_data_request_summary/service:0/time' => $self->timing->datetime,
 'gel_data_request_summary/service_request:0/request:0/gel_information_request_details:0/patient_information_request_start_date'
           => $self->start_date->datetime,
 'gel_data_request_summary/service_request:0/request:0/gel_information_request_details:0/patient_information_request_end_date'
           => $self->end_date->datetime,
           'gel_data_request_summary/service_request:0/requestor_identifier' => $self->requestor_id,
     };
+
+    if ( $self->expiry_time ) {
+        $composition->{'gel_data_request_summary/service_request:0/expiry_time'} = $self->expiry_time->datetime;
+    }
+        
 
     return $composition;
 }
@@ -773,7 +755,7 @@ composition object.
 
 =head1 INTERFACE 
 
-=head1 ATTRIBUTES
+=head1 REQUIRED ATTRIBUTES
 
 =head2 current_state
 
@@ -786,6 +768,113 @@ information order. Can be one of
 Numeric code value for the current completeness state
 of the information order. Set automatically based on 
 the current_state attribute
+
+=head2 composition_uid
+
+The Unique ID assigned by the OpenEHR system during a CREATE
+or UPDATE operation. Do not set this value when submitting 
+an new composition. 
+
+=head2 requestor_id
+
+The Unique ID for the request set during CREATE or UPDATE
+operations. UPDATE operations should preserve the original
+value from the previous version of the composition
+
+=head2 start_date
+
+The start of the date range for the information requested
+
+=head2 end_date 
+
+The end of the date range for the information requested
+
+=head2 composer_name
+
+Identifier for the name of the application submitting the
+composition. Pulls default from environment or 
+configuration file
+
+=head2 facility_id
+
+Code for the facitility submitting the composition. Pulls default 
+from environment or configuration file
+
+=head2 facility_name
+
+Descriptive name for the facility submitting the composition. Pulls default 
+from environment or configuration file
+
+
+=head2 id_scheme
+
+Code for the scheme used for identifiers in the composition. Pulls default 
+from environment or configuration file
+
+
+=head2 id_namespace 
+
+Code for the namespace used for identifiers in the composition. Pulls default 
+from environment or configuration file
+
+
+=head2 language_code
+
+Code for the language used in the composition. Pulls default 
+from environment or configuration file
+
+
+=head2 language_terminology
+
+Terminology used for the language code. Pulls default 
+from environment or configuration file
+
+
+=head2 service_name
+
+Name of the Service submitting the composition
+
+=head2 service_type
+
+Category of request being made by the compostion. Must be 
+one of [ pathology | cancer | radiology ]
+
+=head2 encoding_code
+
+Code for encoding used in the composition. Pulls default 
+from environment or configuration file
+
+
+=head2 encoding_terminology
+
+Terminology used for the encoding code. Pulls default 
+from environment or configuration file
+
+
+=head2 narrative 
+
+Narrative text provided in the service request
+
+=head2 territory_code
+
+Code for the territory of the submitter
+
+=head2 territory_terminology
+
+Terminology used for the territory_code
+
+=head1 OPTIONAL ATTRIBUTES 
+
+=head2 timing
+
+Used to indicate the submission time for the composition,
+and the service and service_request elements of the 
+composition. Default value set to DateTime->now
+
+=head2 expiry_time
+
+Indicates the time when the information order will expired
+
 
 =head1 METHODS
 
