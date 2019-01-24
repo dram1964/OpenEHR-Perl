@@ -15,16 +15,38 @@ diag( 'Testing OpenEHR::REST::Demographics '
       . $OpenEHR::REST::Demographics::VERSION );
 
 SKIP: {
-    skip 'No Demographics server' unless $ENV{DEMOG_SERVER};
+    skip 'No Demographics server' unless $ENV{DEMOGRAPHICS};
     ok( my $demog_existing = OpenEHR::REST::Demographics->new(),
         "Constructor called" );
     ok( my $ehrid = $demog_existing->test_ehrid, 'Test EhrId Accessible' );
     ok( my $nhs_number = $demog_existing->test_subject_id,
         'Test Subject Id Accessible' );
-    ok( $demog_existing->get_by_ehrid($ehrid), "Get by ehrid method called" );
-    diag( $demog_existing->err_msg ) if $demog_existing->err_msg;
-    is( $demog_existing->action, "RETRIEVE",
-        "get_by_ehrid was RETRIEVE for existing subject" );
+    my $test_party = {
+        firstNames  => "Test",
+        lastNames   => "Test-Patient",
+        gender      => "MALE",
+        dateOfBirth => DateTime->new(
+            year   => 1950,
+            month  => 1,
+            day    => 1,
+            hour   => 0,
+            minute => 0,
+          )->ymd,
+        address =>
+          { address => "21 Winding Road, London, NW1 2PG" },
+        partyAdditionalInfo => [
+            {
+                key   => "ehrId",
+                value => $ehrid,
+            },
+            {
+                key   => "uk.nhs.nhs_number",
+                value => $nhs_number,
+            },
+        ],
+    };
+    ok( $demog_existing->party($test_party), "Added party to REST object");
+    ok( $demog_existing->update_or_new($ehrid), "Called update_or_new for Test Patient"); 
 
     note('Testing demographics for probable non-existing record');
     my $subject_id = &get_random_subject();
@@ -85,10 +107,10 @@ SKIP: {
     is( $demog_update->action, 'UPDATE', 'Response is UPDATE' );
     note( 'Update Party info can be found at: ' . $demog_update->href );
 
-    note('Searching with GET for all Party Records with Surname Tweedle');
+    note('Searching with GET for all Party Records with Firstname Tweedle');
     my $firstname_get = OpenEHR::REST::Demographics->new();
-    ok( $firstname_get->query( { firstNames => '*' } ),
-        'Add last name to query' );
+    ok( $firstname_get->query( { firstnames => 'Tweedle' } ),
+        'Add first name to query' );
     ok( $firstname_get->get_query(), 'Run GET Query' );
     diag( $firstname_get->err_msg ) if $firstname_get->err_msg;
     is( ref( $firstname_get->parties ), 'ARRAY', 'Array of Parties returned' );

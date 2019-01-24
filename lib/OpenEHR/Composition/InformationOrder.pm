@@ -823,6 +823,11 @@ recieved from a call to OpenEHR::REST::Composition->find_by_uid
 Populates an InformationOrder object with the composition_response data 
 recieved from a call to OpenEHR::REST::Composition->find_by_uid
 
+=head2 decompose_flat
+
+Populates an InformationOrder object with the composition_response data 
+recieved from a call to OpenEHR::REST::Composition->find_by_uid
+
 =head1 PRIVATE METHODS
 
 =head1 _set_state_code
