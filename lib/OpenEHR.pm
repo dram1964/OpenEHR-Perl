@@ -14,39 +14,39 @@ my $cfg = new Config::Simple($config_file)
 has test_ehrid => (
     is      => 'rw',
     isa     => 'Str',
-    default => $cfg->param('test_ehrid'),
+    default => $ENV{OPENEHR_TEST_EHRID} || $cfg->param('test_ehrid'),
 );
 
 has test_uid => (
     is      => 'rw',
     isa     => 'Str',
-    default => $cfg->param('test_uid'),
+    default => $ENV{OPENEHR_TEST_UID} || $cfg->param('test_uid'),
 );
 
 has test_subject_id => (
     is      => 'rw',
     isa     => 'Str',
-    default => $cfg->param('test_subject_id'),
+    default => $ENV{OPENEHR_TEST_SUBJECT_ID} || $cfg->param('test_subject_id'),
 );
 
 has user => (
     is       => 'rw',
     isa      => 'Str',
     required => 1,
-    default  => $cfg->param('user'),
+    default  => $ENV{OPENEHR_OPENEHR_USER} || $cfg->param('user'),
 );
 
 has password => (
     is       => 'rw',
     isa      => 'Str',
     required => 1,
-    default  => $cfg->param('password'),
+    default  => $ENV{OPENEHR_PASSWORD} || $cfg->param('password'),
 );
 
 has url => (
     is      => 'rw',
     isa     => 'Str',
-    default => $cfg->param('url'),
+    default => $ENV{OPENEHR_URL} || $cfg->param('url'),
     trigger => \&_check_url,
 );
 
@@ -54,7 +54,7 @@ has base_path => (
     is       => 'rw',
     required => 1,
     isa      => 'Str',
-    default  => $cfg->param('base_path'),
+    default  => $ENV{OPENEHR_BASE_PATH} || $cfg->param('base_path'),
     trigger  => \&_check_url,
 );
 
@@ -229,21 +229,24 @@ key-value pairs. Here's an example:
     ### BEGIN OpenEHR.conf ###
 
     # Parameters used to authenticate to server
-    user            admin
-    password        admin
+    user            admin           # $ENV{OPENEHR_USER}
+    password        admin           # $ENV{OPENEHR_PASSWORD}
 
     # Servers URL - must end in a trailing slash
-    url     http://localhost:8081/
+    url     http://localhost:8081/  # $ENV{OPENEHR_URL}
 
     # URL for the REST API of your server
-    base_path       http://localhost:8081/rest/v1/
+    base_path       http://localhost:8081/rest/v1/ # $ENV{OPENEHR_BASE_PATH}
 
     # Indentification of test data used in the test suite
-    test_ehrid          7287df6c-0958-4ec7-ba8a-952354528e23
-    test_uid            cccc7673-8c74-4cd0-9fec-583ddc0d9134::default::1
-    test_subject_id     7713848332
+    test_ehrid          7287df6c-0958-4ec7-ba8a-952354528e23    # $ENV{OPENEHR_TEST_EHRID}
+    test_uid            cccc7673-8c74-4cd0-9fec-583ddc0d9134::default::1    # $ENV{OPENEHR_TEST_UID}
+    test_subject_id     7713848332  # $ENV{OPENEHR_TEST_SUBJECT_ID}
 
     ### END OpenEHR.conf ###
+
+Configuration values from the OpenEHR.conf file can 
+be over-ridden by environment variables.
 
 =head1 DEPENDENCIES
 
