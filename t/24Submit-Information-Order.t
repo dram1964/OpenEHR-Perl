@@ -60,14 +60,17 @@ for my $format (@formats) {
             "Added template for $format format order"
         );
     }
-    ok( $order->submit_new( $ehr1->ehr_id ), "Submit new information order" );
-    ok( !$order->err_msg, "No error message returned from REST call" );
-    if ( $order->err_msg ) {
-        diag( "Error occurred in submission: " . $order->err_msg );
-    }
-    is( $order->action, "CREATE", "Action is CREATE" );
-    note( $order->compositionUid );    # the returned CompositionUid;
-    note( $order->href );              # URL to view the submitted composition;
+    SKIP: {
+        skip 'Submission Disabled: Set $OPENEHR_SUBMISSION to run this test', 1 unless $ENV{OPENEHR_SUBMISSION};
+        ok( $order->submit_new( $ehr1->ehr_id ), "Submit new information order" );
+        ok( !$order->err_msg, "No error message returned from REST call" );
+        if ( $order->err_msg ) {
+            diag( "Error occurred in submission: " . $order->err_msg );
+        }
+        is( $order->action, "CREATE", "Action is CREATE" );
+        note( $order->compositionUid );    # the returned CompositionUid;
+        note( $order->href );              # URL to view the submitted composition;
+    };
 }
 
 sub get_new_random_subject {
