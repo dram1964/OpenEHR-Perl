@@ -8,7 +8,7 @@ use Genomes_100K::Model;
 
 my $schema = Genomes_100K::Model->connect('CRIUGenomesTest');
 
-my $state = 'scheduled';
+my $state = 'planned';
 
 my $query = OpenEHR::REST::AQL->new();
 $query->find_orders_by_state($state);
@@ -60,9 +60,9 @@ sub insert_order() {
     my ( $result, $new_uid) = @_;
     my $order = $schema->resultset('InformationOrder')->update_or_create(
         {
-            order_id          => $result->{order_id},
-            start_date        => &date_format($result->{start_date}),
-            end_date          => &date_format($result->{end_date}),
+            request_uid          => $result->{request_uid},
+            order_date        => &date_format($result->{start_date}),
+            expiry_date          => &date_format($result->{end_date}),
             composition_uid   => $new_uid, #$result->{composition_uid},
             ordered_by        => $result->{ordered_by},
             order_type        => $result->{order_type},
@@ -74,7 +74,7 @@ sub insert_order() {
             service_type      => $result->{service_type},
             data_start_date   => &date_format($result->{data_start_date}),
             data_end_date     => &date_format($result->{data_end_date}),
-            unique_message_id => $result->{unique_message_id},
+            requestor_id => $result->{requestor_id},
         }
     );
 }

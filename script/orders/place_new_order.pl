@@ -21,6 +21,7 @@ GetOptions (
 or &usage("Error in command line arguments\n");
 
 die &usage unless $nhs_number;
+die &usage unless $start_date;
 
 $end_date = DateTime->now->ymd unless $end_date;
 
@@ -54,7 +55,7 @@ my $expiry_time = DateTime->new(
     month   => 11,
     day     => 30,
 );
-my $request_id = int(rand(1000000000));
+my $requestor_id = int(rand(1000000000));
 my $planned_order =
       OpenEHR::Composition::InformationOrder->new( 
         current_state => 'planned',
@@ -62,8 +63,9 @@ my $planned_order =
         end_date      => $end_date,
         timing        => $timing,
         expiry_time   => $expiry_time,
-        request_id    => $request_id,
+        requestor_id    => $requestor_id,
         service_type  => $service_type,
+        service_name => 'GEL Information data request',
 );
 my $format = 'STRUCTURED';
 $planned_order->composition_format($format);
@@ -80,6 +82,7 @@ if ( $order->err_msg ) {
     print "Error occurred in submission: " . $order->err_msg . "\n";
 }
 print "Subject ID: $nhs_number\n";
+print "Requestor ID: $requestor_id\n";
 print "New Composition: " . $order->compositionUid . "\n";
 print "HREF: " . $order->href . "\n";
 
