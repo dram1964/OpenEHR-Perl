@@ -150,11 +150,15 @@ END_AQL
 
 my $query9 = OpenEHR::REST::AQL->new();
 ok( $query9->statement($aql_info_orders), "Prepare search for information orders" );
-ok( $query9->run_query,       "Submitted Query" );
+$query9->run_query;
 diag $query9->err_msg if $query9->err_msg;
-ok( !$query9->err_msg, "No Error Message set" );
-isa_ok( $query9->resultset,      'ARRAY', "Resultset is an ArrayRef" );
-isa_ok( $query9->resultset->[0], 'HASH',  "First Result is a HashRef" );
+SKIP: {
+    skip "No planned orders found", 1 if ($query9->response_code eq '204');
+
+    ok( !$query9->err_msg, "No Error Message set" );
+    isa_ok( $query9->resultset,      'ARRAY', "Resultset is an ArrayRef" );
+    isa_ok( $query9->resultset->[0], 'HASH',  "First Result is a HashRef" );
+};
 
 done_testing;
 
