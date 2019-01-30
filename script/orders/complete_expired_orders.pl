@@ -40,21 +40,21 @@ sub mark_completed() {
     my ($new_uid, $result) = @_;
     my $order  = $schema->resultset('InformationOrder')->update_or_create(
         {
-            order_id        => $result->{order_id},
-            start_date      => &date_format( $result->{start_date} ),
-            end_date        => &date_format( $result->{end_date} ),
-            composition_uid => $new_uid, #$result->{composition_uid},
-            ordered_by      => $result->{ordered_by},
-            order_type      => $result->{order_type},
-            order_state      => 'completed',    #$result->{current_state},
-            order_state_code => 532,            #$result->{current_state_code},
+            request_uid          => $result->{request_uid},
+            order_date        => &date_format($result->{order_date}),
+            expiry_date          => &date_format($result->{expiry_date}),
+            composition_uid   => $new_uid, #$result->{composition_uid},
+            ordered_by        => $result->{ordered_by},
+            order_type        => $result->{order_type},
+            order_state       => 'scheduled', #$result->{current_state},
+            order_state_code  => 529, #$result->{current_state_code},
             subject_id        => $result->{subject_id},
             subject_id_type   => $result->{subject_id_type},
             subject_ehr_id    => $result->{subject_ehr_id},
             service_type      => $result->{service_type},
-            data_start_date   => &date_format( $result->{data_start_date} ),
-            data_end_date     => &date_format( $result->{data_end_date} ),
-            unique_message_id => $result->{unique_message_id},
+            data_start_date   => &date_format($result->{data_start_date}),
+            data_end_date     => &date_format($result->{data_end_date}),
+            requestor_id => $result->{requestor_id},
         }
     );
 }

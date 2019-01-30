@@ -61,8 +61,8 @@ sub insert_order() {
     my $order = $schema->resultset('InformationOrder')->update_or_create(
         {
             request_uid          => $result->{request_uid},
-            order_date        => &date_format($result->{start_date}),
-            expiry_date          => &date_format($result->{end_date}),
+            order_date        => &date_format($result->{order_date}),
+            expiry_date          => &date_format($result->{expiry_date}),
             composition_uid   => $new_uid, #$result->{composition_uid},
             ordered_by        => $result->{ordered_by},
             order_type        => $result->{order_type},
