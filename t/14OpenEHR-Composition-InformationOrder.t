@@ -3,15 +3,9 @@ use warnings;
 use Test::More;
 use Data::Dumper;
 use OpenEHR::REST::EHR;
-use OpenEHR::REST::Template;
 use DateTime::Format::Pg;
 
 BEGIN { use_ok('OpenEHR::Composition::InformationOrder'); }
-my $template_id = 'GEL - Data request Summary.v1';
-my $template    = OpenEHR::REST::Template->new();
-$template->get_template_example( $template_id, 'RAW', 'INPUT' );
-
-#print Dumper $template->data;
 
 my $ehr1 = &get_new_random_subject();
 $ehr1->get_new_ehr;
@@ -23,7 +17,6 @@ note( 'SubjectId: ' . $ehr1->subject_id );
 
 my $start_date  = DateTime::Format::Pg->parse_datetime('2011-01-01');
 my $end_date    = DateTime::Format::Pg->parse_datetime('2018-01-01');
-#my $timing      = DateTime::Format::Pg->parse_datetime('2018-07-01');
 my $expiry_time = DateTime::Format::Pg->parse_datetime('2018-12-31');
 
 my $planned_order;
@@ -34,7 +27,6 @@ ok(
         current_state         => 'planned',
         start_date            => $start_date,
         end_date              => $end_date,
-#        timing                => $timing,
         expiry_time           => $expiry_time,
         requestor_id          => '834y5jkdk-ssxhs',
         narrative             => 'Narrative associated with request',
@@ -58,7 +50,7 @@ is(
 );
 
 note("Testing default attribute accessors");
-#is( $planned_order->timing,        $timing,      'timing accessor' );
+isa_ok( $planned_order->timing, 'DateTime',      'timing defaults to DateTime object' );
 is( $planned_order->composer_name, 'OpenEHR-Perl',      'composer_name accessor' );
 is( $planned_order->facility_id,   'RRV',       'facility_id accessor' );
 is(
@@ -86,7 +78,6 @@ ok(
         current_state         => 'planned',
         start_date            => $start_date,
         end_date              => $end_date,
-#        timing                => $timing,
         expiry_time           => $expiry_time,
         composer_name         => 'GENIE',
         facility_id           => 'GOSH',
@@ -111,7 +102,7 @@ note("Testing attribute accessors");
 is( $planned_order->current_state, 'planned',    'current_state accessor' );
 is( $planned_order->start_date,    $start_date,  'start_date accessor' );
 is( $planned_order->end_date,      $end_date,    'end_date accessor' );
-#is( $planned_order->timing,        $timing,      'timing accessor' );
+isa_ok( $planned_order->timing,        'DateTime',      'timing defaults to DateTime object' );
 is( $planned_order->expiry_time,   $expiry_time, 'expiry_time accessor' );
 is( $planned_order->composer_name, 'GENIE',      'composer_name accessor' );
 is( $planned_order->facility_id,   'GOSH',       'facility_id accessor' );
@@ -145,8 +136,8 @@ is( $planned_order->territory_terminology,
     'ISO_3166-2', 'territory_terminology accessor' );
 }
 
-is( $planned_order->composition_format,
-    'STRUCTURED', 'Default composition format is STRUCTURED' );
+note('Testing composition format reflected in composer_name');
+$planned_order->composer_name('OpenEHR-Perl');
 
 ok( $planned_order->composition_format('FLAT'),
     'Set composition to FLAT format' );
@@ -154,6 +145,8 @@ ok(
     my $composition = $planned_order->compose,
     'Called compose for FLAT composition'
 );
+is( $planned_order->composer_name, 'OpenEHR-Perl-FLAT', 
+    'Added "-FLAT" to composer_name');
 
 ok(
     $planned_order->composition_format('STRUCTURED'),
@@ -163,6 +156,9 @@ ok(
     $composition = $planned_order->compose,
     'Called compose for STRUCTURED composition'
 );
+is( $planned_order->composer_name, 'OpenEHR-Perl-STRUCTURED', 
+    'Added "-STRUCTURED" to composer_name');
+
 
 ok( $planned_order->composition_format('RAW'),
     'Set composition to RAW format' );
@@ -170,6 +166,9 @@ ok(
     $composition = $planned_order->compose,
     'Called compose for RAW composition'
 );
+is( $planned_order->composer_name, 'OpenEHR-Perl-RAW', 
+    'Added "-RAW" to composer_name');
+
 
 
 done_testing;

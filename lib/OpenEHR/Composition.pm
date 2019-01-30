@@ -198,7 +198,8 @@ None
 
 Default values for attributes are configured in OpenEHR_Composition.conf 
 file which is read from either the current working directory or 
-/etc/
+/etc/. Configuration file values can be overridden by environment variables
+of the same name. 
 
 
 =head1 DEPENDENCIES
