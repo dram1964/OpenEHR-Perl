@@ -61,6 +61,10 @@ has expiry_time => (
     isa => 'DateTime',
 );
 
+has service_request_uid => ( 
+    is => 'rw',
+);
+
 sub _set_state_code {
     my $self   = shift;
     my $states = {
@@ -90,6 +94,10 @@ sub decompose {
 sub decompose_flat {
     my ( $self, $composition ) = @_;
     $self->composition_uid( $composition->{'gel_data_request_summary/_uid'} );
+    $self->service_request_uid(
+        $composition->{
+            'gel_data_request_summary/service_request:0/_uid'}
+    );
     $self->requestor_id(
         $composition->{
             'gel_data_request_summary/service_request:0/requestor_identifier'}
@@ -214,6 +222,7 @@ sub decompose_structured {
     $end_date = $end_date ? $end_date : DateTime->now;
     $self->end_date($end_date);
 
+    $self->service_request_uid( $service_request->{_uid}->[0] );
     $self->requestor_id( $service_request->{requestor_identifier}->[0] );
     $self->composer_name(
         $composition->{gel_data_request_summary}->{composer}->[0]->{'|name'} );
@@ -286,6 +295,8 @@ sub decompose_raw {
                 $content->{encoding}->{terminology_id}->{value} );
             $self->requestor_id(
                 $content->{protocol}->{items}->[0]->{value}->{value} );
+            $self->service_request_uid(
+                $content->{uid}->{value} );
             my $timing =
               &format_datetime(
                 $content->{activities}->[0]->{timing}->{value} );
@@ -995,6 +1006,11 @@ composition. Default value set to DateTime->now
 =head2 expiry_time
 
 Indicates the time when the information order will expire
+
+=head service_request_uid
+
+unique_id assigned by OpenEHR on CREATE or UPDATE. 
+Value changes on each update. Read-Only attribute.
 
 
 =head1 METHODS
