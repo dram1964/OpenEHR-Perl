@@ -18,7 +18,7 @@ my $patient_list_rs = $genomes_schema->resultset('InformationOrder')->search(
     {
         join => 'demographic', 
         '+columns' => ['demographic.nhs_number' ],
-        where => { 'demographic.nhs_number' => undef }
+        where => { 'demographic.demographic_status' => 0 }
     }
 );
 
@@ -41,6 +41,7 @@ while (my $patient = $patient_list_rs->next) {
         next;
     }
     my $carecast_demographics = $carecast_demographics_rs->first;
+
 
     my $order_rs       = $genomes_schema->resultset('InformationOrder')->search(
         {
