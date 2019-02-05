@@ -18,7 +18,7 @@ my $patient_list_rs = $genomes_schema->resultset('InformationOrder')->search(
     {
         join => 'demographic', 
         '+columns' => ['demographic.nhs_number' ],
-        where => { 'demographic.demographic_status' => 0 }
+        where => { 'demographic.demographic_status' => undef }
     }
 );
 
