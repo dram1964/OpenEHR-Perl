@@ -15,3 +15,4 @@ requires 'Moose::Util::TypeConstraints';
 requires 'URI::Encode';
 requires 'Module::Find';
 requires 'REST::Client';
+requires 'DBIx::Class::Schema::Loader';

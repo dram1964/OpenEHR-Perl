@@ -1007,7 +1007,7 @@ composition. Default value set to DateTime->now
 
 Indicates the time when the information order will expire
 
-=head service_request_uid
+=head1 service_request_uid
 
 unique_id assigned by OpenEHR on CREATE or UPDATE. 
 Value changes on each update. Read-Only attribute.
