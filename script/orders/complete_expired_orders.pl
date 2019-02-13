@@ -40,7 +40,7 @@ sub mark_completed() {
     my ($new_uid, $result) = @_;
     my $order  = $schema->resultset('InformationOrder')->update_or_create(
         {
-            request_uid          => $result->{request_uid},
+            request_uid          => $result->{order_id},
             order_date        => &date_format($result->{order_date}),
             expiry_date          => &date_format($result->{expiry_date}),
             composition_uid   => $new_uid, #$result->{composition_uid},
@@ -54,7 +54,7 @@ sub mark_completed() {
             service_type      => $result->{service_type},
             data_start_date   => &date_format($result->{data_start_date}),
             data_end_date     => &date_format($result->{data_end_date}),
-            requestor_id => $result->{requestor_id},
+            requestor_id => $result->{unique_message_id},
         }
     );
 }
@@ -105,6 +105,7 @@ sub date_format() {
 
 sub date_format() {
     my $date = shift;
+    return 0 unless $date;
     if ($date eq 'R1') {
         $date = DateTime->now->datetime;
     }
