@@ -39,7 +39,7 @@ while ( my $order = $expired_orders->next ) {
 sub mark_completed() {
     my ($new_uid, $result) = @_;
     my $order = $schema->resultset('InformationOrder')->find({
-        requestor_id => $result->{unigue_message_id},
+        requestor_id => $result->{requestor_id},
     });
     $order->update({
         composition_uid => $new_uid,
