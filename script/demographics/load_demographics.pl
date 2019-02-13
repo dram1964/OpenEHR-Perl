@@ -8,8 +8,8 @@ use Genomes_100K::Model;
 use Data::Dumper;
 use JSON;
 
-my $carecast_schema          = Carecast::Model->connect('CRIUCarecastTest');
-my $genomes_schema = Genomes_100K::Model->connect('CRIUGenomesTest');
+my $carecast_schema          = Carecast::Model->connect('CRIUCarecast');
+my $genomes_schema = Genomes_100K::Model->connect('CRIUGenomes');
 
 my $subject_namespace = 'uk.nhs.nhs_number';
 

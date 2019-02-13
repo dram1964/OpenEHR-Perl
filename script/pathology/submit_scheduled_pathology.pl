@@ -9,7 +9,7 @@ use OpenEHR::REST::Composition;
 use Genomes_100K::Model;
 use Data::Dumper;
 
-my $schema = Genomes_100K::Model->connect('CRIUGenomesTest');
+my $schema = Genomes_100K::Model->connect('CRIUGenomes');
 
 my $scheduled_requests_rs = &get_scheduled_data_requests;
 

@@ -37,7 +37,7 @@ while ( my $order = $orders_rs->next ) {
 
 sub report_cancer {
     my ( $ehrid, $nhs_number, $start_date, $end_date ) = @_;
-    my $reports_rs = $schema->resultset('InfoflexCancerTest')->search(
+    my $reports_rs = $schema->resultset('InfoflexCancer')->search(
         {
             nhs_number           => $nhs_number,
             event_date_diagnosis => { '>=' => $start_date },

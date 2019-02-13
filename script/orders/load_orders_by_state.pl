@@ -6,7 +6,7 @@ use OpenEHR::REST::Composition;
 use OpenEHR::Composition::InformationOrder;
 use Genomes_100K::Schema;
 
-my $dbi_dsn    = 'dbi:ODBC:DSN=CRIUGenomesTest';
+my $dbi_dsn    = 'dbi:ODBC:DSN=CRIUGenomes';
 my $user       = 'dr00';
 my $pass       = 'letmein';
 my $dbi_params = { LongReadLen => 80, LongTruncOk => 1 };

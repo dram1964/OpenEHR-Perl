@@ -6,7 +6,7 @@ use OpenEHR::REST::Composition;
 use OpenEHR::Composition::InformationOrder;
 use Genomes_100K::Model;
 
-my $schema = Genomes_100K::Model->connect('CRIUGenomesTest');
+my $schema = Genomes_100K::Model->connect('CRIUGenomes');
 
 my $state = 'planned';
 
