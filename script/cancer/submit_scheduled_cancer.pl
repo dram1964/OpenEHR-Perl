@@ -9,7 +9,7 @@ use OpenEHR::REST::Composition;
 use Genomes_100K::Model;
 use Data::Dumper;
 
-my $schema = Genomes_100K::Model->connect('CRIUGenomesLiveTest');
+my $schema = Genomes_100K::Model->connect('CRIUGenomes');
 
 my $orders_rs = $schema->resultset('InformationOrder')->search(
     {
@@ -29,10 +29,10 @@ while ( my $order = $orders_rs->next ) {
     print join( ":",
         $order->subject_id, $order->data_start_date, $order->data_end_date, ),
       "\n";
-    &report_cancer(
-        $order->subject_ehr_id,  $order->subject_id,
-        $order->data_start_date, $order->data_end_date
-    );
+#&report_cancer(
+#    $order->subject_ehr_id,  $order->subject_id,
+#    $order->data_start_date, $order->data_end_date
+#);
 }
 
 sub report_cancer {
