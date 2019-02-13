@@ -81,6 +81,7 @@ sub insert_order() {
 
 sub date_format() {
     my $date = shift;
+    return 0 unless $date;
     if ($date eq 'R1') {
         $date = DateTime->now->datetime;
     }
