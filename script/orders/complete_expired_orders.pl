@@ -13,7 +13,7 @@ my $state = 'planned';
 my $dtf            = $schema->storage->datetime_parser;
 my $expired_orders = $schema->resultset('InformationOrder')->search(
     {
-        end_date => { '<=', $dtf->format_datetime( DateTime->now() ) },
+        expiry_date => { '<=', $dtf->format_datetime( DateTime->now() ) },
         order_state_code => '529',
     },
 );
