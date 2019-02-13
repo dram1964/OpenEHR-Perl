@@ -8,7 +8,7 @@ use Genomes_100K::Model;
 
 my $schema = Genomes_100K::Model->connect('CRIUGenomesTest');
 
-my $state = 'planned';
+my $state = 'scheduled';
 
 my $dtf            = $schema->storage->datetime_parser;
 my $expired_orders = $schema->resultset('InformationOrder')->search(
