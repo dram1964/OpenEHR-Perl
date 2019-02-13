@@ -29,10 +29,10 @@ while ( my $order = $orders_rs->next ) {
     print join( ":",
         $order->subject_id, $order->data_start_date, $order->data_end_date, ),
       "\n";
-#&report_cancer(
-#    $order->subject_ehr_id,  $order->subject_id,
-#    $order->data_start_date, $order->data_end_date
-#);
+    &report_cancer(
+        $order->subject_ehr_id,  $order->subject_id,
+        $order->data_start_date, $order->data_end_date
+    );
 }
 
 sub report_cancer {
@@ -49,6 +49,7 @@ sub report_cancer {
         print join( ":",
             $report->patient_hospital_number,
             $report->nhs_number, $report->event_date_diagnosis,
+            $report->event_icd10_diagnosis_code,
           ),
           "\n";
         next unless $report->event_icd10_diagnosis_code;
@@ -142,12 +143,13 @@ This data is not currently in the Infoflex Extract
         }
 
         $cancer_report->problem_diagnoses( [$problem_diagnosis] );
-        $cancer_report->report_id( $ehrid . 'CREP' );
+        $cancer_report->report_id( &get_report_id( $report ) );
         $cancer_report->composition_format('STRUCTURED');
         my $composition = $cancer_report->compose;
 
-        #print Dumper $composition;
+        print Dumper $composition;
 
+=for development
         my $query = OpenEHR::REST::Composition->new();
         $query->composition($cancer_report);
         $query->template_id('GEL Cancer diagnosis input.v0');
@@ -160,7 +162,14 @@ This data is not currently in the Infoflex Extract
             print 'Composition UID: ',             $query->compositionUid, "\n";
             print 'Composition can be found at: ', $query->href,           "\n";
         }
+=cut
     }
+}
+
+sub get_report_id {
+    my $report = shift;
+    my $report_id = $report->event_reference_diagnosis;
+    return $report_id;
 }
 
 sub get_number_lesions {
