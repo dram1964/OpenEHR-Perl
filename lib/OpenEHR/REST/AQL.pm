@@ -87,12 +87,15 @@ sub find_orders_by_uid {
     contains CLUSTER f[openEHR-EHR-CLUSTER.information_request_details_gel.v0]
     and ACTION a[openEHR-EHR-ACTION.service.v0])
     where i/activities[at0001]/description[at0009]/items[at0121]/value = 'GEL Information data request'
-    and i/activities[at0001]/description[at0009]/items[at0148]/value/value = 'pathology'
     and c/uid/value = '$uid'
 END_STMT
     $self->statement($statement);
     $self->run_query;
 }
+
+=for removal
+    and i/activities[at0001]/description[at0009]/items[at0148]/value/value = 'pathology'
+=cut
 
 sub find_orders_by_state {
     my ( $self, $state ) = @_;
