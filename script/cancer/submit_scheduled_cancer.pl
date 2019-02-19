@@ -149,7 +149,6 @@ This data is not currently in the Infoflex Extract
 
         print Dumper $composition;
 
-=for development
         my $query = OpenEHR::REST::Composition->new();
         $query->composition($cancer_report);
         $query->template_id('GEL Cancer diagnosis input.v0');
@@ -162,6 +161,7 @@ This data is not currently in the Infoflex Extract
             print 'Composition UID: ',             $query->compositionUid, "\n";
             print 'Composition can be found at: ', $query->href,           "\n";
         }
+=for development
 =cut
     }
 }

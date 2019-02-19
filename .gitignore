@@ -22,3 +22,4 @@ lib/Genomes_100K
 lib/Genomes_100K_Test
 lib/Carecast
 OpenEHR.conf
+odbc.ini
