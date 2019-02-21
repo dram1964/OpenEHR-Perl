@@ -29,10 +29,34 @@ while ( my $order = $orders_rs->next ) {
     print join( ":",
         $order->subject_id, $order->data_start_date, $order->data_end_date, ),
       "\n";
-    &report_cancer(
-        $order->subject_ehr_id,  $order->subject_id,
-        $order->data_start_date, $order->data_end_date
+    if (
+        my ( $event_reference_diagnosis, $composition ) = &report_cancer(
+            $order->subject_ehr_id,  $order->subject_id,
+            $order->data_start_date, $order->data_end_date
+        )
+      )
+    {
+        &update_report_date( $event_reference_diagnosis, $composition );
+    }
+}
+
+sub update_report_date() {
+    my ( $event_reference_diagnosis, $composition_uid ) = @_;
+    my $search = $schema->resultset('InfoflexCancer')->search(
+        {
+            event_reference_diagnosis => $event_reference_diagnosis,
+        }
     );
+    my $now = DateTime->now->datetime;
+    $now =~ s/T/ /;
+    $search->update(
+        {
+            composition_id => $composition_uid,
+            reported_date  => $now,
+            reported_by    => $0,
+        }
+    );
+
 }
 
 sub report_cancer {
@@ -48,7 +72,8 @@ sub report_cancer {
     while ( my $report = $reports_rs->next ) {
         print join( ":",
             $report->patient_hospital_number,
-            $report->nhs_number, $report->event_date_diagnosis,
+            $report->nhs_number,
+            $report->event_date_diagnosis,
             $report->event_icd10_diagnosis_code,
           ),
           "\n";
@@ -59,10 +84,7 @@ sub report_cancer {
         my $pd = OpenEHR::Composition::Elements::ProblemDiagnosis->new();
         my $problem_diagnosis = $pd->element('ProblemDiagnosis')->new();
 
-        my (
-            $colorectal_diagnosis, $tumour_id,
-            $clinical_evidence,    
-        );
+        my ( $colorectal_diagnosis, $tumour_id, $clinical_evidence, );
 
         my $diagnosis = &get_diagnosis( $report, $pd );
         $problem_diagnosis->diagnosis( [$diagnosis] );
@@ -70,10 +92,10 @@ sub report_cancer {
         my $cancer_diagnosis = &get_cancer_diagnosis( $report, $pd );
         $problem_diagnosis->cancer_diagnosis( [$cancer_diagnosis] );
 
-        if ( my $testicular_staging = &get_testicular_staging( $report, $pd ) ) {
+        if ( my $testicular_staging = &get_testicular_staging( $report, $pd ) )
+        {
             $problem_diagnosis->testicular_staging( [$testicular_staging] );
         }
-
 
 =head1 Placeholder
 
@@ -143,7 +165,7 @@ This data is not currently in the Infoflex Extract
         }
 
         $cancer_report->problem_diagnoses( [$problem_diagnosis] );
-        $cancer_report->report_id( &get_report_id( $report ) );
+        $cancer_report->report_id( &get_report_id($report) );
         $cancer_report->composition_format('STRUCTURED');
         my $composition = $cancer_report->compose;
 
@@ -155,19 +177,20 @@ This data is not currently in the Infoflex Extract
         $query->submit_new($ehrid);
         if ( $query->err_msg ) {
             print 'Error occurred in submission: ' . $query->err_msg;
+            return 0;
         }
         else {
             print 'Action is: ',                   $query->action,         "\n";
             print 'Composition UID: ',             $query->compositionUid, "\n";
             print 'Composition can be found at: ', $query->href,           "\n";
+            return $report->event_reference_diagnosis, $query->compositionUid;
         }
-=for development
-=cut
+
     }
 }
 
 sub get_report_id {
-    my $report = shift;
+    my $report    = shift;
     my $report_id = $report->event_reference_diagnosis;
     return $report_id;
 }
@@ -181,49 +204,47 @@ sub get_number_lesions {
 
 sub get_inrg_staging {
     my $report = shift;
-    my $pd             = shift;
+    my $pd     = shift;
     return 0;
 }
 
 sub get_integrated_tnm {
-    my $report = shift;
+    my $report         = shift;
     my $pd             = shift;
     my $integrated_tnm = $pd->element('Integrated_TNM')->new();
-    my $items_found = 0;
-    if ($report->t_category) {
+    my $items_found    = 0;
+    if ( $report->t_category ) {
         $integrated_tnm->integrated_t( $report->t_category );
         $items_found++;
     }
-    if ($report->n_category) {
+    if ( $report->n_category ) {
         $integrated_tnm->integrated_n( $report->n_category );
         $items_found++;
     }
-    if ($report->m_category) {
+    if ( $report->m_category ) {
         $integrated_tnm->integrated_m( $report->m_category );
         $items_found++;
     }
-    if ($report->tnm_stage_grouping) {
+    if ( $report->tnm_stage_grouping ) {
         $integrated_tnm->stage_grouping( $report->tnm_stage_grouping );
         $items_found++;
     }
-    if ($report->tnm_edition_number) {
+    if ( $report->tnm_edition_number ) {
         $integrated_tnm->tnm_edition( $report->tnm_edition_number );
         $items_found++;
     }
-    if ($report->grade_of_differentiation) {
-        $integrated_tnm->grading_at_diagnosis( $report->grade_of_differentiation );
+    if ( $report->grade_of_differentiation ) {
+        $integrated_tnm->grading_at_diagnosis(
+            $report->grade_of_differentiation );
         $items_found++;
     }
-    if ( $items_found > 0) {
+    if ( $items_found > 0 ) {
         return $integrated_tnm;
     }
     else {
         return 0;
     }
 }
-
-
-
 
 sub get_tace {
     my $report = shift;
@@ -294,12 +315,13 @@ sub get_diagnosis {
     my $pd             = shift;
     my $diagnosis_code = $report->event_icd10_diagnosis_code;
     if ($diagnosis_code) {
-        my $diagnosis = $pd->element('Diagnosis')->new( code => $diagnosis_code, );
+        my $diagnosis =
+          $pd->element('Diagnosis')->new( code => $diagnosis_code, );
         my $search_code = $diagnosis_code;
         $search_code =~ s/\.//;
         my $code_name_rs = $schema->resultset('CodesIcd10')
           ->search( { code => $search_code, }, { rows => 1, }, );
-        my $code_name = $code_name_rs->first; 
+        my $code_name = $code_name_rs->first;
         if ($code_name) {
             my $description = $code_name->description;
             if ($description) {
@@ -307,7 +329,7 @@ sub get_diagnosis {
             }
         }
         else {
-            $diagnosis->value( $diagnosis_code );
+            $diagnosis->value($diagnosis_code);
         }
         return $diagnosis;
     }
@@ -317,26 +339,27 @@ sub get_diagnosis {
 }
 
 sub get_testicular_staging {
-    my $report           = shift;
-    my $pd               = shift;
+    my $report             = shift;
+    my $pd                 = shift;
     my $testicular_staging = $pd->element('TesticularStaging')->new();
-    my $items_found = 0;
+    my $items_found        = 0;
     if ( $report->stage_grouping_testicular ) {
         my $stage_group_testicular = $pd->element('TesticularStaging')
           ->new( local_code => $report->stage_grouping_testicular, );
-        $testicular_staging->stage_group_testicular( [$stage_group_testicular] );
+        $testicular_staging->stage_group_testicular(
+            [$stage_group_testicular] );
         $items_found++;
     }
     if ( $report->extranodal_metastases_urology ) {
         my $extranodal_metastases_urology = $pd->element('ExtranodalMetastases')
           ->new( local_code => $report->extranodal_metastases_urology, );
-        $testicular_staging->extranodal_metastases( [$extranodal_metastases_urology] );
+        $testicular_staging->extranodal_metastases(
+            [$extranodal_metastases_urology] );
         $items_found++;
     }
     if ( $report->lung_metastases_urology ) {
         my $lung_metastases = $pd->element('LungMetastases')
-          ->new( local_code => $report->lung_metastases_urology,
-          );
+          ->new( local_code => $report->lung_metastases_urology, );
         $testicular_staging->lung_metastases( [$lung_metastases] );
         $items_found++;
     }
@@ -372,15 +395,13 @@ sub get_cancer_diagnosis {
     if ( $report->morphology_icd03 ) {
         my $morphology =
           $pd->element('Morphology')
-          ->new( local_code => $report->morphology_icd03 ,
-          );
+          ->new( local_code => $report->morphology_icd03, );
         $cancer_diagnosis->morphology( [$morphology] );
     }
     if ( $report->topography_icd03 ) {
         my $topography =
           $pd->element('Topography')
-          ->new( local_code => $report->topography_icd03 ,
-          );
+          ->new( local_code => $report->topography_icd03, );
         $cancer_diagnosis->topography( [$topography] );
     }
     return $cancer_diagnosis;
