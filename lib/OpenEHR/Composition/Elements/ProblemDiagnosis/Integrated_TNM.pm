@@ -92,7 +92,6 @@ text value
 
 sub _set_grading_at_diagnosis_text {
     my $self = shift;
-    print Dumper $self->grading_at_diagnosis;
     if ($self->grading_at_diagnosis eq 'GX') {
         $self->grading_at_diagnosis_text('GX Grade of differentiation is not appropriate or cannot be assessed');
     }

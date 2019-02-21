@@ -26,37 +26,10 @@ my $orders_rs = $schema->resultset('InformationOrder')->search(
 
 my $patient_number;
 while ( my $order = $orders_rs->next ) {
-    print join( ":",
-        $order->subject_id, $order->data_start_date, $order->data_end_date, ),
-      "\n";
-    if (
-        my ( $event_reference_diagnosis, $composition ) = &report_cancer(
+    &report_cancer(
             $order->subject_ehr_id,  $order->subject_id,
             $order->data_start_date, $order->data_end_date
-        )
-      )
-    {
-        &update_report_date( $event_reference_diagnosis, $composition );
-    }
-}
-
-sub update_report_date() {
-    my ( $event_reference_diagnosis, $composition_uid ) = @_;
-    my $search = $schema->resultset('InfoflexCancer')->search(
-        {
-            event_reference_diagnosis => $event_reference_diagnosis,
-        }
     );
-    my $now = DateTime->now->datetime;
-    $now =~ s/T/ /;
-    $search->update(
-        {
-            composition_id => $composition_uid,
-            reported_date  => $now,
-            reported_by    => $0,
-        }
-    );
-
 }
 
 sub report_cancer {
@@ -169,8 +142,6 @@ This data is not currently in the Infoflex Extract
         $cancer_report->composition_format('STRUCTURED');
         my $composition = $cancer_report->compose;
 
-        print Dumper $composition;
-
         my $query = OpenEHR::REST::Composition->new();
         $query->composition($cancer_report);
         $query->template_id('GEL Cancer diagnosis input.v0');
@@ -183,10 +154,29 @@ This data is not currently in the Infoflex Extract
             print 'Action is: ',                   $query->action,         "\n";
             print 'Composition UID: ',             $query->compositionUid, "\n";
             print 'Composition can be found at: ', $query->href,           "\n";
-            return $report->event_reference_diagnosis, $query->compositionUid;
+            &update_report_date( $report->event_reference_diagnosis, $query->compositionUid );
         }
 
     }
+}
+
+sub update_report_date() {
+    my ( $event_reference_diagnosis, $composition_uid ) = @_;
+    my $search = $schema->resultset('InfoflexCancer')->search(
+        {
+            event_reference_diagnosis => $event_reference_diagnosis,
+        }
+    );
+    my $now = DateTime->now->datetime;
+    $now =~ s/T/ /;
+    $search->update(
+        {
+            composition_id => $composition_uid,
+            reported_date  => $now,
+            reported_by    => $0,
+        }
+    );
+
 }
 
 sub get_report_id {
@@ -406,3 +396,4 @@ sub get_cancer_diagnosis {
     }
     return $cancer_diagnosis;
 }
+
