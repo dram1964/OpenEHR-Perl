@@ -76,6 +76,40 @@ has grading_at_diagnosis => (
     isa => 'Str',
 );
 
+has grading_at_diagnosis_text => (
+    is => 'rw',
+    isa => 'Str',
+    lazy => 1,
+    builder => '_set_grading_at_diagnosis_text',
+);
+
+=head2 _set_grading_at_diagnosis_text
+
+Translates grading_at_diagnosis code value to appropriate 
+text value
+
+=cut
+
+sub _set_grading_at_diagnosis_text {
+    my $self = shift;
+    print Dumper $self->grading_at_diagnosis;
+    if ($self->grading_at_diagnosis eq 'GX') {
+        $self->grading_at_diagnosis_text('GX Grade of differentiation is not appropriate or cannot be assessed');
+    }
+    elsif ($self->grading_at_diagnosis eq 'G1') {
+        $self->grading_at_diagnosis_text('G1 Well differentiated');
+    }
+    elsif ($self->grading_at_diagnosis eq 'G2') {
+        $self->grading_at_diagnosis_text('G2 Moderately differentiated');
+    }
+    elsif ($self->grading_at_diagnosis eq 'G3') {
+        $self->grading_at_diagnosis_text('G3 Poorly differentiated');
+    }
+    elsif ($self->grading_at_diagnosis eq 'G4') {
+        $self->grading_at_diagnosis_text('G4 Undifferentiated / anaplastic');
+    }
+}
+
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')
@@ -92,7 +126,7 @@ sub compose_structured {
         'integrated_t'              => [ $self->integrated_t ],
         'integrated_stage_grouping' => [ $self->stage_grouping ],
         'integrated_n'              => [ $self->integrated_n ],
-        'grading_at_diagnosis'      => [ $self->grading_at_diagnosis ],
+        'grading_at_diagnosis'      => [ $self->grading_at_diagnosis_text ],
         'integrated_tnm_edition'    => [ $self->tnm_edition ],
     };
     return $composition;
@@ -141,7 +175,7 @@ sub compose_raw {
                 },
                 'value' => {
                     '@class' => 'DV_TEXT',
-                    'value'  => $self->grading_at_diagnosis
+                    'value'  => $self->grading_at_diagnosis_text
                     ,    #'G4 Undifferentiated / anaplastic'
                 },
                 'archetype_node_id' => 'at0005',
@@ -204,7 +238,7 @@ sub compose_flat {
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/integrated_tnm:__DIAG__/integrated_n'
             => $self->integrated_n,      #'Integrated N 15',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/integrated_tnm:__DIAG__/grading_at_diagnosis'
-            => $self->grading_at_diagnosis,      #'G4 Undifferentiated / anaplastic',
+            => $self->grading_at_diagnosis_text,      #'G4 Undifferentiated / anaplastic',
     };
     return $composition;
 }
