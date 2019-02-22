@@ -147,8 +147,8 @@ This data is not currently in the Infoflex Extract
 
 =for removal
         print Dumper $composition;
-=cut
 
+=cut
         my $query = OpenEHR::REST::Composition->new();
         $query->composition($cancer_report);
         $query->template_id('GEL Cancer diagnosis input.v0');
@@ -163,7 +163,6 @@ This data is not currently in the Infoflex Extract
             print 'Composition can be found at: ', $query->href,           "\n";
             &update_report_date( $report->event_reference_diagnosis, $query->compositionUid );
         }
-
     }
 }
 
@@ -397,12 +396,31 @@ sub get_cancer_diagnosis {
           );
         $cancer_diagnosis->recurrence_indicator( [$recurrence_indicator] );
     }
+
+    my ($morphologies, $morphology_snomed, $morphology_icd);
+    if ( $report->morphology_snomed ) {
+        $morphology_snomed =
+          $pd->element('Morphology')
+          ->new( local_code => $report->morphology_snomed,
+                terminology => 'SNOMED-RT');
+        #$cancer_diagnosis->morphology( [$morphology] );
+    }
     if ( $report->morphology_icd03 ) {
-        my $morphology =
+        $morphology_icd =
           $pd->element('Morphology')
           ->new( local_code => $report->morphology_icd03, );
-        $cancer_diagnosis->morphology( [$morphology] );
+        #$cancer_diagnosis->morphology( [$morphology] );
     }
+
+    for my $morphology ( ($morphology_snomed, $morphology_icd) ) {
+        if ($morphology) {
+            push @{ $morphologies }, $morphology;
+        }
+    }
+    if ($morphologies->[0]) {
+        $cancer_diagnosis->morphology( $morphologies );
+    }
+    $cancer_diagnosis->morphology( $morphologies );
     if ( $report->topography_icd03 ) {
         my $topography =
           $pd->element('Topography')
