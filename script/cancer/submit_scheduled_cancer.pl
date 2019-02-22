@@ -61,8 +61,10 @@ sub report_cancer {
 
         my ( $colorectal_diagnosis, $tumour_id );
 
-        my $clinical_evidence = &get_clinical_evidence( $report, $pd );
-        $problem_diagnosis->clinical_evidence( [$clinical_evidence] );
+        if ($report->basis_of_diagnosis) {
+            my $clinical_evidence = &get_clinical_evidence( $report, $pd );
+            $problem_diagnosis->clinical_evidence( [$clinical_evidence] );
+        }
 
         my $diagnosis = &get_diagnosis( $report, $pd );
         $problem_diagnosis->diagnosis( [$diagnosis] );

@@ -78,7 +78,6 @@ has grading_at_diagnosis => (
 
 has grading_at_diagnosis_text => (
     is => 'rw',
-    isa => 'Str',
     lazy => 1,
     builder => '_set_grading_at_diagnosis_text',
 );
@@ -92,20 +91,22 @@ text value
 
 sub _set_grading_at_diagnosis_text {
     my $self = shift;
-    if ($self->grading_at_diagnosis eq 'GX') {
-        $self->grading_at_diagnosis_text('GX Grade of differentiation is not appropriate or cannot be assessed');
-    }
-    elsif ($self->grading_at_diagnosis eq 'G1') {
-        $self->grading_at_diagnosis_text('G1 Well differentiated');
-    }
-    elsif ($self->grading_at_diagnosis eq 'G2') {
-        $self->grading_at_diagnosis_text('G2 Moderately differentiated');
-    }
-    elsif ($self->grading_at_diagnosis eq 'G3') {
-        $self->grading_at_diagnosis_text('G3 Poorly differentiated');
-    }
-    elsif ($self->grading_at_diagnosis eq 'G4') {
-        $self->grading_at_diagnosis_text('G4 Undifferentiated / anaplastic');
+    if ($self->grading_at_diagnosis) {
+        if ($self->grading_at_diagnosis eq 'GX') {
+            $self->grading_at_diagnosis_text('GX Grade of differentiation is not appropriate or cannot be assessed');
+        }
+        elsif ($self->grading_at_diagnosis eq 'G1') {
+            $self->grading_at_diagnosis_text('G1 Well differentiated');
+        }
+        elsif ($self->grading_at_diagnosis eq 'G2') {
+            $self->grading_at_diagnosis_text('G2 Moderately differentiated');
+        }
+        elsif ($self->grading_at_diagnosis eq 'G3') {
+            $self->grading_at_diagnosis_text('G3 Poorly differentiated');
+        }
+        elsif ($self->grading_at_diagnosis eq 'G4') {
+            $self->grading_at_diagnosis_text('G4 Undifferentiated / anaplastic');
+        }
     }
 }
 
@@ -168,18 +169,6 @@ sub compose_raw {
                     '@class' => 'DV_TEXT'
                 }
             },
-            {   'name' => {
-                    '@class' => 'DV_TEXT',
-                    'value'  => 'Grading at diagnosis'
-                },
-                'value' => {
-                    '@class' => 'DV_TEXT',
-                    'value'  => $self->grading_at_diagnosis_text
-                    ,    #'G4 Undifferentiated / anaplastic'
-                },
-                'archetype_node_id' => 'at0005',
-                '@class'            => 'ELEMENT'
-            },
             {   'archetype_node_id' => 'at0007',
                 '@class'            => 'ELEMENT',
                 'name'              => {
@@ -220,6 +209,22 @@ sub compose_raw {
         'archetype_node_id' => 'openEHR-EHR-CLUSTER.tnm_stage_clinical.v0',
         '@class'            => 'CLUSTER'
     };
+
+    if ( $self->grading_at_diagnosis ) {
+        push @{ $composition->items }, 
+            {   'name' => {
+                    '@class' => 'DV_TEXT',
+                    'value'  => 'Grading at diagnosis'
+                },
+                'value' => {
+                    '@class' => 'DV_TEXT',
+                    'value'  => $self->grading_at_diagnosis_text
+                    ,    #'G4 Undifferentiated / anaplastic'
+                },
+                'archetype_node_id' => 'at0005',
+                '@class'            => 'ELEMENT'
+            };
+    }
     return $composition;
 }
 
@@ -236,9 +241,11 @@ sub compose_flat {
             => $self->tnm_edition,       #'Integrated TNM Edition 44',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/integrated_tnm:__DIAG__/integrated_n'
             => $self->integrated_n,      #'Integrated N 15',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/integrated_tnm:__DIAG__/grading_at_diagnosis'
-            => $self->grading_at_diagnosis_text,      #'G4 Undifferentiated / anaplastic',
     };
+    if ( $self->grading_at_diagnosis ) {
+        $composition->{ 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/integrated_tnm:__DIAG__/grading_at_diagnosis' }
+            = $self->grading_at_diagnosis_text;
+    }
     return $composition;
 }
 
