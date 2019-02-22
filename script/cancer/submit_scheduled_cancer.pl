@@ -57,7 +57,10 @@ sub report_cancer {
         my $pd = OpenEHR::Composition::Elements::ProblemDiagnosis->new();
         my $problem_diagnosis = $pd->element('ProblemDiagnosis')->new();
 
-        my ( $colorectal_diagnosis, $tumour_id, $clinical_evidence, );
+        my ( $colorectal_diagnosis, $tumour_id );
+
+        my $clinical_evidence = &get_clinical_evidence( $report, $pd );
+        $problem_diagnosis->clinical_evidence( [$clinical_evidence] );
 
         my $diagnosis = &get_diagnosis( $report, $pd );
         $problem_diagnosis->diagnosis( [$diagnosis] );
@@ -142,6 +145,10 @@ This data is not currently in the Infoflex Extract
         $cancer_report->composition_format('STRUCTURED');
         my $composition = $cancer_report->compose;
 
+=for removal
+        print Dumper $composition;
+=cut
+
         my $query = OpenEHR::REST::Composition->new();
         $query->composition($cancer_report);
         $query->template_id('GEL Cancer diagnosis input.v0');
@@ -183,6 +190,14 @@ sub get_report_id {
     my $report    = shift;
     my $report_id = $report->event_reference_diagnosis;
     return $report_id;
+}
+
+sub get_clinical_evidence {
+    my $report         = shift;
+    my $pd             = shift;
+    my $clinical_evidence   = $pd->element('ClinicalEvidence')
+      ->new( local_code => $report->basis_of_diagnosis);
+    return $clinical_evidence;
 }
 
 sub get_number_lesions {
