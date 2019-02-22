@@ -56,6 +56,8 @@ sub report_cancer {
 
         my $pd = OpenEHR::Composition::Elements::ProblemDiagnosis->new();
         my $problem_diagnosis = $pd->element('ProblemDiagnosis')->new();
+        $problem_diagnosis->event_date( 
+            DateTime::Format::DateParse->parse_datetime($report->event_date_diagnosis) );
 
         my ( $colorectal_diagnosis, $tumour_id );
 
@@ -147,8 +149,8 @@ This data is not currently in the Infoflex Extract
 
 =for removal
         print Dumper $composition;
-
 =cut
+
         my $query = OpenEHR::REST::Composition->new();
         $query->composition($cancer_report);
         $query->template_id('GEL Cancer diagnosis input.v0');

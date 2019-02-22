@@ -180,7 +180,7 @@ sub compose {
 sub compose_structured {
     my $self        = shift;
     my $composition = {
-        'event_date'         => [ DateTime->now->datetime ],
+        'event_date'         => [ $self->event_date->datetime ], #[ DateTime->now->datetime ],
     };
     if ( $self->integrated_tnm ) {
         for my $integrated_tnm ( @{ $self->integrated_tnm } ) {
@@ -289,7 +289,7 @@ sub compose_raw {
                     'archetype_node_id' => 'at0070',
                     'value'             => {
                         '@class' => 'DV_DATE_TIME',
-                        'value'  => DateTime->now->datetime, #'2018-07-24T14:05:01.806+01:00'
+                        'value'  => $self->event_date->datetime, #DateTime->now->datetime
                     },
                     'name' => {
                         '@class' => 'DV_TEXT',
@@ -408,7 +408,7 @@ sub compose_flat {
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/encoding|code' =>
             'UTF-8',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/event_date' =>
-            DateTime->now->datetime, #'2018-07-24T14:05:01.806+01:00',
+            $self->event_date->datetime, #DateTime->now->datetime
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/encoding|terminology'
             => 'IANA_character-sets',
     };
