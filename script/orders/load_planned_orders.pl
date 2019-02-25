@@ -62,7 +62,7 @@ sub insert_order() {
         {
             request_uid          => $result->{request_uid},
             order_date        => &date_format($result->{order_date}),
-            expiry_date          => &date_format($result->{expiry_date}),
+            #expiry_date          => &date_format($result->{expiry_date}),
             composition_uid   => $new_uid, #$result->{composition_uid},
             ordered_by        => $result->{ordered_by},
             order_type        => $result->{order_type},
@@ -81,9 +81,12 @@ sub insert_order() {
 
 sub date_format() {
     my $date = shift;
-    return 0 unless $date;
+    return undef unless $date;
     if ($date eq 'R1') {
         $date = DateTime->now->datetime;
+    }
+    elsif ( $date =~ /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}):\d{2}/ ) {
+        $date = $1
     }
         
     $date =~ s/\+\d{2,2}:\d{2,2}//;

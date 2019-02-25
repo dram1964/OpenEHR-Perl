@@ -342,6 +342,7 @@ sub decompose_raw {
 
 sub format_datetime {
     my $date = shift;
+    print Dumper $date;
     if ( !defined($date) ) {
         $date = DateTime->now->datetime;
     }
@@ -352,6 +353,9 @@ sub format_datetime {
         my ( $part1, $part2 ) = ( $1, $2 );
         $part1 .= ':00';
         $date = $part1 . $part2;
+    }
+    elsif ( $date =~ /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})/ ) {
+        $date = $1
     }
     $date =~ s/T/ /;
     $date =~ s/(\d{2,2}:\d{2,2}:\d{2,2})Z/$1/;
