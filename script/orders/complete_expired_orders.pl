@@ -46,25 +46,6 @@ sub mark_completed() {
         order_state => 'complete',
         order_state_code => '532',
     });
-#my $order  = $schema->resultset('InformationOrder')->update_or_create(
-#    {
-#        request_uid          => $result->{order_id},
-#        order_date        => &date_format($result->{order_date}),
-#        expiry_date          => &date_format($result->{expiry_date}),
-#        composition_uid   => $new_uid, #$result->{composition_uid},
-#        ordered_by        => $result->{ordered_by},
-#        order_type        => $result->{order_type},
-#        order_state       => 'scheduled', #$result->{current_state},
-#        order_state_code  => 529, #$result->{current_state_code},
-#        subject_id        => $result->{subject_id},
-#        subject_id_type   => $result->{subject_id_type},
-#        subject_ehr_id    => $result->{subject_ehr_id},
-#        service_type      => $result->{service_type},
-#        data_start_date   => &date_format($result->{data_start_date}),
-#        data_end_date     => &date_format($result->{data_end_date}),
-#        requestor_id => $result->{unique_message_id},
-#    }
-#);
 }
 
 sub update_state {

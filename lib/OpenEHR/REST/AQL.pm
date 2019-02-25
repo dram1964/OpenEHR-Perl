@@ -73,7 +73,7 @@ sub find_orders_by_uid {
  c/name/value as order_type,
  c/composer/name as ordered_by,
  i/uid/value as order_id,
- i/protocol[at0008]/items[at0010]/value/value as unique_message_id,
+ i/protocol[at0008]/items[at0010]/value/value as requestor_id,
  i/activities[at0001]/timing/value as start_date,
  i/expiry_time/value as end_date,
  i/activities[at0001]/description[at0009]/items[at0148]/value/value as service_type,
@@ -207,7 +207,7 @@ Retrieves all information orders whose state value matches $state
 and adds the results to the objects resultset.
 Resultset items will have the following keys: 
 subject_ehr_id, subject_id, subject_id_type, composition_uid, narrative, order_type,
-order_id, unique_message_id, start_date, end_date, data_start_date, data_end_date, 
+order_id, requestor_id, start_date, end_date, data_start_date, data_end_date, 
 service_type, current_state, current_state_code, 
 
 =head2 find_orders_by_uid($uid) 
@@ -216,7 +216,7 @@ Retrieves an information orders by uid
 and adds the result to the objects resultset.
 The resultset will have the following keys: 
 subject_ehr_id, subject_id, subject_id_type, composition_uid, narrative, order_type,
-order_id, unique_message_id, start_date, end_date, data_start_date, data_end_date, 
+order_id, requestor_id, start_date, end_date, data_start_date, data_end_date, 
 service_type, current_state, current_state_code, 
 
 =head1 ATTRIBUTES
