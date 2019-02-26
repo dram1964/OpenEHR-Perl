@@ -18,6 +18,13 @@ while ( my $request = $scheduled_requests_rs->next ) {
         $request->subject_ehr_id,  $request->subject_id,
         $request->data_start_date, $request->data_end_date
     );
+
+    if ($end_date =~ m/(\d{4,4}\-\d{2,2}\-\d{2,2})/ ) {
+        $end_date = $1;
+    }
+    if ($start_date =~ m/(\d{4,4}\-\d{2,2}\-\d{2,2})/ ) {
+        $start_date = $1;
+    }
     print join( ":", $nhs_number, $start_date, $end_date ), "\n";
     my $samples_rs =
       &select_samples_to_report( $ehrid, $nhs_number, $start_date, $end_date );
