@@ -85,12 +85,9 @@ sub date_format() {
     if ($date eq 'R1') {
         $date = DateTime->now->datetime;
     }
-    elsif ( $date =~ /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}):\d{2}/ ) {
-        $date = $1
+    elsif ( $date =~ /(\d{4}-\d{2}-\d{2})T\d{2}:\d{2}/ ) {
+        $date = $1;
     }
         
-    $date =~ s/\+\d{2,2}:\d{2,2}//;
-    $date =~ s/T/ / if defined($date);
-    $date =~ s/Z// if defined($date);
     return $date;
 }
