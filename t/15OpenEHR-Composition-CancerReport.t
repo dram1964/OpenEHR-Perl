@@ -8,6 +8,34 @@ use OpenEHR::REST::Composition;
 BEGIN { use_ok('OpenEHR::Composition::CancerReport'); }
 
 ok(
+    my $feeder_audit1 =
+      OpenEHR::Composition::Elements::ProblemDiagnosis::FeederAudit->new(
+        event_date => DateTime->new(
+            year  => 2011,
+            month => 01,
+            day   => 01,
+        ),
+        event_ref => '5C0734F2-512-A414-9CAE-BF1AF760D0AQ',
+        system_id => 'Infoflex'
+      ),
+    'Create First FeederAudit element'
+);
+
+ok(
+    my $feeder_audit2 =
+      OpenEHR::Composition::Elements::ProblemDiagnosis::FeederAudit->new(
+        event_date => DateTime->new(
+            year  => 2015,
+            month => 05,
+            day   => 05,
+        ),
+        event_ref => '5CO83D33-512-A414-835A-FC3232835656',
+        system_id => 'Infoflex'
+      ),
+    'Create Second FeederAudit element'
+);
+
+ok(
     my $ajcc_stage =
       OpenEHR::Composition::Elements::ProblemDiagnosis::AJCC_Stage->new(
         ajcc_stage_grouping => 'Stage IB',
@@ -265,7 +293,7 @@ ok(
         testicular_staging   => [$testicular_staging],
         cancer_diagnosis     => [$cancer_diagnosis],
         final_figo_stage     => [$final_figo_stage],
-        event_date           => $event_date,
+        feeder_audit        => [$feeder_audit1],
       ),
     'Create First ProblemDiagnosis object'
 );
@@ -291,12 +319,13 @@ ok(
         testicular_staging   => [$testicular_staging],
         cancer_diagnosis     => [$cancer_diagnosis],
         final_figo_stage     => [$final_figo_stage],
-        event_date           => $event_date,
+        feeder_audit        => [$feeder_audit2],
       ),
     'Create Second ProblemDiagnosis object'
 );
 
 my @formats = qw( FLAT STRUCTURED RAW);
+@formats = qw(FLAT);
 
 for my $format (@formats) {
     note("Testing $format format composition");
@@ -309,7 +338,7 @@ for my $format (@formats) {
     note( 'SubjectId: ' . $ehr1->subject_id );
     ok(
         my $cancer_report = OpenEHR::Composition::CancerReport->new(
-            problem_diagnoses => [$problem_diagnosis1, $problem_diagnosis2],
+            problem_diagnoses => [ $problem_diagnosis1, $problem_diagnosis2 ],
             report_id         => 'TT123123Z',
             report_date       => DateTime->now(),
         ),
@@ -317,6 +346,8 @@ for my $format (@formats) {
     );
     ok( $cancer_report->composition_format($format),
         "Set $format composition format" );
+    my $composition = $cancer_report->compose;
+    print Dumper $composition;
 
     ok( my $query = OpenEHR::REST::Composition->new(), "Construct REST query" );
     ok( $query->composition($cancer_report), "Add composition to new query" );

@@ -135,15 +135,15 @@ has final_figo_stage => (
     isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::FinalFigoStage]',
 );
 
-=head2 event_date($datetime_object)
+=head2 feeder_audit 
 
-Used to get or set the event date item for the Problem Diagnosis
+Used to record information for the originating system for the Problem Diagnosis
 
 =cut 
 
-has event_date => (
-    is  => 'rw',
-    isa => 'DateTime',
+has feeder_audit => (
+    is => 'rw',
+    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::FeederAudit]',
 );
 
 =head2 testicular_staging($testicular_staging_object)
@@ -164,7 +164,7 @@ sub compose {
     my @properties = qw(
         ajcc_stage colorectal_diagnosis diagnosis modified_dukes tumour_id
         clinical_evidence upper_gi_staging integrated_tnm inrg_staging
-        cancer_diagnosis final_figo_stage testicular_staging);
+        cancer_diagnosis final_figo_stage testicular_staging feeder_audit);
     for my $property (@properties) {
         if ($self->$property) {
             for my $compos ( @{ $self->$property } ) {
@@ -179,9 +179,13 @@ sub compose {
 
 sub compose_structured {
     my $self        = shift;
-    my $composition = {
-        'event_date'         => [ $self->event_date->datetime ], #[ DateTime->now->datetime ],
-    };
+    my $composition = { };
+    if ( $self->feeder_audit ) {
+        for my $feeder_audit ( @{ $self->feeder_audit } ) {
+            push @{ $composition->{feeder_audit} },
+                $feeder_audit->compose;
+        }
+    }
     if ( $self->integrated_tnm ) {
         for my $integrated_tnm ( @{ $self->integrated_tnm } ) {
             push @{ $composition->{integrated_tnm} },
@@ -407,17 +411,31 @@ sub compose_flat {
             'en',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/encoding|code' =>
             'UTF-8',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/event_date' =>
-            $self->event_date->datetime, #DateTime->now->datetime
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/encoding|terminology'
             => 'IANA_character-sets',
     };
 
 =head1 comment 
 
-        # Testicular Staging
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/event_date' =>
+            $self->event_date->datetime, #DateTime->now->datetime
 
 =cut
+    if ( $self->feeder_audit ) {
+        my $feeder_audit_index = '0';
+        my $feeder_audit_comp;
+        for my $feeder_audit ( @{ $self->feeder_audit } ) {
+            my $composition_fragment = $feeder_audit->compose();
+            for my $key ( keys %{$composition_fragment} ) {
+                my $new_key = $key;
+                $new_key =~ s/__FEED__/$feeder_audit_index/;
+                $feeder_audit_comp->{$new_key} =
+                    $composition_fragment->{$key};
+            }
+            $feeder_audit_index++;
+            $composition = { ( %$composition, %{$feeder_audit_comp} ) };
+        }
+    }
 
     if ( $self->testicular_staging ) {
         my $testicular_staging_index = '0';
