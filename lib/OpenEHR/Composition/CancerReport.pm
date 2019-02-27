@@ -29,6 +29,8 @@ has report_id => (
     isa => 'Str',
 );
 
+has report_date => ( is => 'rw', isa => 'DateTime' );
+
 =head1 _set_ctx
 
 Adds the context and ctx elements to the Information Order
@@ -60,7 +62,10 @@ sub compose_structured {
     my $composition = {
         ctx                    => $ctx,
         'gel_cancer_diagnosis' => {
-            'context' => [ { 'report_id' => $self->report_id, } ]
+            context           => {
+                report_id  => $self->report_id,
+                start_time => $self->report_date->ymd,
+            },
         },
     };
     my $problem_diagnoses;
@@ -97,6 +102,10 @@ sub compose_raw {
         ],
         '@class'            => 'ITEM_TREE',
         'archetype_node_id' => 'at0001'
+    };
+    $ctx->{context}->{start_time} = {
+        'value'  => $self->report_date->ymd,
+        '@class' => 'DV_DATE_TIME',
     };
 
     my $composition = {
@@ -152,6 +161,7 @@ sub compose_flat {
     $composition = {
         %{$ctx},
         'gel_cancer_diagnosis/context/report_id' => $self->report_id,
+        'gel_cancer_diagnosis/context/start_time' => $self->report_date->ymd,
         %{$problem_diagnosis_comp},
     };
     return $composition;

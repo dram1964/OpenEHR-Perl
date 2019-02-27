@@ -211,7 +211,7 @@ sub compose_raw {
     };
 
     if ( $self->grading_at_diagnosis ) {
-        push @{ $composition->items }, 
+        push @{ $composition->{items} }, 
             {   'name' => {
                     '@class' => 'DV_TEXT',
                     'value'  => 'Grading at diagnosis'

@@ -194,7 +194,7 @@ ok(
         stage_grouping       => 'Integrated Stage grouping 31',
         tnm_edition          => 'Integrated TNM Edition 44',
         integrated_n         => 'Integrated N 15',
-        grading_at_diagnosis => 'G4 Undifferentiated / anaplastic',
+        grading_at_diagnosis => 'G4',
       ),
     'Create new Integrated TNM object'
 );
@@ -244,6 +244,12 @@ ok(
     'Create new Testicular Staging object'
 );
 
+my $event_date = DateTime->new(
+    year  => 2016,
+    month => 10,
+    day   => 15,
+);
+
 ok(
     my $problem_diagnosis =
       OpenEHR::Composition::Elements::ProblemDiagnosis->new(
@@ -259,6 +265,7 @@ ok(
         testicular_staging   => [$testicular_staging],
         cancer_diagnosis     => [$cancer_diagnosis],
         final_figo_stage     => [$final_figo_stage],
+        event_date           => $event_date,
       ),
     'Create new ProblemDiagnosis object'
 );
@@ -278,6 +285,7 @@ for my $format (@formats) {
         my $cancer_report = OpenEHR::Composition::CancerReport->new(
             problem_diagnoses => [$problem_diagnosis],
             report_id         => 'TT123123Z',
+            report_date       => $event_date,
         ),
         'Create New Cancer Report Object'
     );

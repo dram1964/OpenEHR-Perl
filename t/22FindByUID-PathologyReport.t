@@ -25,7 +25,7 @@ SKIP: {
             skip "TDD compositions not fully implemented", 1 if ($format eq 'TDD');
             ok( !$path_report1->err_msg, 'No Error Message set' );
             is( $path_report1->template_id,
-                'GEL - Generic Lab Report import.v0',
+                'GEL - Data request Summary.v1',
                 'Composition Template ID'
             );
             is( $path_report1->lastVersion, '1',

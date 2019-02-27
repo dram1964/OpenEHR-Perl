@@ -8,6 +8,11 @@ BEGIN { use_ok('OpenEHR::Composition::Elements::ProblemDiagnosis'); }
 my @formats = qw[FLAT STRUCTURED RAW];
 @formats = qw[RAW];
 for my $format (@formats) {
+    my $event_date = DateTime->new(
+        year => 2015,
+        month => 5,
+        day => 13,
+        );
     ok(my $ajcc_stage = OpenEHR::Composition::Elements::ProblemDiagnosis::AJCC_Stage->new(
         ajcc_code => '2a'), 'Create new AJCC Stage object');
     ok($ajcc_stage->composition_format($format), "Set $format format for AJCC Stage");
@@ -20,6 +25,7 @@ for my $format (@formats) {
     ok(my $problem_diagnosis = OpenEHR::Composition::Elements::ProblemDiagnosis->new(
         ajcc_stage => [$ajcc_stage],
         diagnosis => [$diagnosis],
+        event_date => $event_date,
         ), 
         'Constructor with AJCC Stage Data');
 

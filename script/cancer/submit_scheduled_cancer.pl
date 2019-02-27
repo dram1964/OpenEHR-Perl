@@ -27,8 +27,8 @@ my $orders_rs = $schema->resultset('InformationOrder')->search(
 my $patient_number;
 while ( my $order = $orders_rs->next ) {
     &report_cancer(
-            $order->subject_ehr_id,  $order->subject_id,
-            $order->data_start_date, $order->data_end_date
+        $order->subject_ehr_id,  $order->subject_id,
+        $order->data_start_date, $order->data_end_date
     );
 }
 
@@ -37,7 +37,7 @@ sub report_cancer {
     my $reports_rs = $schema->resultset('InfoflexCancer')->search(
         {
             nhs_number           => $nhs_number,
-            event_date_diagnosis => { '>=' => $start_date , '<=' => $end_date },
+            event_date_diagnosis => { '>=' => $start_date, '<=' => $end_date },
             reported_date        => undef,
         },
     );
@@ -50,17 +50,23 @@ sub report_cancer {
           ),
           "\n";
         next unless $report->event_icd10_diagnosis_code;
-
-        my $cancer_report = OpenEHR::Composition::CancerReport->new();
+              
+        my $cancer_report = OpenEHR::Composition::CancerReport->new( 
+            report_date => $report_date,
+        );
+        my $report_date = DateTime::Format::DateParse->parse_datetime($report->event_date_diagnosis) ;
 
         my $pd = OpenEHR::Composition::Elements::ProblemDiagnosis->new();
         my $problem_diagnosis = $pd->element('ProblemDiagnosis')->new();
-        $problem_diagnosis->event_date( 
-            DateTime::Format::DateParse->parse_datetime($report->event_date_diagnosis) );
+        $problem_diagnosis->event_date(
+            DateTime::Format::DateParse->parse_datetime(
+                $report->event_date_diagnosis
+            )
+        );
 
         my ( $colorectal_diagnosis, $tumour_id );
 
-        if ($report->basis_of_diagnosis) {
+        if ( $report->basis_of_diagnosis ) {
             my $clinical_evidence = &get_clinical_evidence( $report, $pd );
             $problem_diagnosis->clinical_evidence( [$clinical_evidence] );
         }
@@ -164,7 +170,8 @@ This data is not currently in the Infoflex Extract
             print 'Action is: ',                   $query->action,         "\n";
             print 'Composition UID: ',             $query->compositionUid, "\n";
             print 'Composition can be found at: ', $query->href,           "\n";
-            &update_report_date( $report->event_reference_diagnosis, $query->compositionUid );
+            &update_report_date( $report->event_reference_diagnosis,
+                $query->compositionUid );
         }
     }
 }
@@ -195,10 +202,10 @@ sub get_report_id {
 }
 
 sub get_clinical_evidence {
-    my $report         = shift;
-    my $pd             = shift;
-    my $clinical_evidence   = $pd->element('ClinicalEvidence')
-      ->new( local_code => $report->basis_of_diagnosis);
+    my $report            = shift;
+    my $pd                = shift;
+    my $clinical_evidence = $pd->element('ClinicalEvidence')
+      ->new( local_code => $report->basis_of_diagnosis );
     return $clinical_evidence;
 }
 
@@ -400,30 +407,32 @@ sub get_cancer_diagnosis {
         $cancer_diagnosis->recurrence_indicator( [$recurrence_indicator] );
     }
 
-    my ($morphologies, $morphology_snomed, $morphology_icd);
+    my ( $morphologies, $morphology_snomed, $morphology_icd );
     if ( $report->morphology_snomed ) {
-        $morphology_snomed =
-          $pd->element('Morphology')
-          ->new( local_code => $report->morphology_snomed,
-                terminology => 'SNOMED-RT');
+        $morphology_snomed = $pd->element('Morphology')->new(
+            local_code  => $report->morphology_snomed,
+            terminology => 'SNOMED-RT'
+        );
+
         #$cancer_diagnosis->morphology( [$morphology] );
     }
     if ( $report->morphology_icd03 ) {
         $morphology_icd =
           $pd->element('Morphology')
           ->new( local_code => $report->morphology_icd03, );
+
         #$cancer_diagnosis->morphology( [$morphology] );
     }
 
-    for my $morphology ( ($morphology_snomed, $morphology_icd) ) {
+    for my $morphology ( ( $morphology_snomed, $morphology_icd ) ) {
         if ($morphology) {
-            push @{ $morphologies }, $morphology;
+            push @{$morphologies}, $morphology;
         }
     }
-    if ($morphologies->[0]) {
-        $cancer_diagnosis->morphology( $morphologies );
+    if ( $morphologies->[0] ) {
+        $cancer_diagnosis->morphology($morphologies);
     }
-    $cancer_diagnosis->morphology( $morphologies );
+    $cancer_diagnosis->morphology($morphologies);
     if ( $report->topography_icd03 ) {
         my $topography =
           $pd->element('Topography')
