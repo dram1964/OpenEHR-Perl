@@ -251,7 +251,7 @@ my $event_date = DateTime->new(
 );
 
 ok(
-    my $problem_diagnosis =
+    my $problem_diagnosis1 =
       OpenEHR::Composition::Elements::ProblemDiagnosis->new(
         ajcc_stage           => [$ajcc_stage],
         diagnosis            => [$diagnosis],
@@ -267,7 +267,33 @@ ok(
         final_figo_stage     => [$final_figo_stage],
         event_date           => $event_date,
       ),
-    'Create new ProblemDiagnosis object'
+    'Create First ProblemDiagnosis object'
+);
+
+$event_date = DateTime->new(
+    year  => 2017,
+    month => 3,
+    day   => 12,
+);
+
+ok(
+    my $problem_diagnosis2 =
+      OpenEHR::Composition::Elements::ProblemDiagnosis->new(
+        ajcc_stage           => [$ajcc_stage],
+        diagnosis            => [$diagnosis],
+        colorectal_diagnosis => [$colorectal_diagnosis],
+        modified_dukes       => [$modified_dukes],
+        tumour_id            => [$tumour_id],
+        clinical_evidence    => [$clinical_evidence],
+        upper_gi_staging     => [$upper_gi],
+        integrated_tnm       => [$integrated_tnm],
+        inrg_staging         => [$inrg_staging],
+        testicular_staging   => [$testicular_staging],
+        cancer_diagnosis     => [$cancer_diagnosis],
+        final_figo_stage     => [$final_figo_stage],
+        event_date           => $event_date,
+      ),
+    'Create Second ProblemDiagnosis object'
 );
 
 my @formats = qw( FLAT STRUCTURED RAW);
@@ -283,9 +309,9 @@ for my $format (@formats) {
     note( 'SubjectId: ' . $ehr1->subject_id );
     ok(
         my $cancer_report = OpenEHR::Composition::CancerReport->new(
-            problem_diagnoses => [$problem_diagnosis],
+            problem_diagnoses => [$problem_diagnosis1, $problem_diagnosis2],
             report_id         => 'TT123123Z',
-            report_date       => $event_date,
+            report_date       => DateTime->now(),
         ),
         'Create New Cancer Report Object'
     );
