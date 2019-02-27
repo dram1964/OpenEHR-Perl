@@ -37,8 +37,7 @@ sub report_cancer {
     my $reports_rs = $schema->resultset('InfoflexCancer')->search(
         {
             nhs_number           => $nhs_number,
-            event_date_diagnosis => { '>=' => $start_date },
-            event_date_diagnosis => { '<=' => $end_date },
+            event_date_diagnosis => { '>=' => $start_date , '<=' => $end_date },
             reported_date        => undef,
         },
     );

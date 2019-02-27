@@ -467,8 +467,7 @@ sub select_samples_to_report {
     my $samples_rs = $schema->resultset('PathologySample')->search(
         {
             nhs_number    => $nhs_number,
-            sample_date   => { '>=' => $start_date },
-            sample_date   => { '<=' => $end_date },
+            sample_date   => { '<=' => $end_date, '>=' => $start_date },
             reported_date => undef,
         },
         {
