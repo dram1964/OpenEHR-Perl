@@ -34,53 +34,65 @@ while ( my $order = $orders_rs->next ) {
 
 sub report_cancer {
     my ( $ehrid, $nhs_number, $start_date, $end_date ) = @_;
-    my $reports_rs = $schema->resultset('InfoflexCancer')->search(
+    my $patient_rs = $schema->resultset('InfoflexCancer')->search(
         {
-            nhs_number           => $nhs_number,
+            nhs_number => $nhs_number,
             event_date_diagnosis => { '>=' => $start_date, '<=' => $end_date },
             reported_date        => undef,
         },
-    );
-    while ( my $report = $reports_rs->next ) {
-        print join( ":",
-            $report->patient_hospital_number,
-            $report->nhs_number,
-            $report->event_date_diagnosis,
-            $report->event_icd10_diagnosis_code,
-          ),
-          "\n";
-        next unless $report->event_icd10_diagnosis_code;
-              
-        my $cancer_report = OpenEHR::Composition::CancerReport->new( 
-            report_date => $report_date,
-        );
-        my $report_date = DateTime::Format::DateParse->parse_datetime($report->event_date_diagnosis) ;
-
-        my $pd = OpenEHR::Composition::Elements::ProblemDiagnosis->new();
-        my $problem_diagnosis = $pd->element('ProblemDiagnosis')->new();
-        $problem_diagnosis->event_date(
-            DateTime::Format::DateParse->parse_datetime(
-                $report->event_date_diagnosis
-            )
-        );
-
-        my ( $colorectal_diagnosis, $tumour_id );
-
-        if ( $report->basis_of_diagnosis ) {
-            my $clinical_evidence = &get_clinical_evidence( $report, $pd );
-            $problem_diagnosis->clinical_evidence( [$clinical_evidence] );
-        }
-
-        my $diagnosis = &get_diagnosis( $report, $pd );
-        $problem_diagnosis->diagnosis( [$diagnosis] );
-
-        my $cancer_diagnosis = &get_cancer_diagnosis( $report, $pd );
-        $problem_diagnosis->cancer_diagnosis( [$cancer_diagnosis] );
-
-        if ( my $testicular_staging = &get_testicular_staging( $report, $pd ) )
         {
-            $problem_diagnosis->testicular_staging( [$testicular_staging] );
+            columns => [ qw/ nhs_number / ],
+            distinct => 1,
         }
+    );
+    while ( my $patient = $patient_rs->next ) {
+        my $cancer_report = OpenEHR::Composition::CancerReport->new( 
+            report_date => DateTime->now,
+        );
+        my $events;
+        my $reports_rs = $schema->resultset('InfoflexCancer')->search(
+            {
+                nhs_number           => $nhs_number,
+                event_date_diagnosis => { '>=' => $start_date, '<=' => $end_date },
+                reported_date        => undef,
+            },
+        );
+        while ( my $report = $reports_rs->next ) {
+            print join( ":",
+                $report->patient_hospital_number,
+                $report->nhs_number,
+                $report->event_date_diagnosis,
+                $report->event_icd10_diagnosis_code,
+              ),
+              "\n";
+            next unless $report->event_icd10_diagnosis_code;
+              
+            my $pd = OpenEHR::Composition::Elements::ProblemDiagnosis->new();
+            my $problem_diagnosis = $pd->element('ProblemDiagnosis')->new();
+
+            my ( $colorectal_diagnosis, $tumour_id );
+
+            if ( $report->basis_of_diagnosis ) {
+                my $clinical_evidence = &get_clinical_evidence( $report, $pd );
+                $problem_diagnosis->clinical_evidence( [$clinical_evidence] );
+            }
+            if ( $report->event_date_diagnosis ) {
+                my $feeder_audit = &get_feeder_audit( $report, $pd );
+                $problem_diagnosis->feeder_audit( $feeder_audit );
+                push @{ $events }, $feeder_audit->event_ref;
+            }
+
+
+            my $diagnosis = &get_diagnosis( $report, $pd );
+            $problem_diagnosis->diagnosis( [$diagnosis] );
+
+            my $cancer_diagnosis = &get_cancer_diagnosis( $report, $pd );
+            $problem_diagnosis->cancer_diagnosis( [$cancer_diagnosis] );
+
+            if ( my $testicular_staging = &get_testicular_staging( $report, $pd ) )
+            {
+                $problem_diagnosis->testicular_staging( [$testicular_staging] );
+            }
 
 =head1 Placeholder
 
@@ -91,22 +103,22 @@ This data is not currently in the Infoflex Extract
         }
 =cut
 
-        if ( my $integrated_tnm = &get_integrated_tnm( $report, $pd ) ) {
-            $problem_diagnosis->integrated_tnm( [$integrated_tnm] );
-        }
+            if ( my $integrated_tnm = &get_integrated_tnm( $report, $pd ) ) {
+                $problem_diagnosis->integrated_tnm( [$integrated_tnm] );
+            }
 
-        if ( $report->ajcc_tnm_stage_group_skin ) {
-            my $ajcc_stage = &get_ajcc_stage( $report, $pd );
-            $problem_diagnosis->ajcc_stage( [$ajcc_stage] );
-        }
-        if ( $report->figo_stage_group_skin ) {
-            my $figo_stage = &get_figo_stage( $report, $pd );
-            $problem_diagnosis->figo_stage( [$figo_stage] );
-        }
-        if ( $report->modified_dukes_stage_colo ) {
-            my $modified_dukes = &get_modified_dukes( $report, $pd );
-            $problem_diagnosis->modified_dukes( [$modified_dukes] );
-        }
+            if ( $report->ajcc_tnm_stage_group_skin ) {
+                my $ajcc_stage = &get_ajcc_stage( $report, $pd );
+                $problem_diagnosis->ajcc_stage( [$ajcc_stage] );
+            }
+            if ( $report->figo_stage_group_skin ) {
+                my $figo_stage = &get_figo_stage( $report, $pd );
+                $problem_diagnosis->figo_stage( [$figo_stage] );
+            }
+            if ( $report->modified_dukes_stage_colo ) {
+                my $modified_dukes = &get_modified_dukes( $report, $pd );
+                $problem_diagnosis->modified_dukes( [$modified_dukes] );
+            }
 
 =head1 Placeholder
 
@@ -118,39 +130,41 @@ This data is not currently in the Infoflex Extract
         }
 =cut
 
-        my $upper_gi = $pd->element('UpperGI')->new();
-        if ( $report->bclc_stage_upper_gi ) {
-            my $bclc_stage = &get_bclc_stage( $report, $pd );
-            $upper_gi->bclc_stage( [$bclc_stage] );
-        }
-        if ( $report->portal_invasion_upper_gi ) {
-            my $portal_invasion = &get_portal_invasion( $report, $pd );
-            $upper_gi->portal_invasion( [$portal_invasion] );
-        }
-        if ( $report->number_of_lesions_cns ) {
-            my $number_lesions = &get_number_lesions( $report, $pd );
-            $upper_gi->lesions($number_lesions);
-        }
-        if ( $report->child_pugh_score_upper_gi ) {
-            my $child_pugh_score = &get_child_pugh_score( $report, $pd );
-            $upper_gi->child_pugh_score( [$child_pugh_score] );
-        }
-        if ( $report->transarterial_chemoembolisation_upper_gi ) {
-            my $tace = &get_tace( $report, $pd );
-            $upper_gi->tace( [$tace] );
-        }
-        if (   $upper_gi->bclc_stage
-            || $upper_gi->portal_invasion
-            || $upper_gi->pancreatic_clinical_stage
-            || $upper_gi->lesions
-            || $upper_gi->tace
-            || $upper_gi->child_pugh_score )
-        {
-            $problem_diagnosis->upper_gi_staging( [$upper_gi] );
+            my $upper_gi = $pd->element('UpperGI')->new();
+            if ( $report->bclc_stage_upper_gi ) {
+                my $bclc_stage = &get_bclc_stage( $report, $pd );
+                $upper_gi->bclc_stage( [$bclc_stage] );
+            }
+            if ( $report->portal_invasion_upper_gi ) {
+                my $portal_invasion = &get_portal_invasion( $report, $pd );
+                $upper_gi->portal_invasion( [$portal_invasion] );
+            }
+            if ( $report->number_of_lesions_cns ) {
+                my $number_lesions = &get_number_lesions( $report, $pd );
+                $upper_gi->lesions($number_lesions);
+            }
+            if ( $report->child_pugh_score_upper_gi ) {
+                my $child_pugh_score = &get_child_pugh_score( $report, $pd );
+                $upper_gi->child_pugh_score( [$child_pugh_score] );
+            }
+            if ( $report->transarterial_chemoembolisation_upper_gi ) {
+                my $tace = &get_tace( $report, $pd );
+                $upper_gi->tace( [$tace] );
+            }
+            if (   $upper_gi->bclc_stage
+                || $upper_gi->portal_invasion
+                || $upper_gi->pancreatic_clinical_stage
+                || $upper_gi->lesions
+                || $upper_gi->tace
+                || $upper_gi->child_pugh_score )
+            {
+                $problem_diagnosis->upper_gi_staging( [$upper_gi] );
+            }
+
+            push @{ $cancer_report->problem_diagnoses }, $problem_diagnosis;
         }
 
-        $cancer_report->problem_diagnoses( [$problem_diagnosis] );
-        $cancer_report->report_id( &get_report_id($report) );
+        $cancer_report->report_id( &get_report_id() );
         $cancer_report->composition_format('STRUCTURED');
         my $composition = $cancer_report->compose;
 
@@ -170,17 +184,16 @@ This data is not currently in the Infoflex Extract
             print 'Action is: ',                   $query->action,         "\n";
             print 'Composition UID: ',             $query->compositionUid, "\n";
             print 'Composition can be found at: ', $query->href,           "\n";
-            &update_report_date( $report->event_reference_diagnosis,
-                $query->compositionUid );
+            &update_report_date( $events, $query->compositionUid );
         }
     }
 }
 
 sub update_report_date() {
-    my ( $event_reference_diagnosis, $composition_uid ) = @_;
+    my ( $events, $composition_uid ) = @_;
     my $search = $schema->resultset('InfoflexCancer')->search(
         {
-            event_reference_diagnosis => $event_reference_diagnosis,
+            event_reference_diagnosis => { '=' => $events},
         }
     );
     my $now = DateTime->now->datetime;
@@ -196,8 +209,11 @@ sub update_report_date() {
 }
 
 sub get_report_id {
-    my $report    = shift;
-    my $report_id = $report->event_reference_diagnosis;
+    my $report_id = int( rand(1000000000000000) );
+    $report_id .= '0000000000000000';
+    if ( $report_id =~ /^([\d]{16,16}).*/ ) {
+        $report_id = $1;
+    }
     return $report_id;
 }
 
@@ -322,6 +338,16 @@ sub get_figo_stage {
     my $figo_stage = $pd->element('FinalFigoStage')
       ->new( value => $report->figo_stage_group_skin, );
     return $figo_stage;
+}
+
+sub get_feeder_audit {
+    my $report         = shift;
+    my $pd             = shift;
+    my $feeder_audit = $pd->element('FeederAudit')->new( 
+        event_date => DateTime::Format::DateParse->parse_datetime($report->event_date_diagnosis),
+        event_ref => $report->event_reference_diagnosis,
+    );
+    return $feeder_audit;
 }
 
 sub get_diagnosis {
