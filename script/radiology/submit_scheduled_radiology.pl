@@ -20,9 +20,49 @@ while ( my $request = $scheduled_requests_rs->next ) {
     );
     print join( ":", $nhs_number, $start_date, $end_date ), "\n";
 
-    my $radiology_report = OpenEHR::Composition::RadiologyReport->new();
-    my $imaging_exam = OpenEHR::Composition::Elements::ProblemDiagnosis->new();
+    my $imaging_exam = OpenEHR::Composition::Elements::ImagingExam->new(
+    );
 
+    my $receiver_id1  = 'RIS123123';
+    my $receiver1 = $imaging_exam->element('Receiver')->new(
+        id => $receiver_id1,
+    );
+    my $request_id1   = 'TQ00112233';
+    my $requester1 = $imaging_exam->element('Requester')->new(
+        id => $request_id1,
+    );
+    my $report_id1    = $receiver_id1 . 'REP';
+    my $report_reference1 = $imaging_exam->element('ReportReference')->new(
+        id => $report_id1,
+    );
+    my $dicom_url1    = 'http://uclh.dicom.store/image_1';
+    my $exam_request1 = [ 'Request1', 'Request2' ];
+    my $request_detail1 = $imaging_exam->element('RequestDetail')->new(
+        requester        => $requester1,
+        receiver         => $receiver1,
+        report_reference => $report_reference1,
+        dicom_url        => $dicom_url1,
+        exam_request     => $exam_request1,
+    );
+
+    $imaging_exam->request_details( [$request_detail1] ); 
+
+    my $radiology_report = OpenEHR::Composition::RadiologyReport->new(
+        report_id => &get_report_id,
+        imaging_exam => [$imaging_exam],
+    );
+
+    print Dumper $radiology_report->compose;
+
+}
+
+sub get_report_id {
+    my $report_id = int( rand(1000000000000000) );
+    $report_id .= '0000000000000000';
+    if ( $report_id =~ /^([\d]{16,16}).*/ ) {
+        $report_id = $1;
+    }
+    return $report_id;
 }
 
 =head2 get_scheduled_data_requests
