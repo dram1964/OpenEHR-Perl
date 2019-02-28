@@ -359,6 +359,10 @@ sub get_diagnosis {
           $pd->element('Diagnosis')->new( code => $diagnosis_code, );
         my $search_code = $diagnosis_code;
         $search_code =~ s/\.//;
+        if ( length( $search_code) == 3 ) {
+            $search_code .= 'X';
+        }
+        print Dumper $search_code;
         my $code_name_rs = $schema->resultset('CodesIcd10')
           ->search( { code => $search_code, }, { rows => 1, }, );
         my $code_name = $code_name_rs->first;
