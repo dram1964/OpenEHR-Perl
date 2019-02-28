@@ -54,45 +54,16 @@ sub compose_raw {
     my $self = shift;
     print Dumper;
     my $composition = {
-        '@class'            => 'CLUSTER',
-        'archetype_node_id' => 'openEHR-EHR-CLUSTER.tnm_stage_clinical.v0',
-        'items'             => [
-            {
-                '@class'            => 'ELEMENT',
-                'archetype_node_id' => 'at0007',
-                'value'             => {
-                    '@class' => 'DV_TEXT',
-                    'value'  => undef        #$self->ajcc_stage_grouping,
-                },
-                'name' => {
-                    '@class' => 'DV_TEXT',
-                    'value'  => 'AJCC Stage grouping'
-                }
+        '@class'                   => 'FEEDER_AUDIT',
+        'originating_system_audit' => {
+            'time' => {
+                '@class' => 'DV_DATE_TIME',
+                'value'  => $self->event_date->ymd,    #'2011-01-01T00:00:00Z'
             },
-            {
-                'archetype_node_id' => 'at0017',
-                '@class'            => 'ELEMENT',
-                'name'              => {
-                    'value'  => 'AJCC Stage version',
-                    '@class' => 'DV_TEXT'
-                },
-                'value' => {
-                    '@class' => 'DV_TEXT',
-                    'value'  => undef        #$self->version,
-                }
-            }
-        ],
-        'name' => {
-            'value'  => 'AJCC stage',
-            '@class' => 'DV_TEXT'
-        },
-        'archetype_details' => {
-            '@class'       => 'ARCHETYPED',
-            'archetype_id' => {
-                '@class' => 'ARCHETYPE_ID',
-                'value'  => 'openEHR-EHR-CLUSTER.tnm_stage_clinical.v0'
-            },
-            'rm_version' => '1.0.1'
+            '@class'    => 'FEEDER_AUDIT_DETAILS',
+            'system_id' => $self->system_id,         #'Infoflex',
+            'version_id' =>
+              $self->event_ref,    #'5C0734F2-512-A414-9CAE-BF1AF760D0AQ'
         }
     };
     return $composition;

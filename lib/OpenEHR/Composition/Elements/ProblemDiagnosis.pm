@@ -293,7 +293,7 @@ sub compose_raw {
                     'archetype_node_id' => 'at0070',
                     'value'             => {
                         '@class' => 'DV_DATE_TIME',
-                        'value'  => $self->event_date->datetime, #DateTime->now->datetime
+                        'value'  => DateTime->now->datetime
                     },
                     'name' => {
                         '@class' => 'DV_TEXT',
@@ -395,6 +395,11 @@ sub compose_raw {
     if ( $self->ajcc_stage ) {
         for my $ajcc ( @{ $self->ajcc_stage } ) {
             push @{ $composition->{data}->{items} }, $ajcc->compose;
+        }
+    }
+    if ( $self->feeder_audit ) {
+        for my $feeder_audit ( @{ $self->feeder_audit } ) {
+            $composition->{feeder_audit} = $feeder_audit->compose;
         }
     }
     return $composition;
