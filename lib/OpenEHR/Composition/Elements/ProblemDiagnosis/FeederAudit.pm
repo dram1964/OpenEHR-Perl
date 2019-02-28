@@ -72,11 +72,11 @@ sub compose_raw {
 sub compose_flat {
     my $self        = shift;
     my $composition = {
-'gel_cancer_diagnosis/problem_diagnosis:__TEST__/_feeder_audit:__FEED__/originating_system_audit|time'
+'gel_cancer_diagnosis/problem_diagnosis:__TEST__/_feeder_audit/originating_system_audit|time'
           => $self->event_date->ymd,
-'gel_cancer_diagnosis/problem_diagnosis:__TEST__/_feeder_audit:__FEED__/originating_system_audit|system_id'
+'gel_cancer_diagnosis/problem_diagnosis:__TEST__/_feeder_audit/originating_system_audit|system_id'
           => $self->system_id,
-'gel_cancer_diagnosis/problem_diagnosis:__TEST__/_feeder_audit:__FEED__/originating_system_audit|version_id'
+'gel_cancer_diagnosis/problem_diagnosis:__TEST__/_feeder_audit/originating_system_audit|version_id'
           => $self->event_ref,
     };
     return $composition;

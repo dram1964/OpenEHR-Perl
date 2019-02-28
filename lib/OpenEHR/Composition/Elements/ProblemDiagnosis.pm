@@ -19,8 +19,9 @@ Used to get or set the AJCC Stage item for the Problem Diagnosis
 =cut
 
 has ajcc_stage => (
-    is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::AJCC_Stage]',
+    is => 'rw',
+    isa =>
+      'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::AJCC_Stage]',
 );
 
 =head2 colorectal_diagnosis($colorectal_diagnosis_object)
@@ -32,7 +33,7 @@ Used to get or set the Colorectal Diagnosis item for the Problem Diagnosis
 has colorectal_diagnosis => (
     is => 'rw',
     isa =>
-        'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::ColorectalDiagnosis]',
+'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::ColorectalDiagnosis]',
 );
 
 =head2 diagnosis($diagnosis_object)
@@ -42,8 +43,9 @@ Used to get or set the diagnosis item for the Problem Diagnosis
 =cut 
 
 has diagnosis => (
-    is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::Diagnosis]',
+    is => 'rw',
+    isa =>
+      'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::Diagnosis]',
 );
 
 =head2 modified_dukes($modified_dukes_object)
@@ -53,8 +55,9 @@ Used to get or set the modified_dukes item for the Problem Diagnosis
 =cut 
 
 has modified_dukes => (
-    is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::ModifiedDukes]',
+    is => 'rw',
+    isa =>
+'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::ModifiedDukes]',
 );
 
 =head2 tumour_id($tumour_id_object)
@@ -64,8 +67,9 @@ Used to get or set the tumour_id item for the Problem Diagnosis
 =cut 
 
 has tumour_id => (
-    is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::TumourID]',
+    is => 'rw',
+    isa =>
+      'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::TumourID]',
 );
 
 =head2 clinical_evidence($clinical_evidence_object)
@@ -77,7 +81,7 @@ Used to get or set the clinical_evidence item for the Problem Diagnosis
 has clinical_evidence => (
     is => 'rw',
     isa =>
-        'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::ClinicalEvidence]',
+'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::ClinicalEvidence]',
 );
 
 =head2 upper_gi_staging($upper_gi_object)
@@ -87,8 +91,9 @@ Used to get or set the upper_gi item for the Problem Diagnosis
 =cut 
 
 has upper_gi_staging => (
-    is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI]',
+    is => 'rw',
+    isa =>
+      'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI]',
 );
 
 =head2 integrated_tnm($upper_gi_object)
@@ -98,8 +103,9 @@ Used to get or set the integrated tnm item for the Problem Diagnosis
 =cut 
 
 has integrated_tnm => (
-    is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::Integrated_TNM]',
+    is => 'rw',
+    isa =>
+'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::Integrated_TNM]',
 );
 
 =head2 inrg_staging($upper_gi_object)
@@ -109,8 +115,9 @@ Used to get or set the inrg staging item for the Problem Diagnosis
 =cut 
 
 has inrg_staging => (
-    is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::INRG_Staging]',
+    is => 'rw',
+    isa =>
+'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::INRG_Staging]',
 );
 
 =head2 cancer_diagnosis($upper_gi_object)
@@ -120,8 +127,9 @@ Used to get or set the cancer diagnosis item for the Problem Diagnosis
 =cut 
 
 has cancer_diagnosis => (
-    is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis]',
+    is => 'rw',
+    isa =>
+'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis]',
 );
 
 =head2 final_figo_stage($final_figo_stage_object)
@@ -131,8 +139,9 @@ Used to get or set the final figo stage item for the Problem Diagnosis
 =cut 
 
 has final_figo_stage => (
-    is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::FinalFigoStage]',
+    is => 'rw',
+    isa =>
+'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::FinalFigoStage]',
 );
 
 =head2 feeder_audit 
@@ -142,8 +151,8 @@ Used to record information for the originating system for the Problem Diagnosis
 =cut 
 
 has feeder_audit => (
-    is => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::FeederAudit]',
+    is  => 'rw',
+    isa => 'OpenEHR::Composition::Elements::ProblemDiagnosis::FeederAudit',
 );
 
 =head2 testicular_staging($testicular_staging_object)
@@ -153,24 +162,28 @@ Used to get or set the testicular staging item for the Problem Diagnosis
 =cut 
 
 has testicular_staging => (
-    is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging]',
+    is => 'rw',
+    isa =>
+'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging]',
 );
 
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')
-        if ( $self->composition_format eq 'TDD' );
+      if ( $self->composition_format eq 'TDD' );
     my @properties = qw(
-        ajcc_stage colorectal_diagnosis diagnosis modified_dukes tumour_id
-        clinical_evidence upper_gi_staging integrated_tnm inrg_staging
-        cancer_diagnosis final_figo_stage testicular_staging feeder_audit);
+      ajcc_stage colorectal_diagnosis diagnosis modified_dukes tumour_id
+      clinical_evidence upper_gi_staging integrated_tnm inrg_staging
+      cancer_diagnosis final_figo_stage testicular_staging );
     for my $property (@properties) {
-        if ($self->$property) {
+        if ( $self->$property ) {
             for my $compos ( @{ $self->$property } ) {
-                $compos->composition_format($self->composition_format);
+                $compos->composition_format( $self->composition_format );
             }
         }
+    }
+    if ( $self->feeder_audit ) {
+        $self->feeder_audit->composition_format( $self->composition_format );
     }
 
     my $formatter = 'compose_' . lc( $self->composition_format );
@@ -179,53 +192,48 @@ sub compose {
 
 sub compose_structured {
     my $self        = shift;
-    my $composition = { };
+    my $composition = {};
     if ( $self->feeder_audit ) {
-        for my $feeder_audit ( @{ $self->feeder_audit } ) {
-            push @{ $composition->{'_feeder_audit'} },
-                $feeder_audit->compose;
-        }
+        $composition->{'_feeder_audit'} = $self->feeder_audit->compose;
     }
     if ( $self->integrated_tnm ) {
         for my $integrated_tnm ( @{ $self->integrated_tnm } ) {
-            push @{ $composition->{integrated_tnm} },
-                $integrated_tnm->compose;
+            push @{ $composition->{integrated_tnm} }, $integrated_tnm->compose;
         }
     }
     if ( $self->testicular_staging ) {
         for my $testicular_staging ( @{ $self->testicular_staging } ) {
             push @{ $composition->{testicular_staging} },
-                $testicular_staging->compose;
+              $testicular_staging->compose;
         }
     }
     if ( $self->final_figo_stage ) {
         for my $final_figo_stage ( @{ $self->final_figo_stage } ) {
             push @{ $composition->{final_figo_stage} },
-                $final_figo_stage->compose;
+              $final_figo_stage->compose;
         }
     }
     if ( $self->cancer_diagnosis ) {
         for my $cancer_diagnosis ( @{ $self->cancer_diagnosis } ) {
             push @{ $composition->{cancer_diagnosis} },
-                $cancer_diagnosis->compose;
+              $cancer_diagnosis->compose;
         }
     }
     if ( $self->inrg_staging ) {
         for my $inrg_staging ( @{ $self->inrg_staging } ) {
-            push @{ $composition->{inrg_staging} },
-                $inrg_staging->compose;
+            push @{ $composition->{inrg_staging} }, $inrg_staging->compose;
         }
     }
     if ( $self->upper_gi_staging ) {
         for my $upper_gi_staging ( @{ $self->upper_gi_staging } ) {
             push @{ $composition->{upper_gi_staging} },
-                $upper_gi_staging->compose;
+              $upper_gi_staging->compose;
         }
     }
     if ( $self->clinical_evidence ) {
         for my $clinical_evidence ( @{ $self->clinical_evidence } ) {
             push @{ $composition->{clinical_evidence} },
-                $clinical_evidence->compose;
+              $clinical_evidence->compose;
         }
     }
     if ( $self->tumour_id ) {
@@ -236,13 +244,13 @@ sub compose_structured {
     if ( $self->modified_dukes ) {
         for my $modified_dukes ( @{ $self->modified_dukes } ) {
             push @{ $composition->{modified_dukes_stage} },
-                $modified_dukes->compose;
+              $modified_dukes->compose;
         }
     }
     if ( $self->colorectal_diagnosis ) {
         for my $colorectal_diagnosis ( @{ $self->colorectal_diagnosis } ) {
             push @{ $composition->{colorectal_diagnosis} },
-                $colorectal_diagnosis->compose;
+              $colorectal_diagnosis->compose;
         }
     }
     if ( $self->diagnosis ) {
@@ -289,7 +297,8 @@ sub compose_raw {
             'archetype_node_id' => 'at0032',
             '@class'            => 'ITEM_TREE',
             'items'             => [
-                {   '@class'            => 'ELEMENT',
+                {
+                    '@class'            => 'ELEMENT',
                     'archetype_node_id' => 'at0070',
                     'value'             => {
                         '@class' => 'DV_DATE_TIME',
@@ -332,43 +341,38 @@ sub compose_raw {
     if ( $self->testicular_staging ) {
         for my $testicular_staging ( @{ $self->testicular_staging } ) {
             push @{ $composition->{data}->{items} },
-                $testicular_staging->compose;
+              $testicular_staging->compose;
         }
     }
     if ( $self->final_figo_stage ) {
         for my $final_figo_stage ( @{ $self->final_figo_stage } ) {
-            push @{ $composition->{data}->{items} },
-                $final_figo_stage->compose;
+            push @{ $composition->{data}->{items} }, $final_figo_stage->compose;
         }
     }
     if ( $self->cancer_diagnosis ) {
         for my $cancer_diagnosis ( @{ $self->cancer_diagnosis } ) {
-            push @{ $composition->{data}->{items} },
-                $cancer_diagnosis->compose;
+            push @{ $composition->{data}->{items} }, $cancer_diagnosis->compose;
         }
     }
     if ( $self->inrg_staging ) {
         for my $inrg_staging ( @{ $self->inrg_staging } ) {
-            push @{ $composition->{data}->{items} },
-                $inrg_staging->compose;
+            push @{ $composition->{data}->{items} }, $inrg_staging->compose;
         }
     }
     if ( $self->integrated_tnm ) {
         for my $integrated_tnm ( @{ $self->integrated_tnm } ) {
-            push @{ $composition->{data}->{items} },
-                $integrated_tnm->compose;
+            push @{ $composition->{data}->{items} }, $integrated_tnm->compose;
         }
     }
     if ( $self->upper_gi_staging ) {
         for my $upper_gi_staging ( @{ $self->upper_gi_staging } ) {
-            push @{ $composition->{data}->{items} },
-                $upper_gi_staging->compose;
+            push @{ $composition->{data}->{items} }, $upper_gi_staging->compose;
         }
     }
     if ( $self->clinical_evidence ) {
         for my $clinical_evidence ( @{ $self->clinical_evidence } ) {
             push @{ $composition->{data}->{items} },
-                $clinical_evidence->compose;
+              $clinical_evidence->compose;
         }
     }
     if ( $self->tumour_id ) {
@@ -384,7 +388,7 @@ sub compose_raw {
     if ( $self->colorectal_diagnosis ) {
         for my $colorectal_diagnosis ( @{ $self->colorectal_diagnosis } ) {
             push @{ $composition->{data}->{items} },
-                $colorectal_diagnosis->compose;
+              $colorectal_diagnosis->compose;
         }
     }
     if ( $self->diagnosis ) {
@@ -398,9 +402,7 @@ sub compose_raw {
         }
     }
     if ( $self->feeder_audit ) {
-        for my $feeder_audit ( @{ $self->feeder_audit } ) {
-            $composition->{feeder_audit} = $feeder_audit->compose;
-        }
+        $composition->{feeder_audit} = $self->feeder_audit->compose;
     }
     return $composition;
 }
@@ -411,13 +413,12 @@ sub compose_flat {
 
         # Problem Diagnosis
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/language|terminology'
-            => 'ISO_639-1',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/language|code' =>
-            'en',
+          => 'ISO_639-1',
+        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/language|code' => 'en',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/encoding|code' =>
-            'UTF-8',
+          'UTF-8',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/encoding|terminology'
-            => 'IANA_character-sets',
+          => 'IANA_character-sets',
     };
 
 =head1 comment 
@@ -426,20 +427,9 @@ sub compose_flat {
             $self->event_date->datetime, #DateTime->now->datetime
 
 =cut
+
     if ( $self->feeder_audit ) {
-        my $feeder_audit_index = '0';
-        my $feeder_audit_comp;
-        for my $feeder_audit ( @{ $self->feeder_audit } ) {
-            my $composition_fragment = $feeder_audit->compose();
-            for my $key ( keys %{$composition_fragment} ) {
-                my $new_key = $key;
-                $new_key =~ s/__FEED__/$feeder_audit_index/;
-                $feeder_audit_comp->{$new_key} =
-                    $composition_fragment->{$key};
-            }
-            $feeder_audit_index++;
-            $composition = { ( %$composition, %{$feeder_audit_comp} ) };
-        }
+        $composition = { ( %$composition, %{ $self->feeder_audit->compose } ) };
     }
 
     if ( $self->testicular_staging ) {
@@ -451,7 +441,7 @@ sub compose_flat {
                 my $new_key = $key;
                 $new_key =~ s/__DIAG__/$testicular_staging_index/;
                 $testicular_staging_comp->{$new_key} =
-                    $composition_fragment->{$key};
+                  $composition_fragment->{$key};
             }
             $testicular_staging_index++;
             $composition = { ( %$composition, %{$testicular_staging_comp} ) };
@@ -466,7 +456,7 @@ sub compose_flat {
                 my $new_key = $key;
                 $new_key =~ s/__DIAG__/$final_figo_stage_index/;
                 $final_figo_stage_comp->{$new_key} =
-                    $composition_fragment->{$key};
+                  $composition_fragment->{$key};
             }
             $final_figo_stage_index++;
             $composition = { ( %$composition, %{$final_figo_stage_comp} ) };
@@ -481,7 +471,7 @@ sub compose_flat {
                 my $new_key = $key;
                 $new_key =~ s/__DIAG__/$cancer_diagnosis_index/;
                 $cancer_diagnosis_comp->{$new_key} =
-                    $composition_fragment->{$key};
+                  $composition_fragment->{$key};
             }
             $cancer_diagnosis_index++;
             $composition = { ( %$composition, %{$cancer_diagnosis_comp} ) };
@@ -495,8 +485,7 @@ sub compose_flat {
             for my $key ( keys %{$composition_fragment} ) {
                 my $new_key = $key;
                 $new_key =~ s/__DIAG__/$inrg_staging_index/;
-                $inrg_staging_comp->{$new_key} =
-                    $composition_fragment->{$key};
+                $inrg_staging_comp->{$new_key} = $composition_fragment->{$key};
             }
             $inrg_staging_index++;
             $composition = { ( %$composition, %{$inrg_staging_comp} ) };
@@ -511,7 +500,7 @@ sub compose_flat {
                 my $new_key = $key;
                 $new_key =~ s/__DIAG__/$upper_gi_staging_index/;
                 $upper_gi_staging_comp->{$new_key} =
-                    $composition_fragment->{$key};
+                  $composition_fragment->{$key};
             }
             $upper_gi_staging_index++;
             $composition = { ( %$composition, %{$upper_gi_staging_comp} ) };
@@ -526,7 +515,7 @@ sub compose_flat {
                 my $new_key = $key;
                 $new_key =~ s/__DIAG__/$integrated_tnm_index/;
                 $integrated_tnm_comp->{$new_key} =
-                    $composition_fragment->{$key};
+                  $composition_fragment->{$key};
             }
             $integrated_tnm_index++;
             $composition = { ( %$composition, %{$integrated_tnm_comp} ) };
@@ -541,7 +530,7 @@ sub compose_flat {
                 my $new_key = $key;
                 $new_key =~ s/__DIAG__/$clinical_evidence_index/;
                 $clinical_evidence_comp->{$new_key} =
-                    $composition_fragment->{$key};
+                  $composition_fragment->{$key};
             }
             $clinical_evidence_index++;
             $composition = { ( %$composition, %{$clinical_evidence_comp} ) };
@@ -570,7 +559,7 @@ sub compose_flat {
                 my $new_key = $key;
                 $new_key =~ s/__DIAG__/$modified_dukes_index/;
                 $modified_dukes_comp->{$new_key} =
-                    $composition_fragment->{$key};
+                  $composition_fragment->{$key};
             }
             $modified_dukes_index++;
             $composition = { ( %$composition, %{$modified_dukes_comp} ) };
@@ -585,11 +574,11 @@ sub compose_flat {
                 my $new_key = $key;
                 $new_key =~ s/__DIAG__/$colorectal_diagnosis_index/;
                 $colorectal_diagnosis_comp->{$new_key} =
-                    $composition_fragment->{$key};
+                  $composition_fragment->{$key};
             }
             $colorectal_diagnosis_index++;
             $composition =
-                { ( %$composition, %{$colorectal_diagnosis_comp} ) };
+              { ( %$composition, %{$colorectal_diagnosis_comp} ) };
         }
     }
     if ( $self->diagnosis ) {

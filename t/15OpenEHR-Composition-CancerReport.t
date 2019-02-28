@@ -22,20 +22,6 @@ ok(
 );
 
 ok(
-    my $feeder_audit2 =
-      OpenEHR::Composition::Elements::ProblemDiagnosis::FeederAudit->new(
-        event_date => DateTime->new(
-            year  => 2015,
-            month => 05,
-            day   => 05,
-        ),
-        event_ref => '5CO83D33-512-A414-835A-FC3232835656',
-        system_id => 'Infoflex'
-      ),
-    'Create Second FeederAudit element'
-);
-
-ok(
     my $ajcc_stage =
       OpenEHR::Composition::Elements::ProblemDiagnosis::AJCC_Stage->new(
         ajcc_stage_grouping => 'Stage IB',
@@ -293,7 +279,7 @@ ok(
         testicular_staging   => [$testicular_staging],
         cancer_diagnosis     => [$cancer_diagnosis],
         final_figo_stage     => [$final_figo_stage],
-        feeder_audit        => [$feeder_audit1],
+        feeder_audit        => $feeder_audit1,
       ),
     'Create First ProblemDiagnosis object'
 );
@@ -319,13 +305,13 @@ ok(
         testicular_staging   => [$testicular_staging],
         cancer_diagnosis     => [$cancer_diagnosis],
         final_figo_stage     => [$final_figo_stage],
-        feeder_audit        => [$feeder_audit2],
+        feeder_audit        => $feeder_audit1,
       ),
     'Create Second ProblemDiagnosis object'
 );
 
 my @formats = qw( FLAT STRUCTURED RAW);
-@formats = qw(RAW);
+#@formats = qw(STRUCTURED);
 
 for my $format (@formats) {
     note("Testing $format format composition");
@@ -347,7 +333,7 @@ for my $format (@formats) {
     ok( $cancer_report->composition_format($format),
         "Set $format composition format" );
     my $composition = $cancer_report->compose;
-    print Dumper $composition;
+    #print Dumper $composition;
 
     ok( my $query = OpenEHR::REST::Composition->new(), "Construct REST query" );
     ok( $query->composition($cancer_report), "Add composition to new query" );
