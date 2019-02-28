@@ -80,7 +80,7 @@ sub compose_structured {
     my $self        = shift;
     my $composition = {
         '|code'        => $self->code,
-        '|value'       => $self->value,
+        '|value'       => $self->local_code,
         '|terminology' => $self->terminology,
     };
     return $composition;
@@ -99,7 +99,7 @@ sub compose_raw {
                 '@class'      => 'CODE_PHRASE',
                 'code_string' => $self->code, #'at0016'
             },
-            'value' => $self->value, #'NN'
+            'value' => $self->local_code, #'NN'
         },
         'name' => {
             'value'  => 'Recurrence indicator',
@@ -115,7 +115,7 @@ sub compose_flat {
     my $self        = shift;
     my $composition = {
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/recurrence_indicator:__DIAG2__|value'
-            => $self->value,    #'NN',
+            => $self->local_code,    #'NN',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/recurrence_indicator:__DIAG2__|code'
             => $self->code,     #'at0016',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/recurrence_indicator:__DIAG2__|terminology'
