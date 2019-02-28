@@ -325,7 +325,7 @@ ok(
 );
 
 my @formats = qw( FLAT STRUCTURED RAW);
-@formats = qw(FLAT);
+@formats = qw(STRUCTURED);
 
 for my $format (@formats) {
     note("Testing $format format composition");

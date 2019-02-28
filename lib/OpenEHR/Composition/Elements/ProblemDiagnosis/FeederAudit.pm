@@ -17,12 +17,12 @@ has event_date => (
 );
 
 has event_ref => (
-    is      => 'rw',
-    isa     => 'Str',
+    is  => 'rw',
+    isa => 'Str',
 );
 has system_id => (
-    is  => 'rw',
-    isa => 'Str', 
+    is      => 'rw',
+    isa     => 'Str',
     default => 'Infoflex',
 );
 
@@ -38,8 +38,14 @@ sub compose {
 sub compose_structured {
     my $self        = shift;
     my $composition = {
-        #ajcc_stage_version  => [ $self->version ],
-        #ajcc_stage_grouping => [ $self->ajcc_stage_grouping ],
+        'originating_system_audit' => [
+            {
+                '|system_id' => $self->system_id,          #'Infoflex',
+                '|time'      => $self->event_date->ymd,    #'2011-01-01T00:00Z',
+                '|version_id' =>
+                  $self->event_ref,    # '5C0734F2-512-A414-9CAE-BF1AF760D0AQ'
+            }
+        ]
     };
     return $composition;
 }
@@ -56,7 +62,7 @@ sub compose_raw {
                 'archetype_node_id' => 'at0007',
                 'value'             => {
                     '@class' => 'DV_TEXT',
-                    'value'  => undef #$self->ajcc_stage_grouping,
+                    'value'  => undef        #$self->ajcc_stage_grouping,
                 },
                 'name' => {
                     '@class' => 'DV_TEXT',
@@ -72,7 +78,7 @@ sub compose_raw {
                 },
                 'value' => {
                     '@class' => 'DV_TEXT',
-                    'value'  => undef #$self->version,
+                    'value'  => undef        #$self->version,
                 }
             }
         ],

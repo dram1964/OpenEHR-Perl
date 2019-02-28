@@ -182,7 +182,7 @@ sub compose_structured {
     my $composition = { };
     if ( $self->feeder_audit ) {
         for my $feeder_audit ( @{ $self->feeder_audit } ) {
-            push @{ $composition->{feeder_audit} },
+            push @{ $composition->{'_feeder_audit'} },
                 $feeder_audit->compose;
         }
     }

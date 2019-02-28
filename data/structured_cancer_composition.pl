@@ -1,92 +1,64 @@
-#cb1a8913-905d-4002-80c2-db23ae8f22bf::default::1
 $VAR1 = {
     'gel_cancer_diagnosis' => {
-        'territory' => [
+        '_uid'     => [ 'e1eea189-ab15-4f49-9cb2-14d4c0091894::default::1' ],
+        'category' => [
             {
-                '|code'        => 'GB',
-                '|terminology' => 'ISO_3166-1'
-            }
-        ],
-        'language' => [
-            {
-                '|code'        => 'en',
-                '|terminology' => 'ISO_639-1'
+                '|value'       => 'event',
+                '|code'        => '433',
+                '|terminology' => 'openehr'
             }
         ],
         'context' => [
             {
                 '_health_care_facility' => [
                     {
-                        '|id'           => 'RRV',
-                        '|name'         => 'UCLH NHS Foundation Trust',
                         '|id_namespace' => 'UCLH-NS',
-                        '|id_scheme'    => 'UCLH-NS'
+                        '|name'         => 'UCLH NHS Foundation Trust',
+                        '|id_scheme'    => 'UCLH-NS',
+                        '|id'           => 'RRV'
                     }
                 ],
-                'start_time' => [ '2018-11-26T12:11:27.200Z' ],
+                'start_time' => [ '2019-02-28T00:00Z' ],
+                'report_id'  => [ 'TT123123Z' ],
                 'setting'    => [
                     {
-                        '|code'        => '238',
+                        '|value'       => 'other care',
                         '|terminology' => 'openehr',
-                        '|value'       => 'other care'
+                        '|code'        => '238'
                     }
-                ],
-                'participant' => [
-                    {
-                        'participant_identifier' => [
-                            {
-                                '|id' => '85e10b15-7b79-46c0-8d94-892cad063048',
-                                '|assigner' => 'Assigner',
-                                '|issuer'   => 'Issuer',
-                                '|type'     => 'Prescription'
-                            }
-                        ],
-                        'study_identifier' => [
-                            {
-                                '|id' => '0a9db4b5-44cb-4254-ae23-722c1178c265',
-                                '|assigner' => 'Assigner',
-                                '|issuer'   => 'Issuer',
-                                '|type'     => 'Prescription'
-                            }
-                        ]
-                    }
-                ],
-                'report_id' => [ 'TT123123Z' ]
+                ]
             }
         ],
-        'category' => [
+        'territory' => [
             {
-                '|code'        => '433',
-                '|terminology' => 'openehr',
-                '|value'       => 'event'
-            }
-        ],
-        'composer' => [
-            {
-                '|name' => 'OpenEHR-Perl-FLAT'
+                '|terminology' => 'ISO_3166-1',
+                '|code'        => 'GB'
             }
         ],
         'problem_diagnosis' => [
             {
-                'ajcc_stage' => [
+                'testicular_staging' => [
                     {
-                        'ajcc_stage_version'  => [ 'AJCC Stage version 55' ],
-                        'ajcc_stage_grouping' => [ 'Stage IB' ]
-                    }
-                ],
-                'language' => [
-                    {
-                        '|code'        => 'en',
-                        '|terminology' => 'ISO_639-1'
-                    }
-                ],
-                'colorectal_diagnosis' => [
-                    {
-                        'synchronous_tumour_indicator' => [
+                        'stage_grouping_testicular' => [
                             {
-                                '|code'        => 'at0003',
+                                '|value'       => 'Stage 3C',
                                 '|terminology' => 'local',
-                                '|value'       => '2 Appendix'
+                                '|code'        => 'at0010'
+                            }
+                        ],
+                        'extranodal_metastases' => [
+                            {
+                                '|value' => 'Brain involvement is present.',
+                                '|code'  => 'at0016',
+                                '|terminology' => 'local'
+                            }
+                        ],
+                        'lung_metastases_sub-stage_grouping' => [
+                            {
+                                '|terminology' => 'local',
+                                '|code'        => 'at0021',
+                                '|value' =>
+'Less than or equal to 3 lung metastases are present.'
                             }
                         ]
                     }
@@ -98,25 +70,71 @@ $VAR1 = {
                         '|value' => 'Malignant neoplasm of cerebrum, cerebellum'
                     }
                 ],
-                'modified_dukes_stage' => [
+                'encoding' => [
                     {
-                        'modified_dukes_stage' => [
+                        '|terminology' => 'IANA_character-sets',
+                        '|code'        => 'UTF-8'
+                    }
+                ],
+                'cancer_diagnosis' => [
+                    {
+                        'metastatic_site' => [
                             {
-                                '|code'        => 'at0006',
-                                '|terminology' => 'local',
-                                '|value'       => 'Dukes Stage D'
+                                '|value' =>
+                                  'Metastatic disease is located in the skin',
+                                '|code'        => 'at0023',
+                                '|terminology' => 'local'
+                            }
+                        ],
+                        'recurrence_indicator' => [
+                            {
+                                '|value'       => 'No, not recurrence',
+                                '|code'        => 'at0016',
+                                '|terminology' => 'local'
+                            }
+                        ],
+                        'morphology' => [
+                            {
+                                '|value'       => '8071/3',
+                                '|terminology' => 'ICD-O-3',
+                                '|code'        => '8071/3'
+                            }
+                        ],
+                        'topography' => [
+                            {
+                                '|value'       => 'C06.9',
+                                '|terminology' => 'ICD-O-3',
+                                '|code'        => 'C06.9'
+                            }
+                        ],
+                        'tumour_laterality' => [
+                            {
+                                '|value'       => '9',
+                                '|code'        => 'at0033',
+                                '|terminology' => 'local'
                             }
                         ]
                     }
                 ],
-                'tumour_id' => [
+                '_feeder_audit' => [
                     {
-                        'tumour_identifier' => [
+                        'originating_system_audit' => [
                             {
-                                '|id'       => 'aassdddffee',
-                                '|assigner' => 'cancer care',
-                                '|issuer'   => 'uclh',
-                                '|type'     => 'local'
+                                '|system_id' => 'Infoflex',
+                                '|time'      => '2011-01-01T00:00Z',
+                                '|version_id' =>
+                                  '5C0734F2-512-A414-9CAE-BF1AF760D0AQ'
+                            }
+                        ]
+                    }
+                ],
+                'colorectal_diagnosis' => [
+                    {
+                        'synchronous_tumour_indicator' => [
+                            {
+                                '|terminology' => 'local',
+                                '|code'        => 'at0003',
+                                '|value'       => '2 Appendix'
                             }
                         ]
                     }
@@ -128,35 +146,23 @@ $VAR1 = {
                         ]
                     }
                 ],
+                'ajcc_stage' => [
+                    {
+                        'ajcc_stage_version'  => [ 'AJCC Stage version 55' ],
+                        'ajcc_stage_grouping' => [ 'Stage IB' ]
+                    }
+                ],
                 'upper_gi_staging' => [
                     {
                         'transarterial_chemoembolisation' => [
                             {
-                                '|code'        => 'at0015',
                                 '|terminology' => 'local',
+                                '|code'        => 'at0015',
                                 '|value' =>
 'Transarterial chemoembolisation is deemed to be present.'
                             }
                         ],
-                        'portal_invasion' => [
-                            {
-                                '|code'        => 'at0005',
-                                '|terminology' => 'local',
-                                '|value'       => 'N'
-                            }
-                        ],
-                        'child-pugh_score' => [
-                            {
-                                'grade' => [
-                                    {
-                                        '|code'        => 'at0028',
-                                        '|terminology' => 'local',
-                                        '|value' =>
-'The Child-Pugh grade is Class B with a total score of 7 to 9 points.'
-                                    }
-                                ]
-                            }
-                        ],
+                        'number_of_lesions'         => [ 95 ],
                         'pancreatic_clinical_stage' => [
                             {
                                 '|code'        => 'at0009',
@@ -165,30 +171,48 @@ $VAR1 = {
 'Stage is deemed to be localised and resectable.'
                             }
                         ],
+                        'portal_invasion' => [
+                            {
+                                '|terminology' => 'local',
+                                '|code'        => 'at0005',
+                                '|value'       => 'N'
+                            }
+                        ],
                         'bclc_stage' => [
                             {
                                 'bclc_stage' => [
                                     {
-                                        '|code'        => 'at0007',
                                         '|terminology' => 'local',
+                                        '|code'        => 'at0007',
                                         '|value'       => 'D'
                                     }
                                 ]
                             }
                         ],
-                        'number_of_lesions' => [ 95 ]
+                        'child-pugh_score' => [
+                            {
+                                'grade' => [
+                                    {
+                                        '|terminology' => 'local',
+                                        '|code'        => 'at0028',
+                                        '|value' =>
+'The Child-Pugh grade is Class B with a total score of 7 to 9 points.'
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 ],
                 'integrated_tnm' => [
                     {
-                        'integrated_stage_grouping' =>
-                          [ 'Integrated Stage grouping 31' ],
-                        'integrated_tnm_edition' =>
-                          [ 'Integrated TNM Edition 44' ],
-                        'integrated_n' => [ 'Integrated N 15' ],
                         'grading_at_diagnosis' =>
                           [ 'G4 Undifferentiated / anaplastic' ],
+                        'integrated_stage_grouping' =>
+                          [ 'Integrated Stage grouping 31' ],
                         'integrated_m' => [ 'Integrated M 25' ],
+                        'integrated_n' => [ 'Integrated N 15' ],
+                        'integrated_tnm_edition' =>
+                          [ 'Integrated TNM Edition 44' ],
                         'integrated_t' => [ 'Integrated T 90' ]
                     }
                 ],
@@ -203,56 +227,134 @@ $VAR1 = {
                         ]
                     }
                 ],
-                'cancer_diagnosis' => [
+                'tumour_id' => [
                     {
-                        'recurrence_indicator' => [
+                        'tumour_identifier' => [
                             {
-                                '|code'        => 'at0016',
-                                '|terminology' => 'local',
-                                '|value'       => 'No, not recurrence'
-                            }
-                        ],
-                        'tumour_laterality' => [
-                            {
-                                '|code'        => 'at0033',
-                                '|terminology' => 'local',
-                                '|value' => 'Tumour laterality is unknown.'
-                            }
-                        ],
-                        'metastatic_site' => [
-                            {
-                                '|code'        => 'at0023',
-                                '|terminology' => 'local',
-                                '|value' =>
-                                  'Metastatic disease is located in the skin'
-                            }
-                        ],
-                        'topography' => [
-                            {
-                                '|code'        => 'C06.9',
-                                '|terminology' => 'local',
-                                '|value'       => 'C06.9'
-                            }
-                        ],
-                        'morphology' => [
-                            {
-                                '|code'        => '8071/3',
-                                '|terminology' => 'local',
-                                '|value'       => '8071/3'
+                                '|issuer'   => 'uclh',
+                                '|id'       => 'aassdddffee',
+                                '|assigner' => 'cancer care',
+                                '|type'     => 'local'
                             }
                         ]
+                    }
+                ],
+                'language' => [
+                    {
+                        '|code'        => 'en',
+                        '|terminology' => 'ISO_639-1'
                     }
                 ],
                 'final_figo_stage' => [
                     {
                         'figo_grade' => [
                             {
+                                '|value'       => 'IB',
                                 '|code'        => 'at0008',
-                                '|terminology' => 'local',
-                                '|value'       => 'IB'
+                                '|terminology' => 'local'
                             }
                         ],
                         'figo_version' => [ 'Figo Version 89' ]
+                    }
+                ],
+                'modified_dukes_stage' => [
+                    {
+                        'modified_dukes_stage' => [
+                            {
+                                '|value'       => 'Dukes Stage D',
+                                '|code'        => 'at0006',
+                                '|terminology' => 'local'
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                'upper_gi_staging' => [
+                    {
+                        'transarterial_chemoembolisation' => [
+                            {
+                                '|terminology' => 'local',
+                                '|code'        => 'at0015',
+                                '|value' =>
+'Transarterial chemoembolisation is deemed to be present.'
+                            }
+                        ],
+                        'pancreatic_clinical_stage' => [
+                            {
+                                '|value' =>
+'Stage is deemed to be localised and resectable.',
+                                '|code'        => 'at0009',
+                                '|terminology' => 'local'
+                            }
+                        ],
+                        'number_of_lesions' => [ 95 ],
+                        'portal_invasion'   => [
+                            {
+                                '|value'       => 'N',
+                                '|terminology' => 'local',
+                                '|code'        => 'at0005'
+                            }
+                        ],
+                        'bclc_stage' => [
+                            {
+                                'bclc_stage' => [
+                                    {
+                                        '|code'        => 'at0007',
+                                        '|terminology' => 'local',
+                                        '|value'       => 'D'
+                                    }
+                                ]
+                            }
+                        ],
+                        'child-pugh_score' => [
+                            {
+                                'grade' => [
+                                    {
+                                        '|code'        => 'at0028',
+                                        '|terminology' => 'local',
+                                        '|value' =>
+'The Child-Pugh grade is Class B with a total score of 7 to 9 points.'
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                'ajcc_stage' => [
+                    {
+                        'ajcc_stage_version'  => [ 'AJCC Stage version 55' ],
+                        'ajcc_stage_grouping' => [ 'Stage IB' ]
+                    }
+                ],
+                'colorectal_diagnosis' => [
+                    {
+                        'synchronous_tumour_indicator' => [
+                            {
+                                '|terminology' => 'local',
+                                '|code'        => 'at0003',
+                                '|value'       => '2 Appendix'
+                            }
+                        ]
+                    }
+                ],
+                'clinical_evidence' => [
+                    {
+                        'base_of_diagnosis' => [
+'2 Clinical investigation including all diagnostic techniques'
+                        ]
+                    }
+                ],
+                '_feeder_audit' => [
+                    {
+                        'originating_system_audit' => [
+                            {
+                                '|version_id' =>
+                                  '5CO83D33-512-A414-835A-FC3232835656',
+                                '|time'      => '2015-05-05T00:00Z',
+                                '|system_id' => 'Infoflex'
+                            }
+                        ]
                     }
                 ],
                 'encoding' => [
@@ -261,7 +363,53 @@ $VAR1 = {
                         '|terminology' => 'IANA_character-sets'
                     }
                 ],
-                'event_date'         => [ '2018-11-26T12:11:27Z' ],
+                'cancer_diagnosis' => [
+                    {
+                        'topography' => [
+                            {
+                                '|terminology' => 'ICD-O-3',
+                                '|code'        => 'C06.9',
+                                '|value'       => 'C06.9'
+                            }
+                        ],
+                        'tumour_laterality' => [
+                            {
+                                '|code'        => 'at0033',
+                                '|terminology' => 'local',
+                                '|value'       => '9'
+                            }
+                        ],
+                        'recurrence_indicator' => [
+                            {
+                                '|terminology' => 'local',
+                                '|code'        => 'at0016',
+                                '|value'       => 'No, not recurrence'
+                            }
+                        ],
+                        'morphology' => [
+                            {
+                                '|value'       => '8071/3',
+                                '|terminology' => 'ICD-O-3',
+                                '|code'        => '8071/3'
+                            }
+                        ],
+                        'metastatic_site' => [
+                            {
+                                '|terminology' => 'local',
+                                '|code'        => 'at0023',
+                                '|value' =>
+                                  'Metastatic disease is located in the skin'
+                            }
+                        ]
+                    }
+                ],
+                'diagnosis' => [
+                    {
+                        '|terminology' => 'ICD-10',
+                        '|code'        => 'C71.6',
+                        '|value' => 'Malignant neoplasm of cerebrum, cerebellum'
+                    }
+                ],
                 'testicular_staging' => [
                     {
                         'lung_metastases_sub-stage_grouping' => [
@@ -272,24 +420,99 @@ $VAR1 = {
 'Less than or equal to 3 lung metastases are present.'
                             }
                         ],
+                        'stage_grouping_testicular' => [
+                            {
+                                '|value'       => 'Stage 3C',
+                                '|terminology' => 'local',
+                                '|code'        => 'at0010'
+                            }
+                        ],
                         'extranodal_metastases' => [
                             {
                                 '|code'        => 'at0016',
                                 '|terminology' => 'local',
                                 '|value' => 'Brain involvement is present.'
                             }
-                        ],
-                        'stage_grouping_testicular' => [
+                        ]
+                    }
+                ],
+                'language' => [
+                    {
+                        '|code'        => 'en',
+                        '|terminology' => 'ISO_639-1'
+                    }
+                ],
+                'modified_dukes_stage' => [
+                    {
+                        'modified_dukes_stage' => [
                             {
-                                '|code'        => 'at0010',
+                                '|code'        => 'at0006',
                                 '|terminology' => 'local',
-                                '|value'       => '3C adjusted'
+                                '|value'       => 'Dukes Stage D'
+                            }
+                        ]
+                    }
+                ],
+                'final_figo_stage' => [
+                    {
+                        'figo_grade' => [
+                            {
+                                '|terminology' => 'local',
+                                '|code'        => 'at0008',
+                                '|value'       => 'IB'
+                            }
+                        ],
+                        'figo_version' => [ 'Figo Version 89' ]
+                    }
+                ],
+                'tumour_id' => [
+                    {
+                        'tumour_identifier' => [
+                            {
+                                '|assigner' => 'cancer care',
+                                '|type'     => 'local',
+                                '|id'       => 'aassdddffee',
+                                '|issuer'   => 'uclh'
+                            }
+                        ]
+                    }
+                ],
+                'integrated_tnm' => [
+                    {
+                        'integrated_stage_grouping' =>
+                          [ 'Integrated Stage grouping 31' ],
+                        'grading_at_diagnosis' =>
+                          [ 'G4 Undifferentiated / anaplastic' ],
+                        'integrated_t' => [ 'Integrated T 90' ],
+                        'integrated_tnm_edition' =>
+                          [ 'Integrated TNM Edition 44' ],
+                        'integrated_m' => [ 'Integrated M 25' ],
+                        'integrated_n' => [ 'Integrated N 15' ]
+                    }
+                ],
+                'inrg_staging' => [
+                    {
+                        'inrg_stage' => [
+                            {
+                                '|value'       => 'M',
+                                '|code'        => 'at0004',
+                                '|terminology' => 'local'
                             }
                         ]
                     }
                 ]
             }
         ],
-        '_uid' => [ 'cb1a8913-905d-4002-80c2-db23ae8f22bf::default::1' ]
+        'composer' => [
+            {
+                '|name' => 'OpenEHR-Perl-FLAT'
+            }
+        ],
+        'language' => [
+            {
+                '|code'        => 'en',
+                '|terminology' => 'ISO_639-1'
+            }
+        ]
     }
 };
