@@ -94,7 +94,7 @@ sub compose_structured {
     my $self        = shift;
     my $composition = {
         '|code'        => $self->code,
-        '|value'       => $self->value,
+        '|value'       => $self->local_code,
         '|terminology' => $self->terminology,
     };
     return $composition;
@@ -105,7 +105,7 @@ sub compose_raw {
     my $composition = {
         'value' => {
                     '@class'        => 'DV_CODED_TEXT',
-                    'value'         => $self->value, #'08 Skin',
+                    'value'         => $self->local_code, #'08 Skin',
                     'defining_code' => {
                         'terminology_id' => {
                             '@class' => 'TERMINOLOGY_ID',
@@ -133,7 +133,7 @@ sub compose_flat {
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/metastatic_site:__DIAG2__|code'
             => $self->code, #'at0023',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/metastatic_site:__DIAG2__|value'
-            => $self->value, #'08 Skin',
+            => $self->local_code, #'08 Skin',
     };
     return $composition;
 }
