@@ -76,7 +76,7 @@ my $status_codes = {
     at0011 =>
       'F', # The result is complete and verified by the responsible radiologist.
     at0010 =>
-      'I', # The result is complete and verified by the responsible radiologist.
+      'I', #This is an initial or interim result: data may be missing or verification not been performed.
     at0013 => 'X'
     , # The result is not available because the examination was not started or completed.
 };

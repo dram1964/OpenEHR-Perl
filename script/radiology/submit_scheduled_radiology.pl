@@ -39,8 +39,10 @@ while ( my $request = $scheduled_requests_rs->next ) {
             );
             # Get a list of reports issued for the examination
             my $report_rs = &get_study_reports($study->studyid);
+            my $report_count = 1;
             while ( my $report = $report_rs->next ) {
                 next unless $report->reportid;
+                my $result_status = $report_count++ == 1 ? 'at0011' : 'at0010';
                 printf("VisitID: %s, StudyId: %s, ReportId: %s\n", 
                     $visit->visitid, $study->studyid, $report->reportid);
                 # Build ImagingExam ImagingReport Object
@@ -48,7 +50,7 @@ while ( my $request = $scheduled_requests_rs->next ) {
                     imaging_code => $report->examcode,
                     report_text => $report->reporttextparsed,
                     modality => $report->modality,
-                    result_status => 'at0011',
+                    result_status => $result_status,
                     result_date => DateTime::Format::DateParse->parse_datetime($report->reportauthoriseddatealt),
                     anatomical_side => 'at0006',
                 );
@@ -77,7 +79,7 @@ while ( my $request = $scheduled_requests_rs->next ) {
             }
             push @{ $radiology_report->imaging_exam }, $imaging_exam;
         }
-        print Dumper $radiology_report->compose;
+        #print Dumper $radiology_report->compose;
         my $query = OpenEHR::REST::Composition->new();
         $query->composition($radiology_report);
         
@@ -178,6 +180,9 @@ sub get_study_reports {
     my $report_rs = $schema->resultset('StagingRadiologyReport')->search(
         {
             studyid => $study_id, 
+        },
+        {
+            order_by => { -desc => 'reportid' },
         },
     );
     return $report_rs;
