@@ -23,7 +23,7 @@ while ( my $request = $scheduled_requests_rs->next ) {
     # Get a list of visits for the patient
     my $visit_rs = &get_patient_visits($nhs_number);
     while ( my $visit = $visit_rs->next ) {
-        next unless $visit->visitid eq '3897538';
+        #next unless $visit->visitid eq '3897538';
         my $radiology_report = OpenEHR::Composition::RadiologyReport->new(
             report_id => $visit->visitid,
             imaging_exam => [],
@@ -32,7 +32,7 @@ while ( my $request = $scheduled_requests_rs->next ) {
         # Get a list of examinations for the visit
         my $study_rs = &get_visit_studies($visit->visitid);
         while ( my $study = $study_rs->next) {
-            next unless $study->studyid eq '31190272';
+            #next unless $study->studyid eq '31190272';
             my $imaging_exam = OpenEHR::Composition::Elements::ImagingExam->new(
                 reports => [],
                 request_details => [],
@@ -67,7 +67,7 @@ while ( my $request = $scheduled_requests_rs->next ) {
 
                 # Build RequestDetails ReportReference
                 my $report_reference = OpenEHR::Composition::Elements::ImagingExam::ReportReference->new(
-                    id => $report->studyid,
+                    id => $report->reportid,
                 );
 
                 # Build ImagingExam RequestDetails Object
@@ -140,6 +140,7 @@ sub get_patient_visits {
     my $visit_rs = $schema->resultset('StagingRadiologyReport')->search(
         {
             nhsnumber => $nhs_number,
+            reportid => { '>' => 1 },
         },
         {
             columns => [ qw/ visitid /],
