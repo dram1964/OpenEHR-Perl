@@ -71,9 +71,22 @@ has image_file => (
 );
 
 my $status_codes = {
-    'at0011' => 'Final',
-    'at0009' => 'Registered',
-    'at0010' => 'Interim'
+    at0012 => 'C'
+    , # The result has been modified subsequent to being Final, and is complete and verified by the radiologist.
+    at0011 =>
+      'F', # The result is complete and verified by the responsible radiologist.
+    at0010 =>
+      'I', # The result is complete and verified by the responsible radiologist.
+    at0013 => 'X'
+    , # The result is not available because the examination was not started or completed.
+};
+
+my $anatomical_side_codes = {
+    at0002 => 'Left',
+    at0003 => 'Right',
+    at0004 => 'Midline',
+    at0005 => 'Bilateral',
+    at0006 => 'Not applicable',
 };
 
 sub compose {
@@ -86,9 +99,8 @@ sub compose {
 }
 
 sub compose_structured {
-    my $self         = shift;
-    my $status_codes = { at0009 => 'Registered', at0010 => 'Interim' };
-    my $composition  = {
+    my $self        = shift;
+    my $composition = {
         'overall_result_status' => [
             {
                 '|code'        => $self->result_status,
@@ -114,6 +126,19 @@ sub compose_structured {
             }
         ]
     };
+
+    if ( $self->anatomical_side ) {
+        $composition->{anatomical_side}->[0] = {
+            anatomical_side => [
+                {
+                    '|code'        => $self->anatomical_side,
+                    '|terminology' => 'local',
+                    '|value' =>
+                      $anatomical_side_codes->{ $self->anatomical_side },
+                }
+            ]
+        };
+    }
 
     if ( $self->diagnosis ) {
         for my $diagnosis ( @{ $self->diagnosis } ) {
@@ -242,16 +267,31 @@ sub compose_flat {
         $path . 'findings' => $self->findings,    #'Findings 69',
         $path . 'modality' => $self->modality,    #'Modality 39',
         $path
-          . 'anatomical_side/anatomical_side|code' =>
-          $self->anatomical_side,                 #'at0007',
-        $path
           . 'datetime_result_issued' =>
           $self->result_date->ymd,    #'2018-09-14T12:45:54.769+01:00',
         $path . 'imaging_code' => $self->imaging_code,    #'Imaging code 87',
         $path . 'overall_result_status|code' => $self->result_status, #'at0011',
-        $path . 'overall_result_status|value' => $status_codes->{ $self->result_status }, #'F'
+        $path
+          . 'overall_result_status|value' =>
+          $status_codes->{ $self->result_status },                    #'F'
         $path . 'overall_result_status|terminology' => 'local',
     };
+
+=for removal
+        $path
+          . 'anatomical_side/anatomical_side|code' =>
+          $self->anatomical_side,                 #'at0007',
+=cut
+
+    if ( $self->anatomical_side ) {
+        $composition->{ $path . 'anatomical_side/anatomical_side|code' } =
+          $self->anatomical_side;
+        $composition->{ $path . 'anatomical_side/anatomical_side|value' } =
+          $anatomical_side_codes->{ $self->anatomical_side };
+        $composition->{ $path . 'anatomical_side/anatomical_side|terminology' }
+          = 'local';
+    }
+
     if ( $self->comment ) {
         my $index = '0';
         for my $comment ( @{ $self->comment } ) {

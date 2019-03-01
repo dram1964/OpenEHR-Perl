@@ -28,13 +28,14 @@ while ( my $request = $scheduled_requests_rs->next ) {
             report_id => $visit->visitid,
             imaging_exam => [],
         );
-        $radiology_report->composition_format('FLAT');
+        $radiology_report->composition_format('STRUCTURED');
         # Get a list of examinations for the visit
         my $study_rs = &get_visit_studies($visit->visitid);
         while ( my $study = $study_rs->next) {
             next unless $study->studyid eq '31190272';
             my $imaging_exam = OpenEHR::Composition::Elements::ImagingExam->new(
                 reports => [],
+                request_details => [],
             );
             # Get a list of reports issued for the examination
             my $report_rs = &get_study_reports($study->studyid);
@@ -49,6 +50,7 @@ while ( my $request = $scheduled_requests_rs->next ) {
                     modality => $report->modality,
                     result_status => 'at0011',
                     result_date => DateTime::Format::DateParse->parse_datetime($report->reportauthoriseddatealt),
+                    anatomical_side => 'at0006',
                 );
                 push @{ $imaging_exam->reports }, $imaging_report;
 
@@ -71,7 +73,7 @@ while ( my $request = $scheduled_requests_rs->next ) {
                     report_reference => $report_reference,
                     exam_request => [$report->examname],
                 );
-                $imaging_exam->request_details([$request_details]);
+                push @{ $imaging_exam->request_details }, $request_details;
             }
             push @{ $radiology_report->imaging_exam }, $imaging_exam;
         }
