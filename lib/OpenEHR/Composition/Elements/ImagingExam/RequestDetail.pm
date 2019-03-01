@@ -198,7 +198,7 @@ sub compose_raw {
 
 sub compose_flat {
     my $self        = shift;
-    my $composition;
+    my $composition = {};
     my $path = 'radiology_result_report/imaging_examination_result:__EXAM__/examination_request_details:__REQ__/';
 
 

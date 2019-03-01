@@ -52,7 +52,7 @@ has anatomical_site => (
 
 has result_date => (
     is  => 'rw',
-    isa => 'Str',
+    isa => 'DateTime',
 );
 
 has result_status => (
@@ -69,6 +69,12 @@ has image_file => (
     is  => 'rw',
     isa => 'ArrayRef',
 );
+
+my $status_codes = {
+    'at0011' => 'Final',
+    'at0009' => 'Registered',
+    'at0010' => 'Interim'
+};
 
 sub compose {
     my $self = shift;
@@ -90,7 +96,7 @@ sub compose_structured {
                 '|value'       => $status_codes->{ $self->result_status },
             }
         ],
-        'datetime_result_issued'        => [ $self->result_date ],
+        'datetime_result_issued'        => [ $self->result_date->ymd ],
         'clinical_information_provided' => [ $self->clinical_info ],
         'imaging_report_text'           => [ $self->report_text ],
         'modality'                      => [ $self->modality ],
@@ -240,9 +246,11 @@ sub compose_flat {
           $self->anatomical_side,                 #'at0007',
         $path
           . 'datetime_result_issued' =>
-          $self->result_date,    #'2018-09-14T12:45:54.769+01:00',
+          $self->result_date->ymd,    #'2018-09-14T12:45:54.769+01:00',
         $path . 'imaging_code' => $self->imaging_code,    #'Imaging code 87',
-        $path . 'overall_result_status|code' => $self->result_status, #'at0009',
+        $path . 'overall_result_status|code' => $self->result_status, #'at0011',
+        $path . 'overall_result_status|value' => $status_codes->{ $self->result_status }, #'F'
+        $path . 'overall_result_status|terminology' => 'local',
     };
     if ( $self->comment ) {
         my $index = '0';
@@ -353,7 +361,7 @@ Used to get or set the anatomical_side for the Imaging Report element
 
 Used to get or set the anatomical_site for the Imaging Report element
 
-=head2 result_date(STRING)
+=head2 result_date(DateTime obj)
 
 Used to get or set the result_date for the Imaging Report element
 
