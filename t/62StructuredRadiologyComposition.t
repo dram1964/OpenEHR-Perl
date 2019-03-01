@@ -24,8 +24,14 @@ my $report_id2    = $receiver_id2 . 'REP';
 my $dicom_url2    = 'http://uclh.dicom.store/image_2';
 my $exam_request2 = [ 'Request1', 'Request2' ];
 
-my $result_status1 = 'at0009'; 
-my $result_date1 = '2018-09-14T12:45:54.769+01:00'; 
+my $result_status1 = 'at0011'; 
+my $result_date1 = DateTime->new(
+    year => 2018,
+    month => 9,
+    day => 14,
+    hour => 12,
+    minute => 45,
+);
 my $clinical_info1 = 'Clinical information provided 50'; 
 my $report_text1 = 'Imaging report text 62'; 
 my $modality1 = 'Modality 39';
@@ -34,11 +40,18 @@ my $imaging_code1 = 'Imaging code 87';
 my $comment1 = [ 'Comment 44', 'Comment 45' ];
 my $anatomical_site1 = ['Anatomical Site 3', 'Anatomical Site 4'];
 my $findings1 = 'Findings 69';
-my $anatomical_side1 = 'at0007';
+my $anatomical_side1 = 'at0002';
 my $diagnosis1 = [qw/ K3123 X0038/];
 
 my $result_status2 = 'at0010'; 
-my $result_date2 = '2018-09-14T12:55:54.769+01:00'; 
+my $result_date2 = DateTime->new(
+    year => 2018,
+    month => 9,
+    day => 14,
+    hour => 12,
+    minute => 55,
+);
+
 my $clinical_info2 = 'Clinical information provided 51'; 
 my $report_text2 = 'Imaging report text 63'; 
 my $modality2 = 'Modality 40';
@@ -47,7 +60,7 @@ my $imaging_code2 = 'Imaging code 88';
 my $comment2 = [ 'Comment 47', 'Comment 46' ];
 my $anatomical_site2 = ['Anatomical site 5', 'Anatomical Site 6'];
 my $findings2 = 'Findings 70';
-my $anatomical_side2 = 'at0007';
+my $anatomical_side2 = 'at0003';
 my $diagnosis2 = [qw/ K3123 MT331/];
 
 my $target = &get_structured_radiology_report;
@@ -352,11 +365,11 @@ sub get_structured_radiology_report {
                                 {
                                     '|code'        => $result_status1, 
                                     '|terminology' => 'local',
-                                    '|value'       => 'Registered'
+                                    '|value'       => 'F'
                                 }
                             ],
                             'datetime_result_issued' =>
-                              [$result_date1],
+                              [$result_date1->ymd],
                             'clinical_information_provided' =>
                               [$clinical_info1],
                             'imaging_report_text' => [$report_text1],
@@ -389,7 +402,7 @@ sub get_structured_radiology_report {
                                         {
                                             '|code'        => $anatomical_side1, 
                                             '|terminology' => 'local',
-                                            '|value'       => 'Not known'
+                                            '|value'       => 'Left'
                                         }
                                     ]
                                 }
@@ -400,11 +413,11 @@ sub get_structured_radiology_report {
                                 {
                                     '|code'        => $result_status2,
                                     '|terminology' => 'local',
-                                    '|value'       => 'Interim'
+                                    '|value'       => 'I'
                                 }
                             ],
                             'datetime_result_issued' =>
-                              [$result_date2],
+                              [$result_date2->ymd],
                             'clinical_information_provided' =>
                               [$clinical_info2 ],
                             'imaging_report_text' => [$report_text2],
@@ -437,7 +450,7 @@ sub get_structured_radiology_report {
                                         {
                                             '|code'        => $anatomical_side2,
                                             '|terminology' => 'local',
-                                            '|value'       => 'Not known'
+                                            '|value'       => 'Right'
                                         }
                                     ]
                                 }
@@ -494,11 +507,11 @@ sub get_structured_radiology_report {
                                 {
                                     '|code'        => $result_status1, 
                                     '|terminology' => 'local',
-                                    '|value'       => 'Registered'
+                                    '|value'       => 'F'
                                 }
                             ],
                             'datetime_result_issued' =>
-                              [$result_date1],
+                              [$result_date1->ymd],
                             'clinical_information_provided' =>
                               [$clinical_info1],
                             'imaging_report_text' => [$report_text1],
@@ -531,7 +544,7 @@ sub get_structured_radiology_report {
                                         {
                                             '|code'        => $anatomical_side1, 
                                             '|terminology' => 'local',
-                                            '|value'       => 'Not known'
+                                            '|value'       => 'Left'
                                         }
                                     ]
                                 }
@@ -542,11 +555,11 @@ sub get_structured_radiology_report {
                                 {
                                     '|code'        => $result_status2,
                                     '|terminology' => 'local',
-                                    '|value'       => 'Interim'
+                                    '|value'       => 'I'
                                 }
                             ],
                             'datetime_result_issued' =>
-                              [$result_date2],
+                              [$result_date2->ymd],
                             'clinical_information_provided' =>
                               [$clinical_info2 ],
                             'imaging_report_text' => [$report_text2],
@@ -579,7 +592,7 @@ sub get_structured_radiology_report {
                                         {
                                             '|code'        => $anatomical_side2,
                                             '|terminology' => 'local',
-                                            '|value'       => 'Not known'
+                                            '|value'       => 'Right'
                                         }
                                     ]
                                 }
