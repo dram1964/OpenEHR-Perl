@@ -118,7 +118,6 @@ sub get_scheduled_data_requests {
             order_state_code => 529,
             subject_id_type  => 'uk.nhs.nhs_number',
             service_type     => 'radiology',
-            subject_id => '1111111111',
         },
         {
             columns => [
