@@ -1,0 +1,7 @@
+Issues Log:
+
+RadiologyReports:
+ReportId 52874656 applies to 2 StudyIDs, resulting in the same report appearing twice in the composition: once for each StudyID. See also: ReportID 52981384 (4 Studies)
+
+Script: complete_expired_orders
+rs->next loop throws an exception when no more data found: Why?
