@@ -342,7 +342,7 @@ sub decompose_raw {
 
 sub format_datetime {
     my $date = shift;
-    print Dumper $date;
+    #print Dumper $date;
     if ( !defined($date) ) {
         $date = DateTime->now->datetime;
     }
