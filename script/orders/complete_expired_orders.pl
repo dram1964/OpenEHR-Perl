@@ -18,8 +18,27 @@ my $expired_orders = $schema->resultset('InformationOrder')->search(
     },
 );
 
-while ( my $order = $expired_orders->next ) {
+if ( $expired_orders->count > 1 ) {
+    while ( my $order = $expired_orders->next ) {
 
+        my $query = OpenEHR::REST::AQL->new();
+        $query->find_orders_by_uid( $order->composition_uid );
+
+        if ( $query->response_code eq '204' ) {
+            print "No $state orders found on OpenEHR for " . $order->composition_uid . "\n";
+            next;
+        }
+        if ( $query->err_msg ) {
+            die $query->err_msg;
+        }
+
+        my $result = $query->resultset->[0];
+        my $new_uid = &update_state( $result->{composition_uid} );
+        &mark_completed($new_uid, $result);
+    }
+}
+elsif ( $expired_orders->count == 1 ) {
+    my $order = $expired_orders->first; 
     my $query = OpenEHR::REST::AQL->new();
     $query->find_orders_by_uid( $order->composition_uid );
 
@@ -35,6 +54,10 @@ while ( my $order = $expired_orders->next ) {
     my $new_uid = &update_state( $result->{composition_uid} );
     &mark_completed($new_uid, $result);
 }
+else {
+    print "No expired orders found in InformationOrders table\n";
+}
+
 
 sub mark_completed() {
     my ($new_uid, $result) = @_;
