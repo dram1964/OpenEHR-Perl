@@ -23,7 +23,7 @@ while ( my $request = $scheduled_requests_rs->next ) {
     # Get a list of visits for the patient
     my $visit_rs = &get_patient_visits($nhs_number);
     while ( my $visit = $visit_rs->next ) {
-        next unless $visit->visitid eq '7121596';
+        #next unless $visit->visitid eq '7121596';
         my $radiology_report = OpenEHR::Composition::RadiologyReport->new(
             report_id => $visit->visitid,
             imaging_exam => [],
@@ -57,14 +57,14 @@ while ( my $request = $scheduled_requests_rs->next ) {
                     result_status => $result_status,
                     result_date => DateTime::Format::DateParse->parse_datetime($report->reportauthoriseddatealt),
                     anatomical_side => 'at0006',
+                    code_mappings => [],
                 );
                 if ($report->nicip_map) {
-                    $imaging_report->nicip_map( 
+                    push @{ $imaging_report->code_mappings },
                         {
-                        nicip_code => $report->nicip_map->nicip_code,
-                        nicip_value => $report->examname,
-                        }
-                    );
+                        code => $report->nicip_map->nicip_code,
+                        terminology => 'NICIP',
+                        };
                 }
                 push @{ $imaging_exam->reports }, $imaging_report;
 
@@ -100,9 +100,11 @@ while ( my $request = $scheduled_requests_rs->next ) {
             }
             push @{ $radiology_report->imaging_exam }, $imaging_exam;
         }
+=for removal 
         if ( $radiology_report->report_id eq '7121596' ) {
             print Dumper $radiology_report->compose;
         }
+=cut
         my $query = OpenEHR::REST::Composition->new();
         $query->composition($radiology_report);
         

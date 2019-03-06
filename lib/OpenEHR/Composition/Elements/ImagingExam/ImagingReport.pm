@@ -75,10 +75,9 @@ has image_file => (
     isa => 'ArrayRef',
 );
 
-has nicip_map => (
-    is => 'rw', 
-    isa => 'HashRef',
-    required => 0,
+has code_mappings => (
+    is => 'rw',
+    isa => 'ArrayRef[HashRef]',
 );
 
 my $status_codes = {
@@ -291,11 +290,16 @@ sub compose_flat {
         $path . 'overall_result_status|terminology' => 'local',
     };
 
-=for removal
-        $path
-          . 'anatomical_side/anatomical_side|code' =>
-          $self->anatomical_side,                 #'at0007',
-=cut
+    if ( $self->code_mappings ) {
+        my $mapping_index = '0';
+        for my $mapping ( @{ $self->code_mappings } ) {
+            my $mapping_path = $path . 'imaging_code/_mapping:' . $mapping_index;
+            $composition->{ $mapping_path . '|match' } = '=';
+            $composition->{ $mapping_path . '/target|code' } = $mapping->{code};
+            $composition->{ $mapping_path . '/target|terminology' } = $mapping->{terminology};
+            $mapping_index += 1;
+        }
+    }
 
     if ( $self->anatomical_side ) {
         $composition->{ $path . 'anatomical_side/anatomical_side|code' } =
