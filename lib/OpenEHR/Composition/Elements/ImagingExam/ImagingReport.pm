@@ -65,9 +65,20 @@ has imaging_code => (
     isa => 'Str',
 );
 
+has imaging_name => (
+    is  => 'rw',
+    isa => 'Str',
+);
+
 has image_file => (
     is  => 'rw',
     isa => 'ArrayRef',
+);
+
+has nicip_map => (
+    is => 'rw', 
+    isa => 'HashRef',
+    required => 0,
 );
 
 my $status_codes = {
@@ -269,7 +280,9 @@ sub compose_flat {
         $path
           . 'datetime_result_issued' =>
           $self->result_date->ymd,    #'2018-09-14T12:45:54.769+01:00',
-        $path . 'imaging_code' => $self->imaging_code,    #'Imaging code 87',
+        $path . 'imaging_code|code' => $self->imaging_code,    #'Imaging code 87',
+        $path . 'imaging_code|value' => $self->imaging_name,    #'Imaging code 87',
+        $path . 'imaging_code|terminology' => 'local',    #'Imaging code 87',
         $path . 'overall_result_status|code' => $self->result_status, #'at0011',
         $path
           . 'overall_result_status|value' =>

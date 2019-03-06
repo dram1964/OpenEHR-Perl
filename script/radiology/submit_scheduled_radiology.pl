@@ -28,7 +28,7 @@ while ( my $request = $scheduled_requests_rs->next ) {
             report_id => $visit->visitid,
             imaging_exam => [],
         );
-        $radiology_report->composition_format('STRUCTURED');
+        $radiology_report->composition_format('FLAT');
         # Get a list of examinations for the visit
         my $study_rs = &get_visit_studies($visit->visitid);
         while ( my $study = $study_rs->next) {
@@ -54,7 +54,24 @@ while ( my $request = $scheduled_requests_rs->next ) {
                     result_date => DateTime::Format::DateParse->parse_datetime($report->reportauthoriseddatealt),
                     anatomical_side => 'at0006',
                 );
+                if ($report->nicip_map) {
+                    $imaging_report->nicip_map( 
+                        {
+                        nicip_code => $report->nicip_map->nicip_code,
+                        nicip_value => $report->examname,
+                        }
+                    );
+                }
                 push @{ $imaging_exam->reports }, $imaging_report;
+
+                if ($report->nicip_map) {
+                    printf("ExamCode: %s, Nicip: %s\n", 
+                        $report->examcode, $report->nicip_map->nicip_code);
+                }
+                else {
+                    printf("No NICIP code for %s\n", 
+                        $report->examcode);
+                }
 
                 # Build RequestDetails Requester
                 #my $requester = OpenEHR::Composition::Elements::ImagingExam::Requester->new();
@@ -136,14 +153,12 @@ Returns unique visit IDs for a specified patient
 
 sub get_patient_visits {
     my $nhs_number = shift;
-    my $visit_rs = $schema->resultset('StagingRadiologyReport')->search(
+    my $visit_rs = $schema->resultset('RadiologyVisit')->search(
         {
-            nhsnumber => $nhs_number,
-            reportid => { '>' => 1 },
+            reported_date => undef,
         },
         {
             columns => [ qw/ visitid /],
-            distinct => 1,
         }
     );
     return $visit_rs;
@@ -157,7 +172,7 @@ Returns all the studies (examinations) performed on a visit
 
 sub get_visit_studies {
     my $visit_id = shift;
-    my $study_rs = $schema->resultset('StagingRadiologyReport')->search(
+    my $study_rs = $schema->resultset('RadiologyReport')->search(
         {
             visitid => $visit_id,
         },
@@ -177,7 +192,7 @@ Returns all report IDs for a given study
 
 sub get_study_reports {
     my $study_id = shift;
-    my $report_rs = $schema->resultset('StagingRadiologyReport')->search(
+    my $report_rs = $schema->resultset('RadiologyReport')->search(
         {
             studyid => $study_id, 
         },
