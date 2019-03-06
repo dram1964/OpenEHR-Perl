@@ -23,7 +23,7 @@ while ( my $request = $scheduled_requests_rs->next ) {
     # Get a list of visits for the patient
     my $visit_rs = &get_patient_visits($nhs_number);
     while ( my $visit = $visit_rs->next ) {
-        #next unless $visit->visitid eq '3897538';
+        next unless $visit->visitid eq '7121596';
         my $radiology_report = OpenEHR::Composition::RadiologyReport->new(
             report_id => $visit->visitid,
             imaging_exam => [],
@@ -46,9 +46,13 @@ while ( my $request = $scheduled_requests_rs->next ) {
                 printf("VisitID: %s, StudyId: %s, ReportId: %s\n", 
                     $visit->visitid, $study->studyid, $report->reportid);
                 # Build ImagingExam ImagingReport Object
+                my $report_text = $report->reporttextparsed;
+                my $new_line_char = '\n';
+                $report_text =~ s/\n/$new_line_char/g;
                 my $imaging_report = OpenEHR::Composition::Elements::ImagingExam::ImagingReport->new(
                     imaging_code => $report->examcode,
-                    report_text => $report->reporttextparsed,
+                    imaging_name => $report->examname,
+                    report_text => $report_text,
                     modality => $report->modality,
                     result_status => $result_status,
                     result_date => DateTime::Format::DateParse->parse_datetime($report->reportauthoriseddatealt),
@@ -96,7 +100,9 @@ while ( my $request = $scheduled_requests_rs->next ) {
             }
             push @{ $radiology_report->imaging_exam }, $imaging_exam;
         }
-        #print Dumper $radiology_report->compose;
+        if ( $radiology_report->report_id eq '7121596' ) {
+            print Dumper $radiology_report->compose;
+        }
         my $query = OpenEHR::REST::Composition->new();
         $query->composition($radiology_report);
         
