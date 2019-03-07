@@ -60,7 +60,7 @@ while ( my $request = $scheduled_requests_rs->next ) {
                     modality => $report->modality,
                     result_status => $result_status,
                     result_date => DateTime::Format::DateParse->parse_datetime($report->reportauthoriseddatealt),
-                    anatomical_side => 'at0006',
+                    #anatomical_side => 'at0006',
                     code_mappings => [],
                 );
                 $imaging_report->add_mappings($report);

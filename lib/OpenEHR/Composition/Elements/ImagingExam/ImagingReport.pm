@@ -134,8 +134,13 @@ sub add_mappings {
                     $self->anatomical_site( [$gel_map->gel_region] );
                 }
                 if ( $gel_map->opcs_site_code ) {
-                    print "Found OPCS Site mapping: " . $gel_map->opcs_site_code . "\n";
                     $self->opcs_site( $gel_map->opcs_site_code );
+                }
+                if ( $gel_map->snomed_laterality ) {
+                    $self->anatomical_side( $gel_map->snomed_laterality );
+                }
+                else {
+                    $self->anatomical_side( 'N/A' );
                 }
             }
         }
@@ -156,11 +161,11 @@ my $status_codes = {
 };
 
 my $anatomical_side_codes = {
-    at0002 => 'Left',
-    at0003 => 'Right',
-    at0004 => 'Midline',
-    at0005 => 'Bilateral',
-    at0006 => 'Not applicable',
+    LEFT => 'at0002',
+    RIGHT => 'at0003',
+    MIDLINE => 'at0004',
+    BILATERAL => 'at0005',
+    'N/A' => 'at0006',
 };
 
 sub compose {
@@ -205,10 +210,9 @@ sub compose_structured {
         $composition->{anatomical_side}->[0] = {
             anatomical_side => [
                 {
-                    '|code'        => $self->anatomical_side,
+                    '|code'        => $anatomical_side_codes->{ $self->anatomical_side },
                     '|terminology' => 'local',
-                    '|value' =>
-                      $anatomical_side_codes->{ $self->anatomical_side },
+                    '|value' => $self->anatomical_side,
                 }
             ]
         };
@@ -367,9 +371,9 @@ sub compose_flat {
 
     if ( $self->anatomical_side ) {
         $composition->{ $path . 'anatomical_side/anatomical_side|code' } =
-          $self->anatomical_side;
-        $composition->{ $path . 'anatomical_side/anatomical_side|value' } =
           $anatomical_side_codes->{ $self->anatomical_side };
+        $composition->{ $path . 'anatomical_side/anatomical_side|value' } =
+          $self->anatomical_side;
         $composition->{ $path . 'anatomical_side/anatomical_side|terminology' }
           = 'local';
     }
@@ -524,6 +528,10 @@ Returns a hashref of the object in RAW format
 =head2 compose_flat
 
 Returns a hashref of the object in FLAT format
+
+=head2 add_mappings
+
+Adds mappings to object property based on the NICIP code for the Exam
 
 =head1 DIAGNOSTICS
 

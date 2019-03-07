@@ -40,7 +40,7 @@ my $imaging_code1 = 'Imaging code 87';
 my $comment1 = [ 'Comment 44', 'Comment 45' ];
 my $anatomical_site1 = ['Anatomical Site 3', 'Anatomical Site 4'];
 my $findings1 = 'Findings 69';
-my $anatomical_side1 = 'at0002';
+my $anatomical_side1 = 'LEFT';
 my $diagnosis1 = [qw/ K3123 X0038/];
 
 my $result_status2 = 'at0010'; 
@@ -60,7 +60,7 @@ my $imaging_code2 = 'Imaging code 88';
 my $comment2 = [ 'Comment 47', 'Comment 46' ];
 my $anatomical_site2 = ['Anatomical site 5', 'Anatomical Site 6'];
 my $findings2 = 'Findings 70';
-my $anatomical_side2 = 'at0003';
+my $anatomical_side2 = 'RIGHT';
 my $diagnosis2 = [qw/ K3123 MT331/];
 
 my $target = &get_structured_radiology_report;
@@ -400,9 +400,9 @@ sub get_structured_radiology_report {
                                 {
                                     'anatomical_side' => [
                                         {
-                                            '|code'        => $anatomical_side1, 
+                                            '|code'        => 'at0002',
                                             '|terminology' => 'local',
-                                            '|value'       => 'Left'
+                                            '|value'       => $anatomical_side1,
                                         }
                                     ]
                                 }
@@ -448,9 +448,9 @@ sub get_structured_radiology_report {
                                 {
                                     'anatomical_side' => [
                                         {
-                                            '|code'        => $anatomical_side2,
+                                            '|code'        => 'at0003',
                                             '|terminology' => 'local',
-                                            '|value'       => 'Right'
+                                            '|value'       => $anatomical_side2,
                                         }
                                     ]
                                 }
@@ -542,9 +542,9 @@ sub get_structured_radiology_report {
                                 {
                                     'anatomical_side' => [
                                         {
-                                            '|code'        => $anatomical_side1, 
+                                            '|code'        => 'at0002',
                                             '|terminology' => 'local',
-                                            '|value'       => 'Left'
+                                            '|value'       => $anatomical_side1,
                                         }
                                     ]
                                 }
@@ -590,9 +590,9 @@ sub get_structured_radiology_report {
                                 {
                                     'anatomical_side' => [
                                         {
-                                            '|code'        => $anatomical_side2,
+                                            '|code'        => 'at0003',
                                             '|terminology' => 'local',
-                                            '|value'       => 'Right'
+                                            '|value'       => $anatomical_side2,
                                         }
                                     ]
                                 }

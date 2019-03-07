@@ -28,8 +28,6 @@ SKIP: {
                 'GEL - Data request Summary.v1',
                 'Composition Template ID'
             );
-            is( $path_report1->lastVersion, '1',
-                'Composition last version is true' );
             ok( !$path_report1->deleted, 'Composition deleted value is false' );
         };
         is( $path_report1->response_format,
