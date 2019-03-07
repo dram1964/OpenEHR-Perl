@@ -23,7 +23,7 @@ while ( my $request = $scheduled_requests_rs->next ) {
     # Get a list of visits for the patient
     my $visit_rs = &get_patient_visits($nhs_number);
     while ( my $visit = $visit_rs->next ) {
-        #next unless $visit->visitid eq '7121596';
+        next unless $visit->visitid eq '7065879';
         my $radiology_report = OpenEHR::Composition::RadiologyReport->new(
             report_id => $visit->visitid,
             imaging_exam => [],
@@ -49,9 +49,13 @@ while ( my $request = $scheduled_requests_rs->next ) {
                 my $report_text = $report->reporttextparsed;
                 my $new_line_char = '\n';
                 $report_text =~ s/\n/$new_line_char/g;
+
+                my ( $imaging_code, $imaging_name, $imaging_terminology ) = 
+                    &get_primary_exam_code($report);
                 my $imaging_report = OpenEHR::Composition::Elements::ImagingExam::ImagingReport->new(
-                    imaging_code => $report->examcode,
-                    imaging_name => $report->examname,
+                    imaging_code => $imaging_code,
+                    imaging_name => $imaging_name,
+                    imaging_terminology => $imaging_terminology,
                     report_text => $report_text,
                     modality => $report->modality,
                     result_status => $result_status,
@@ -59,6 +63,8 @@ while ( my $request = $scheduled_requests_rs->next ) {
                     anatomical_side => 'at0006',
                     code_mappings => [],
                 );
+                $imaging_report->add_mappings($report);
+=for removal
                 if ($report->nicip_map) {
                     push @{ $imaging_report->code_mappings },
                         {
@@ -66,6 +72,7 @@ while ( my $request = $scheduled_requests_rs->next ) {
                         terminology => 'NICIP',
                         };
                 }
+=cut 
                 push @{ $imaging_exam->reports }, $imaging_report;
 
                 if ($report->nicip_map) {
@@ -121,13 +128,26 @@ while ( my $request = $scheduled_requests_rs->next ) {
     }
 }
 
-sub get_report_id {
-    my $report_id = int( rand(1000000000000000) );
-    $report_id .= '0000000000000000';
-    if ( $report_id =~ /^([\d]{16,16}).*/ ) {
-        $report_id = $1;
+=head1 get_primary_exam_code 
+
+Returns NICIP coding based on local codes for Study Exam
+
+=cut 
+
+sub get_primary_exam_code {
+    my $report = shift;
+    my ( $imaging_code, $imaging_name, $imaging_terminology );
+    if ($report->nicip_map) {
+        $imaging_code = $report->nicip_map->nicip_code;
+        $imaging_name = $report->nicip_map->nicip_code;
+        $imaging_terminology = 'NICIP';
     }
-    return $report_id;
+    else {
+        $imaging_code = $report->examcode;
+        $imaging_name = $report->examname;
+        $imaging_terminology = 'local';
+    }
+    return  $imaging_code, $imaging_name, $imaging_terminology;
 }
 
 =head2 get_scheduled_data_requests

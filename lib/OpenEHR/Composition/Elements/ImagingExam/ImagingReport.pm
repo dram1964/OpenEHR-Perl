@@ -70,6 +70,12 @@ has imaging_name => (
     isa => 'Str',
 );
 
+has imaging_terminology => (
+    is  => 'rw',
+    isa => 'Str',
+    default => 'local',
+);
+
 has image_file => (
     is  => 'rw',
     isa => 'ArrayRef',
@@ -79,6 +85,38 @@ has code_mappings => (
     is => 'rw',
     isa => 'ArrayRef[HashRef]',
 );
+
+sub add_mappings {
+    my ( $self, $report ) = @_;
+
+    if ( $self->imaging_terminology eq 'NICIP' ) {
+        push @{ $self->code_mappings },
+            {
+                code => $report->examcode,
+                terminology => 'local'
+            };
+        if ( $report->nicip_map ) {
+            if ( $report->nicip_map->gel_map ) {
+                if ( $report->nicip_map->gel_map->snomed_ct_imaging_code ) {
+                    print "Found SNOMED-CT: " . $report->nicip_map->gel_map->snomed_ct_imaging_code . "\n";
+                    push @{ $self->code_mappings },
+                        {
+                            code => $report->nicip_map->gel_map->snomed_ct_imaging_code,
+                            terminology => 'SNOMED-CT-CODE',
+                        };
+                }
+            }
+            else {
+                print "No GEL Map found for " . $report->nicip_map->nicip_code . "\n";
+            }
+        }
+        else {
+            print "No NICIP Map found for " . $report->examcode . "\n";
+        }
+    }
+}
+
+
 
 my $status_codes = {
     at0012 => 'C'
