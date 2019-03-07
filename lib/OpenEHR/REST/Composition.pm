@@ -79,6 +79,30 @@ sub find_by_uid {
 	}
 }
 
+
+sub delete_by_uid {
+    my $self = shift;
+    my $compositionUid = shift;
+    $self->resource('composition/' . $compositionUid);
+    $self->headers([['Accept', 'application/json']]);
+    $self->method('DELETE');
+    $self->submit_rest_call();
+    if ($self->response_code eq '200') {
+		my $post_response = from_json( $self->response);
+		$self->compositionUid($post_response->{compositionUid});
+		$self->action($post_response->{action});
+		$self->href($post_response->{meta}->{href});
+    }
+    else {
+		carp "Response Code: " . $self->response_code;
+		carp "Composition: " . $self->composition;
+		$self->err_msg($self->response);
+        carp $self->err_msg;
+		return 0;
+	}
+}
+
+
 sub update_by_uid {
 	my $self = shift;
 	my $compositionUid = shift;
@@ -219,6 +243,10 @@ corresponding composition attributes
 
 Submits an update to an existing composition. The UID must be specified as the 
 methods only parameter.
+
+=head2 delete_by_uid($composition_id)
+
+Deletes the composition with specified composition_id
 
 
 =head1 ATTRIBUTES
