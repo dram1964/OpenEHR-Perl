@@ -50,6 +50,11 @@ has anatomical_site => (
     isa => 'ArrayRef',
 );
 
+has opcs_site => (
+    is  => 'rw',
+    isa => 'Str',
+);
+
 has result_date => (
     is  => 'rw',
     isa => 'DateTime',
@@ -95,23 +100,44 @@ sub add_mappings {
                 code => $report->examcode,
                 terminology => 'local'
             };
-        if ( $report->nicip_map ) {
-            if ( $report->nicip_map->gel_map ) {
-                if ( $report->nicip_map->gel_map->snomed_ct_imaging_code ) {
-                    print "Found SNOMED-CT: " . $report->nicip_map->gel_map->snomed_ct_imaging_code . "\n";
+        if ( my $nicip = $report->nicip_map ) {
+            if ( my $gel_map = $nicip->gel_map ) {
+                if ( $gel_map->snomed_ct_imaging_code ) {
                     push @{ $self->code_mappings },
                         {
-                            code => $report->nicip_map->gel_map->snomed_ct_imaging_code,
+                            code => $gel_map->snomed_ct_imaging_code,
                             terminology => 'SNOMED-CT-CODE',
                         };
                 }
+                if ( $gel_map->snomed_ct_imaging_description ) {
+                    push @{ $self->code_mappings },
+                        {
+                            code => $gel_map->snomed_ct_imaging_description,
+                            terminology => 'SNOMED-CT-DESCRIPTION',
+                        };
+                }
+                if ( $gel_map->opcs4_primary_code ) {
+                    push @{ $self->code_mappings },
+                        {
+                            code => $gel_map->opcs4_primary_code,
+                            terminology => 'OPCS-4-PRIMARY',
+                        };
+                }
+                if ( $gel_map->opcs_method_code ) {
+                    push @{ $self->code_mappings },
+                        {
+                            code => $gel_map->opcs_method_code,
+                            terminology => 'OPCS-4-METHOD',
+                        };
+                }
+                if ( $gel_map->gel_region ) {
+                    $self->anatomical_site( [$gel_map->gel_region] );
+                }
+                if ( $gel_map->opcs_site_code ) {
+                    print "Found OPCS Site mapping: " . $gel_map->opcs_site_code . "\n";
+                    $self->opcs_site( $gel_map->opcs_site_code );
+                }
             }
-            else {
-                print "No GEL Map found for " . $report->nicip_map->nicip_code . "\n";
-            }
-        }
-        else {
-            print "No NICIP Map found for " . $report->examcode . "\n";
         }
     }
 }
@@ -372,7 +398,14 @@ sub compose_flat {
               . 'anatomical_location:'
               . $index
               . '/anatomical_site';    #'Anatomical site 3',
-            $composition->{$anatomical_site_key} = $anatomical_site;
+            $composition->{$anatomical_site_key . "|code" } = $anatomical_site;
+            $composition->{$anatomical_site_key . "|value" } = $anatomical_site;
+            $composition->{$anatomical_site_key . "|terminology" } = 'GEL-REGION';
+            if ( $self->opcs_site ) {
+                $composition->{ $anatomical_site_key . "/_mapping:1|match" } = "=";
+                $composition->{ $anatomical_site_key . "/_mapping:1/target|code" } = $self->opcs_site;
+                $composition->{ $anatomical_site_key . "/_mapping:1/target|terminology" } = 'OPCS-4-SITE';
+            }
             $index++;
         }
     }
