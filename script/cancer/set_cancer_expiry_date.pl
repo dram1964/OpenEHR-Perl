@@ -5,10 +5,11 @@ use Genomes_100K::Model;
 my $schema = Genomes_100K::Model->connect('CRIUGenomes');
 
 my $exclusion_list = &get_unsubmitted_ids;
+my $inclusion_list = &get_submitted_ids;
 
 print "Exclusion List: ", join( ":", @{ $exclusion_list } ), "\n";
 
-&update_expiry_date($exclusion_list);
+&update_expiry_date($exclusion_list, $inclusion_list);
 
 =head2 &update_expiry_date($exclustions)
 
@@ -17,7 +18,7 @@ Sets an expiry date for orders that have all compositions submitted
 =cut 
 
 sub update_expiry_date {
-    my $exclusions = shift;
+    my ( $exclusions, $inclusions ) = @_;
 
     my $update_rs = $schema->resultset('InformationOrder')->search(
         {
@@ -36,27 +37,52 @@ sub update_expiry_date {
             if ( grep { /$nhs_number/ }  @{ $exclusions } ) { 
                 print "Subject ID: " . $nhs_number . ", found in exclusion list. Skipping\n";
             }
-            else {
-                print "Subject ID: " . $nhs_number . ", not found in exclusion list. Updating\n";
+            elsif ( grep { /$nhs_number/ } @{ $inclusions } ) {
+                print "Subject ID: " . $nhs_number . ", found in inclusion list. Updating\n";
                 my $order_rs = $schema->resultset('InformationOrder')->search(
                     {
                         service_type => 'cancer',
                         subject_id =>  $nhs_number,
                     }
                 );
-                while ( my $order = $order_rs->next ) {
-                    my $end_date = $order->data_end_date;
-                    $order->update(
-                        {
-                            expiry_date => $end_date
-                        },
-                    );
-                }
+                my $order = $order_rs->first;
+                my $end_date = $order->data_end_date;
+                $order->update(
+                    {
+                        expiry_date => $end_date
+                    },
+                );
+            }
+            else {
+                print "Subject ID: " . $nhs_number . " has no submitted compositions. Skipping\n";
             }
         }
     }
 }
 
+=head2 &get_submitted_ids() 
+
+returns an arrayref of patient_ids for all
+cancer reports that have one or more submitted compostions
+
+=cut 
+
+sub get_submitted_ids {
+    my @ids;
+    my $submitted_rs = $schema->resultset('InfoflexCancer')->search(
+        {
+            composition_id =>  { -not => undef } ,
+        },
+        {
+            columns => [ qw/ nhs_number / ],
+            distinct => 1,
+        }
+    );
+    while ( my $id = $submitted_rs->next ) {
+        push @ids, $id->nhs_number;
+    }
+    return \@ids;
+}
 
 =head2 &get_unsubmitted_ids() 
 
