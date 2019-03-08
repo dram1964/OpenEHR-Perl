@@ -181,12 +181,14 @@ Returns unique visit IDs for a specified patient
 
 sub get_patient_visits {
     my $nhs_number = shift;
-    my $visit_rs = $schema->resultset('RadiologyVisit')->search(
+    my $visit_rs = $schema->resultset('RadiologyReport')->search(
         {
+            nhsnumber => $nhs_number, 
             reported_date => undef,
         },
         {
             columns => [ qw/ visitid /],
+            distinct => 1,
         }
     );
     return $visit_rs;
