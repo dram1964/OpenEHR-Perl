@@ -60,19 +60,10 @@ while ( my $request = $scheduled_requests_rs->next ) {
                     modality => $report->modality,
                     result_status => $result_status,
                     result_date => DateTime::Format::DateParse->parse_datetime($report->reportauthoriseddatealt),
-                    #anatomical_side => 'at0006',
                     code_mappings => [],
                 );
                 $imaging_report->add_mappings($report);
-=for removal
-                if ($report->nicip_map) {
-                    push @{ $imaging_report->code_mappings },
-                        {
-                        code => $report->nicip_map->nicip_code,
-                        terminology => 'NICIP',
-                        };
-                }
-=cut 
+
                 push @{ $imaging_exam->reports }, $imaging_report;
 
                 if ($report->nicip_map) {
@@ -105,13 +96,51 @@ while ( my $request = $scheduled_requests_rs->next ) {
                 );
                 push @{ $imaging_exam->request_details }, $request_details;
             }
+            
+            # Add the ImagingExam object to the RadiologyReport for this visit
             push @{ $radiology_report->imaging_exam }, $imaging_exam;
         }
-=for removal 
-        if ( $radiology_report->report_id eq '7065879' ) {
-            print Dumper $radiology_report->compose;
+
+        # Submit the composition
+        if ( my $compositionUid = &submit_composition( $radiology_report, $ehrid ) ) {
+            &update_datawarehouse($compositionUid, $visit->visitid);
         }
+    }
+}
+
+=head2 update_datawarehouse( $composition_uid, $visit_id )
+
+Adds compostion_id, date_reported and reported_by fields to RadiologyReports
+table for the given visit_id
+
 =cut
+
+sub update_datawarehouse {
+    my ( $composition_uid, $visit_id ) = @_;
+    my $search = $schema->resultset('RadiologyReport')->search(
+        {
+            visitid => $visit_id
+        }
+    );
+    my $now = DateTime->now->datetime;
+    $now =~ s/T/ /;
+    $search->update(
+        {
+            composition_id => $composition_uid,
+            reported_date  => $now,
+            reported_by    => $0,
+        }
+    );
+}
+
+=head2 submit_composition($compostion_object)
+
+Submit a composition object to OpenEHR server
+
+=cut 
+
+sub submit_composition {
+        my ( $radiology_report, $ehrid ) = @_; 
         my $query = OpenEHR::REST::Composition->new();
         $query->composition($radiology_report);
         
@@ -119,13 +148,14 @@ while ( my $request = $scheduled_requests_rs->next ) {
         $query->submit_new($ehrid);
         if ( $query->err_msg ) {
             print 'Error occurred in submission: ' . $query->err_msg;
+            return 0;
         }
         else {
             print 'Action is: ',                   $query->action,         "\n";
             print 'Composition UID: ',             $query->compositionUid, "\n";
             print 'Composition can be found at: ', $query->href,           "\n";
+            return $query->compositionUid
         }
-    }
 }
 
 =head1 get_primary_exam_code 
