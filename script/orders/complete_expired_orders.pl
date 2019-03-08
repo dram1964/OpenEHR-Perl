@@ -18,7 +18,7 @@ my $expired_orders = $schema->resultset('InformationOrder')->search(
     },
 );
 
-if ( $expired_orders->count > 1 ) {
+if ( $expired_orders->count > 0 ) {
     while ( my $order = $expired_orders->next ) {
 
         my $query = OpenEHR::REST::AQL->new();

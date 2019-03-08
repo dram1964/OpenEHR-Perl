@@ -1,0 +1,83 @@
+use strict;
+use warnings;
+use Genomes_100K::Model;
+
+my $schema = Genomes_100K::Model->connect('CRIUGenomes');
+
+my $exclusion_list = &get_unsubmitted_ids;
+
+print "Exclusion List: ", join( ":", @{ $exclusion_list } ), "\n";
+
+&update_expiry_date($exclusion_list);
+
+=head2 &update_expiry_date($exclustions)
+
+Sets an expiry date for orders that have all compositions submitted
+
+=cut 
+
+sub update_expiry_date {
+    my $exclusions = shift;
+
+    my $update_rs = $schema->resultset('InformationOrder')->search(
+        {
+            expiry_date => undef,
+            service_type => 'cancer',
+            order_state => 'scheduled',
+        },
+        {
+            columns => [ qw/ subject_id / ],
+            distinct => 1,
+        }
+    );
+    if ( $update_rs->count > 0 ) {
+        while ( my $update = $update_rs->next ) {
+            my $nhs_number = $update->subject_id;
+            if ( grep { /$nhs_number/ }  @{ $exclusions } ) { 
+                print "Subject ID: " . $nhs_number . ", found in exclusion list. Skipping\n";
+            }
+            else {
+                print "Subject ID: " . $nhs_number . ", not found in exclusion list. Updating\n";
+                my $order_rs = $schema->resultset('InformationOrder')->search(
+                    {
+                        service_type => 'cancer',
+                        subject_id =>  $nhs_number,
+                    }
+                );
+                while ( my $order = $order_rs->next ) {
+                    my $end_date = $order->data_end_date;
+                    $order->update(
+                        {
+                            expiry_date => $end_date
+                        },
+                    );
+                }
+            }
+        }
+    }
+}
+
+
+=head2 &get_unsubmitted_ids() 
+
+returns an arrayref of patient_ids for all
+cancer reports that have no submitted compostions
+
+=cut 
+
+sub get_unsubmitted_ids {
+    my @ids;
+    my $unsubmitted_rs = $schema->resultset('InfoflexCancer')->search(
+        {
+            composition_id =>  undef ,
+        },
+        {
+            columns => [ qw/ nhs_number / ],
+            distinct => 1,
+        }
+    );
+    while ( my $id = $unsubmitted_rs->next ) {
+        push @ids, $id->nhs_number;
+    }
+    return \@ids;
+}
