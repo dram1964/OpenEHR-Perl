@@ -1,13 +1,10 @@
 use strict;
 use warnings;
 use DateTime::Format::DateParse;
-use JSON;
-use DBI;
 
 use OpenEHR::Composition::RadiologyReport;
 use OpenEHR::REST::Composition;
 use Genomes_100K::Model;
-use Data::Dumper;
 
 my $schema = Genomes_100K::Model->connect('CRIUGenomes');
 
@@ -42,17 +39,17 @@ while ( my $request = $scheduled_requests_rs->next ) {
             my $report_count = 1;
             while ( my $report = $report_rs->next ) {
                 next unless $report->reportid;
+
+                # Build ImagingExam ImagingReport Object
                 my $result_status = $report_count++ == 1 ? 'at0011' : 'at0010';
                 printf("VisitID: %s, StudyId: %s, ReportId: %s\n", 
                     $visit->visitid, $study->studyid, $report->reportid);
-                # Build ImagingExam ImagingReport Object
                 my $report_text = $report->reporttextparsed;
                 my $new_line_char = '\n';
                 $report_text =~ s/\n/$new_line_char/g;
-
                 my ( $imaging_code, $imaging_name, $imaging_terminology ) = 
                     &get_primary_exam_code($report);
-                my $imaging_report = OpenEHR::Composition::Elements::ImagingExam::ImagingReport->new(
+                my $imaging_report = $imaging_exam->element('ImagingReport')->new(
                     imaging_code => $imaging_code,
                     imaging_name => $imaging_name,
                     imaging_terminology => $imaging_terminology,
@@ -85,12 +82,12 @@ while ( my $request = $scheduled_requests_rs->next ) {
                 #my dicom_url = '';
 
                 # Build RequestDetails ReportReference
-                my $report_reference = OpenEHR::Composition::Elements::ImagingExam::ReportReference->new(
+                my $report_reference = $imaging_exam->element('ReportReference')->new(
                     id => $report->reportid,
                 );
 
                 # Build ImagingExam RequestDetails Object
-                my $request_details = OpenEHR::Composition::Elements::ImagingExam::RequestDetail->new(
+                my $request_details = $imaging_exam->element('RequestDetail')->new(
                     report_reference => $report_reference,
                     exam_request => [$report->examname],
                 );
@@ -103,7 +100,7 @@ while ( my $request = $scheduled_requests_rs->next ) {
 
         # Submit the composition
         if ( my $compositionUid = &submit_composition( $radiology_report, $ehrid ) ) {
-            &update_datawarehouse($compositionUid, $visit->visitid);
+            #&update_datawarehouse($compositionUid, $visit->visitid);
         }
     }
 }
