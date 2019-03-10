@@ -1,4 +1,4 @@
-use Test::More tests => 53;
+use Test::More tests => 56;
 
 BEGIN {
     use_ok('OpenEHR');
@@ -56,9 +56,12 @@ BEGIN {
     );
     use_ok('OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::PortalInvasion');
     use_ok('OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::TACE');
-    use_ok('OpenEHR::Composition::Elements::Radiology::ReceiverOrder');
-    use_ok('OpenEHR::Composition::Elements::Radiology::RequesterOrder');
-    use_ok('OpenEHR::Composition::Elements::Radiology::ReportReference');
+    use_ok('OpenEHR::Composition::Elements::ImagingExam');
+    use_ok('OpenEHR::Composition::Elements::ImagingExam::ImagingReport');
+    use_ok('OpenEHR::Composition::Elements::ImagingExam::Receiver');
+    use_ok('OpenEHR::Composition::Elements::ImagingExam::ReportReference');
+    use_ok('OpenEHR::Composition::Elements::ImagingExam::RequestDetail');
+    use_ok('OpenEHR::Composition::Elements::ImagingExam::Requester');
     use_ok('OpenEHR::REST');
     use_ok('OpenEHR::REST::AQL');
     use_ok('OpenEHR::REST::Composition');
