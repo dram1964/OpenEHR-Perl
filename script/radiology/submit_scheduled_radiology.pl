@@ -100,7 +100,7 @@ while ( my $request = $scheduled_requests_rs->next ) {
 
         # Submit the composition
         if ( my $compositionUid = &submit_composition( $radiology_report, $ehrid ) ) {
-            #&update_datawarehouse($compositionUid, $visit->visitid);
+            &update_datawarehouse($compositionUid, $visit->visitid);
         }
     }
 }
