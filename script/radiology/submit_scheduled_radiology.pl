@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use DateTime::Format::DateParse;
+use Data::Dumper;
 
 use OpenEHR::Composition::RadiologyReport;
 use OpenEHR::REST::Composition;
@@ -20,7 +21,7 @@ while ( my $request = $scheduled_requests_rs->next ) {
     # Get a list of visits for the patient
     my $visit_rs = &get_patient_visits($nhs_number);
     while ( my $visit = $visit_rs->next ) {
-        #next unless $visit->visitid eq '7065879';
+        next unless $visit->visitid eq '7065879';
         my $radiology_report = OpenEHR::Composition::RadiologyReport->new(
             report_id => $visit->visitid,
             imaging_exam => [],
@@ -45,8 +46,8 @@ while ( my $request = $scheduled_requests_rs->next ) {
                 printf("VisitID: %s, StudyId: %s, ReportId: %s\n", 
                     $visit->visitid, $study->studyid, $report->reportid);
                 my $report_text = $report->reporttextparsed;
-                my $new_line_char = '\n';
-                $report_text =~ s/\n/$new_line_char/g;
+                #my $new_line_char = '\n';
+                #$report_text =~ s/\r?\n/\n/g;
                 my ( $imaging_code, $imaging_name, $imaging_terminology ) = 
                     &get_primary_exam_code($report);
                 my $imaging_report = $imaging_exam->element('ImagingReport')->new(
@@ -97,10 +98,11 @@ while ( my $request = $scheduled_requests_rs->next ) {
             # Add the ImagingExam object to the RadiologyReport for this visit
             push @{ $radiology_report->imaging_exam }, $imaging_exam;
         }
+        print Dumper $radiology_report->compose;
 
         # Submit the composition
         if ( my $compositionUid = &submit_composition( $radiology_report, $ehrid ) ) {
-            &update_datawarehouse($compositionUid, $visit->visitid);
+            #&update_datawarehouse($compositionUid, $visit->visitid);
         }
     }
 }
