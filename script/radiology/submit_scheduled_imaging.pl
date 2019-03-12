@@ -21,57 +21,57 @@ while ( my $request = $scheduled_requests_rs->next ) {
     # Get a list of visits for the patient
     my $visit_rs = &get_patient_visits($nhs_number);
     while ( my $visit = $visit_rs->next ) {
-        #next unless $visit->visitid eq '7065879';
-        my $radiology_report = OpenEHR::Composition::RadiologyReport->new(
-            report_id => $visit->visitid,
-            imaging_exam => [],
-        );
-        $radiology_report->composition_format('FLAT');
+        #next unless $visit->visitid eq '7121596';
         # Get a list of examinations for the visit
         my $study_rs = &get_visit_studies($visit->visitid);
         while ( my $study = $study_rs->next) {
+            my $radiology_report = OpenEHR::Composition::RadiologyReport->new(
+                report_id => $study->studyid,
+                imaging_exam => [],
+            );
+            $radiology_report->composition_format('FLAT');
             #next unless $study->studyid eq '31190272';
             my $imaging_exam = OpenEHR::Composition::Elements::ImagingExam->new(
                 reports => [],
                 request_details => [],
             );
-            # Get a list of reports issued for the examination
-            my $report_rs = &get_study_reports($study->studyid);
-            my $report_count = 1;
-            while ( my $report = $report_rs->next ) {
-                next unless $report->reportid;
+            # Get the latest report issued for the examination
+            my $report_rs = &get_latest_study_report($study->studyid);
+            my $report = $report_rs->first;
+            next unless $report;
 
-                # Build ImagingExam ImagingReport Object
-                my $result_status = $report_count++ == 1 ? 'at0011' : 'at0010';
-                printf("VisitID: %s, StudyId: %s, ReportId: %s\n", 
-                    $visit->visitid, $study->studyid, $report->reportid);
-                my $report_text = $report->reporttextparsed;
+            # Build ImagingExam ImagingReport Object
+            #my $result_status = $report_count++ == 1 ? 'at0011' : 'at0010';
+            my $result_status = 'at0011';
+            printf("VisitID: %s, StudyId: %s, ReportId: %s\n", 
+                $visit->visitid, $study->studyid, $report->reportid);
+            my $report_text = $report->reporttextparsed;
                 #my $new_line_char = '\n';
                 #$report_text =~ s/\r?\n/\n/g;
-                my ( $imaging_code, $imaging_name, $imaging_terminology ) = 
-                    &get_primary_exam_code($report);
-                my $imaging_report = $imaging_exam->element('ImagingReport')->new(
-                    imaging_code => $imaging_code,
-                    imaging_name => $imaging_name,
-                    imaging_terminology => $imaging_terminology,
-                    report_text => $report_text,
-                    modality => $report->modality,
-                    result_status => $result_status,
-                    result_date => DateTime::Format::DateParse->parse_datetime($report->reportauthoriseddatealt),
-                    code_mappings => [],
-                );
-                $imaging_report->add_mappings($report);
+            my ( $imaging_code, $imaging_name, $imaging_terminology ) = 
+                &get_primary_exam_code($report);
+            my $imaging_report = $imaging_exam->element('ImagingReport')->new(
+                imaging_code => $imaging_code,
+                imaging_name => $imaging_name,
+                imaging_terminology => $imaging_terminology,
+                report_text => $report_text,
+                modality => $report->modality,
+                result_status => $result_status,
+                result_date => DateTime::Format::DateParse->parse_datetime($report->reportauthoriseddatealt),
+                code_mappings => [],
+            );
+            $imaging_report->add_mappings($report);
 
-                push @{ $imaging_exam->reports }, $imaging_report;
+            push @{ $imaging_exam->reports }, $imaging_report;
 
-                if ($report->nicip_map) {
-                    printf("ExamCode: %s, Nicip: %s\n", 
-                        $report->examcode, $report->nicip_map->nicip_code);
-                }
-                else {
-                    printf("No NICIP code for %s\n", 
-                        $report->examcode);
-                }
+            if ($report->nicip_map) {
+                printf("ExamCode: %s, Nicip: %s\n", 
+                    $report->examcode, $report->nicip_map->nicip_code);
+            }
+            else {
+                printf("No NICIP code for %s\n", 
+                    $report->examcode);
+            }
 
                 # Build RequestDetails Requester
                 #my $requester = OpenEHR::Composition::Elements::ImagingExam::Requester->new();
@@ -82,27 +82,26 @@ while ( my $request = $scheduled_requests_rs->next ) {
                 # Build RequestDetails dicom_url
                 #my dicom_url = '';
 
-                # Build RequestDetails ReportReference
-                my $report_reference = $imaging_exam->element('ReportReference')->new(
-                    id => $report->reportid,
-                );
+            # Build RequestDetails ReportReference
+            my $report_reference = $imaging_exam->element('ReportReference')->new(
+                id => $report->reportid,
+            );
 
-                # Build ImagingExam RequestDetails Object
-                my $request_details = $imaging_exam->element('RequestDetail')->new(
-                    report_reference => $report_reference,
-                    exam_request => [$report->examname],
-                );
-                push @{ $imaging_exam->request_details }, $request_details;
-            }
+            # Build ImagingExam RequestDetails Object
+            my $request_details = $imaging_exam->element('RequestDetail')->new(
+                report_reference => $report_reference,
+                exam_request => [$report->examname],
+            );
+            push @{ $imaging_exam->request_details }, $request_details;
             
             # Add the ImagingExam object to the RadiologyReport for this visit
             push @{ $radiology_report->imaging_exam }, $imaging_exam;
-        }
-        #print Dumper $radiology_report->compose;
+            #print Dumper $radiology_report->compose;
 
-        # Submit the composition
-        if ( my $compositionUid = &submit_composition( $radiology_report, $ehrid ) ) {
-            #&update_datawarehouse($compositionUid, $visit->visitid);
+            # Submit the composition
+            if ( my $compositionUid = &submit_composition( $radiology_report, $ehrid ) ) {
+                #&update_datawarehouse($compositionUid, $visit->visitid);
+            }
         }
     }
 }
@@ -243,20 +242,22 @@ sub get_visit_studies {
     return $study_rs;
 }
 
-=head2 get_study_reports
+=head2 get_latest_study_report
 
-Returns all report IDs for a given study 
+Returns latest report for a given study 
 
 =cut
 
-sub get_study_reports {
+sub get_latest_study_report {
     my $study_id = shift;
     my $report_rs = $schema->resultset('RadiologyReport')->search(
         {
             studyid => $study_id, 
+            studystatus => 'Authorised',
         },
         {
             order_by => { -desc => 'reportid' },
+            rows => 1,
         },
     );
     return $report_rs;
