@@ -43,7 +43,7 @@ while ( my $request = $scheduled_requests_rs->next ) {
                 next unless $report->reportid;
 
                 # Build ImagingExam ImagingReport Object
-                my $result_status = $report_count++ == 1 ? 'at0011' : 'at0010';
+                my $result_status = 'at0011';
                 printf("VisitID: %s, StudyId: %s, ReportId: %s\n", 
                     $visit->visitid, $study->studyid, $report->reportid);
                 my $report_text = $report->reporttextparsed;
@@ -273,6 +273,7 @@ sub get_study_reports {
         },
         {
             order_by => { -desc => 'reportid' },
+            rows => 1,
         },
     );
     return $report_rs;
