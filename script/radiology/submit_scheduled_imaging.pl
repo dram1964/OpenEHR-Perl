@@ -28,6 +28,7 @@ while ( my $request = $scheduled_requests_rs->next ) {
             my $radiology_report = OpenEHR::Composition::RadiologyReport->new(
                 report_id => $study->studyid,
                 imaging_exam => [],
+                report_date => DateTime::Format::DateParse->parse_datetime( $study->reportauthoriseddatealt ),
             );
             $radiology_report->composition_format('FLAT');
             #next unless $study->studyid eq '31190272';
@@ -233,9 +234,10 @@ sub get_visit_studies {
     my $study_rs = $schema->resultset('RadiologyReport')->search(
         {
             visitid => $visit_id,
+            studystatus => 'Authorised',
         },
         {
-            columns => [ qw/ studyid / ],
+            columns => [ qw/ studyid reportauthoriseddatealt/ ],
             distinct => 1,
         }
     );

@@ -45,13 +45,17 @@ sub update_expiry_date {
                         subject_id =>  $nhs_number,
                     }
                 );
-                my $order = $order_rs->first;
-                my $end_date = $order->data_end_date;
-                $order->update(
-                    {
-                        expiry_date => $end_date
-                    },
-                );
+                if ( $order_rs->count > 1 ) {
+                    while ( my $order = $order_rs->next ) {
+                        my $end_date = $order->data_end_date;
+                        $order->update( { expiry_date => $end_date } );
+                    }
+                }
+                else {
+                    my $order = $order_rs->first;
+                    my $end_date = $order->data_end_date;
+                    $order->update( { expiry_date => $end_date } );
+                }
             }
             else {
                 print "Subject ID: " . $nhs_number . " has no submitted compositions. Skipping\n";

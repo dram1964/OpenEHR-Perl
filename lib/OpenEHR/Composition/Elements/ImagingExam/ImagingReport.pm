@@ -187,7 +187,7 @@ sub compose_structured {
                 '|value'       => $status_codes->{ $self->result_status },
             }
         ],
-        'datetime_result_issued'        => [ $self->result_date->ymd ],
+        'datetime_result_issued'        => [ $self->result_date->datetime],
         'clinical_information_provided' => [ $self->clinical_info ],
         'imaging_report_text'           => [ $self->report_text ],
         'modality'                      => [ $self->modality ],
@@ -344,10 +344,8 @@ sub compose_flat {
           $self->report_text,      #'Imaging report text 62',
         $path . 'findings' => $self->findings,    #'Findings 69',
         $path . 'modality' => $self->modality,    #'Modality 39',
-        $path
-          . 'datetime_result_issued' =>
-          $self->result_date->ymd,    #'2018-09-14T12:45:54.769+01:00',
-        #$path . 'imaging_code' => $self->imaging_code,    #'Imaging code 87',
+        $path . 'datetime_result_issued' => $self->result_date->datetime,    #'2018-09-14T12:45:54.769+01:00',
+        $path . 'time' => $self->result_date->datetime,    #'2018-09-14T12:45:54.769+01:00',
         $path . 'imaging_code|code' => $self->imaging_code,    #'Imaging code 87',
         $path . 'imaging_code|value' => $self->imaging_name || $self->imaging_code,    #'Imaging code 87',
         $path . 'imaging_code|terminology' => 'local',    #'Imaging code 87',

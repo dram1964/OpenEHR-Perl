@@ -17,6 +17,7 @@ has ctx => (
     default => \&_set_ctx
 );
 has report_id => ( is => 'rw', isa => 'Str' );
+has report_date => ( is => 'rw', isa => 'DateTime' );
 has imaging_exam => (
     is  => 'rw',
     isa => 'ArrayRef[OpenEHR::Composition::Elements::ImagingExam]'
@@ -69,6 +70,7 @@ sub compose_flat {
 
     my $composition = {
         'radiology_result_report/context/report_id' => $self->report_id,
+        'radiology_result_report/context/start_time' => $self->report_date->datetime,
         %{ $self->ctx->compose },
         %{$imaging_exam_comp},
     };
