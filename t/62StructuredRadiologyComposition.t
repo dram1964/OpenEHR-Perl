@@ -265,6 +265,7 @@ is_deeply( $imaging_exam_report2->compose, $target_imaging_exam2,
 ok( my $radiology_report = OpenEHR::Composition::RadiologyReport->new(
     report_id => $report_id,
     imaging_exam => [$imaging_exam_report1, $imaging_exam_report2],
+    report_date => DateTime->now,
     ),
     'Radiology Report Constructor with two imaging exams'
 );
@@ -369,7 +370,7 @@ sub get_structured_radiology_report {
                                 }
                             ],
                             'datetime_result_issued' =>
-                              [$result_date1->ymd],
+                              [$result_date1->datetime],
                             'clinical_information_provided' =>
                               [$clinical_info1],
                             'imaging_report_text' => [$report_text1],
@@ -417,7 +418,7 @@ sub get_structured_radiology_report {
                                 }
                             ],
                             'datetime_result_issued' =>
-                              [$result_date2->ymd],
+                              [$result_date2->datetime],
                             'clinical_information_provided' =>
                               [$clinical_info2 ],
                             'imaging_report_text' => [$report_text2],
@@ -511,7 +512,7 @@ sub get_structured_radiology_report {
                                 }
                             ],
                             'datetime_result_issued' =>
-                              [$result_date1->ymd],
+                              [$result_date1->datetime],
                             'clinical_information_provided' =>
                               [$clinical_info1],
                             'imaging_report_text' => [$report_text1],
@@ -559,7 +560,7 @@ sub get_structured_radiology_report {
                                 }
                             ],
                             'datetime_result_issued' =>
-                              [$result_date2->ymd],
+                              [$result_date2->datetime],
                             'clinical_information_provided' =>
                               [$clinical_info2 ],
                             'imaging_report_text' => [$report_text2],

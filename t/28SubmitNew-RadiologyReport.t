@@ -76,6 +76,7 @@ my $imaging_exam = OpenEHR::Composition::Elements::ImagingExam->new(
 ok( my $radiology_report = OpenEHR::Composition::RadiologyReport->new(
     report_id => '0001111333',
     imaging_exam => [$imaging_exam, $imaging_exam],
+    report_date => DateTime->now,
 ), 'RadiologyReport Constructor');
 
 my $rest_client = OpenEHR::REST::Composition->new();
