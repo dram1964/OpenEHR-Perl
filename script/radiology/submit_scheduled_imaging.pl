@@ -28,7 +28,7 @@ while ( my $request = $scheduled_requests_rs->next ) {
             my $radiology_report = OpenEHR::Composition::RadiologyReport->new(
                 report_id => $study->studyid,
                 imaging_exam => [],
-                report_date => DateTime::Format::DateParse->parse_datetime( $study->reportauthoriseddatealt ),
+                report_date => DateTime::Format::DateParse->parse_datetime( $study->get_column( 'lastreported') ),
             );
             $radiology_report->composition_format('FLAT');
             #next unless $study->studyid eq '31190272';
@@ -226,11 +226,13 @@ sub get_patient_visits {
 =head2 get_visit_studies
 
 Returns all the studies (examinations) performed on a visit
+without duplicate (earlier) reports
 
 =cut
 
 sub get_visit_studies {
     my $visit_id = shift;
+=for removal
     my $study_rs = $schema->resultset('RadiologyReport')->search(
         {
             visitid => $visit_id,
@@ -239,6 +241,18 @@ sub get_visit_studies {
         {
             columns => [ qw/ studyid reportauthoriseddatealt/ ],
             distinct => 1,
+        }
+    );
+=cut 
+    my $study_rs = $schema->resultset('RadiologyReport')->search(
+        {
+            visitid => $visit_id,
+            studystatus => 'Authorised',
+        },
+        {
+            select => [ 'studyid', { max => 'reportauthoriseddatealt' } ],
+            as => [ qw/ studyid lastreported / ],
+            group_by => [qw/ studyid / ],
         }
     );
     return $study_rs;
