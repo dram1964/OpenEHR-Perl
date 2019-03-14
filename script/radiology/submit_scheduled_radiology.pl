@@ -27,7 +27,7 @@ while ( my $request = $scheduled_requests_rs->next ) {
             imaging_exam => [],
             report_date => DateTime::Format::DateParse->parse_datetime( $visit->get_column('lastreported') ),
         );
-        $radiology_report->composition_format('FLAT');
+        $radiology_report->composition_format('STRUCTURED');
         # Get a list of examinations for the visit
         my $study_rs = &get_visit_studies($visit->visitid);
         while ( my $study = $study_rs->next) {
@@ -103,7 +103,7 @@ while ( my $request = $scheduled_requests_rs->next ) {
 
         # Submit the composition
         if ( my $compositionUid = &submit_composition( $radiology_report, $ehrid ) ) {
-            &update_datawarehouse($compositionUid, $visit->visitid);
+            #&update_datawarehouse($compositionUid, $visit->visitid);
         }
     }
 }

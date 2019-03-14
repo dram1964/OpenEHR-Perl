@@ -105,7 +105,7 @@ sub compose_structured {
                             '|id_scheme'    => 'UCLH-NS'
                         }
                     ],
-                    'start_time' => ['2018-09-19T12:47:05.725+01:00'],
+                    'start_time' => [$self->report_date->datetime],#'2018-09-19T12:47:05.725+01:00'],
                     'setting'    => [
                         {
                             '|code'        => '238',
