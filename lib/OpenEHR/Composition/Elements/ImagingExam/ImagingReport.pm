@@ -98,7 +98,7 @@ sub add_mappings {
         push @{ $self->code_mappings },
           {
             code        => $report->examcode,
-            terminology => 'NICIP'
+            terminology => 'local'
           };
         if ( my $nicip = $report->nicip_map ) {
             if ( my $gel_map = $nicip->gel_map ) {
@@ -176,98 +176,43 @@ sub compose {
 }
 
 sub compose_structured {
-    my $self = shift;
-
+    my $self        = shift;
     my $composition = {
-        'modality'        => [ $self->modality ],
-        'imaging_report_text' => [ $self->report_text ],
-        'anatomical_location' => [
+        'modality'               => [ $self->modality ],
+        'imaging_report_text'    => [ $self->report_text ],
+        'time'                   => [ $self->result_date->datetime ],
+        'datetime_result_issued' => [ $self->result_date->datetime ]
+        ,    #'2018-09-14T12:45:54.769+01:00',
+        'imaging_code' => [
             {
-                'anatomical_site' => [
-                    {
-                        '|value'       => 'Abdominal',
-                        '|terminology' => 'GEL-REGION',
-                        '_mapping'     => [
-                            {
-                                'target' => [
-                                    {
-                                        '|code'        => 'Z92.6',
-                                        '|terminology' => 'OPCS-4-SITE'
-                                    }
-                                ],
-                                '|match' => '='
-                            }
-                        ],
-                        '|code' => 'Abdominal'
-                    }
-                ]
+                '|code'        => $self->imaging_code,           #'UABDO',
+                '|terminology' => $self->imaging_terminology,    #'NICIP',
+                '|value'       => $self->imaging_name
+                  || $self->imaging_code,                        #'UABDO',
             }
         ],
-        'time'                   => [ $self->result_date->datetime ],
-        'datetime_result_issued' => [ $self->result_date->datetime ],    #'2018-09-14T12:45:54.769+01:00',
-        'imaging_code'           => [
-            {
-                '|code'        => 'UABDO',
-                '|terminology' => 'NICIP',
-                '|value'       => 'UABDO',
-                '_mapping'     => [
-                    {
-                        '|match' => '=',
-                        'target' => [
-                            {
-                                '|code'        => 'U34',
-                                '|terminology' => 'NICIP'
-                            }
-                        ]
-                    },
-                    {
-                        '|match' => '=',
-                        'target' => [
-                            {
-                                '|terminology' => 'SNOMED-CT-CODE',
-                                '|code'        => '45036003'
-                            }
-                        ]
-                    },
-                    {
-                        '|match' => '=',
-                        'target' => [
-                            {
-                                '|terminology' => 'SNOMED-CT-DESCRIPTION',
-                                '|code' =>
-                                  'Ultrasonography of abdomen (procedure)'
-                            }
-                        ]
-                    },
-                    {
-                        '|match' => '=',
-                        'target' => [
-                            {
-                                '|code'        => 'U08.2',
-                                '|terminology' => 'OPCS-4-PRIMARY'
-                            }
-                        ]
-                    },
-                    {
-                        'target' => [
-                            {
-                                '|code'        => 'Y98.1',
-                                '|terminology' => 'OPCS-4-METHOD'
-                            }
-                        ],
-                        '|match' => '='
-                    }
-                ]
-            }
-        ]
+
     };
 
-    if ( $self->result_status ) {
-        $composition->{ 'overall_result_status' }->[0] = {
-                '|code'        => $self->result_status, #'at0011',
-                '|value'       => $status_codes->{ $self->result_status }, #'F'
-                '|terminology' => 'local'
+    if ( $self->code_mappings ) {
+        for my $mapping ( @{ $self->code_mappings } ) {
+            push @{ $composition->{imaging_code}->[0]->{'_mapping'} }, {
+                '|match' => '=',
+                'target' => [
+                    {
+                        '|code'        => $mapping->{code},           #'U34',
+                        '|terminology' => $mapping->{terminology},    #'NICIP'
+                    }
+                ]
             };
+        }
+    }
+    if ( $self->result_status ) {
+        $composition->{'overall_result_status'}->[0] = {
+            '|code'  => $self->result_status,                         #'at0011',
+            '|value' => $status_codes->{ $self->result_status },      #'F'
+            '|terminology' => 'local'
+        };
     }
     if ( $self->anatomical_side ) {
         $composition->{anatomical_side}->[0] = {
@@ -298,9 +243,25 @@ sub compose_structured {
         }
     }
     if ( $self->anatomical_site ) {
-        for my $site ( @{ $self->anatomical_site } ) {
-            push @{ $composition->{anatomical_location} },
-              { anatomical_site => [$site], };
+        for my $anatomical_site ( @{ $self->anatomical_site } ) {
+            my $site_hash = {
+                '|code'        => $anatomical_site,
+                '|value'       => $anatomical_site,
+                '|terminology' => 'GEL-REGION',
+            };
+            if ( $self->opcs_site ) {
+                $site_hash->{'_mapping'}->[0] = {
+                            '|match'       => '=',
+                    'target' => [
+                        {
+                            '|code'        => $self->opcs_site,
+                            '|terminology' => 'OPCS-4-SITE'
+                        }
+                    ],
+                };
+            }
+            push @{ $composition->{anatomical_location }->[0]->{anatomical_site} }, $site_hash;
+
         }
     }
     return $composition;
