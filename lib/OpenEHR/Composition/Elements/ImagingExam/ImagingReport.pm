@@ -98,7 +98,7 @@ sub add_mappings {
         push @{ $self->code_mappings },
             {
                 code => $report->examcode,
-                terminology => 'local'
+                terminology => 'NICIP'
             };
         if ( my $nicip = $report->nicip_map ) {
             if ( my $gel_map = $nicip->gel_map ) {
@@ -348,7 +348,7 @@ sub compose_flat {
         $path . 'time' => $self->result_date->datetime,    #'2018-09-14T12:45:54.769+01:00',
         $path . 'imaging_code|code' => $self->imaging_code,    #'Imaging code 87',
         $path . 'imaging_code|value' => $self->imaging_name || $self->imaging_code,    #'Imaging code 87',
-        $path . 'imaging_code|terminology' => 'local',    #'Imaging code 87',
+        $path . 'imaging_code|terminology' => $self->imaging_terminology,    #'Imaging code 87',
         $path . 'overall_result_status|code' => $self->result_status, #'at0011',
         $path
           . 'overall_result_status|value' =>
