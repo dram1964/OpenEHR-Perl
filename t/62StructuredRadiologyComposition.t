@@ -10,6 +10,13 @@ ok( my $imaging_exam = OpenEHR::Composition::Elements::ImagingExam->new(),
     'Setup elements namespace' );
 
 my $report_id = 'AAACMEReport123';
+my $report_date   = DateTime->new(
+    year   => 2018,
+    month  => 9,
+    day    => 14,
+    hour   => 12,
+    minute => 55,
+);
 
 my $request_id1   = 'TQ00112233';
 my $receiver_id1  = 'RIS123123';
@@ -63,26 +70,16 @@ my $anatomical_side2 = 'RIGHT';
 my $diagnosis2       = [qw/ K3123 MT331/];
 
 my $target = &get_structured_radiology_report;
-my $target_imaging_exam1 =
-  $target->{radiology_result_report}->{imaging_examination_result}->[0];
-my $target_imaging_exam2 =
-  $target->{radiology_result_report}->{imaging_examination_result}->[1];
-my $target_request_detail1 =
-  $target_imaging_exam1->{examination_request_details}->[0];
-my $target_request_detail2 =
-  $target_imaging_exam2->{examination_request_details}->[0];
-my $target_requester_order1 =
-  $target_request_detail1->{requester_order_identifier}->[0];
-my $target_requester_order2 =
-  $target_request_detail2->{requester_order_identifier}->[0];
-my $target_receiver_order1 =
-  $target_request_detail1->{receiver_order_identifier}->[0];
-my $target_receiver_order2 =
-  $target_request_detail2->{receiver_order_identifier}->[0];
-my $target_report_reference1 =
-  $target_request_detail1->{imaging_report_reference}->[0];
-my $target_report_reference2 =
-  $target_request_detail2->{imaging_report_reference}->[0];
+my $target_imaging_exam1 = $target->{radiology_result_report}->{imaging_examination_result}->[0];
+my $target_imaging_exam2 = $target->{radiology_result_report}->{imaging_examination_result}->[1];
+my $target_request_detail1 = $target_imaging_exam1->{examination_request_details}->[0];
+my $target_request_detail2 = $target_imaging_exam2->{examination_request_details}->[0];
+my $target_requester_order1 = $target_request_detail1->{requester_order_identifier}->[0];
+my $target_requester_order2 = $target_request_detail2->{requester_order_identifier}->[0];
+my $target_receiver_order1 = $target_request_detail1->{receiver_order_identifier}->[0];
+my $target_receiver_order2 = $target_request_detail2->{receiver_order_identifier}->[0];
+my $target_report_reference1 = $target_request_detail1->{imaging_report_reference}->[0];
+my $target_report_reference2 = $target_request_detail2->{imaging_report_reference}->[0];
 my $target_imaging_report1 = $target_imaging_exam1->{any_event}->[0];
 my $target_imaging_report2 = $target_imaging_exam1->{any_event}->[1];
 my $target_imaging_report3 = $target_imaging_exam2->{any_event}->[0];
@@ -240,6 +237,7 @@ ok(
     'construct third imaging report object'
 );
 
+
 is_deeply( $imaging_report3->compose, $target_imaging_report3,
     'third imaging report matches' );
 
@@ -258,7 +256,7 @@ ok(
         imaging_code    => $imaging_code2,
         image_file      => $image_file2,
     ),
-    'construct second imaging report object'
+    'construct fourth imaging report object'
 );
 is_deeply( $imaging_report4->compose, $target_imaging_report4,
     'fourth imaging report matches' );
@@ -277,7 +275,7 @@ ok(
     my $radiology_report = OpenEHR::Composition::RadiologyReport->new(
         report_id    => $report_id,
         imaging_exam => [ $imaging_exam_report1, $imaging_exam_report2 ],
-        report_date  => DateTime->now,
+        report_date  => $report_date,
     ),
     'Radiology Report Constructor with two imaging exams'
 );
@@ -311,7 +309,7 @@ sub get_structured_radiology_report {
                             '|id_scheme'    => 'UCLH-NS'
                         }
                     ],
-                    'start_time' => ['2018-09-19T12:47:05.725+01:00'],
+                    'start_time' => [ $report_date->datetime ],
                     'setting'    => [
                         {
                             '|code'        => '238',
@@ -547,6 +545,7 @@ sub get_structured_radiology_report {
                     ],
                     'any_event' => [
                         {
+                            'time' => [ $result_date1->datetime, ],
                             'overall_result_status' => [
                                 {
                                     '|code'        => $result_status1,
@@ -610,6 +609,7 @@ sub get_structured_radiology_report {
                             ]
                         },
                         {
+                            'time' => [ $result_date2->datetime, ],
                             'overall_result_status' => [
                                 {
                                     '|code'        => $result_status2,
