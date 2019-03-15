@@ -194,6 +194,14 @@ sub compose_structured {
 
     };
 
+    if ( $self->findings ) {
+        $composition->{ findings } = [ $self->findings ];
+    }
+
+    if ( $self->clinical_info ) {
+        $composition->{clinical_information_provided} = [$self->clinical_info];
+    }
+
     if ( $self->code_mappings ) {
         for my $mapping ( @{ $self->code_mappings } ) {
             push @{ $composition->{imaging_code}->[0]->{'_mapping'} }, {

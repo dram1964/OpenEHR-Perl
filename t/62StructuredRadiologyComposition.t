@@ -11,7 +11,6 @@ ok( my $imaging_exam = OpenEHR::Composition::Elements::ImagingExam->new(),
 
 my $report_id = 'AAACMEReport123';
 
-
 my $request_id1   = 'TQ00112233';
 my $receiver_id1  = 'RIS123123';
 my $report_id1    = $receiver_id1 . 'REP';
@@ -24,56 +23,66 @@ my $report_id2    = $receiver_id2 . 'REP';
 my $dicom_url2    = 'http://uclh.dicom.store/image_2';
 my $exam_request2 = [ 'Request1', 'Request2' ];
 
-my $result_status1 = 'at0011'; 
-my $result_date1 = DateTime->new(
-    year => 2018,
-    month => 9,
-    day => 14,
-    hour => 12,
+my $result_status1 = 'at0011';
+my $result_date1   = DateTime->new(
+    year   => 2018,
+    month  => 9,
+    day    => 14,
+    hour   => 12,
     minute => 45,
 );
-my $clinical_info1 = 'Clinical information provided 50'; 
-my $report_text1 = 'Imaging report text 62'; 
-my $modality1 = 'Modality 39';
-my $image_file1 = ['Image File Reference 97', 'Image File Reference 98']; 
-my $imaging_code1 = 'Imaging code 87';
-my $comment1 = [ 'Comment 44', 'Comment 45' ];
-my $anatomical_site1 = ['Anatomical Site 3', 'Anatomical Site 4'];
-my $findings1 = 'Findings 69';
+my $clinical_info1   = 'Clinical information provided 50';
+my $report_text1     = 'Imaging report text 62';
+my $modality1        = 'Modality 39';
+my $image_file1      = [ 'Image File Reference 97', 'Image File Reference 98' ];
+my $imaging_code1    = 'Imaging code 87';
+my $comment1         = [ 'Comment 44', 'Comment 45' ];
+my $anatomical_site1 = [ 'Anatomical Site 3', 'Anatomical Site 4' ];
+my $findings1        = 'Findings 69';
 my $anatomical_side1 = 'LEFT';
-my $diagnosis1 = [qw/ K3123 X0038/];
+my $diagnosis1       = [qw/ K3123 X0038/];
 
-my $result_status2 = 'at0010'; 
-my $result_date2 = DateTime->new(
-    year => 2018,
-    month => 9,
-    day => 14,
-    hour => 12,
+my $result_status2 = 'at0010';
+my $result_date2   = DateTime->new(
+    year   => 2018,
+    month  => 9,
+    day    => 14,
+    hour   => 12,
     minute => 55,
 );
 
-my $clinical_info2 = 'Clinical information provided 51'; 
-my $report_text2 = 'Imaging report text 63'; 
-my $modality2 = 'Modality 40';
-my $image_file2 = ['Image file reference 99', 'Image File Reference 96']; 
-my $imaging_code2 = 'Imaging code 88';
-my $comment2 = [ 'Comment 47', 'Comment 46' ];
-my $anatomical_site2 = ['Anatomical site 5', 'Anatomical Site 6'];
-my $findings2 = 'Findings 70';
+my $clinical_info2   = 'Clinical information provided 51';
+my $report_text2     = 'Imaging report text 63';
+my $modality2        = 'Modality 40';
+my $image_file2      = [ 'Image file reference 99', 'Image File Reference 96' ];
+my $imaging_code2    = 'Imaging code 88';
+my $comment2         = [ 'Comment 47', 'Comment 46' ];
+my $anatomical_site2 = [ 'Anatomical site 5', 'Anatomical Site 6' ];
+my $findings2        = 'Findings 70';
 my $anatomical_side2 = 'RIGHT';
-my $diagnosis2 = [qw/ K3123 MT331/];
+my $diagnosis2       = [qw/ K3123 MT331/];
 
 my $target = &get_structured_radiology_report;
-my $target_imaging_exam1 = $target->{radiology_result_report}->{imaging_examination_result}->[0];
-my $target_imaging_exam2 = $target->{radiology_result_report}->{imaging_examination_result}->[1];
-my $target_request_detail1 = $target_imaging_exam1->{examination_request_details}->[0];
-my $target_request_detail2 = $target_imaging_exam2->{examination_request_details}->[0];
-my $target_requester_order1 = $target_request_detail1->{requester_order_identifier}->[0];
-my $target_requester_order2 = $target_request_detail2->{requester_order_identifier}->[0];
-my $target_receiver_order1 = $target_request_detail1->{receiver_order_identifier}->[0];
-my $target_receiver_order2 = $target_request_detail2->{receiver_order_identifier}->[0];
-my $target_report_reference1 = $target_request_detail1->{imaging_report_reference}->[0];
-my $target_report_reference2 = $target_request_detail2->{imaging_report_reference}->[0];
+my $target_imaging_exam1 =
+  $target->{radiology_result_report}->{imaging_examination_result}->[0];
+my $target_imaging_exam2 =
+  $target->{radiology_result_report}->{imaging_examination_result}->[1];
+my $target_request_detail1 =
+  $target_imaging_exam1->{examination_request_details}->[0];
+my $target_request_detail2 =
+  $target_imaging_exam2->{examination_request_details}->[0];
+my $target_requester_order1 =
+  $target_request_detail1->{requester_order_identifier}->[0];
+my $target_requester_order2 =
+  $target_request_detail2->{requester_order_identifier}->[0];
+my $target_receiver_order1 =
+  $target_request_detail1->{receiver_order_identifier}->[0];
+my $target_receiver_order2 =
+  $target_request_detail2->{receiver_order_identifier}->[0];
+my $target_report_reference1 =
+  $target_request_detail1->{imaging_report_reference}->[0];
+my $target_report_reference2 =
+  $target_request_detail2->{imaging_report_reference}->[0];
 my $target_imaging_report1 = $target_imaging_exam1->{any_event}->[0];
 my $target_imaging_report2 = $target_imaging_exam1->{any_event}->[1];
 my $target_imaging_report3 = $target_imaging_exam2->{any_event}->[0];
@@ -138,8 +147,8 @@ ok(
     'construct first imaging report object'
 );
 
-is_deeply( $imaging_report1->compose, $target_imaging_report1, 
-    'first imaging report matches');
+is_deeply( $imaging_report1->compose, $target_imaging_report1,
+    'first imaging report matches' );
 
 ok(
     my $imaging_report2 = $imaging_exam->element('ImagingReport')->new(
@@ -158,17 +167,18 @@ ok(
     ),
     'construct second imaging report object'
 );
-is_deeply( $imaging_report2->compose, $target_imaging_report2, 
-    'second imaging report matches');
+is_deeply( $imaging_report2->compose, $target_imaging_report2,
+    'second imaging report matches' );
 
-ok( my $imaging_exam_report1 = $imaging_exam->element('ImagingExam')->new(
-    reports => [$imaging_report1, $imaging_report2],
-    request_details => [$request_detail1],
+ok(
+    my $imaging_exam_report1 = $imaging_exam->element('ImagingExam')->new(
+        reports         => [ $imaging_report1, $imaging_report2 ],
+        request_details => [$request_detail1],
     ),
     'Imaging Examination Report Constructor'
 );
-is_deeply( $imaging_exam_report1->compose, $target_imaging_exam1, 
-    'Imaging Exam composition matches target');
+is_deeply( $imaging_exam_report1->compose,
+    $target_imaging_exam1, 'Imaging Exam composition matches target' );
 
 ok(
     my $requester2 = $imaging_exam->element('Requester')->new(
@@ -195,7 +205,8 @@ ok(
     'Construct Second Report Reference Element'
 );
 is_deeply( $report_reference2->compose,
-    $target_report_reference2, 'Second Report Reference composition matches target' );
+    $target_report_reference2,
+    'Second Report Reference composition matches target' );
 
 ok(
     my $request_detail2 = $imaging_exam->element('RequestDetail')->new(
@@ -205,7 +216,7 @@ ok(
         dicom_url        => $dicom_url2,
         exam_request     => $exam_request2,
     ),
-    'Construct Second Request Detail from Requester, Receiver and Report Reference'
+'Construct Second Request Detail from Requester, Receiver and Report Reference'
 );
 
 is_deeply( $request_detail2->compose, $target_request_detail2,
@@ -229,8 +240,8 @@ ok(
     'construct third imaging report object'
 );
 
-is_deeply( $imaging_report3->compose, $target_imaging_report3, 
-    'third imaging report matches');
+is_deeply( $imaging_report3->compose, $target_imaging_report3,
+    'third imaging report matches' );
 
 ok(
     my $imaging_report4 = $imaging_exam->element('ImagingReport')->new(
@@ -249,28 +260,29 @@ ok(
     ),
     'construct second imaging report object'
 );
-is_deeply( $imaging_report4->compose, $target_imaging_report4, 
-    'fourth imaging report matches');
+is_deeply( $imaging_report4->compose, $target_imaging_report4,
+    'fourth imaging report matches' );
 
-ok( my $imaging_exam_report2 = $imaging_exam->element('ImagingExam')->new(
-    reports => [$imaging_report3, $imaging_report4],
-    request_details => [$request_detail2],
+ok(
+    my $imaging_exam_report2 = $imaging_exam->element('ImagingExam')->new(
+        reports         => [ $imaging_report3, $imaging_report4 ],
+        request_details => [$request_detail2],
     ),
     'Imaging Examination Report Constructor'
 );
-is_deeply( $imaging_exam_report2->compose, $target_imaging_exam2, 
-    'Imaging Exam composition matches target');
+is_deeply( $imaging_exam_report2->compose,
+    $target_imaging_exam2, 'Imaging Exam composition matches target' );
 
-
-ok( my $radiology_report = OpenEHR::Composition::RadiologyReport->new(
-    report_id => $report_id,
-    imaging_exam => [$imaging_exam_report1, $imaging_exam_report2],
-    report_date => DateTime->now,
+ok(
+    my $radiology_report = OpenEHR::Composition::RadiologyReport->new(
+        report_id    => $report_id,
+        imaging_exam => [ $imaging_exam_report1, $imaging_exam_report2 ],
+        report_date  => DateTime->now,
     ),
     'Radiology Report Constructor with two imaging exams'
 );
-is_deeply( $radiology_report->compose, $target, 
-    'Radiology Report matches target');
+is_deeply( $radiology_report->compose,
+    $target, 'Radiology Report matches target' );
 
 done_testing;
 
@@ -362,15 +374,17 @@ sub get_structured_radiology_report {
                     ],
                     'any_event' => [
                         {
+                            'time' => [ $result_date1->datetime, ],
+
                             'overall_result_status' => [
                                 {
-                                    '|code'        => $result_status1, 
+                                    '|code'        => $result_status1,
                                     '|terminology' => 'local',
                                     '|value'       => 'F'
                                 }
                             ],
                             'datetime_result_issued' =>
-                              [$result_date1->datetime],
+                              [ $result_date1->datetime ],
                             'clinical_information_provided' =>
                               [$clinical_info1],
                             'imaging_report_text' => [$report_text1],
@@ -378,25 +392,39 @@ sub get_structured_radiology_report {
                             'multimedia_resource' => [
                                 {
                                     'image_file_reference' =>
-                                      [$image_file1->[0]]
+                                      [ $image_file1->[0] ]
                                 },
                                 {
                                     'image_file_reference' =>
-                                      [$image_file1->[1]]
+                                      [ $image_file1->[1] ]
                                 }
                             ],
                             'imaging_diagnosis' => $diagnosis1,
-                            'imaging_code' => [$imaging_code1],
-                            'comment'      => $comment1, 
-                            'anatomical_location' => [
+                            'imaging_code'      => [
                                 {
-                                    'anatomical_site' => [$anatomical_site1->[0]]
-                                },
-                                {
-                                    'anatomical_site' => [$anatomical_site1->[1]]
+                                    '|terminology' => 'local',
+                                    '|code'        => $imaging_code1,
+                                    '|value'       => $imaging_code1,
                                 }
                             ],
-                            'findings'        => [$findings1], 
+                            'comment'             => $comment1,
+                            'anatomical_location' => [
+                                {
+                                    'anatomical_site' => [
+                                        {
+                                            '|value' => $anatomical_site1->[0],
+                                            '|terminology' => 'GEL-REGION',
+                                            '|code' => $anatomical_site1->[0],
+                                        },
+                                        {
+                                            '|terminology' => 'GEL-REGION',
+                                            '|value' => $anatomical_site1->[1],
+                                            '|code'  => $anatomical_site1->[1],
+                                        }
+                                    ]
+                                }
+                            ],
+                            'findings'        => [$findings1],
                             'anatomical_side' => [
                                 {
                                     'anatomical_side' => [
@@ -410,6 +438,7 @@ sub get_structured_radiology_report {
                             ]
                         },
                         {
+                            'time' => [ $result_date2->datetime, ],
                             'overall_result_status' => [
                                 {
                                     '|code'        => $result_status2,
@@ -418,30 +447,44 @@ sub get_structured_radiology_report {
                                 }
                             ],
                             'datetime_result_issued' =>
-                              [$result_date2->datetime],
+                              [ $result_date2->datetime ],
                             'clinical_information_provided' =>
-                              [$clinical_info2 ],
+                              [$clinical_info2],
                             'imaging_report_text' => [$report_text2],
                             'modality'            => [$modality2],
                             'multimedia_resource' => [
                                 {
                                     'image_file_reference' =>
-                                      [$image_file2->[0]]
+                                      [ $image_file2->[0] ]
                                 },
                                 {
                                     'image_file_reference' =>
-                                      [$image_file2->[1]]
+                                      [ $image_file2->[1] ]
                                 }
                             ],
                             'imaging_diagnosis' => $diagnosis2,
-                            'imaging_code' => [$imaging_code2],
-                            'comment'      => $comment2,
+                            'imaging_code'      => [
+                                {
+                                    '|terminology' => 'local',
+                                    '|code'        => $imaging_code2,
+                                    '|value'       => $imaging_code2,
+                                }
+                            ],
+                            'comment'             => $comment2,
                             'anatomical_location' => [
                                 {
-                                    'anatomical_site' => [$anatomical_site2->[0]]
-                                },
-                                {
-                                    'anatomical_site' => [$anatomical_site2->[1]]
+                                    'anatomical_site' => [
+                                        {
+                                            '|value' => $anatomical_site2->[0],
+                                            '|terminology' => 'GEL-REGION',
+                                            '|code' => $anatomical_site2->[0],
+                                        },
+                                        {
+                                            '|terminology' => 'GEL-REGION',
+                                            '|value' => $anatomical_site2->[1],
+                                            '|code'  => $anatomical_site2->[1],
+                                        }
+                                    ]
                                 }
                             ],
                             'findings'        => [$findings2],
@@ -506,13 +549,13 @@ sub get_structured_radiology_report {
                         {
                             'overall_result_status' => [
                                 {
-                                    '|code'        => $result_status1, 
+                                    '|code'        => $result_status1,
                                     '|terminology' => 'local',
                                     '|value'       => 'F'
                                 }
                             ],
                             'datetime_result_issued' =>
-                              [$result_date1->datetime],
+                              [ $result_date1->datetime ],
                             'clinical_information_provided' =>
                               [$clinical_info1],
                             'imaging_report_text' => [$report_text1],
@@ -520,25 +563,40 @@ sub get_structured_radiology_report {
                             'multimedia_resource' => [
                                 {
                                     'image_file_reference' =>
-                                      [$image_file1->[0]]
+                                      [ $image_file1->[0] ]
                                 },
                                 {
                                     'image_file_reference' =>
-                                      [$image_file1->[1]]
+                                      [ $image_file1->[1] ]
                                 }
                             ],
                             'imaging_diagnosis' => $diagnosis1,
-                            'imaging_code' => [$imaging_code1],
-                            'comment'      => $comment1, 
-                            'anatomical_location' => [
+                            'imaging_code'      => [
                                 {
-                                    'anatomical_site' => [$anatomical_site1->[0]]
-                                },
-                                {
-                                    'anatomical_site' => [$anatomical_site1->[1]]
+                                    '|terminology' => 'local',
+                                    '|code'        => $imaging_code1,
+                                    '|value'       => $imaging_code1,
                                 }
                             ],
-                            'findings'        => [$findings1], 
+
+                            'comment'             => $comment1,
+                            'anatomical_location' => [
+                                {
+                                    'anatomical_site' => [
+                                        {
+                                            '|value' => $anatomical_site1->[0],
+                                            '|terminology' => 'GEL-REGION',
+                                            '|code' => $anatomical_site1->[0],
+                                        },
+                                        {
+                                            '|terminology' => 'GEL-REGION',
+                                            '|value' => $anatomical_site1->[1],
+                                            '|code'  => $anatomical_site1->[1],
+                                        }
+                                    ]
+                                }
+                            ],
+                            'findings'        => [$findings1],
                             'anatomical_side' => [
                                 {
                                     'anatomical_side' => [
@@ -560,30 +618,44 @@ sub get_structured_radiology_report {
                                 }
                             ],
                             'datetime_result_issued' =>
-                              [$result_date2->datetime],
+                              [ $result_date2->datetime ],
                             'clinical_information_provided' =>
-                              [$clinical_info2 ],
+                              [$clinical_info2],
                             'imaging_report_text' => [$report_text2],
                             'modality'            => [$modality2],
                             'multimedia_resource' => [
                                 {
                                     'image_file_reference' =>
-                                      [$image_file2->[0]]
+                                      [ $image_file2->[0] ]
                                 },
                                 {
                                     'image_file_reference' =>
-                                      [$image_file2->[1]]
+                                      [ $image_file2->[1] ]
                                 }
                             ],
                             'imaging_diagnosis' => $diagnosis2,
-                            'imaging_code' => [$imaging_code2],
-                            'comment'      => $comment2,
+                            'imaging_code'      => [
+                                {
+                                    '|terminology' => 'local',
+                                    '|code'        => $imaging_code2,
+                                    '|value'       => $imaging_code2,
+                                }
+                            ],
+                            'comment'             => $comment2,
                             'anatomical_location' => [
                                 {
-                                    'anatomical_site' => [$anatomical_site2->[0]]
-                                },
-                                {
-                                    'anatomical_site' => [$anatomical_site2->[1]]
+                                    'anatomical_site' => [
+                                        {
+                                            '|value' => $anatomical_site2->[0],
+                                            '|terminology' => 'GEL-REGION',
+                                            '|code' => $anatomical_site2->[0],
+                                        },
+                                        {
+                                            '|terminology' => 'GEL-REGION',
+                                            '|value' => $anatomical_site2->[1],
+                                            '|code'  => $anatomical_site2->[1],
+                                        }
+                                    ]
                                 }
                             ],
                             'findings'        => [$findings2],
