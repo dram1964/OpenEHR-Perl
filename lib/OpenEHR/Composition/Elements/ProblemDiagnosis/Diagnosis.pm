@@ -40,7 +40,7 @@ sub compose_structured {
     my $composition = {
         '|code'        => $self->code,
         '|terminology' => $self->terminology,
-        '|value'       => $self->value,
+        '|value'       => $self->code,
     };
     return $composition;
 }
@@ -66,7 +66,7 @@ sub compose_raw {
     my $composition = {
         'archetype_node_id' => 'at0002',
         'value'             => {
-            'value'         => $self->value,
+            'value'         => $self->code,
             'defining_code' => {
                 'terminology_id' => {
                     'value'  => $self->terminology,
@@ -92,7 +92,7 @@ sub compose_flat {
 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/diagnosis:__DIAG__|code'
           => $self->code,
 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/diagnosis:__DIAG__|value'
-          => $self->value,
+          => $self->code,
 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/diagnosis:__DIAG__|terminology'
           => $self->terminology,
     };
