@@ -9,10 +9,10 @@ use OpenEHR::REST::Composition;
 use Genomes_100K::Model;
 use Data::Dumper;
 
-my $uid = 'c7a897ae-3332-42b6-bc91-03ff2fff27b3::default::1';
-my $subject_id = '1111111111';
-my $data_start_date = '1970-03-16';
-my $data_end_date = '2018-01-09';
+my $uid = '8b6591eb-4b1b-48f9-a9a4-09178d622d6d::default::2';
+my $subject_id = '9467484064';
+my $data_start_date = '2001-03-07';
+my $data_end_date = '2019-03-19';
 
 my $schema = Genomes_100K::Model->connect('CRIUGenomes');
 
@@ -32,7 +32,6 @@ sub report_cancer_update {
         {
             nhs_number           => $nhs_number,
             event_date_diagnosis => { '>=' => $start_date, '<=' => $end_date },
-            reported_date        => undef,
         },
     );
     while ( my $report = $reports_rs->next ) {
