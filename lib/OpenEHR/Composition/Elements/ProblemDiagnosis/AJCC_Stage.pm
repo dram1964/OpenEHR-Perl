@@ -42,7 +42,7 @@ Private method to return the correct ajcc_stage_grouping based on the provided a
 sub _get_ajcc_stage_group {
     my $self       = shift;
     my $ajcc_codes = {
-        '1'  => 'Stage I',
+        '1'  => 'Stage 1',
         '2'  => 'Stage II',
         '3'  => 'Stage III',
         '4'  => 'Stage 4',
