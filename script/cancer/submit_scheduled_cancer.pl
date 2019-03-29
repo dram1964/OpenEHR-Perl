@@ -113,7 +113,7 @@ This data is not currently in the Infoflex Extract
             }
             if ( $report->figo_stage_group_skin ) {
                 my $figo_stage = &get_figo_stage( $report, $pd );
-                $problem_diagnosis->figo_stage( [$figo_stage] );
+                $problem_diagnosis->final_figo_stage( [$figo_stage] );
             }
             if ( $report->modified_dukes_stage_colo ) {
                 my $modified_dukes = &get_modified_dukes( $report, $pd );
@@ -319,7 +319,7 @@ sub get_bclc_stage {
 sub get_modified_dukes {
     my $report         = shift;
     my $pd             = shift;
-    my $modified_dukes = $pd->element('AJCC_Stage')
+    my $modified_dukes = $pd->element('ModifiedDukes')
       ->new( local_code => $report->modified_dukes_stage_colo );
     return $modified_dukes;
 }
@@ -328,7 +328,7 @@ sub get_ajcc_stage {
     my $report     = shift;
     my $pd         = shift;
     my $ajcc_stage = $pd->element('AJCC_Stage')
-      ->new( ajcc_stage_grouping => $report->ajcc_tnm_stage_group_skin );
+      ->new( ajcc_code => $report->ajcc_tnm_stage_group_skin );
     return $ajcc_stage;
 }
 
