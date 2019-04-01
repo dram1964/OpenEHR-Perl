@@ -84,7 +84,7 @@ sub compose_structured {
     my $self        = shift;
     my $composition = {
         '|code'        => $self->code,
-        '|value'       => $self->value,
+        '|value'       => $self->local_code,
         '|terminology' => $self->terminology,
     };
     return $composition;
@@ -109,7 +109,7 @@ sub compose_raw {
                     '@class' => 'TERMINOLOGY_ID'
                 }
             },
-            'value' => $self->value,
+            'value' => $self->local_code,
         }
       };
       return $composition;
@@ -121,7 +121,7 @@ sub compose_flat {
 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/extranodal_metastases:__DIAG2__|code'
           => $self->code,    #'at0021',
 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/extranodal_metastases:__DIAG2__|value'
-          => $self->value,    #'L1 less than or equal to 3 metastases',
+          => $self->local_code,    #'L1 less than or equal to 3 metastases',
 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/extranodal_metastases:__DIAG2__|terminology'
           => $self->terminology,    #'local',
     };
