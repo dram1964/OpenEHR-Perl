@@ -77,7 +77,7 @@ sub compose_structured {
     my $composition = {
         'modified_dukes_stage' => [
             {   '|code'        => $self->code,
-                '|value'       => $self->value,
+                '|value'       => $self->local_code,
                 '|terminology' => $self->terminology,
             }
         ]
@@ -113,7 +113,7 @@ sub compose_raw {
                             '@class' => 'TERMINOLOGY_ID'
                         }
                     },
-                    'value' => $self->value,    #'Dukes Stage D'
+                    'value' => $self->local_code,    #'Dukes Stage D'
                 },
                 'name' => {
                     '@class' => 'DV_TEXT',
@@ -131,7 +131,7 @@ sub compose_flat {
     my $self        = shift;
     my $composition = {
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/modified_dukes_stage:__DIAG__/modified_dukes_stage|value'
-            => $self->value,    #'Dukes Stage D',
+            => $self->local_code,    #'Dukes Stage D',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/modified_dukes_stage:__DIAG__/modified_dukes_stage|terminology'
             => $self->terminology,    #'local',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/modified_dukes_stage:__DIAG__/modified_dukes_stage|code'
