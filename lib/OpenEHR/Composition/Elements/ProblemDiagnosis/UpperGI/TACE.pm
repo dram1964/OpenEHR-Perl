@@ -82,7 +82,7 @@ sub compose_structured {
     my $self        = shift;
     my $composition = { 
         '|code' => $self->code,
-        '|value' => $self->value,
+        '|value' => $self->local_code,
         '|terminology' => $self->terminology,
     };
     return $composition;
@@ -92,7 +92,7 @@ sub compose_raw {
     my $self        = shift;
     my $composition = {
                'value' => {
-                    'value'         => $self->value, #'Y Yes',
+                    'value'         => $self->local_code, #'Y Yes',
                     'defining_code' => {
                         'terminology_id' => {
                             'value'  => $self->terminology, #'local',
@@ -119,7 +119,7 @@ sub compose_flat {
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/transarterial_chemoembolisation:__DIAG2__|terminology'
             => $self->terminology, #'local',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/transarterial_chemoembolisation:__DIAG2__|value'
-            => $self->value, #'Y Yes',
+            => $self->local_code, #'Y Yes',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/transarterial_chemoembolisation:__DIAG2__|code'
             => $self->code, #'at0015',
     };
