@@ -418,7 +418,7 @@ sub get_testicular_staging {
     my $testicular_staging = $pd->element('TesticularStaging')->new();
     my $items_found        = 0;
     if ( $report->stage_grouping_testicular ) {
-        my $stage_group_testicular = $pd->element('TesticularStaging')
+        my $stage_group_testicular = $pd->element('StageGroupTesticular')
           ->new( local_code => $report->stage_grouping_testicular, );
         $testicular_staging->stage_group_testicular(
             [$stage_group_testicular] );
