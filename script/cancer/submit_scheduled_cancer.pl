@@ -131,7 +131,7 @@ This data is not currently in the Infoflex Extract
 =cut
 
             my $upper_gi = $pd->element('UpperGI')->new();
-            if ( $report->bclc_stage_upper_gi ) {
+            if ( defined( $report->bclc_stage_upper_gi ) ) {
                 my $bclc_stage = &get_bclc_stage( $report, $pd );
                 $upper_gi->bclc_stage( [$bclc_stage] );
             }

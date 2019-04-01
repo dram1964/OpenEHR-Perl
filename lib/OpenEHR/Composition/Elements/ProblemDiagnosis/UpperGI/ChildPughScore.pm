@@ -83,7 +83,7 @@ sub compose_structured {
     my $composition = {
         'grade' => [
             {   '|code'        => $self->code,          #'at0028'
-                '|value'       => $self->value,         #'at0028'
+                '|value'       => $self->local_code,         #'at0028'
                 '|terminology' => $self->terminology, #'at0028'
             }
         ]
@@ -107,7 +107,7 @@ sub compose_raw {
                 'archetype_node_id' => 'at0026',
                 'value'             => {
                     '@class' => 'DV_CODED_TEXT',
-                    'value'  => $self->value,      #'Class A 5 to 6 points.',
+                    'value'  => $self->local_code,      #'Class A 5 to 6 points.',
                     'defining_code' => {
                         'terminology_id' => {
                             'value'  => $self->terminology,    #'local',
@@ -139,7 +139,7 @@ sub compose_flat {
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/child-pugh_score:__DIAG2__/grade|code'
             => $self->code,    #'at0027',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/child-pugh_score:__DIAG2__/grade|value'
-            => $self->value,    #'Class A 5 to 6 points.',
+            => $self->local_code,    #'Class A 5 to 6 points.',
         'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/child-pugh_score:__DIAG2__/grade|terminology'
             => $self->terminology,    #'local',
     };
