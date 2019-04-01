@@ -113,7 +113,7 @@ sub compose_structured {
         'figo_grade'   => [
             {
                 '|code'        => $self->code,
-                '|value'       => $self->value,
+                '|value'       => lc( $self->value ),
                 '|terminology' => $self->terminology,
             }
         ]
@@ -135,7 +135,7 @@ sub compose_raw {
                     'value'  => 'FIGO grade'
                 },
                 'value' => {
-                    'value'         => $self->value,    #'ib',
+                    'value'         => lc( $self->value ),    #'ib',
                     'defining_code' => {
                         'code_string'    => $self->code,     #'at0008',
                         '@class'         => 'CODE_PHRASE',
@@ -182,7 +182,7 @@ sub compose_flat {
 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/final_figo_stage:__DIAG__/figo_grade|code'
           => $self->code,    #'at0008',
 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/final_figo_stage:__DIAG__/figo_grade|value'
-          => $self->value,    #'ib',
+          => lc( $self->value ),    #'ib',
 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/final_figo_stage:__DIAG__/figo_version'
           => $self->version,    #'FIGO version 99',
 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/final_figo_stage:__DIAG__/figo_grade|terminology'
