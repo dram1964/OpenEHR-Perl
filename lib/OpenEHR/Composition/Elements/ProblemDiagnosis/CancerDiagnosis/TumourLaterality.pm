@@ -158,6 +158,7 @@ This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::Cancer
 =head1 DESCRIPTION
 
 Used to create a Tumour Laterality element for adding to a Cancer Diagnosis Problem Diagnosis item. 
+Tumour Laterality is used to indicate which side of the body a tumour is located.
 
 =head1 INTERFACE 
 
