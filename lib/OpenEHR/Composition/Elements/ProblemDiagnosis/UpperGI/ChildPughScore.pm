@@ -174,6 +174,7 @@ This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::UpperG
 =head1 DESCRIPTION
 
 Used to create a Child-Pugh Score element for adding to a Upper GI Problem Diagnosis item. 
+Child-Pugh score is used for classifying Upper GI (Liver) cancer. 
 
 =head1 INTERFACE 
 

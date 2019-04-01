@@ -219,6 +219,7 @@ This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::FinalF
 =head1 DESCRIPTION
 
 Used to create a template element for adding to a Problem Diagnosis composition object. 
+The Final Figo Staging system is used for classifying gynaecological cancer.
 
 =head1 INTERFACE 
 

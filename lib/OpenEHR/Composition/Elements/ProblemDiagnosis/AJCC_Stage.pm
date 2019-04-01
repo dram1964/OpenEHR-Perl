@@ -170,7 +170,8 @@ This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::AJCC_S
   
 =head1 DESCRIPTION
 
-Used to create a template element for adding to a Problem Diagnosis composition object. 
+Used to create a AJCC Staging element for adding to a Problem Diagnosis composition object. 
+The AJCC Staging system is used for classifying colorectal cancer.
 
 =head1 INTERFACE 
 

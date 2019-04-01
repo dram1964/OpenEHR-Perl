@@ -133,6 +133,7 @@ This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::UpperG
 =head1 DESCRIPTION
 
 Used to create a Portal Invasion element for adding to a Upper GI Problem Diagnosis item. 
+Portal Invasion is recorded for Upper GI Cancers.
 
 =head1 INTERFACE 
 

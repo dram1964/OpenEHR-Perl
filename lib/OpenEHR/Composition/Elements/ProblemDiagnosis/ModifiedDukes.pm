@@ -167,7 +167,8 @@ This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::Modifi
   
 =head1 DESCRIPTION
 
-Used to create a template element for adding to a Problem Diagnosis composition object. 
+Used to create a Dukes Staging element for adding to a Problem Diagnosis composition object. 
+The Dukes Staging system is used for classifying colorectal cancer.
 
 =head1 INTERFACE 
 

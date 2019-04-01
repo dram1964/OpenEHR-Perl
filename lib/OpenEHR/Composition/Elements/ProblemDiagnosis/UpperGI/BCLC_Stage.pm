@@ -154,6 +154,8 @@ This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::UpperG
 =head1 DESCRIPTION
 
 Used to create a BCLC Stage element for adding to a Upper GI Problem Diagnosis item. 
+Barcelona Clinic Liver Score (BCLC) Staging is used for classifying 
+Upper GI (Liver) cancer. 
 
 =head1 INTERFACE 
 

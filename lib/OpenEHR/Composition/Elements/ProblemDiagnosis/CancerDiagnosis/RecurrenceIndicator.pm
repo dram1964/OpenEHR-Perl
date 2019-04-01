@@ -45,7 +45,7 @@ sub _build_code {
     my $self = shift;
     my $recurrence_indicator = {
         'YL' => 'at0014', # Yes, including local recurrence
-        'YD' => 'at0015', # Yes, not including recurrence
+        'YD' => 'at0015', # Yes, not including local recurrence
         'NN' => 'at0016', # No, not recurrence
     };
     $self->code( $recurrence_indicator->{ $self->local_code } );
