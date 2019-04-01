@@ -441,7 +441,7 @@ sub get_cancer_diagnosis {
     if ( $report->morphology_snomed ) {
         $morphology_snomed = $pd->element('Morphology')->new(
             local_code  => $report->morphology_snomed,
-            terminology => 'SNOMED-RT'
+            terminology => 'SNM198'
         );
 
         #$cancer_diagnosis->morphology( [$morphology] );
