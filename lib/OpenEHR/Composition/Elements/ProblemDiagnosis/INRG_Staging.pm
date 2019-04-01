@@ -178,6 +178,8 @@ This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::INRG_S
 =head1 DESCRIPTION
 
 Used to create a template element for adding to a Problem Diagnosis composition object. 
+International Neuroblastoma Risk Group (INRG) Staging is 
+used for classifying Brain Cancers. 
 
 =head1 INTERFACE 
 

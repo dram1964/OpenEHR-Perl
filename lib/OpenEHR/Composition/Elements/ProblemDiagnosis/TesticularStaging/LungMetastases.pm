@@ -156,6 +156,7 @@ This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::Testic
 =head1 DESCRIPTION
 
 Used to create a template element for adding to a Problem Diagnosis composition object. 
+Used for Urology (Testicular) cancers.
 
 =head1 INTERFACE 
 

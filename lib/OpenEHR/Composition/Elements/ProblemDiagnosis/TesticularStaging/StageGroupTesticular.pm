@@ -170,6 +170,7 @@ This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::Testic
 =head1 DESCRIPTION
 
 Used to create a Stage Group Testicular element for adding to Testicular Staging Problem Diagnosis composition object. 
+Used for Urology (Testicular) cancers.
 
 =head1 INTERFACE 
 
