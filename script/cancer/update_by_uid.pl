@@ -9,18 +9,71 @@ use OpenEHR::REST::Composition;
 use Genomes_100K::Model;
 use Data::Dumper;
 
-my $uid = '8b6591eb-4b1b-48f9-a9a4-09178d622d6d::default::2';
-my $subject_id = '9467484064';
-my $data_start_date = '2001-03-07';
-my $data_end_date = '2019-03-19';
-
 my $schema = Genomes_100K::Model->connect('CRIUGenomes');
+
+my $uid = $ARGV[0]; #'8b6591eb-4b1b-48f9-a9a4-09178d622d6d::default::2';
+die "Aborting: No UID specified on command line\n" unless $uid;
+
+my $subject_id = &get_subject_id($uid); #'9467484064';
+die "Aborting: Unable to find nhs_number from UID\n" unless $subject_id;
+
+my ($data_start_date, $data_end_date) = &get_start_end_dates($subject_id);
+#my $data_start_date = '2001-03-07';
+#my $data_end_date = '2019-03-19';
+die "Aborting: Unable to find order start_date for nhs_number\n" unless $data_start_date;
+die "Aborting: Unable to find order end_date for nhs_number\n" unless $data_end_date;
+
+print join ("#", $uid, $subject_id, $data_start_date, $data_end_date), "\n";
+
 
 &report_cancer_update(
     $subject_id,
     $data_start_date, 
     $data_end_date
 );
+
+sub get_start_end_dates {
+    my $subject_id = shift;
+    my $order_rs = $schema->resultset('InformationOrder')->search(
+        {
+            subject_id => $subject_id,
+            service_type => 'cancer',
+        },
+        {
+            order_by => { -desc => 'order_date'},
+            columns => [ qw(data_start_date data_end_date) ],
+            rows => 1,
+        }
+    );
+    if ( $order_rs == 1 ) {
+        my $order = $order_rs->first;
+        return $order->data_start_date, $order->data_end_date;
+    }
+    else {
+        return 0;
+    }
+}
+
+sub get_subject_id {
+    my $uid = shift;
+    my $composition_rs = $schema->resultset('InfoflexCancer')->search(
+        {
+            composition_id => $uid,
+        },
+        {
+            columns => 'nhs_number',
+            distinct => 1,
+        }
+    );
+    if ( $composition_rs->count == 1 ) {
+        return $composition_rs->first->nhs_number;
+    }
+    else {
+        return 0;
+    }
+}
+
+
 
 sub report_cancer_update {
     my ( $nhs_number, $start_date, $end_date ) = @_;
@@ -90,7 +143,7 @@ This data is not currently in the Infoflex Extract
         }
         if ( $report->figo_stage_group_skin ) {
             my $figo_stage = &get_figo_stage( $report, $pd );
-            $problem_diagnosis->figo_stage( [$figo_stage] );
+            $problem_diagnosis->final_figo_stage( [$figo_stage] );
         }
         if ( $report->modified_dukes_stage_colo ) {
             my $modified_dukes = &get_modified_dukes( $report, $pd );
@@ -294,18 +347,20 @@ sub get_bclc_stage {
 sub get_modified_dukes {
     my $report         = shift;
     my $pd             = shift;
-    my $modified_dukes = $pd->element('AJCC_Stage')
+    my $modified_dukes = $pd->element('ModifiedDukes')
       ->new( local_code => $report->modified_dukes_stage_colo );
     return $modified_dukes;
 }
+
 
 sub get_ajcc_stage {
     my $report     = shift;
     my $pd         = shift;
     my $ajcc_stage = $pd->element('AJCC_Stage')
-      ->new( ajcc_stage_grouping => $report->ajcc_tnm_stage_group_skin );
+      ->new( ajcc_code => $report->ajcc_tnm_stage_group_skin );
     return $ajcc_stage;
 }
+
 
 sub get_figo_stage {
     my $report     = shift;
