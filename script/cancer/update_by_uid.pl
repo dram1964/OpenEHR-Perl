@@ -96,6 +96,9 @@ sub report_cancer_update {
           ),
           "\n";
         next unless $report->event_icd10_diagnosis_code;
+        my $diagnosis = &get_diagnosis( $report, $pd );
+        $problem_diagnosis->diagnosis( [$diagnosis] );
+
               
         my $pd = OpenEHR::Composition::Elements::ProblemDiagnosis->new();
         my $problem_diagnosis = $pd->element('ProblemDiagnosis')->new();
@@ -116,10 +119,6 @@ sub report_cancer_update {
             $problem_diagnosis->feeder_audit( $feeder_audit );
             push @{ $events }, $feeder_audit->event_ref;
         }
-
-
-        my $diagnosis = &get_diagnosis( $report, $pd );
-        $problem_diagnosis->diagnosis( [$diagnosis] );
 
         my $cancer_diagnosis = &get_cancer_diagnosis( $report, $pd );
         $problem_diagnosis->cancer_diagnosis( [$cancer_diagnosis] );
@@ -199,9 +198,6 @@ This data is not currently in the Infoflex Extract
     $cancer_report->composition_format('STRUCTURED');
     my $composition = $cancer_report->compose;
 
-=for removal
-    print Dumper $composition;
-=cut
     my $query = OpenEHR::REST::Composition->new();
     $query->composition($cancer_report);
     $query->template_id('GEL Cancer diagnosis input.v0');
@@ -484,15 +480,11 @@ sub get_cancer_diagnosis {
             local_code  => $report->morphology_snomed,
             terminology => 'SNM198'
         );
-
-        #$cancer_diagnosis->morphology( [$morphology] );
     }
     if ( $report->morphology_icd03 ) {
         $morphology_icd =
           $pd->element('Morphology')
           ->new( local_code => $report->morphology_icd03, );
-
-        #$cancer_diagnosis->morphology( [$morphology] );
     }
 
     for my $morphology ( ( $morphology_snomed, $morphology_icd ) ) {
@@ -504,6 +496,7 @@ sub get_cancer_diagnosis {
         $cancer_diagnosis->morphology($morphologies);
     }
     $cancer_diagnosis->morphology($morphologies);
+
     if ( $report->topography_icd03 ) {
         my $topography =
           $pd->element('Topography')
