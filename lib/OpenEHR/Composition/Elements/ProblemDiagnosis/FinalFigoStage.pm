@@ -12,11 +12,12 @@ extends 'OpenEHR::Composition';
 use version; our $VERSION = qv('0.0.2');
 
 enum 'FigoCode' => [
-    qw( i ii iii iv ia ib ic1 ic2 ic3 iia
-      iib iiia1_i iiia1_ii iiia2 iiib iiic iva ivb iiia iiic1 iiic2 ic iiia1
-      I II III IV IA IB IC1 IC2 IC3 IIA
-      IIB IIIA1_I IIIA1_II IIIA2 IIIB IIIC IVA IVB IIIA IIIC1 IIIC2 IC IIIA1 )
+    qw( I IA IA1 IA2 IB IB1 IB2 IC IC1 IC2 IC3 II IIA IIA1 IIA2 IIB IIC 
+        III IIIA IIIAi IIIAii IIIA1 IIIA1i IIIA1ii IIIA2 IIIB IIIC IIIC1
+        IIIC2 IV IVA IVB
+    )
 ];
+
 has code => (
     is      => 'rw',
     isa     => 'Str',
@@ -47,52 +48,42 @@ Private method to derive the Figo Code from the value parameter provided
 sub _get_figo_code {
     my $self       = shift;
     my $figo_codes = {
-        i        => 'at0002',
-        ii       => 'at0003',
-        iii      => 'at0004',
-        iv       => 'at0006',
-        ia       => 'at0007',
-        ib       => 'at0008',
-        ic1      => 'at0009',
-        ic2      => 'at0010',
-        ic3      => 'at0011',
-        iia      => 'at0012',
-        iib      => 'at0013',
-        iiia1_i  => 'at0014',
-        iiia1_ii => 'at0015',
-        iiia2    => 'at0016',
-        iiib     => 'at0017',
-        iiic     => 'at0018',
-        iva      => 'at0019',
-        ivb      => 'at0020',
-        iiia     => 'at0021',
-        iiic1    => 'at0022',
-        iiic2    => 'at0023',
-        ic       => 'at0024',
-        iiia1    => 'at0025',
         I        => 'at0002',
-        II       => 'at0003',
-        III      => 'at0004',
-        IV       => 'at0006',
         IA       => 'at0007',
+        IA1       => 'at0007', # infered as IA1 === IA
+        IA2       => 'at0007', # infered as IA2 === IA
         IB       => 'at0008',
-        IC1      => 'at0009',
-        IC2      => 'at0010',
-        IC3      => 'at0011',
+        IB1       => 'at0008', # infered as IB1 === IB
+        IB2       => 'at0008', # infered as IB2 === IB
+        IC       => 'at0024',
+        IC1       => 'at0009',
+        IC2       => 'at0010',
+        IC3       => 'at0011',
+        
+        II       => 'at0003',
         IIA      => 'at0012',
+        IIA1      => 'at0012', # inferred as IIA1 === IIA
+        IIA2      => 'at0012', # inferred as IIA2 === IIA
         IIB      => 'at0013',
-        IIIA1_I  => 'at0014',
-        IIIA1_II => 'at0015',
+        IIC      => 'at0013', # inferred as IIC === IIB
+
+        III      => 'at0004',
+        IIIA     => 'at0021',
+        IIIAi  => 'at0014',
+        IIIAii => 'at0015',
+        IIIA1    => 'at0025',
+        IIIA1i  => 'at0025', # inferred as IIIA1i === IIIA1
+        IIIA1ii => 'at0025', # inferred as IIIA1ii === IIIA1
         IIIA2    => 'at0016',
         IIIB     => 'at0017',
         IIIC     => 'at0018',
+        IIIC1     => 'at0022',
+        IIIC2     => 'at0023',
+
+        IV       => 'at0006',
         IVA      => 'at0019',
         IVB      => 'at0020',
-        IIIA     => 'at0021',
-        IIIC1    => 'at0022',
-        IIIC2    => 'at0023',
-        IC       => 'at0024',
-        IIIA1    => 'at0025',
+
     };
     $self->code( $figo_codes->{ $self->value } );
 }
@@ -219,7 +210,7 @@ This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::FinalF
 =head1 DESCRIPTION
 
 Used to create a template element for adding to a Problem Diagnosis composition object. 
-The Final Figo Staging system is used for classifying gynaecological cancer.
+The Final Figo Staging system is used for classifying cervical cancer.
 
 =head1 INTERFACE 
 
