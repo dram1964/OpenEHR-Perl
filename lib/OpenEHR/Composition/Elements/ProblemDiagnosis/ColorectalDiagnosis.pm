@@ -95,7 +95,7 @@ sub compose_structured {
     my $composition = {
         'synchronous_tumour_indicator' => [
             {   '|code'        => $self->code,           #'at0002',
-                '|value'       => $self->value,          #'value',
+                '|value'       => $self->local_code,          #'value',
                 '|terminology' => $self->terminology,    #'terminology',
             }
         ],
@@ -114,7 +114,7 @@ sub compose_raw {
             {   '@class'            => 'ELEMENT',
                 'archetype_node_id' => 'at0001',
                 'value'             => {
-                    'value'         => $self->value,    #'2 Appendix',
+                    'value'         => $self->local_code,    #'2 Appendix',
                     'defining_code' => {
                         '@class'         => 'CODE_PHRASE',
                         'code_string'    => $self->code,     #'at0003',
@@ -148,13 +148,11 @@ sub compose_raw {
 
 sub compose_flat {
     my $self        = shift;
+    my $path = 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/colorectal_diagnosis:__DIAG__/synchronous_tumour_indicator:__DIAG__';
     my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/colorectal_diagnosis:__DIAG__/synchronous_tumour_indicator:0|value'
-            => '2 Appendix',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/colorectal_diagnosis:__DIAG__/synchronous_tumour_indicator:0|code'
-            => 'at0003',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/colorectal_diagnosis:__DIAG__/synchronous_tumour_indicator:0|terminology'
-            => 'local',
+        $path . '|value' => $self->local_code,
+        $path . '|code' => $self->code,
+        $path . '|terminology' => $self->terminology,
     };
     return $composition;
 }
@@ -186,7 +184,8 @@ This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::Colore
   
 =head1 DESCRIPTION
 
-Used to create a template element for adding to a Problem Diagnosis composition object. 
+Used to create a Colorectal Diagnosis element for adding to a Problem Diagnosis composition object. 
+The Colorectal Diagnosis holds the value of a Synchronous Tumour Indicator
 
 =head1 INTERFACE 
 
