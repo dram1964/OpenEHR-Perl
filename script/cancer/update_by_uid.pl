@@ -124,14 +124,10 @@ sub report_cancer_update {
             $problem_diagnosis->testicular_staging( [$testicular_staging] );
         }
 
-=head1 Placeholder
-
-Placeholder for INRG stage
-This data is not currently in the Infoflex Extract
-        if ( my $inrg_staging = &get_inrg_staging( $report, $pd ) ) {
+        if ( $report->neuroblastoma_risk_group_cyta ) {
+            my $inrg_staging = &get_inrg_staging( $report, $pd );
             $problem_diagnosis->inrg_staging( [$inrg_staging] );
         }
-=cut
 
         if ( my $integrated_tnm = &get_integrated_tnm( $report, $pd ) ) {
             $problem_diagnosis->integrated_tnm( [$integrated_tnm] );
@@ -263,7 +259,9 @@ sub get_number_lesions {
 sub get_inrg_staging {
     my $report = shift;
     my $pd     = shift;
-    return 0;
+    my $inrg_stage = $pd->element('INRG_Staging')->new(
+        local_code => $report->neuroblastoma_risk_group_cyta);
+    return $inrg_stage;
 }
 
 sub get_integrated_tnm {
