@@ -24,7 +24,8 @@ ok(
 ok(
     my $ajcc_stage =
       OpenEHR::Composition::Elements::ProblemDiagnosis::AJCC_Stage->new(
-        ajcc_stage_grouping => 'Stage IB',
+        ajcc_code => '1A',
+        #ajcc_stage_grouping => 'Stage IB',
       ),
     'Create new AJCC Stage object'
 );
@@ -42,9 +43,10 @@ ok(
     my $colorectal_diagnosis =
       OpenEHR::Composition::Elements::ProblemDiagnosis::ColorectalDiagnosis
       ->new(
-        code        => 'at0003',
-        value       => '2 Appendix',
-        terminology => 'local',
+        local_code => 8,
+        #code        => 'at0003',
+        #value       => '2 Appendix',
+        #terminology => 'local',
       ),
     'Create new Diagnosis object'
 );
@@ -60,9 +62,10 @@ ok(
 ok(
     my $modified_dukes =
       OpenEHR::Composition::Elements::ProblemDiagnosis::ModifiedDukes->new(
-        code        => 'at0006',
-        value       => 'Dukes Stage D',
-        terminology => 'local',
+        local_code => 'D',
+        #code        => 'at0006',
+        #value       => 'Dukes Stage D',
+        #terminology => 'local',
       ),
     'Create new Modified Dukes object'
 );

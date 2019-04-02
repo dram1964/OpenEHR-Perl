@@ -34,7 +34,7 @@ ok(
 
 ok(
     my $final_figo_stage = $pd->element('FinalFigoStage')->new(
-        value => 'ib',
+        value => 'IB',
     ),
     'Create new Final Figo object'
 );
@@ -166,12 +166,12 @@ ok(
 
 ok(
     my $integrated_tnm = $pd->element('Integrated_TNM')->new(
-        integrated_t         => 'Integrated T 90',
-        integrated_m         => 'Integrated M 25',
-        stage_grouping       => 'Integrated Stage grouping 31',
-        tnm_edition          => 'Integrated TNM Edition 44',
-        integrated_n         => 'Integrated N 15',
-        grading_at_diagnosis => 'G4 Undifferentiated / anaplastic',
+        integrated_t         => 'T1a',
+        integrated_m         => 'M0',
+        stage_grouping       => 'I',
+        tnm_edition          => '7',
+        integrated_n         => 'N0',
+        grading_at_diagnosis => 'GX',
     ),
     'Create new Integrated TNM object'
 );
@@ -249,6 +249,7 @@ for my $format (@formats) {
             my $cancer_report = OpenEHR::Composition::CancerReport->new(
                 problem_diagnoses => [$problem_diagnosis],
                 report_id         => $ehr1->ehr_id . 'CREP',
+                report_date => DateTime->now,
             ),
             'Create New Cancer Report Object'
         );

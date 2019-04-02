@@ -148,7 +148,7 @@ sub compose_raw {
 
 sub compose_flat {
     my $self        = shift;
-    my $path = 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/colorectal_diagnosis:__DIAG__/synchronous_tumour_indicator:__DIAG__';
+    my $path = 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/colorectal_diagnosis/synchronous_tumour_indicator:__DIAG__';
     my $composition = {
         $path . '|value' => $self->local_code,
         $path . '|code' => $self->code,
