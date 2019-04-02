@@ -100,7 +100,12 @@ sub report_cancer_update {
         my $pd = OpenEHR::Composition::Elements::ProblemDiagnosis->new();
         my $problem_diagnosis = $pd->element('ProblemDiagnosis')->new();
 
-        my ( $colorectal_diagnosis, $tumour_id );
+        my ( $tumour_id );
+
+        if ( $report->synchronous_tumour_indicator ) {
+            my $colorectal_diagnosis = &get_colorectal_diagnosis( $report, $pd );
+            $problem_diagnosis->colorectal_diagnosis( [ $colorectal_diagnosis ] );
+        }
 
         if ( $report->basis_of_diagnosis ) {
             my $clinical_evidence = &get_clinical_evidence( $report, $pd );
@@ -247,6 +252,14 @@ sub get_clinical_evidence {
     my $clinical_evidence = $pd->element('ClinicalEvidence')
       ->new( local_code => $report->basis_of_diagnosis );
     return $clinical_evidence;
+}
+
+sub get_colorectal_diagnosis {
+    my $report            = shift;
+    my $pd                = shift;
+    my $colorectal_diagnosis = $pd->element('ColorectalDiagnosis')
+      ->new( local_code => $report->synchronous_tumour_indicator );
+    return $colorectal_diagnosis;
 }
 
 sub get_number_lesions {
