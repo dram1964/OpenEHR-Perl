@@ -10,66 +10,30 @@ extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
-=head2 integrated_m($integrated_m)
-
-Used to get or set the integrated_m value
-
-=cut 
-
 has integrated_m => (
     is  => 'rw',
     isa => 'Str',
 );
-
-=head2 integrated_n($integrated_n)
-
-Used to get or set the integrated_n value
-
-=cut 
 
 has integrated_n => (
     is  => 'rw',
     isa => 'Str',
 );
 
-=head2 integrated_t($integrated_t)
-
-Used to get or set the integrated_t value
-
-=cut 
-
 has integrated_t => (
     is  => 'rw',
     isa => 'Str',
 );
-
-=head2 stage_grouping($stage_grouping)
-
-Used to get or set the stage_grouping value
-
-=cut 
 
 has stage_grouping => (
     is  => 'rw',
     isa => 'Str',
 );
 
-=head2 tnm_edition($tnm_edition)
-
-Used to get or set the tnm_edition value
-
-=cut 
-
 has tnm_edition => (
     is  => 'rw',
     isa => 'Str',
 );
-
-=head2 grading_at_diagnosis($grading_at_diagnosis)
-
-Used to get or set the grading_at_diagnosis value
-
-=cut 
 
 has grading_at_diagnosis => (
     is  => 'rw',
@@ -77,35 +41,31 @@ has grading_at_diagnosis => (
 );
 
 has grading_at_diagnosis_text => (
-    is => 'rw',
-    lazy => 1,
+    is      => 'rw',
+    lazy    => 1,
     builder => '_set_grading_at_diagnosis_text',
 );
 
-=head2 _set_grading_at_diagnosis_text
-
-Translates grading_at_diagnosis code value to appropriate 
-text value
-
-=cut
-
 sub _set_grading_at_diagnosis_text {
     my $self = shift;
-    if ($self->grading_at_diagnosis) {
-        if ($self->grading_at_diagnosis eq 'GX') {
-            $self->grading_at_diagnosis_text('GX Grade of differentiation is not appropriate or cannot be assessed');
+    if ( $self->grading_at_diagnosis ) {
+        if ( $self->grading_at_diagnosis eq 'GX' ) {
+            $self->grading_at_diagnosis_text(
+'GX Grade of differentiation is not appropriate or cannot be assessed'
+            );
         }
-        elsif ($self->grading_at_diagnosis eq 'G1') {
+        elsif ( $self->grading_at_diagnosis eq 'G1' ) {
             $self->grading_at_diagnosis_text('G1 Well differentiated');
         }
-        elsif ($self->grading_at_diagnosis eq 'G2') {
+        elsif ( $self->grading_at_diagnosis eq 'G2' ) {
             $self->grading_at_diagnosis_text('G2 Moderately differentiated');
         }
-        elsif ($self->grading_at_diagnosis eq 'G3') {
+        elsif ( $self->grading_at_diagnosis eq 'G3' ) {
             $self->grading_at_diagnosis_text('G3 Poorly differentiated');
         }
-        elsif ($self->grading_at_diagnosis eq 'G4') {
-            $self->grading_at_diagnosis_text('G4 Undifferentiated / anaplastic');
+        elsif ( $self->grading_at_diagnosis eq 'G4' ) {
+            $self->grading_at_diagnosis_text(
+                'G4 Undifferentiated / anaplastic');
         }
     }
 }
@@ -113,7 +73,7 @@ sub _set_grading_at_diagnosis_text {
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')
-        if ( $self->composition_format eq 'TDD' );
+      if ( $self->composition_format eq 'TDD' );
 
     my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
@@ -136,7 +96,8 @@ sub compose_raw {
     my $self        = shift;
     my $composition = {
         'items' => [
-            {   'archetype_node_id' => 'at0001',
+            {
+                'archetype_node_id' => 'at0001',
                 '@class'            => 'ELEMENT',
                 'name'              => {
                     'value'  => 'Integrated T',
@@ -144,32 +105,35 @@ sub compose_raw {
                 },
                 'value' => {
                     '@class' => 'DV_TEXT',
-                    'value'  => $self->integrated_t,    #'Integrated T 99'
+                    'value'  => $self->integrated_t,
                 }
             },
-            {   'name' => {
+            {
+                'name' => {
                     '@class' => 'DV_TEXT',
                     'value'  => 'Integrated N'
                 },
                 'value' => {
                     '@class' => 'DV_TEXT',
-                    'value'  => $self->integrated_n,    #'Integrated N 15'
+                    'value'  => $self->integrated_n,
                 },
                 'archetype_node_id' => 'at0002',
                 '@class'            => 'ELEMENT'
             },
-            {   'archetype_node_id' => 'at0003',
+            {
+                'archetype_node_id' => 'at0003',
                 '@class'            => 'ELEMENT',
                 'name'              => {
                     '@class' => 'DV_TEXT',
                     'value'  => 'Integrated M'
                 },
                 'value' => {
-                    'value'  => $self->integrated_m,    #'Integrated M 25',
+                    'value'  => $self->integrated_m,
                     '@class' => 'DV_TEXT'
                 }
             },
-            {   'archetype_node_id' => 'at0007',
+            {
+                'archetype_node_id' => 'at0007',
                 '@class'            => 'ELEMENT',
                 'name'              => {
                     '@class' => 'DV_TEXT',
@@ -178,15 +142,15 @@ sub compose_raw {
                 'value' => {
                     '@class' => 'DV_TEXT',
                     'value' =>
-                        $self->stage_grouping, #'Integrated Stage grouping 31'
+                      $self->stage_grouping,
                 }
             },
-            {   '@class'            => 'ELEMENT',
+            {
+                '@class'            => 'ELEMENT',
                 'archetype_node_id' => 'at0017',
                 'value'             => {
                     '@class' => 'DV_TEXT',
-                    'value' =>
-                        $self->tnm_edition,    #'Integrated TNM Edition 44'
+                    'value'  => $self->tnm_edition,
                 },
                 'name' => {
                     '@class' => 'DV_TEXT',
@@ -211,40 +175,36 @@ sub compose_raw {
     };
 
     if ( $self->grading_at_diagnosis ) {
-        push @{ $composition->{items} }, 
-            {   'name' => {
-                    '@class' => 'DV_TEXT',
-                    'value'  => 'Grading at diagnosis'
-                },
-                'value' => {
-                    '@class' => 'DV_TEXT',
-                    'value'  => $self->grading_at_diagnosis_text
-                    ,    #'G4 Undifferentiated / anaplastic'
-                },
-                'archetype_node_id' => 'at0005',
-                '@class'            => 'ELEMENT'
-            };
+        push @{ $composition->{items} }, {
+            'name' => {
+                '@class' => 'DV_TEXT',
+                'value'  => 'Grading at diagnosis'
+            },
+            'value' => {
+                '@class' => 'DV_TEXT',
+                'value'  => $self->grading_at_diagnosis_text
+            },
+            'archetype_node_id' => 'at0005',
+            '@class'            => 'ELEMENT'
+        };
     }
     return $composition;
 }
 
 sub compose_flat {
-    my $self        = shift;
+    my $self = shift;
+    my $path = 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/'
+      . 'integrated_tnm:__DIAG__/';
     my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/integrated_tnm:__DIAG__/integrated_t'
-            => $self->integrated_t,    #'Integrated T 99',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/integrated_tnm:__DIAG__/integrated_m'
-            => $self->integrated_m,    #'Integrated M 25',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/integrated_tnm:__DIAG__/integrated_stage_grouping'
-            => $self->stage_grouping,    #'Integrated Stage grouping 31',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/integrated_tnm:__DIAG__/integrated_tnm_edition'
-            => $self->tnm_edition,       #'Integrated TNM Edition 44',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/integrated_tnm:__DIAG__/integrated_n'
-            => $self->integrated_n,      #'Integrated N 15',
+        $path . 'integrated_t'              => $self->integrated_t,
+        $path . 'integrated_m'              => $self->integrated_m,
+        $path . 'integrated_n'              => $self->integrated_n,
+        $path . 'integrated_stage_grouping' => $self->stage_grouping,
+        $path . 'integrated_tnm_edition'    => $self->tnm_edition,
     };
     if ( $self->grading_at_diagnosis ) {
-        $composition->{ 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/integrated_tnm:__DIAG__/grading_at_diagnosis' }
-            = $self->grading_at_diagnosis_text;
+        $composition->{ $path . 'grading_at_diagnosis' } =
+          $self->grading_at_diagnosis_text;
     }
     return $composition;
 }
@@ -299,6 +259,49 @@ Returns a hashref of the object in RAW format
 =head2 compose_flat
 
 Returns a hashref of the object in FLAT format
+
+=head2 integrated_m($integrated_m)
+
+Used to get or set the integrated_m value
+
+=cut 
+
+=head2 integrated_n($integrated_n)
+
+Used to get or set the integrated_n value
+
+=cut 
+
+=head2 integrated_t($integrated_t)
+
+Used to get or set the integrated_t value
+
+=cut 
+
+=head2 stage_grouping($stage_grouping)
+
+Used to get or set the stage_grouping value
+
+=cut 
+
+=head2 tnm_edition($tnm_edition)
+
+Used to get or set the tnm_edition value
+
+=cut 
+
+=head2 grading_at_diagnosis($grading_at_diagnosis)
+
+Used to get or set the grading_at_diagnosis value
+
+=cut 
+
+=head2 _set_grading_at_diagnosis_text
+
+Translates grading_at_diagnosis code value to appropriate 
+text value
+
+=cut
 
 =head1 DIAGNOSTICS
 

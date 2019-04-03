@@ -11,62 +11,54 @@ extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
-enum 'INRG_Code' => [
-    qw( L1 L2 M MS)
-];
+enum 'INRG_Code' => [ qw( L1 L2 M MS) ];
 
 has code => (
-    is  => 'rw',
-    isa => 'Str',
+    is      => 'rw',
+    isa     => 'Str',
     lazy    => 1,
     builder => '_build_code',
 );
 has value => (
-    is  => 'rw',
-    isa => 'Str',
+    is      => 'rw',
+    isa     => 'Str',
     lazy    => 1,
     builder => '_build_value',
 );
 has terminology => (
-    is  => 'rw',
-    isa => 'Str',
+    is      => 'rw',
+    isa     => 'Str',
     default => 'local',
 );
 has local_code => (
-    is => 'rw',
+    is  => 'rw',
     isa => 'INRG_Code',
 );
-
-=head2 _build_code
-
-Private method to derive the INRG Code from the local code provided
-
-=cut
 
 sub _build_code {
     my $self       = shift;
     my $inrg_codes = {
         L1 => 'at0002',
         L2 => 'at0003',
-        M => 'at0004',
+        M  => 'at0004',
         MS => 'at0005',
     };
     $self->code( $inrg_codes->{ $self->local_code } );
 }
 
-=head2 _build_value
-
-Private method to derive the INRG Code from the local code provided
-
-=cut
-
 sub _build_value {
     my $self       = shift;
     my $inrg_codes = {
-        L1 => 'Stage L1: The Tumour is located only in the area where it started; no IDRFs are found on imaging scans, such as CT or MR',
-        L2 => 'Stage L2: The tumour has not spread beyond the area where is started and the nearby tissue; IDRFs are found on imaging scans, such as CT or MR',
-        M => 'Stage M: The tumour has spread to other parts of the body (except stage MS)',
-        MS => 'Stage MS: The tumour has spread to only the skin, liver, and/or bone marrow (less than 10% marrow involvement) in patients less than 18 months',
+        L1 => 'Stage L1: The Tumour is located only in the area where it started; ' . 
+            'no IDRFs are found on imaging scans, such as CT or MR',
+        L2 => 'Stage L2: The tumour has not spread beyond the area where it ' . 
+            'started and the nearby tissue; IDRFs are found on imaging scans, ' . 
+            'such as CT or MR',
+        M => 'Stage M: The tumour has spread to other parts of the body ' . 
+            '(except stage MS)',
+        MS => 'Stage MS: The tumour has spread to only the skin, liver, and/or ' . 
+            'bone marrow (less than 10% marrow involvement) in patients ' . 
+            'less than 18 months',
     };
     $self->value( $inrg_codes->{ $self->local_code } );
 }
@@ -74,7 +66,7 @@ sub _build_value {
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')
-        if ( $self->composition_format eq 'TDD' );
+      if ( $self->composition_format eq 'TDD' );
 
     my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
@@ -82,14 +74,14 @@ sub compose {
 
 sub compose_structured {
     my $self        = shift;
-    my $composition = { 
-        'inrg_stage' => [ 
-            { 
-                '|code' => $self->code, #'at0004', 
-                '|value'    => $self->local_code, #'M',
-                '|terminology' => $self->terminology, #'local',
-            }, 
-        ], 
+    my $composition = {
+        'inrg_stage' => [
+            {
+                '|code'        => $self->code,
+                '|value'       => $self->local_code,
+                '|terminology' => $self->terminology,
+            },
+        ],
     };
     return $composition;
 }
@@ -98,54 +90,53 @@ sub compose_raw {
     my $self        = shift;
     my $composition = {
         'archetype_details' => {
-                        '@class'       => 'ARCHETYPED',
-                        'archetype_id' => {
-                            '@class' => 'ARCHETYPE_ID',
-                            'value'  => 'openEHR-EHR-CLUSTER.inrg_staging.v0'
-                        },
-                        'rm_version' => '1.0.1'
-                    },
-                    'name' => {
-                        '@class' => 'DV_TEXT',
-                        'value'  => 'INRG staging'
-                    },
-                    'items' => [
-                        {   'value' => {
-                                '@class'        => 'DV_CODED_TEXT',
-                                'defining_code' => {
-                                    'code_string'    => $self->code, #'at0004',
-                                    '@class'         => 'CODE_PHRASE',
-                                    'terminology_id' => {
-                                        'value'  => $self->terminology, #'local',
-                                        '@class' => 'TERMINOLOGY_ID'
-                                    }
-                                },
-                                'value' => $self->local_code, #'M'
-                            },
-                            'name' => {
-                                '@class' => 'DV_TEXT',
-                                'value'  => 'INRG stage'
-                            },
-                            '@class'            => 'ELEMENT',
-                            'archetype_node_id' => 'at0001'
+            '@class'       => 'ARCHETYPED',
+            'archetype_id' => {
+                '@class' => 'ARCHETYPE_ID',
+                'value'  => 'openEHR-EHR-CLUSTER.inrg_staging.v0'
+            },
+            'rm_version' => '1.0.1'
+        },
+        'name' => {
+            '@class' => 'DV_TEXT',
+            'value'  => 'INRG staging'
+        },
+        'items' => [
+            {
+                'value' => {
+                    '@class'        => 'DV_CODED_TEXT',
+                    'defining_code' => {
+                        'code_string'    => $self->code,
+                        '@class'         => 'CODE_PHRASE',
+                        'terminology_id' => {
+                            'value'  => $self->terminology,
+                            '@class' => 'TERMINOLOGY_ID'
                         }
-                    ],
-                    '@class' => 'CLUSTER',
-                    'archetype_node_id' =>
-                        'openEHR-EHR-CLUSTER.inrg_staging.v0'
-                };
+                    },
+                    'value' => $self->local_code,
+                },
+                'name' => {
+                    '@class' => 'DV_TEXT',
+                    'value'  => 'INRG stage'
+                },
+                '@class'            => 'ELEMENT',
+                'archetype_node_id' => 'at0001'
+            }
+        ],
+        '@class'            => 'CLUSTER',
+        'archetype_node_id' => 'openEHR-EHR-CLUSTER.inrg_staging.v0'
+    };
     return $composition;
 }
 
 sub compose_flat {
-    my $self        = shift;
+    my $self = shift;
+    my $path = 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/'
+      . 'inrg_staging:__DIAG__/inrg_stage|';
     my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/inrg_staging:__DIAG__/inrg_stage|code'
-            => $self->code, #'at0004',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/inrg_staging:__DIAG__/inrg_stage|value'
-            => $self->local_code, #'M',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/inrg_staging:__DIAG__/inrg_stage|terminology'
-            => $self->terminology, #'local',
+        $path . 'code'        => $self->code,
+        $path . 'value'       => $self->local_code,
+        $path . 'terminology' => $self->terminology,
     };
     return $composition;
 }
@@ -187,17 +178,25 @@ used for classifying Brain Cancers.
 
 =head1 METHODS
 
+=head2 local_code($local_code)
+
+Used to get or set the local_code attribute
+
 =head2 code($code)
 
-Used to get or set the INRG Staging code
+Used to get or set the INRG Staging code. Normally, 
+this is derived from the local_code attribute
 
 =head2 value($value)
 
-Used to get or set the INRG Staging value
+Used to get or set the INRG Staging value. Normally, 
+this is derived from the local_code attribute
+
 
 =head2 terminology($terminology)
 
-Used to get or set the INRG Staging terminology
+Used to get or set the INRG Staging terminology.
+Defaults to 'local'
 
 =head2 compose
 
@@ -214,6 +213,16 @@ Returns a hashref of the object in RAW format
 =head2 compose_flat
 
 Returns a hashref of the object in FLAT format
+
+=head1 PRIVATE METHODS
+
+=head2 _build_code
+
+Private method to derive the INRG Code from the local code provided
+
+=head2 _build_value
+
+Private method to derive the INRG Code from the local code provided
 
 =head1 DIAGNOSTICS
 
