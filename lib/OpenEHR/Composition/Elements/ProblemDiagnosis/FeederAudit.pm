@@ -61,7 +61,7 @@ sub compose_raw {
                 'value'  => $self->event_date->ymd,    #'2011-01-01T00:00:00Z'
             },
             '@class'    => 'FEEDER_AUDIT_DETAILS',
-            'system_id' => $self->system_id,         #'Infoflex',
+            'system_id' => $self->system_id,           #'Infoflex',
             'version_id' =>
               $self->event_ref,    #'5C0734F2-512-A414-9CAE-BF1AF760D0AQ'
         }
@@ -70,12 +70,13 @@ sub compose_raw {
 }
 
 sub compose_flat {
-    my $self        = shift;
-    my $path = 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/_feeder_audit/originating_system_audit|';
+    my $self = shift;
+    my $path =
+'gel_cancer_diagnosis/problem_diagnosis:__TEST__/_feeder_audit/originating_system_audit|';
 
     my $composition = {
-        $path . 'time' => $self->event_date->ymd,
-        $path . 'system_id' => $self->system_id,
+        $path . 'time'       => $self->event_date->ymd,
+        $path . 'system_id'  => $self->system_id,
         $path . 'version_id' => $self->event_ref,
     };
     return $composition;

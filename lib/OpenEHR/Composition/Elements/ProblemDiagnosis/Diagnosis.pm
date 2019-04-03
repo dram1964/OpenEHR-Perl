@@ -36,7 +36,6 @@ sub compose {
 sub compose_structured {
     my $self = shift;
 
-    #    my $composition = $self->diagnosis;    # 'Diagnosis 33'
     my $composition = {
         '|code'        => $self->code,
         '|terminology' => $self->terminology,
@@ -46,23 +45,7 @@ sub compose_structured {
 }
 
 sub compose_raw {
-    my $self = shift;
-
-=for removal
-    my $composition = {
-        'name' => {
-            '@class' => 'DV_TEXT',
-            'value'  => 'Diagnosis'
-        },
-        'value' => {
-            '@class' => 'DV_TEXT',
-            'value'  => $self->diagnosis,    #'Diagnosis 589'
-        },
-        'archetype_node_id' => 'at0002',
-        '@class'            => 'ELEMENT'
-    };
-=cut
-
+    my $self        = shift;
     my $composition = {
         'archetype_node_id' => 'at0002',
         'value'             => {
@@ -87,14 +70,13 @@ sub compose_raw {
 }
 
 sub compose_flat {
-    my $self        = shift;
+    my $self = shift;
+    my $path =
+      'gel_cancer_diagnosis/problem_diagnosis:__TEST__/diagnosis:__DIAG__|';
     my $composition = {
-'gel_cancer_diagnosis/problem_diagnosis:__TEST__/diagnosis:__DIAG__|code'
-          => $self->code,
-'gel_cancer_diagnosis/problem_diagnosis:__TEST__/diagnosis:__DIAG__|value'
-          => $self->code,
-'gel_cancer_diagnosis/problem_diagnosis:__TEST__/diagnosis:__DIAG__|terminology'
-          => $self->terminology,
+        $path . 'code'        => $self->code,
+        $path . 'value'       => $self->code,
+        $path . 'terminology' => $self->terminology,
     };
     return $composition;
 }
@@ -126,7 +108,9 @@ This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::Diagno
   
 =head1 DESCRIPTION
 
-Used to create a template element for adding to a Problem Diagnosis composition object. 
+Used to create a Diagnosis element for adding to a Problem Diagnosis composition object. 
+The diagnosis element will contain a diagnosis code and a terminology name. 
+If no terminology is specified, the module defaults the terminology to ICD10. 
 
 =head1 INTERFACE 
 
@@ -134,9 +118,17 @@ Used to create a template element for adding to a Problem Diagnosis composition 
 
 =head1 METHODS
 
-=head2 diagnosis($diagnosis)
+=head2 code($code)
 
-Used to get or set the text value for the diagnosis.
+Used to get or set the diagnosis code value.
+
+=head2 value($value)
+
+Used to get or set the diagnosis text value.
+
+=head2 terminology($terminology)
+
+Used to get or set the diagnosis terminology value.
 
 =head2 compose
 
