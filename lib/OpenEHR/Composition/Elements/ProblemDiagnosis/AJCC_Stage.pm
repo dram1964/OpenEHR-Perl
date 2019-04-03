@@ -28,9 +28,9 @@ has ajcc_stage_grouping => (
     builder => '_get_ajcc_stage_group',
 );
 has version => (
-    is  => 'rw',
-    isa => 'Str', 
-    default => 'AJCC Stage version 55',
+    is      => 'rw',
+    isa     => 'Str',
+    default => 'indeterminate',    #'AJCC Stage version 55',
 );
 
 =head2 _get_ajcc_stage_group
@@ -133,10 +133,11 @@ sub compose_raw {
 }
 
 sub compose_flat {
-    my $self        = shift;
-    my $path = 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/ajcc_stage:__AJCC__/';
+    my $self = shift;
+    my $path =
+      'gel_cancer_diagnosis/problem_diagnosis:__TEST__/ajcc_stage:__AJCC__/';
     my $composition = {
-        $path . 'ajcc_stage_version' => $self->version,
+        $path . 'ajcc_stage_version'  => $self->version,
         $path . 'ajcc_stage_grouping' => $self->ajcc_stage_grouping,
     };
     return $composition;
@@ -169,8 +170,9 @@ This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::AJCC_S
   
 =head1 DESCRIPTION
 
-Used to create a AJCC Staging element for adding to a Problem Diagnosis composition object. 
-The AJCC Staging system is used for classifying colorectal cancer.
+Used to create a AJCC (American Joint Committee on Cancer) Staging element 
+for adding to a Problem Diagnosis composition object. 
+The AJCC Staging system is used for classifying the extent of a cancer.
 
 =head1 INTERFACE 
 
