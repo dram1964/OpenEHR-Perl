@@ -11,37 +11,25 @@ extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
-enum 'BaseOfDiag' => [
-    qw( 0 1 2 4 5 6 7 9  )
-];
+enum 'BaseOfDiag' => [ qw( 0 1 2 4 5 6 7 9  ) ];
 
 has code => (
-    is  => 'rw',
-    isa => 'Str',
+    is      => 'rw',
+    isa     => 'Str',
     lazy    => 1,
     builder => '_build_code',
 );
-has value => (
-    is  => 'rw',
-    isa => 'Str',
-    lazy    => 1,
-    builder => '_build_value',
-);
+
 has terminology => (
-    is  => 'rw',
-    isa => 'Str',
+    is      => 'rw',
+    isa     => 'Str',
     default => 'local',
 );
+
 has local_code => (
-    is => 'rw',
+    is  => 'rw',
     isa => 'BaseOfDiag',
 );
-
-=head2 _build_code
-
-Private method to derive the Lung Code from the local code provided
-
-=cut
 
 sub _build_code {
     my $self       = shift;
@@ -58,40 +46,18 @@ sub _build_code {
     $self->code( $diag_codes->{ $self->local_code } );
 }
 
-=head2 _build_value
-
-Private method to derive the Lung Code from the local code provided
-
-=cut
-
-sub _build_value {
-    my $self       = shift;
-    my $diag_codes = {
-        L1 => 'Less than or equal to 3 lung metastases are present.',
-        L2 => 'Greater than 3 lung metastases are present.',
-        L3 => 'Greater then 3 metastases, one or more greater than or equal to 2cm diameter are present.',
-    };
-    $self->value( $diag_codes->{ $self->local_code } );
-}
-
-
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')
-        if ( $self->composition_format eq 'TDD' );
+      if ( $self->composition_format eq 'TDD' );
 
     my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
 }
 
 sub compose_structured {
-    my $self        = shift;
-    my $composition = {
-        'base_of_diagnosis' => [
-            $self->code
-            ,  #'2 Clinical investigation including all diagnostic techniques'
-        ]
-    };
+    my $self = shift;
+    my $composition = { 'base_of_diagnosis' => [ $self->code ] };
     return $composition;
 }
 
@@ -111,9 +77,10 @@ sub compose_raw {
             'value'  => 'Clinical evidence'
         },
         'items' => [
-            {   'value' => {
+            {
+                'value' => {
                     '@class' => 'DV_TEXT',
-                    'value'  => $self->code,  #'6 Histology of metastasis'
+                    'value'  => $self->code,
                 },
                 'name' => {
                     '@class' => 'DV_TEXT',
@@ -131,10 +98,8 @@ sub compose_raw {
 
 sub compose_flat {
     my $self        = shift;
-    my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/clinical_evidence:__DIAG__/base_of_diagnosis'
-            => $self->code,    #'6 Histology of metastasis',
-    };
+    my $composition = { 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/'
+          . 'clinical_evidence:__DIAG__/base_of_diagnosis' => $self->code, };
     return $composition;
 }
 
@@ -165,17 +130,28 @@ This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::Clinic
   
 =head1 DESCRIPTION
 
-Used to create a template element for adding to a Problem Diagnosis composition object. 
+Used to create a Clinical Evidence element for adding to a Problem Diagnosis composition object. 
 
 =head1 INTERFACE 
 
 =head1 ATTRIBUTES
 
+=head2 local_code
+
+Used to get or set the local_code attribute
+
+=head2 code
+
+Used to get or set the code attribute. Normally, 
+this is derived from the value of the local_code
+attribute
+
+=head2 terminology
+
+Used to get or set the terminology attribute. 
+Defaults to 'local'
+
 =head1 METHODS
-
-=head2 evidence($evidence)
-
-Used to get or set the clinical evidence item for a Problem Diagnosis
 
 =head2 compose
 
@@ -192,6 +168,14 @@ Returns a hashref of the object in RAW format
 =head2 compose_flat
 
 Returns a hashref of the object in FLAT format
+
+=head1 PRIVATE METHODS
+
+=head2 _build_code
+
+Private method to derive the Basis of Diagnosis code from the local code provided
+
+=cut
 
 =head1 DIAGNOSTICS
 

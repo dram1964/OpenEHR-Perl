@@ -92,15 +92,12 @@ sub compose_raw {
 
 sub compose_flat {
     my $self        = shift;
+    my $path = 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/tumour_id:__DIAG__/';
     my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/tumour_id:__DIAG__/tumour_identifier:0|issuer'
-            => $self->issuer,
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/tumour_id:__DIAG__/tumour_identifier:0'
-            => $self->id,
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/tumour_id:__DIAG__/tumour_identifier:0|assigner'
-            => $self->assigner,
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/tumour_id:__DIAG__/tumour_identifier:0|type'
-            => $self->type,
+        $path . 'tumour_identifier:0|issuer' => $self->issuer,
+        $path . 'tumour_identifier:0' => $self->id,
+        $path . 'tumour_identifier:0|assigner' => $self->assigner,
+        $path . 'tumour_identifier:0|type' => $self->type,
     };
     return $composition;
 }
@@ -132,7 +129,7 @@ This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::Tumour
   
 =head1 DESCRIPTION
 
-Used to create a template element for adding to a Problem Diagnosis composition object. 
+Used to create a TumourID element for adding to a Problem Diagnosis composition object. 
 
 =head1 INTERFACE 
 
