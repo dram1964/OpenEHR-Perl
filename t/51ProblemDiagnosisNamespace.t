@@ -11,6 +11,21 @@ ok( my $pd = OpenEHR::Composition::Elements::ProblemDiagnosis->new(),
     'Setup ProblemDiagnosis Schema' );
 
 ok(
+    my $feeder_audit =
+      $pd->element('FeederAudit')->new(
+        event_date => DateTime->new(
+            year  => 2011,
+            month => 01,
+            day   => 01,
+        ),
+        event_ref => '5C0734F2-512-A414-9CAE-BF1AF760D0AQ',
+        system_id => 'Infoflex'
+      ),
+    'Create First FeederAudit element'
+);
+
+
+ok(
     my $ajcc_stage = $pd->element('AJCC_Stage')->new(
         local_code => '1B',
     ),
@@ -215,6 +230,7 @@ ok(
 
 ok(
     my $problem_diagnosis = $pd->element('ProblemDiagnosis')->new(
+        feeder_audit         => $feeder_audit,
         ajcc_stage           => [$ajcc_stage],
         diagnosis            => [$diagnosis],
         colorectal_diagnosis => [$colorectal_diagnosis],

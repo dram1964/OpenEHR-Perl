@@ -71,13 +71,12 @@ sub compose_raw {
 
 sub compose_flat {
     my $self        = shift;
+    my $path = 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/_feeder_audit/originating_system_audit|';
+
     my $composition = {
-'gel_cancer_diagnosis/problem_diagnosis:__TEST__/_feeder_audit/originating_system_audit|time'
-          => $self->event_date->ymd,
-'gel_cancer_diagnosis/problem_diagnosis:__TEST__/_feeder_audit/originating_system_audit|system_id'
-          => $self->system_id,
-'gel_cancer_diagnosis/problem_diagnosis:__TEST__/_feeder_audit/originating_system_audit|version_id'
-          => $self->event_ref,
+        $path . 'time' => $self->event_date->ymd,
+        $path . 'system_id' => $self->system_id,
+        $path . 'version_id' => $self->event_ref,
     };
     return $composition;
 }
