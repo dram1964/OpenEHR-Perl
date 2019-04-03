@@ -35,12 +35,6 @@ has local_code => (
     isa => 'Group_Code',
 );
 
-=head2 _build_code
-
-Private method to derive the Lung Metastatic Substage Code from the local code provided
-
-=cut
-
 sub _build_code {
     my $self       = shift;
     my $lung_codes = {
@@ -59,12 +53,6 @@ sub _build_code {
     };
     $self->code( $lung_codes->{ $self->local_code } );
 }
-
-=head2 _build_value
-
-Private method to derive the Extranodal Code from the local code provided
-
-=cut
 
 sub _build_value {
     my $self       = shift;
@@ -109,13 +97,13 @@ sub compose_raw {
     my $composition = {
         'value' => {
                                 '@class'        => 'DV_CODED_TEXT',
-                                'value'         => $self->local_code, #'3C',
+                                'value'         => $self->local_code,
                                 'defining_code' => {
                                     'terminology_id' => {
                                         '@class' => 'TERMINOLOGY_ID',
-                                        'value'  => $self->terminology, #'local'
+                                        'value'  => $self->terminology,
                                     },
-                                    'code_string' => $self->code, #'at0010',
+                                    'code_string' => $self->code,
                                     '@class'      => 'CODE_PHRASE'
                                 }
                             },
@@ -131,13 +119,12 @@ sub compose_raw {
 
 sub compose_flat {
     my $self        = shift;
+    my $path = 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/' . 
+        'testicular_staging:__DIAG__/stage_grouping_testicular:__DIAG2__|';
     my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/stage_grouping_testicular:__DIAG2__|terminology'
-            => $self->terminology, #'local',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/stage_grouping_testicular:__DIAG2__|code'
-            => $self->code, #'at0010',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/stage_grouping_testicular:__DIAG2__|value'
-            => $self->local_code, #'3C',
+        $path . 'terminology' => $self->terminology,
+        $path . 'code' => $self->code,
+        $path . 'value' => $self->local_code,
     };
     return $composition;
 }
@@ -178,17 +165,24 @@ Used for Urology (Testicular) cancers.
 
 =head1 METHODS
 
+=head2 local_code($local_code)
+
+Used to get or set the local_code attribute
+
 =head2 code($code)
 
-Used to get or set the Stage Group Testicular code
+Used to get or set the Stage Group Testicular code. Normally, 
+this is derived from the local_code attribute
 
 =head2 value($value)
 
-Used to get or set the Stage Group Testicular value
+Used to get or set the Stage Group Testicular value. Normally, 
+this is derived from the local_code attribute
 
 =head2 terminology($terminology)
 
-Used to get or set the Stage Group Testicular terminology
+Used to get or set the Stage Group Testicular terminology.
+Defaults to 'local'
 
 =head2 compose
 
@@ -205,6 +199,16 @@ Returns a hashref of the object in RAW format
 =head2 compose_flat
 
 Returns a hashref of the object in FLAT format
+
+=head1 PRIVATE METHODS
+
+=head2 _build_code
+
+Private method to derive the Lung Metastatic Substage Code from the local code provided
+
+=head2 _build_value
+
+Private method to derive the Extranodal Code from the local code provided
 
 =head1 DIAGNOSTICS
 

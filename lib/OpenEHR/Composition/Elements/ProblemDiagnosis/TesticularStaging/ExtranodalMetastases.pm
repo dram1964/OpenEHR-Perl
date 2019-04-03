@@ -11,7 +11,7 @@ extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
-enum 'Extranodal_Code' => [ qw( H B M N L ) ];
+enum 'Extranodal_Code' => [qw( H B M N L )];
 
 has code => (
     is      => 'rw',
@@ -35,12 +35,6 @@ has local_code => (
     isa => 'Extranodal_Code',
 );
 
-=head2 _build_code
-
-Private method to derive the Extranodal Code from the local code provided
-
-=cut
-
 sub _build_code {
     my $self       = shift;
     my $lung_codes = {
@@ -52,12 +46,6 @@ sub _build_code {
     };
     $self->code( $lung_codes->{ $self->local_code } );
 }
-
-=head2 _build_value
-
-Private method to derive the Extranodal Code from the local code provided
-
-=cut
 
 sub _build_value {
     my $self       = shift;
@@ -111,19 +99,18 @@ sub compose_raw {
             },
             'value' => $self->local_code,
         }
-      };
-      return $composition;
+    };
+    return $composition;
 }
 
 sub compose_flat {
-    my $self        = shift;
+    my $self = shift;
+    my $path = 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/'
+      . 'testicular_staging:__DIAG__/extranodal_metastases:__DIAG2__|';
     my $composition = {
-'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/extranodal_metastases:__DIAG2__|code'
-          => $self->code,    #'at0021',
-'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/extranodal_metastases:__DIAG2__|value'
-          => $self->local_code,    #'L1 less than or equal to 3 metastases',
-'gel_cancer_diagnosis/problem_diagnosis:__TEST__/testicular_staging:__DIAG__/extranodal_metastases:__DIAG2__|terminology'
-          => $self->terminology,    #'local',
+        $path . 'code'        => $self->code,
+        $path . 'value'       => $self->local_code,
+        $path . 'terminology' => $self->terminology,
     };
     return $composition;
 }
@@ -164,17 +151,24 @@ Used for Urology (Testicular) cancers.
 
 =head1 METHODS
 
+=head2 local_code($local_code)
+
+Used to get or set the local_code attribute
+
 =head2 code($code)
 
-Used to get or set the Extranodal Metastases code
+Used to get or set the Extranodal Metastases code. Normally, 
+this is derived from the local_code attribute
 
 =head2 value($value)
 
-Used to get or set the Extranodal Metastases value
+Used to get or set the Extranodal Metastases value. Normally, 
+this is derived from the local_code attribute
 
 =head2 terminology($terminology)
 
-Used to get or set the Extranodal Metastases terminology
+Used to get or set the Extranodal Metastases terminology.
+Defaults to 'local'
 
 =head2 compose
 
@@ -192,14 +186,28 @@ Returns a hashref of the object in RAW format
 
 Returns a hashref of the object in FLAT format
 
+=head1 PRIVATE METHODS
+
+=head2 _build_code
+
+Private method to derive the Extranodal Code from the local code provided
+
+=cut
+
+=head2 _build_value
+
+Private method to derive the Extranodal Code from the local code provided
+
+=cut
+
 =head1 DIAGNOSTICS
 
 None
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::ExtranodalMetastases requires no configuration files or 
-environment variables.
+OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::ExtranodalMetastases 
+requires no configuration files or environment variables.
 
 
 =head1 DEPENDENCIES

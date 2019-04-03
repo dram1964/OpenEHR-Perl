@@ -10,35 +10,17 @@ extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
-=head1 extranodal_metastases($extranodal_metastases_object)
-
-Used to get or set the Extranodal Metastases item of the Testicular Staging item
-
-=cut
-
 has extranodal_metastases => (
     is => 'rw',
     isa =>
 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::ExtranodalMetastases]',
 );
 
-=head1 lung_metastases($lung_metastases_object)
-
-Used to get or set the Lung Metastases item of the Testicular Staging item
-
-=cut
-
 has lung_metastases => (
     is => 'rw',
     isa =>
 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::TesticularStaging::LungMetastases]',
 );
-
-=head1 stage_group_testicular($stage_grouping_testicular_object)
-
-Used to get or set the Testicular Stage Grouping item of the Testicular Staging item
-
-=cut
 
 has stage_group_testicular => (
     is => 'rw',
@@ -206,7 +188,7 @@ This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::Testic
   
 =head1 DESCRIPTION
 
-Used to create a template element for adding to a Problem Diagnosis composition object. 
+Used to create a TesticularStaging element for adding to a Problem Diagnosis composition object. 
 
 =head1 INTERFACE 
 
@@ -229,6 +211,26 @@ Returns a hashref of the object in RAW format
 =head2 compose_flat
 
 Returns a hashref of the object in FLAT format
+
+=head1 PRIVATE METHODS
+
+=head1 extranodal_metastases($extranodal_metastases_object)
+
+Used to get or set the Extranodal Metastases item of the Testicular Staging item
+
+=cut
+
+=head1 lung_metastases($lung_metastases_object)
+
+Used to get or set the Lung Metastases item of the Testicular Staging item
+
+=cut
+
+=head1 stage_group_testicular($stage_grouping_testicular_object)
+
+Used to get or set the Testicular Stage Grouping item of the Testicular Staging item
+
+=cut
 
 =head1 DIAGNOSTICS
 
