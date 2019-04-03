@@ -86,7 +86,7 @@ ok(
     my $bclc_stage =
       OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::BCLC_Stage
       ->new(
-        value => 'D',
+        local_code => 'D',
       ),
     'Create new BCLC Stage object'
 );
@@ -95,7 +95,7 @@ ok(
     my $portal_invasion =
       OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::PortalInvasion
       ->new(
-        value => 'N',
+        local_code => 'N',
       ),
     'Create new Portal Invasion object'
 );

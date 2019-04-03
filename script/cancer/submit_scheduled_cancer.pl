@@ -311,7 +311,7 @@ sub get_portal_invasion {
     my $report          = shift;
     my $pd              = shift;
     my $portal_invasion = $pd->element('PortalInvasion')
-      ->new( value => $report->portal_invasion_upper_gi );
+      ->new( local_code => $report->portal_invasion_upper_gi );
     return $portal_invasion;
 }
 
@@ -319,7 +319,7 @@ sub get_bclc_stage {
     my $report = shift;
     my $pd     = shift;
     my $bclc_stage =
-      $pd->element('BCLC_Stage')->new( value => $report->bclc_stage_upper_gi );
+      $pd->element('BCLC_Stage')->new( local_code => $report->bclc_stage_upper_gi );
     return $bclc_stage;
 }
 

@@ -17,8 +17,9 @@ Used to get or set the BCLC Stage item in an Upper GI Staging item
 =cut 
 
 has bclc_stage => (
-    is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::BCLC_Stage]',
+    is => 'rw',
+    isa =>
+'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::BCLC_Stage]',
 );
 
 =head2 portal_invasion($portal_invasion_obj)
@@ -28,8 +29,9 @@ Used to get or set the Portal Invasion item in an Upper GI Staging item
 =cut 
 
 has portal_invasion => (
-    is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::PortalInvasion]',
+    is => 'rw',
+    isa =>
+'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::PortalInvasion]',
 );
 
 =head2 pancreatic_clinical_stage($pancreatic_clinical_stage_obj)
@@ -39,8 +41,9 @@ Used to get or set the Pancreatic Clinical Stage item in an Upper GI Staging ite
 =cut 
 
 has pancreatic_clinical_stage => (
-    is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::PancreaticClinicalStage]',
+    is => 'rw',
+    isa =>
+'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::PancreaticClinicalStage]',
 );
 
 =head2 child_pugh_score($child_pugh_score_obj)
@@ -50,8 +53,9 @@ Used to get or set the Child-Pugh Score item in an Upper GI Staging item
 =cut 
 
 has child_pugh_score => (
-    is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::ChildPughScore]',
+    is => 'rw',
+    isa =>
+'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::ChildPughScore]',
 );
 
 =head2 tace($tace_obj)
@@ -61,8 +65,9 @@ Used to get or set the Transarterial Chemoembolisation (TACE) item in an Upper G
 =cut 
 
 has tace => (
-    is  => 'rw',
-    isa => 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::TACE]',
+    is => 'rw',
+    isa =>
+'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::TACE]',
 );
 
 =head2 lesions($lesions)
@@ -79,14 +84,14 @@ has lesions => (
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')
-        if ( $self->composition_format eq 'TDD' );
+      if ( $self->composition_format eq 'TDD' );
     my @properties = qw(bclc_stage portal_invasion pancreatic_clinical_stage
-        child_pugh_score tace);
+      child_pugh_score tace);
 
     for my $property (@properties) {
-        if ($self->$property) {
+        if ( $self->$property ) {
             for my $compos ( @{ $self->$property } ) {
-                $compos->composition_format($self->composition_format);
+                $compos->composition_format( $self->composition_format );
             }
         }
     }
@@ -96,38 +101,37 @@ sub compose {
 }
 
 sub compose_structured {
-    my $self        = shift;
-    my $composition = {
-        'number_of_lesions' => [$self->lesions],
-    };
+    my $self = shift;
+    my $composition = { 'number_of_lesions' => [ $self->lesions ], };
     if ( $self->tace ) {
         for my $tace ( @{ $self->tace } ) {
             push @{ $composition->{'transarterial_chemoembolisation'} },
-                $tace->compose;
+              $tace->compose;
         }
     }
     if ( $self->child_pugh_score ) {
         for my $child_pugh_score ( @{ $self->child_pugh_score } ) {
             push @{ $composition->{'child-pugh_score'} },
-                $child_pugh_score->compose;
+              $child_pugh_score->compose;
         }
     }
     if ( $self->pancreatic_clinical_stage ) {
-        for my $pancreatic_clinical_stage ( @{ $self->pancreatic_clinical_stage } ) {
+        for my $pancreatic_clinical_stage (
+            @{ $self->pancreatic_clinical_stage } )
+        {
             push @{ $composition->{pancreatic_clinical_stage} },
-                $pancreatic_clinical_stage->compose;
+              $pancreatic_clinical_stage->compose;
         }
     }
     if ( $self->portal_invasion ) {
         for my $portal_invasion ( @{ $self->portal_invasion } ) {
             push @{ $composition->{portal_invasion} },
-                $portal_invasion->compose;
+              $portal_invasion->compose;
         }
     }
     if ( $self->bclc_stage ) {
         for my $bclc_stage ( @{ $self->bclc_stage } ) {
-            push @{ $composition->{bclc_stage} },
-                $bclc_stage->compose;
+            push @{ $composition->{bclc_stage} }, $bclc_stage->compose;
         }
     }
     return $composition;
@@ -143,7 +147,8 @@ sub compose_raw {
             'value'  => 'Upper GI staging'
         },
         'items' => [
-            {   '@class'            => 'ELEMENT',
+            {
+                '@class'            => 'ELEMENT',
                 'archetype_node_id' => 'at0007',
                 'value'             => {
                     'magnitude' => $self->lesions,
@@ -166,32 +171,30 @@ sub compose_raw {
     };
     if ( $self->tace ) {
         for my $tace ( @{ $self->tace } ) {
-            push @{ $composition->{items} },
-                $tace->compose;
+            push @{ $composition->{items} }, $tace->compose;
         }
     }
     if ( $self->child_pugh_score ) {
         for my $child_pugh_score ( @{ $self->child_pugh_score } ) {
-            push @{ $composition->{items} },
-                $child_pugh_score->compose;
+            push @{ $composition->{items} }, $child_pugh_score->compose;
         }
     }
     if ( $self->pancreatic_clinical_stage ) {
-        for my $pancreatic_clinical_stage ( @{ $self->pancreatic_clinical_stage } ) {
+        for my $pancreatic_clinical_stage (
+            @{ $self->pancreatic_clinical_stage } )
+        {
             push @{ $composition->{items} },
-                $pancreatic_clinical_stage->compose;
+              $pancreatic_clinical_stage->compose;
         }
     }
     if ( $self->portal_invasion ) {
         for my $portal_invasion ( @{ $self->portal_invasion } ) {
-            push @{ $composition->{items} },
-                $portal_invasion->compose;
+            push @{ $composition->{items} }, $portal_invasion->compose;
         }
     }
     if ( $self->bclc_stage ) {
         for my $bclc_stage ( @{ $self->bclc_stage } ) {
-            push @{ $composition->{items} },
-                $bclc_stage->compose;
+            push @{ $composition->{items} }, $bclc_stage->compose;
         }
     }
     return $composition;
@@ -199,10 +202,8 @@ sub compose_raw {
 
 sub compose_flat {
     my $self        = shift;
-    my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/number_of_lesions'
-            => $self->lesions,
-    };
+    my $composition = { 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/'
+          . 'upper_gi_staging:__DIAG__/number_of_lesions' => $self->lesions, };
     if ( $self->tace ) {
         my $tace_index = '0';
         my $tace_comp;
@@ -211,8 +212,7 @@ sub compose_flat {
             for my $key ( keys %{$composition_fragment} ) {
                 my $new_key = $key;
                 $new_key =~ s/__DIAG2__/$tace_index/;
-                $tace_comp->{$new_key} =
-                    $composition_fragment->{$key};
+                $tace_comp->{$new_key} = $composition_fragment->{$key};
             }
             $tace_index++;
             $composition = { ( %$composition, %{$tace_comp} ) };
@@ -227,7 +227,7 @@ sub compose_flat {
                 my $new_key = $key;
                 $new_key =~ s/__DIAG2__/$child_pugh_score_index/;
                 $child_pugh_score_comp->{$new_key} =
-                    $composition_fragment->{$key};
+                  $composition_fragment->{$key};
             }
             $child_pugh_score_index++;
             $composition = { ( %$composition, %{$child_pugh_score_comp} ) };
@@ -236,16 +236,19 @@ sub compose_flat {
     if ( $self->pancreatic_clinical_stage ) {
         my $pancreatic_clinical_stage_index = '0';
         my $pancreatic_clinical_stage_comp;
-        for my $pancreatic_clinical_stage ( @{ $self->pancreatic_clinical_stage } ) {
+        for my $pancreatic_clinical_stage (
+            @{ $self->pancreatic_clinical_stage } )
+        {
             my $composition_fragment = $pancreatic_clinical_stage->compose;
             for my $key ( keys %{$composition_fragment} ) {
                 my $new_key = $key;
                 $new_key =~ s/__DIAG2__/$pancreatic_clinical_stage_index/;
                 $pancreatic_clinical_stage_comp->{$new_key} =
-                    $composition_fragment->{$key};
+                  $composition_fragment->{$key};
             }
             $pancreatic_clinical_stage_index++;
-            $composition = { ( %$composition, %{$pancreatic_clinical_stage_comp} ) };
+            $composition =
+              { ( %$composition, %{$pancreatic_clinical_stage_comp} ) };
         }
     }
     if ( $self->portal_invasion ) {
@@ -257,7 +260,7 @@ sub compose_flat {
                 my $new_key = $key;
                 $new_key =~ s/__DIAG2__/$portal_invasion_index/;
                 $portal_invasion_comp->{$new_key} =
-                    $composition_fragment->{$key};
+                  $composition_fragment->{$key};
             }
             $portal_invasion_index++;
             $composition = { ( %$composition, %{$portal_invasion_comp} ) };
@@ -271,8 +274,7 @@ sub compose_flat {
             for my $key ( keys %{$composition_fragment} ) {
                 my $new_key = $key;
                 $new_key =~ s/__DIAG2__/$bclc_stage_index/;
-                $bclc_stage_comp->{$new_key} =
-                    $composition_fragment->{$key};
+                $bclc_stage_comp->{$new_key} = $composition_fragment->{$key};
             }
             $bclc_stage_index++;
             $composition = { ( %$composition, %{$bclc_stage_comp} ) };

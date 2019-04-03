@@ -11,62 +11,49 @@ extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
-enum 'PancCode' => [
-    qw( 10 20 30 31 32 ),
-];
+enum 'PancCode' => [ qw( 10 20 30 31 32 ), ];
 
 has code => (
-    is  => 'rw',
-    isa => 'Str',
+    is      => 'rw',
+    isa     => 'Str',
     lazy    => 1,
     builder => '_get_panc_code',
 );
 has value => (
-    is  => 'rw',
-    isa => 'Str',
+    is      => 'rw',
+    isa     => 'Str',
     lazy    => 1,
     builder => '_get_panc_value',
 );
 has local_code => (
-    is => 'rw',
+    is  => 'rw',
     isa => 'PancCode',
 );
 has terminology => (
-    is  => 'rw',
-    isa => 'Str',
+    is      => 'rw',
+    isa     => 'Str',
     default => 'local',
 );
 
-=head2 _get_panc_code
-
-Private method to derive the Pancreatic Cancer Code from the local code parameter provided
-
-=cut
-
 sub _get_panc_code {
-    my $self       = shift;
+    my $self        = shift;
     my $panc_scores = {
         10 => 'at0009',
         20 => 'at0010',
-        30 => 'at0011', 
+        30 => 'at0011',
         31 => 'at0012',
         32 => 'at0013',
     };
     $self->code( $panc_scores->{ $self->local_code } );
 }
 
-=head2 _get_panc_value
-
-Private method to derive the Pancreatic Cancer Value from the local value parameter provided
-
-=cut
-
 sub _get_panc_value {
-    my $self       = shift;
+    my $self        = shift;
     my $panc_scores = {
         10 => 'Stage is deemed to be localised and resectable.',
         20 => 'Stage is deemed to be borderline resectable.',
-        30 => 'Stage is deemed to be unresectable (locally advanced or metastatic).', 
+        30 =>
+'Stage is deemed to be unresectable (locally advanced or metastatic).',
         31 => 'Stage is deemed to be unresectable (locally advanced).',
         32 => 'Stage is deemed to be unrectable (metastatic).',
     };
@@ -76,7 +63,7 @@ sub _get_panc_value {
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')
-        if ( $self->composition_format eq 'TDD' );
+      if ( $self->composition_format eq 'TDD' );
 
     my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
@@ -85,8 +72,9 @@ sub compose {
 sub compose_structured {
     my $self        = shift;
     my $composition = [
-        {   '|code'        => $self->code,          #'at0009'
-            '|value'       => $self->value,
+        {
+            '|code'        => $self->code,
+            '|value'       => $self->local_code,
             '|terminology' => $self->terminology,
         }
     ];
@@ -101,14 +89,14 @@ sub compose_raw {
         'value'             => {
             '@class'        => 'DV_CODED_TEXT',
             'defining_code' => {
-                'code_string'    => $self->code,     #'at0012',
+                'code_string'    => $self->code,
                 '@class'         => 'CODE_PHRASE',
                 'terminology_id' => {
                     '@class' => 'TERMINOLOGY_ID',
-                    'value'  => $self->terminology,    #'local'
+                    'value'  => $self->terminology,
                 }
             },
-            'value' => $self->value,    #'31 Unresectable locally advanced'
+            'value' => $self->local_code,
         },
         'name' => {
             '@class' => 'DV_TEXT',
@@ -119,14 +107,13 @@ sub compose_raw {
 }
 
 sub compose_flat {
-    my $self        = shift;
+    my $self = shift;
+    my $path = 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/'
+      . 'upper_gi_staging:__DIAG__/pancreatic_clinical_stage:__DIAG2__|';
     my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/pancreatic_clinical_stage:__DIAG2__|value'
-            => $self->value,    #'31 Unresectable locally advanced',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/pancreatic_clinical_stage:__DIAG2__|terminology'
-            => $self->terminology,    #'local',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/pancreatic_clinical_stage:__DIAG2__|code'
-            => $self->code,           #'at0012',
+        $path . 'value'       => $self->local_code,
+        $path . 'terminology' => $self->terminology,
+        $path . 'code'        => $self->code,
     };
     return $composition;
 }
@@ -166,17 +153,25 @@ Used to create a Pancreatic Clinical Stage element for adding to a Upper GI Prob
 
 =head1 METHODS
 
+=head2 local_code($local_code)
+
+Used to get or set the local_code attribute
+
 =head2 code($code)
 
-Used to get or set the Pancreatic Clinical Stage code
+Used to get or set the Pancreatic Clinical Stage code. Normally, 
+this is derived from the local_code attribute
 
 =head2 value($value)
 
-Used to get or set the Pancreatic Clinical Stage value
+Used to get or set the Pancreatic Clinical Stage value. Normally, 
+this is derived from the local_code attribute
+
 
 =head2 terminology($terminology)
 
-Used to get or set the Pancreatic Clinical Stage terminology
+Used to get or set the Pancreatic Clinical Stage terminology.
+Defaults to 'local'
 
 =head2 compose
 
@@ -193,6 +188,16 @@ Returns a hashref of the object in RAW format
 =head2 compose_flat
 
 Returns a hashref of the object in FLAT format
+
+=head1 PRIVATE METHODS
+
+=head2 _get_panc_code
+
+Private method to derive the Pancreatic Cancer Code from the local code parameter provided
+
+=head2 _get_panc_value
+
+Private method to derive the Pancreatic Cancer Value from the local value parameter provided
 
 =head1 DIAGNOSTICS
 

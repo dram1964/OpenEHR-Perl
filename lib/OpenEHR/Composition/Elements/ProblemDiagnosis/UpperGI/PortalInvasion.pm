@@ -11,45 +11,38 @@ extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
-enum 'Portal_Code' => [
-    qw( Y N 9),
-];
+enum 'Portal_Code' => [ qw( Y N 9), ];
 
 has code => (
-    is  => 'rw',
-    isa => 'Str',
-    lazy => 1,
+    is      => 'rw',
+    isa     => 'Str',
+    lazy    => 1,
     builder => '_get_portal_code',
 );
-has value => (
+has local_code => (
     is  => 'rw',
     isa => 'Portal_Code',
 );
 has terminology => (
-    is  => 'rw',
-    isa => 'Str',
+    is      => 'rw',
+    isa     => 'Str',
     default => 'local',
 );
 
-=head2 _get_portal_code
-
-Private method to derive the Figo Code from the value parameter provided
-
-=cut
-
 sub _get_portal_code {
-    my $self       = shift;
+    my $self         = shift;
     my $portal_codes = {
-        Y => 'at0004', # Findings indicate that portal invasion is present
-        N => 'at0005', # Findings indicate that portal invasion is not present
-        9 => 'at0006', # It is not known whether portal invasion is present
+        Y => 'at0004',   # Findings indicate that portal invasion is present
+        N => 'at0005',   # Findings indicate that portal invasion is not present
+        9 => 'at0006',   # It is not known whether portal invasion is present
     };
-    $self->code( $portal_codes->{ $self->value } );
+    $self->code( $portal_codes->{ $self->local_code } );
 }
+
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')
-        if ( $self->composition_format eq 'TDD' );
+      if ( $self->composition_format eq 'TDD' );
 
     my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
@@ -57,50 +50,49 @@ sub compose {
 
 sub compose_structured {
     my $self        = shift;
-    my $composition = [ 
-            { 
-                '|code' => $self->code, #'at0004',
-                '|value' => $self->value, #'N Not present',
-                '|terminology' => $self->terminology, #'local',
-            } 
-        ];
+    my $composition = [
+        {
+            '|code'        => $self->code,
+            '|value'       => $self->local_code,
+            '|terminology' => $self->terminology,
+        }
+    ];
     return $composition;
 }
 
 sub compose_raw {
     my $self        = shift;
     my $composition = {
-            'name' => {
-                    'value'  => 'Portal invasion',
-                    '@class' => 'DV_TEXT'
+        'name' => {
+            'value'  => 'Portal invasion',
+            '@class' => 'DV_TEXT'
+        },
+        'value' => {
+            'value'         => $self->local_code,
+            'defining_code' => {
+                'terminology_id' => {
+                    'value'  => $self->terminology,
+                    '@class' => 'TERMINOLOGY_ID'
                 },
-                'value' => {
-                    'value'         => $self->value, #'N Not present',
-                    'defining_code' => {
-                        'terminology_id' => {
-                            'value'  => $self->terminology, #'local',
-                            '@class' => 'TERMINOLOGY_ID'
-                        },
-                        '@class'      => 'CODE_PHRASE',
-                        'code_string' => $self->code, #'at0005'
-                    },
-                    '@class' => 'DV_CODED_TEXT'
-                },
-                'archetype_node_id' => 'at0003',
-                '@class'            => 'ELEMENT'
+                '@class'      => 'CODE_PHRASE',
+                'code_string' => $self->code,
+            },
+            '@class' => 'DV_CODED_TEXT'
+        },
+        'archetype_node_id' => 'at0003',
+        '@class'            => 'ELEMENT'
     };
     return $composition;
 }
 
 sub compose_flat {
-    my $self        = shift;
+    my $self = shift;
+    my $path = 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/'
+      . 'upper_gi_staging:__DIAG__/portal_invasion:__DIAG2__|';
     my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/portal_invasion:__DIAG2__|terminology'
-            => $self->terminology, #'local',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/portal_invasion:__DIAG2__|code'
-            => $self->code, #'at0005',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/portal_invasion:__DIAG2__|value'
-            => $self->value, #'N Not present',
+        $path . 'terminology' => $self->terminology,
+        $path . 'code'        => $self->code,
+        $path . 'value'       => $self->local_code,
     };
     return $composition;
 }
@@ -141,17 +133,19 @@ Portal Invasion is recorded for Upper GI Cancers.
 
 =head1 METHODS
 
+=head2 local_code($local_code)
+
+Used to get or set the Portal Invasion local_code value
+
 =head2 code($code)
 
-Used to get or set the Portal Invasion code
-
-=head2 value($value)
-
-Used to get or set the Portal Invasion value
+Used to get or set the Portal Invasion code. Normally
+this is derived from the local_code attribute
 
 =head2 terminology($terminology)
 
-Used to get or set the Portal Invasion terminology
+Used to get or set the Portal Invasion terminology.
+Defaults to 'local'
 
 =head2 compose
 
@@ -169,14 +163,22 @@ Returns a hashref of the object in RAW format
 
 Returns a hashref of the object in FLAT format
 
+=head1 PRIVATE METHODS
+
+=head2 _get_portal_code
+
+Private method to derive the Figo Code from the value parameter provided
+
+=cut
+
 =head1 DIAGNOSTICS
 
 None
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::PortalInvasion requires no configuration files or 
-environment variables.
+OpenEHR::Composition::Elements::ProblemDiagnosis::UpperGI::PortalInvasion 
+requires no configuration files or environment variables.
 
 
 =head1 DEPENDENCIES

@@ -79,14 +79,14 @@ ok(
 
 ok(
     my $bclc_stage = $pd->element('BCLC_Stage')->new(
-        value => 'D',
+        local_code => 'D',
     ),
     'Create new BCLC Stage object'
 );
 
 ok(
     my $portal_invasion = $pd->element('PortalInvasion')->new(
-        value       => 'N',
+        local_code       => 'N',
     ),
     'Create new Portal Invasion object'
 );

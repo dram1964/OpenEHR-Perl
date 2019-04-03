@@ -19,21 +19,17 @@ has code => (
     lazy    => 1,
     builder => '_get_bclc_code',
 );
-has value => (
+
+has local_code => (
     is  => 'rw',
     isa => 'BCLC_Code',
 );
+
 has terminology => (
     is      => 'rw',
     isa     => 'Str',
     default => 'local',
 );
-
-=head2 _get_bclc_code
-
-Private method to return the correct bclc_code based on the provided value
-
-=cut 
 
 sub _get_bclc_code {
     my $self       = shift;
@@ -42,9 +38,9 @@ sub _get_bclc_code {
         'A' => 'at0004',    # Early stage
         'B' => 'at0005',    # Intermediate stage
         'C' => 'at0006',    # Advanced stage
-        'D' => 'at0007',    # Termial stage
+        'D' => 'at0007',    # Terminal stage
     };
-    $self->code( $bclc_codes->{ $self->value } );
+    $self->code( $bclc_codes->{ $self->local_code } );
 }
 
 sub compose {
@@ -62,7 +58,7 @@ sub compose_structured {
         bclc_stage => [
             {
                 '|code'        => $self->code,
-                '|value'       => $self->value,
+                '|value'       => $self->local_code,
                 '|terminology' => $self->terminology,
             }
         ],
@@ -81,13 +77,13 @@ sub compose_raw {
                     '@class'        => 'DV_CODED_TEXT',
                     'defining_code' => {
                         'terminology_id' => {
-                            'value'  => $self->terminology,    #'local',
+                            'value'  => $self->terminology,
                             '@class' => 'TERMINOLOGY_ID'
                         },
                         '@class'      => 'CODE_PHRASE',
-                        'code_string' => $self->code,          #'at0007'
+                        'code_string' => $self->code,
                     },
-                    'value' => $self->value,                   #'D'
+                    'value' => $self->local_code,
                 },
                 'name' => {
                     '@class' => 'DV_TEXT',
@@ -114,14 +110,13 @@ sub compose_raw {
 }
 
 sub compose_flat {
-    my $self        = shift;
+    my $self = shift;
+    my $path = 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/'
+      . 'upper_gi_staging:__DIAG__/bclc_stage:__DIAG2__/bclc_stage|';
     my $composition = {
-'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/bclc_stage:__DIAG2__/bclc_stage|value'
-          => $self->value,    #'D',
-'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/bclc_stage:__DIAG2__/bclc_stage|code'
-          => $self->code,     #'at0007',
-'gel_cancer_diagnosis/problem_diagnosis:__TEST__/upper_gi_staging:__DIAG__/bclc_stage:__DIAG2__/bclc_stage|terminology'
-          => $self->terminology,    #'local',
+        $path . 'value'       => $self->local_code,
+        $path . 'code'        => $self->code,
+        $path . 'terminology' => $self->terminology,
     };
     return $composition;
 }
@@ -163,17 +158,19 @@ Upper GI (Liver) cancer.
 
 =head1 METHODS
 
+=head2 local_code($local_code)
+
+Used to get or set the local_code attribute
+
 =head2 code($code)
 
-Used to get or set the BCLC Stage code
-
-=head2 value($value)
-
-Used to get or set the BCLC Stage value
+Used to get or set the BCLC Stage code. Normally, 
+this is derived from the local_code attribute
 
 =head2 terminology($terminology)
 
-Used to get or set the BCLC Stage terminology
+Used to get or set the BCLC Stage terminology. 
+Defaults to 'local'
 
 =head2 compose
 
@@ -190,6 +187,14 @@ Returns a hashref of the object in RAW format
 =head2 compose_flat
 
 Returns a hashref of the object in FLAT format
+
+=head1 PRIVATE METHODS
+
+=head2 _get_bclc_code
+
+Private method to return the correct bclc_code based on the provided value
+
+=cut 
 
 =head1 DIAGNOSTICS
 
