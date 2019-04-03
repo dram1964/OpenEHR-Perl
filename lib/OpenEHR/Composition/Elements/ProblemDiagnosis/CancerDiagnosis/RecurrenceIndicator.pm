@@ -14,20 +14,20 @@ use version; our $VERSION = qv('0.0.2');
 enum 'RecurrenceIndicator' => [qw( YL YD NN )];
 
 has code => (
-    is  => 'rw',
-    isa => 'Str',
-    lazy => 1, 
+    is      => 'rw',
+    isa     => 'Str',
+    lazy    => 1,
     builder => '_build_code'
 );
 has value => (
-    is  => 'rw',
-    isa => 'Str',
-    lazy => 1, 
+    is      => 'rw',
+    isa     => 'Str',
+    lazy    => 1,
     builder => '_build_value'
 );
 has terminology => (
-    is  => 'rw',
-    isa => 'Str',
+    is      => 'rw',
+    isa     => 'Str',
     default => 'local',
 );
 has local_code => (
@@ -35,30 +35,18 @@ has local_code => (
     isa => 'RecurrenceIndicator',
 );
 
-=head2 _build_code
-
-Sets the Recurrence Indicator code based on the provided local code
-
-=cut
-
 sub _build_code {
-    my $self = shift;
+    my $self                 = shift;
     my $recurrence_indicator = {
-        'YL' => 'at0014', # Yes, including local recurrence
-        'YD' => 'at0015', # Yes, not including local recurrence
-        'NN' => 'at0016', # No, not recurrence
+        'YL' => 'at0014',
+        'YD' => 'at0015',
+        'NN' => 'at0016',
     };
     $self->code( $recurrence_indicator->{ $self->local_code } );
 }
 
-=head2 _build_value
-
-Sets the Recurrence Indicator value based on the provided local value
-
-=cut
-
 sub _build_value {
-    my $self = shift;
+    my $self                 = shift;
     my $recurrence_indicator = {
         'YL' => 'Yes, including local recurrence',
         'YD' => 'Yes, not including recurrence',
@@ -70,7 +58,7 @@ sub _build_value {
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')
-        if ( $self->composition_format eq 'TDD' );
+      if ( $self->composition_format eq 'TDD' );
 
     my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
@@ -94,12 +82,12 @@ sub compose_raw {
             'defining_code' => {
                 'terminology_id' => {
                     '@class' => 'TERMINOLOGY_ID',
-                    'value'  => $self->terminology, #'local'
+                    'value'  => $self->terminology,
                 },
                 '@class'      => 'CODE_PHRASE',
-                'code_string' => $self->code, #'at0016'
+                'code_string' => $self->code,
             },
-            'value' => $self->local_code, #'NN'
+            'value' => $self->local_code,
         },
         'name' => {
             'value'  => 'Recurrence indicator',
@@ -112,14 +100,13 @@ sub compose_raw {
 }
 
 sub compose_flat {
-    my $self        = shift;
+    my $self = shift;
+    my $path = 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/'
+      . 'cancer_diagnosis:__DIAG__/recurrence_indicator:__DIAG2__|';
     my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/recurrence_indicator:__DIAG2__|value'
-            => $self->local_code,    #'NN',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/recurrence_indicator:__DIAG2__|code'
-            => $self->code,     #'at0016',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/recurrence_indicator:__DIAG2__|terminology'
-            => $self->terminology,    #'local',
+        $path . 'value'       => $self->local_code,
+        $path . 'code'        => $self->code,
+        $path . 'terminology' => $self->terminology,
     };
     return $composition;
 }
@@ -159,17 +146,25 @@ Used to create a Recurrence Indicator element for adding to a Cancer Diagnosis P
 
 =head1 METHODS
 
+=head2 local_code($local_code)
+
+Used to get or set the local_code attribute
+
 =head2 code($code)
 
-Used to get or set the Recurrence Indicator code
+Used to get or set the Recurrence Indicator code. Normally, 
+this is derived from the local_code attribute
 
 =head2 value($value)
 
-Used to get or set the Recurrence Indicator value
+Used to get or set the Recurrence Indicator value. Normally, 
+this is derived from the local_code attribute
+
 
 =head2 terminology($terminology)
 
-Used to get or set the Recurrence Indicator terminology
+Used to get or set the Recurrence Indicator terminology.
+Defaults to 'local'
 
 =head2 compose
 
@@ -186,6 +181,16 @@ Returns a hashref of the object in RAW format
 =head2 compose_flat
 
 Returns a hashref of the object in FLAT format
+
+=head1 PRIVATE METHODS
+
+=head2 _build_code
+
+Sets the Recurrence Indicator code based on the provided local code
+
+=head2 _build_value
+
+Sets the Recurrence Indicator value based on the provided local value
 
 =head1 DIAGNOSTICS
 

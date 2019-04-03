@@ -35,12 +35,6 @@ has local_code => (
     isa => 'TumourValue',
 );
 
-=head2 _build_code
-
-Sets the Tumour Laterality code based on the provided local code
-
-=cut
-
 sub _build_code {
     my $self = shift;
     my $tumour_laterality = {
@@ -53,12 +47,6 @@ sub _build_code {
     };
     $self->code( $tumour_laterality->{ $self->local_code} );
 }
-
-=head2 _build_value
-
-Sets the Tumour Laterality value based on the provided local code
-
-=cut
 
 sub _build_value {
     my $self = shift;
@@ -103,13 +91,13 @@ sub compose_raw {
         },
         'value' => {
             '@class'        => 'DV_CODED_TEXT',
-            'value'         => $self->local_code,      #'Not known',
+            'value'         => $self->local_code,
             'defining_code' => {
                 'terminology_id' => {
                     '@class' => 'TERMINOLOGY_ID',
-                    'value'  => $self->terminology,    #'local'
+                    'value'  => $self->terminology,
                 },
-                'code_string' => $self->code,          #'at0033',
+                'code_string' => $self->code,
                 '@class'      => 'CODE_PHRASE'
             }
         }
@@ -119,13 +107,12 @@ sub compose_raw {
 
 sub compose_flat {
     my $self        = shift;
+    my $path = 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/' . 
+        'cancer_diagnosis:__DIAG__/tumour_laterality:__DIAG2__|';
     my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/tumour_laterality:__DIAG2__|terminology'
-            => $self->terminology,                     #'local',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/tumour_laterality:__DIAG2__|code'
-            => $self->code,                            #'at0033',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/tumour_laterality:__DIAG2__|value'
-            => $self->local_code,                           #'Not known',
+        $path . 'terminology' => $self->terminology,
+        $path . 'code' => $self->code,
+        $path . 'value' => $self->local_code,
     };
     return $composition;
 }
@@ -166,17 +153,25 @@ Tumour Laterality is used to indicate which side of the body a tumour is located
 
 =head1 METHODS
 
+=head2 local_code($local_code)
+
+Used to get or set the local_code attribute
+
 =head2 code($code)
 
-Used to get or set the Tumour Laterality code
+Used to get or set the Tumour Laterality code. Normally, 
+this is derived from the local_code attribute
 
 =head2 value($value)
 
-Used to get or set the Tumour Laterality value
+Used to get or set the Tumour Laterality value. Normally, 
+this is derived from the local_code attribute
+
 
 =head2 terminology($terminology)
 
-Used to get or set the Tumour Laterality terminology
+Used to get or set the Tumour Laterality terminology.
+Defaults to 'local'
 
 =head2 compose
 
@@ -193,6 +188,16 @@ Returns a hashref of the object in RAW format
 =head2 compose_flat
 
 Returns a hashref of the object in FLAT format
+
+=head1 PRIVATE METHODS
+
+=head2 _build_code
+
+Sets the Tumour Laterality code based on the provided local code
+
+=head2 _build_value
+
+Sets the Tumour Laterality value based on the provided local code
 
 =head1 DIAGNOSTICS
 

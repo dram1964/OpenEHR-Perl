@@ -10,23 +10,11 @@ extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
-=head1 tumour_laterality($tumour_laterality_object)
-
-Used to get or set the Tumour Laterality item of the Cancer Diagnosis item
-
-=cut
-
 has tumour_laterality => (
     is => 'rw',
     isa =>
 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::TumourLaterality]',
 );
-
-=head1 metastatic_site($metastatic_site_object)
-
-Used to get or set the Metastatic Site item of the Cancer Diagnosis item
-
-=cut
 
 has metastatic_site => (
     is => 'rw',
@@ -34,35 +22,17 @@ has metastatic_site => (
 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::MetastaticSite]',
 );
 
-=head1 recurrence_indicator($recurrence_indicator_object)
-
-Used to get or set the Metastatic Site item of the Cancer Diagnosis item
-
-=cut
-
 has recurrence_indicator => (
     is => 'rw',
     isa =>
 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::RecurrenceIndicator]',
 );
 
-=head1 morphology($morphology)
-
-Used to get or set the Morphology item of the Cancer Diagnosis item
-
-=cut
-
 has morphology => (
     is => 'rw',
     isa =>
 'ArrayRef[OpenEHR::Composition::Elements::ProblemDiagnosis::CancerDiagnosis::Morphology]',
 );
-
-=head1 topography($topography)
-
-Used to get or set the Topography item of the Cancer Diagnosis item
-
-=cut
 
 has topography => (
     is => 'rw',
@@ -174,7 +144,6 @@ sub compose_flat {
     my $self        = shift;
     my $composition = {};
 
-        # Cancer Diagnosis
     if ( $self->topography ) {
         my $topography_index = '0';
         my $topography_comp;
@@ -278,13 +247,43 @@ This document describes OpenEHR::Composition::Elements::ProblemDiagnosis::Cancer
   
 =head1 DESCRIPTION
 
-Used to create a template element for adding to a Problem Diagnosis composition object. 
+Used to create a Cancer Diagnosis element for adding to a Problem Diagnosis composition object. 
 
 =head1 INTERFACE 
 
 =head1 ATTRIBUTES
 
 =head1 METHODS
+
+=head1 tumour_laterality( [ $tumour_laterality_objects ] )
+
+Used to get or set the Tumour Laterality item of the Cancer Diagnosis item
+
+=cut
+
+=head1 metastatic_site( [ $metastatic_site_objects [ )
+
+Used to get or set the Metastatic Site item of the Cancer Diagnosis item
+
+=cut
+
+=head1 recurrence_indicator([ $recurrence_indicator_objects ] )
+
+Used to get or set the Metastatic Site item of the Cancer Diagnosis item
+
+=cut
+
+=head1 morphology( [ $morphology_objects ] )
+
+Used to get or set the Morphology item of the Cancer Diagnosis item
+
+=cut
+
+=head1 topography( [ $topography_objects ] )
+
+Used to get or set the Topography item of the Cancer Diagnosis item
+
+=cut
 
 =head2 compose
 

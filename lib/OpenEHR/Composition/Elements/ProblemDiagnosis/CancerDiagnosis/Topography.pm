@@ -33,22 +33,10 @@ has local_code => (
     isa => 'Str',
 );
 
-=head2 _build_code
-
-Sets the Topography code based on the provided local code
-
-=cut
-
 sub _build_code {
     my $self = shift;
     $self->code( $self->local_code );
 }
-
-=head2 _build_value
-
-Sets the Topography value based on the provided local code
-
-=cut
 
 sub _build_value {
     my $self = shift;
@@ -68,7 +56,7 @@ sub compose_structured {
     my $self        = shift;
     my $composition = {
         '|code'        => $self->code,
-        '|value'       => $self->value,
+        '|value'       => $self->local_code,
         '|terminology' => $self->terminology,
     };
     return $composition;
@@ -79,7 +67,7 @@ sub compose_raw {
     my $composition = {
         'archetype_node_id' => 'at0002',
         'value'             => {
-            'value'         => $self->value,
+            'value'         => $self->local_code,
             'defining_code' => {
                 'terminology_id' => {
                     'value'  => $self->terminology,
@@ -100,14 +88,13 @@ sub compose_raw {
 }
 
 sub compose_flat {
-    my $self        = shift;
+    my $self = shift;
+    my $path = 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/'
+      . 'cancer_diagnosis:__DIAG__/topography:__DIAG2__|';
     my $composition = {
-'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/topography:__DIAG2__|terminology'
-          => $self->terminology,    #'local',
-'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/topography:__DIAG2__|code'
-          => $self->code,           #'at0033',
-'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/topography:__DIAG2__|value'
-          => $self->value,          #'Not known',
+        $path . 'terminology' => $self->terminology,
+        $path . 'code'        => $self->code,
+        $path . 'value'       => $self->local_code,
     };
     return $composition;
 }
@@ -147,17 +134,24 @@ Used to create a Topography element for adding to a Cancer Diagnosis Problem Dia
 
 =head1 METHODS
 
+=head2 local_code($local_code)
+
+Used to get or set the local_code attribute
+
 =head2 code($code)
 
-Used to get or set the Topography code
+Used to get or set the Topography code. Normally, 
+this is derived from the local_code attribute
 
 =head2 value($value)
 
-Used to get or set the Topography value
+Used to get or set the Topography value. Normally, 
+this is derived from the local_code attribute
 
 =head2 terminology($terminology)
 
-Used to get or set the Topography terminology
+Used to get or set the Topography terminology.
+Defaults to 'local'
 
 =head2 compose
 
@@ -174,6 +168,16 @@ Returns a hashref of the object in RAW format
 =head2 compose_flat
 
 Returns a hashref of the object in FLAT format
+
+=head1 PRIVATE METHODS
+
+=head2 _build_code
+
+Sets the Topography code based on the provided local code
+
+=head2 _build_value
+
+Sets the Topography value based on the provided local code
 
 =head1 DIAGNOSTICS
 

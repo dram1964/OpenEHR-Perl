@@ -11,71 +11,61 @@ extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
-enum 'MetastaticCode' => [ '02', '03', '04', '06', '07', '08', '09', '10', '11', '99' ];
+enum 'MetastaticCode' =>
+  [ '02', '03', '04', '06', '07', '08', '09', '10', '11', '99' ];
 
 has code => (
-    is  => 'rw',
-    isa => 'Str',
-    lazy => 1,
+    is      => 'rw',
+    isa     => 'Str',
+    lazy    => 1,
     builder => '_build_code',
 );
 has value => (
-    is  => 'rw',
-    isa => 'Str',
-    lazy => 1,
+    is      => 'rw',
+    isa     => 'Str',
+    lazy    => 1,
     builder => '_build_value',
 );
 has terminology => (
-    is  => 'rw',
-    isa => 'Str',
+    is      => 'rw',
+    isa     => 'Str',
     default => 'local',
 );
 has local_code => (
-    is => 'rw',
+    is  => 'rw',
     isa => 'MetastaticCode',
 );
 
-=head2 _build_code
-
-Sets the Metastatic Site code based on the provided local code
-
-=cut
-
 sub _build_code {
-    my $self = shift;
+    my $self            = shift;
     my $metastatic_site = {
-        '02' => 'at0018', 
-        '03' => 'at0019', 
-        '04' => 'at0020', 
-        '06' => 'at0021', 
-        '07' => 'at0022', 
-        '08' => 'at0023', 
-        '09' => 'at0024', 
-        '10' => 'at0025', 
-        '11' => 'at0026', 
+        '02' => 'at0018',
+        '03' => 'at0019',
+        '04' => 'at0020',
+        '06' => 'at0021',
+        '07' => 'at0022',
+        '08' => 'at0023',
+        '09' => 'at0024',
+        '10' => 'at0025',
+        '11' => 'at0026',
         '99' => 'at0027',
     };
-    $self->code( $metastatic_site->{ $self->local_code} );
+    $self->code( $metastatic_site->{ $self->local_code } );
 }
 
-=head2 _build_value
-
-Sets the Metastatic Site value based on the provided local code
-
-=cut
-
 sub _build_value {
-    my $self = shift;
+    my $self            = shift;
     my $metastatic_site = {
-        '02' => 'Metastatic disease is located in the brain.', 
-        '03' => 'Metastatic disease is located in the liver.', 
-        '04' => 'Metastatic disease is located in the lung.', 
-        '06' => 'Metastatic disease is located in multiple sites.', 
-        '07' => 'The site of metastatic disease is unknown.', 
-        '08' => 'Metastatic disease is located in the skin', 
-        '09' => 'Metastatic disease is located in distant lymph nodes', 
-        '10' => 'Metastatic disease is located in the bone excluding bone marrow', 
-        '11' => 'Metastatic disease is located in the bone marrow', 
+        '02' => 'Metastatic disease is located in the brain.',
+        '03' => 'Metastatic disease is located in the liver.',
+        '04' => 'Metastatic disease is located in the lung.',
+        '06' => 'Metastatic disease is located in multiple sites.',
+        '07' => 'The site of metastatic disease is unknown.',
+        '08' => 'Metastatic disease is located in the skin',
+        '09' => 'Metastatic disease is located in distant lymph nodes',
+        '10' =>
+          'Metastatic disease is located in the bone excluding bone marrow',
+        '11' => 'Metastatic disease is located in the bone marrow',
         '99' => 'Metastatic disease is located in another site',
     };
     $self->value( $metastatic_site->{ $self->local_code } );
@@ -84,7 +74,7 @@ sub _build_value {
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')
-        if ( $self->composition_format eq 'TDD' );
+      if ( $self->composition_format eq 'TDD' );
 
     my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
@@ -104,36 +94,35 @@ sub compose_raw {
     my $self        = shift;
     my $composition = {
         'value' => {
-                    '@class'        => 'DV_CODED_TEXT',
-                    'value'         => $self->local_code, #'08 Skin',
-                    'defining_code' => {
-                        'terminology_id' => {
-                            '@class' => 'TERMINOLOGY_ID',
-                            'value'  => $self->terminology, #'local'
-                        },
-                        'code_string' => $self->code, #'at0023',
-                        '@class'      => 'CODE_PHRASE'
-                    }
+            '@class'        => 'DV_CODED_TEXT',
+            'value'         => $self->local_code,
+            'defining_code' => {
+                'terminology_id' => {
+                    '@class' => 'TERMINOLOGY_ID',
+                    'value'  => $self->terminology,
                 },
-                'name' => {
-                    '@class' => 'DV_TEXT',
-                    'value'  => 'Metastatic site'
-                },
-                '@class'            => 'ELEMENT',
-                'archetype_node_id' => 'at0017'
-            };
+                'code_string' => $self->code,
+                '@class'      => 'CODE_PHRASE'
+            }
+        },
+        'name' => {
+            '@class' => 'DV_TEXT',
+            'value'  => 'Metastatic site'
+        },
+        '@class'            => 'ELEMENT',
+        'archetype_node_id' => 'at0017'
+    };
     return $composition;
 }
 
 sub compose_flat {
-    my $self        = shift;
+    my $self = shift;
+    my $path = 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/'
+      . 'cancer_diagnosis:__DIAG__/metastatic_site:__DIAG2__|';
     my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/metastatic_site:__DIAG2__|terminology'
-            => $self->terminology, #'local',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/metastatic_site:__DIAG2__|code'
-            => $self->code, #'at0023',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/cancer_diagnosis:__DIAG__/metastatic_site:__DIAG2__|value'
-            => $self->local_code, #'08 Skin',
+        $path . 'terminology' => $self->terminology,
+        $path . 'code'        => $self->code,
+        $path . 'value'       => $self->local_code,
     };
     return $composition;
 }
@@ -173,17 +162,24 @@ Used to create a Metastatic Site element for adding to a Cancer Diagnosis Proble
 
 =head1 METHODS
 
+=head2 local_code($local_code)
+
+Used to get or set the local_code attribute
+
 =head2 code($code)
 
-Used to get or set the Metastatic Site code
+Used to get or set the Metastatic Site code. Normally, 
+this is derived from the local_code attribute
 
 =head2 value($value)
 
-Used to get or set the Metastatic Site value
+Used to get or set the Metastatic Site value. Normally, 
+this is derived from the local_code attribute
 
 =head2 terminology($terminology)
 
-Used to get or set the Metastatic Site terminology
+Used to get or set the Metastatic Site terminology. 
+Defaults to 'local'
 
 =head2 compose
 
@@ -200,6 +196,16 @@ Returns a hashref of the object in RAW format
 =head2 compose_flat
 
 Returns a hashref of the object in FLAT format
+
+=head1 PRIVATE METHODS
+
+=head2 _build_code
+
+Sets the Metastatic Site code based on the provided local code
+
+=head2 _build_value
+
+Sets the Metastatic Site value based on the provided local code
 
 =head1 DIAGNOSTICS
 
