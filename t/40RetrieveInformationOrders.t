@@ -6,10 +6,10 @@ use Data::Dumper;
 use OpenEHR::REST::AQL;
 
 my $states = {
-        planned   => 526,
+        #planned   => 526,
         scheduled => 529,
-        aborted   => 531,
-        complete  => 532,
+        #aborted   => 531,
+        #complete  => 532,
 };
 
 SKIP: {

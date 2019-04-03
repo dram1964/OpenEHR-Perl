@@ -125,9 +125,10 @@ SKIP: {
     note( 'EHR can be found at ' . $ehr9->href );
 
     note('Testing update_ehr_status method');
+    my $subject_id = int(rand(99999999));
     my $subject = {
         subjectNamespace => 'GEL V3',
-        subjectId        => '33232323',
+        subjectId        => $subject_id,
         queryable        => 0,
         modifiable       => 0,
     };

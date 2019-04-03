@@ -88,14 +88,17 @@ sub find_by_subject_id {
         }
     );
     $self->submit_rest_call;
-    #print Dumper  $self->response;
     if ( $self->response_code eq '200' ) {
         my $response = from_json( $self->response );
         $self->_set_ehr_id( $response->{ehrId} );
-        carp "Manually setting action property to 'RETRIEVE'\n" . 
-            "Due to bug in Version 2.4.2 of ThinkEHR\n";
-        #$self->_set_action( $response->{action} );
-        $self->_set_action('RETRIEVE'  );
+        if (! defined( $response->{action} ) ) {
+            carp "Manually setting action property to 'RETRIEVE'\n" . 
+                "Due to bug in Version 2.4.2 of ThinkEHR\n";
+            $self->_set_action('RETRIEVE'  );
+        }
+        else {
+            $self->_set_action( $response->{action} );
+        }
         $self->_set_ehr_status( $response->{ehrStatus} );
         $self->_set_href( $response->{meta}->{href} );
         return 1;

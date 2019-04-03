@@ -32,7 +32,7 @@ my $imaging_report1 = OpenEHR::Composition::Elements::ImagingExam::ImagingReport
     imaging_diagnosis => ['Imaging diagnosis 29', 'Imaging Diagnosis 30'],
     findings => 'Findings 69',
     modality => 'Modality 39',
-    anatomical_side => 'at0007',
+    anatomical_side => 'LEFT',
     result_date => DateTime->new(
         year => 2018,
         month => 9,
@@ -40,7 +40,7 @@ my $imaging_report1 = OpenEHR::Composition::Elements::ImagingExam::ImagingReport
         hour => 12,
         minute => 45,
     ),
-    anatomical_site => ['Anatomical site 3', 'Anatomical Site 4'],
+    anatomical_site => ['Anatomical site 3'],
     imaging_code => 'Imaging code 87',
     result_status => 'at0009',
     image_file => ['Image file reference 97', 'Image File Reference 98'],
@@ -52,7 +52,7 @@ my $imaging_report2 = OpenEHR::Composition::Elements::ImagingExam::ImagingReport
     imaging_diagnosis => ['Imaging diagnosis 31', 'Imaging Diagnosis 32'],
     findings => 'Findings 70',
     modality => 'Modality 40',
-    anatomical_side => 'at0007',
+    anatomical_side => 'LEFT',
     result_date => DateTime->new(
         year => 2018,
         month => 9,
@@ -60,7 +60,7 @@ my $imaging_report2 = OpenEHR::Composition::Elements::ImagingExam::ImagingReport
         hour => 12,
         minute => 55,
     ),
-    anatomical_site => ['Anatomical site 5', 'Anatomical Site 6'],
+    anatomical_site => ['Anatomical site 5'],
     imaging_code => 'Imaging code 88',
     result_status => 'at0010',
     image_file => ['Image file reference 99', 'Image File Reference 96'],
@@ -70,12 +70,12 @@ my $imaging_report2 = OpenEHR::Composition::Elements::ImagingExam::ImagingReport
 
 my $imaging_exam = OpenEHR::Composition::Elements::ImagingExam->new(
     request_details => [$request_detail],
-    reports => [$imaging_report1, $imaging_report2],
+    reports => [$imaging_report1],
 );
 
 ok( my $radiology_report = OpenEHR::Composition::RadiologyReport->new(
     report_id => '0001111333',
-    imaging_exam => [$imaging_exam, $imaging_exam],
+    imaging_exam => [$imaging_exam],
     report_date => DateTime->now,
 ), 'RadiologyReport Constructor');
 

@@ -7,15 +7,7 @@ use Data::Dumper;
 use OpenEHR::Composition::LabResultReport;
 use OpenEHR::REST::Composition;
 
-my $config_file = 'OpenEHR.conf';
-open( my $fh, '<', $config_file ) or warn "Unable to read $config_file:$!";
-my %config;
-while ( my $line = <$fh> ) {
-    my ( $param, $value ) = $line =~ /(\w*)\s*(.*)/;
-    $config{$param} = $value;
-}
-
-my $ehrId = $config{test_ehrid};
+my $ehrId = $ENV{OPENEHR_TEST_EHRID};
 
 ok( my $labtest = OpenEHR::Composition::Elements::LabTest->new(), "Setup elements");
 
