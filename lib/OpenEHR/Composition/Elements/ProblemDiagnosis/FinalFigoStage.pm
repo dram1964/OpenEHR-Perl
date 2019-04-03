@@ -24,7 +24,7 @@ has code => (
     lazy    => 1,
     builder => '_get_figo_code',
 );
-has value => (
+has local_code => (
     is  => 'rw',
     isa => 'FigoCode',
 );
@@ -41,7 +41,7 @@ has version => (
 
 =head2 _get_figo_code
 
-Private method to derive the Figo Code from the value parameter provided
+Private method to derive the Figo Code from the local_code parameter provided
 
 =cut
 
@@ -85,7 +85,7 @@ sub _get_figo_code {
         IVB      => 'at0020',
 
     };
-    $self->code( $figo_codes->{ $self->value } );
+    $self->code( $figo_codes->{ $self->local_code } );
 }
 
 sub compose {
@@ -104,7 +104,7 @@ sub compose_structured {
         'figo_grade'   => [
             {
                 '|code'        => $self->code,
-                '|value'       => lc( $self->value ),
+                '|value'       => lc( $self->local_code ),
                 '|terminology' => $self->terminology,
             }
         ]
@@ -126,7 +126,7 @@ sub compose_raw {
                     'value'  => 'FIGO grade'
                 },
                 'value' => {
-                    'value'         => lc( $self->value ),    #'ib',
+                    'value'         => lc( $self->local_code ),    #'ib',
                     'defining_code' => {
                         'code_string'    => $self->code,     #'at0008',
                         '@class'         => 'CODE_PHRASE',
@@ -173,7 +173,7 @@ sub compose_flat {
 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/final_figo_stage:__DIAG__/figo_grade|code'
           => $self->code,    #'at0008',
 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/final_figo_stage:__DIAG__/figo_grade|value'
-          => lc( $self->value ),    #'ib',
+          => lc( $self->local_code ),    #'ib',
 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/final_figo_stage:__DIAG__/figo_version'
           => $self->version,    #'FIGO version 99',
 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/final_figo_stage:__DIAG__/figo_grade|terminology'
@@ -222,9 +222,9 @@ The Final Figo Staging system is used for classifying cervical cancer.
 
 Used to get or set the Final Figo Stage code
 
-=head2 value($value)
+=head2 local_code($local_code)
 
-Used to get or set the Final Figo Stage value
+Used to get or set the Final Figo Stage local_code
 
 =head2 terminology($terminology)
 

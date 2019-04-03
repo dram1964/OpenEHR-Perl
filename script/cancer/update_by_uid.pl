@@ -373,7 +373,7 @@ sub get_figo_stage {
     my $report     = shift;
     my $pd         = shift;
     my $figo_stage = $pd->element('FinalFigoStage')
-      ->new( value => $report->figo_stage_group_skin, );
+      ->new( local_code => $report->figo_stage_group_skin, );
     return $figo_stage;
 }
 

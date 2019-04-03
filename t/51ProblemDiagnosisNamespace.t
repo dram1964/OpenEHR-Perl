@@ -34,7 +34,7 @@ ok(
 
 ok(
     my $final_figo_stage = $pd->element('FinalFigoStage')->new(
-        value => 'IB',
+        local_code => 'IB',
     ),
     'Create new Final Figo object'
 );

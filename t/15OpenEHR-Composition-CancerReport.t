@@ -44,9 +44,6 @@ ok(
       OpenEHR::Composition::Elements::ProblemDiagnosis::ColorectalDiagnosis
       ->new(
         local_code => 8,
-        #code        => 'at0003',
-        #value       => '2 Appendix',
-        #terminology => 'local',
       ),
     'Create new Diagnosis object'
 );
@@ -54,7 +51,7 @@ ok(
 ok(
     my $final_figo_stage =
       OpenEHR::Composition::Elements::ProblemDiagnosis::FinalFigoStage->new(
-        value => 'IB',
+        local_code => 'IB',
       ),
     'Create new Final Figo object'
 );
