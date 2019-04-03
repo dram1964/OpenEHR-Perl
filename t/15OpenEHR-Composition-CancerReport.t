@@ -24,8 +24,7 @@ ok(
 ok(
     my $ajcc_stage =
       OpenEHR::Composition::Elements::ProblemDiagnosis::AJCC_Stage->new(
-        ajcc_code => '1A',
-        #ajcc_stage_grouping => 'Stage IB',
+        local_code => '1A',
       ),
     'Create new AJCC Stage object'
 );
@@ -60,9 +59,6 @@ ok(
     my $modified_dukes =
       OpenEHR::Composition::Elements::ProblemDiagnosis::ModifiedDukes->new(
         local_code => 'D',
-        #code        => 'at0006',
-        #value       => 'Dukes Stage D',
-        #terminology => 'local',
       ),
     'Create new Modified Dukes object'
 );

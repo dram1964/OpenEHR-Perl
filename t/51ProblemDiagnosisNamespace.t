@@ -12,7 +12,7 @@ ok( my $pd = OpenEHR::Composition::Elements::ProblemDiagnosis->new(),
 
 ok(
     my $ajcc_stage = $pd->element('AJCC_Stage')->new(
-        ajcc_code => '1B',
+        local_code => '1B',
     ),
     'Create new AJCC Stage object'
 );

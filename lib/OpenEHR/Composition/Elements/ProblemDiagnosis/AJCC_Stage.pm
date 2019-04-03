@@ -16,7 +16,7 @@ enum 'AJCC_Code' => [
     '3c', '4',  '1A', '1B', '2A', '2B', '2C', '3A', '3B', '3C',
 ];
 
-has ajcc_code => (
+has local_code => (
     is  => 'rw',
     isa => 'AJCC_Code',
 );
@@ -35,7 +35,7 @@ has version => (
 
 =head2 _get_ajcc_stage_group
 
-Private method to return the correct ajcc_stage_grouping based on the provided ajcc_code
+Private method to return the correct ajcc_stage_grouping based on the provided local_code
 
 =cut 
 
@@ -63,7 +63,7 @@ sub _get_ajcc_stage_group {
         '3B' => 'Stage IIIB',
         '3C' => 'Stage IIIC',
     };
-    $self->ajcc_stage_grouping( $ajcc_codes->{ $self->ajcc_code } );
+    $self->ajcc_stage_grouping( $ajcc_codes->{ $self->local_code } );
 }
 
 sub compose {
@@ -134,11 +134,10 @@ sub compose_raw {
 
 sub compose_flat {
     my $self        = shift;
+    my $path = 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/ajcc_stage:__AJCC__/';
     my $composition = {
-'gel_cancer_diagnosis/problem_diagnosis:__TEST__/ajcc_stage:__AJCC__/ajcc_stage_version'
-          => $self->version,
-'gel_cancer_diagnosis/problem_diagnosis:__TEST__/ajcc_stage:__AJCC__/ajcc_stage_grouping'
-          => $self->ajcc_stage_grouping,
+        $path . 'ajcc_stage_version' => $self->version,
+        $path . 'ajcc_stage_grouping' => $self->ajcc_stage_grouping,
     };
     return $composition;
 }
