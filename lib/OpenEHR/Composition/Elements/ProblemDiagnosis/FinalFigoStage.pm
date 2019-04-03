@@ -12,10 +12,10 @@ extends 'OpenEHR::Composition';
 use version; our $VERSION = qv('0.0.2');
 
 enum 'FigoCode' => [
-    qw( I IA IA1 IA2 IB IB1 IB2 IC IC1 IC2 IC3 II IIA IIA1 IIA2 IIB IIC 
-        III IIIA IIIAi IIIAii IIIA1 IIIA1i IIIA1ii IIIA2 IIIB IIIC IIIC1
-        IIIC2 IV IVA IVB
-    )
+    qw( I IA IA1 IA2 IB IB1 IB2 IC IC1 IC2 IC3 II IIA IIA1 IIA2 IIB IIC
+      III IIIA IIIAi IIIAii IIIA1 IIIA1i IIIA1ii IIIA2 IIIB IIIC IIIC1
+      IIIC2 IV IVA IVB
+      )
 ];
 
 has code => (
@@ -29,60 +29,54 @@ has local_code => (
     isa => 'FigoCode',
 );
 has terminology => (
-    is  => 'rw',
-    isa => 'Str',
+    is      => 'rw',
+    isa     => 'Str',
     default => 'local',
 );
 has version => (
-    is  => 'rw',
-    isa => 'Str',
-    default => 'Figo Version 89',
+    is      => 'rw',
+    isa     => 'Str',
+    default => 'indeterminate'    #'Figo Version 89',
 );
-
-=head2 _get_figo_code
-
-Private method to derive the Figo Code from the local_code parameter provided
-
-=cut
 
 sub _get_figo_code {
     my $self       = shift;
     my $figo_codes = {
-        I        => 'at0002',
-        IA       => 'at0007',
-        IA1       => 'at0007', # infered as IA1 === IA
-        IA2       => 'at0007', # infered as IA2 === IA
-        IB       => 'at0008',
-        IB1       => 'at0008', # infered as IB1 === IB
-        IB2       => 'at0008', # infered as IB2 === IB
-        IC       => 'at0024',
-        IC1       => 'at0009',
-        IC2       => 'at0010',
-        IC3       => 'at0011',
-        
-        II       => 'at0003',
-        IIA      => 'at0012',
-        IIA1      => 'at0012', # inferred as IIA1 === IIA
-        IIA2      => 'at0012', # inferred as IIA2 === IIA
-        IIB      => 'at0013',
-        IIC      => 'at0013', # inferred as IIC === IIB
+        I   => 'at0002',
+        IA  => 'at0007',
+        IA1 => 'at0007',          # infered as IA1 === IA
+        IA2 => 'at0007',          # infered as IA2 === IA
+        IB  => 'at0008',
+        IB1 => 'at0008',          # infered as IB1 === IB
+        IB2 => 'at0008',          # infered as IB2 === IB
+        IC  => 'at0024',
+        IC1 => 'at0009',
+        IC2 => 'at0010',
+        IC3 => 'at0011',
 
-        III      => 'at0004',
-        IIIA     => 'at0021',
-        IIIAi  => 'at0014',
-        IIIAii => 'at0015',
-        IIIA1    => 'at0025',
-        IIIA1i  => 'at0025', # inferred as IIIA1i === IIIA1
-        IIIA1ii => 'at0025', # inferred as IIIA1ii === IIIA1
-        IIIA2    => 'at0016',
-        IIIB     => 'at0017',
-        IIIC     => 'at0018',
-        IIIC1     => 'at0022',
-        IIIC2     => 'at0023',
+        II   => 'at0003',
+        IIA  => 'at0012',
+        IIA1 => 'at0012',         # inferred as IIA1 === IIA
+        IIA2 => 'at0012',         # inferred as IIA2 === IIA
+        IIB  => 'at0013',
+        IIC  => 'at0013',         # inferred as IIC === IIB
 
-        IV       => 'at0006',
-        IVA      => 'at0019',
-        IVB      => 'at0020',
+        III     => 'at0004',
+        IIIA    => 'at0021',
+        IIIAi   => 'at0014',
+        IIIAii  => 'at0015',
+        IIIA1   => 'at0025',
+        IIIA1i  => 'at0025',      # inferred as IIIA1i === IIIA1
+        IIIA1ii => 'at0025',      # inferred as IIIA1ii === IIIA1
+        IIIA2   => 'at0016',
+        IIIB    => 'at0017',
+        IIIC    => 'at0018',
+        IIIC1   => 'at0022',
+        IIIC2   => 'at0023',
+
+        IV  => 'at0006',
+        IVA => 'at0019',
+        IVB => 'at0020',
 
     };
     $self->code( $figo_codes->{ $self->local_code } );
@@ -126,13 +120,13 @@ sub compose_raw {
                     'value'  => 'FIGO grade'
                 },
                 'value' => {
-                    'value'         => lc( $self->local_code ),    #'ib',
+                    'value'         => lc( $self->local_code ),
                     'defining_code' => {
-                        'code_string'    => $self->code,     #'at0008',
+                        'code_string'    => $self->code,
                         '@class'         => 'CODE_PHRASE',
                         'terminology_id' => {
                             '@class' => 'TERMINOLOGY_ID',
-                            'value'  => $self->terminology,    #'local'
+                            'value'  => $self->terminology,
                         }
                     },
                     '@class' => 'DV_CODED_TEXT'
@@ -146,7 +140,7 @@ sub compose_raw {
                     '@class' => 'DV_TEXT'
                 },
                 'value' => {
-                    'value'  => $self->version,    #'FIGO version 99',
+                    'value'  => $self->version,
                     '@class' => 'DV_TEXT'
                 }
             }
@@ -168,16 +162,14 @@ sub compose_raw {
 }
 
 sub compose_flat {
-    my $self        = shift;
+    my $self = shift;
+    my $path = 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/'
+      . 'final_figo_stage:__DIAG__/';
     my $composition = {
-'gel_cancer_diagnosis/problem_diagnosis:__TEST__/final_figo_stage:__DIAG__/figo_grade|code'
-          => $self->code,    #'at0008',
-'gel_cancer_diagnosis/problem_diagnosis:__TEST__/final_figo_stage:__DIAG__/figo_grade|value'
-          => lc( $self->local_code ),    #'ib',
-'gel_cancer_diagnosis/problem_diagnosis:__TEST__/final_figo_stage:__DIAG__/figo_version'
-          => $self->version,    #'FIGO version 99',
-'gel_cancer_diagnosis/problem_diagnosis:__TEST__/final_figo_stage:__DIAG__/figo_grade|terminology'
-          => $self->terminology,    #'local',
+        $path . 'figo_grade|code'        => $self->code,
+        $path . 'figo_grade|value'       => lc( $self->local_code ),
+        $path . 'figo_version'           => $self->version,
+        $path . 'figo_grade|terminology' => $self->terminology,
     };
     return $composition;
 }
@@ -218,21 +210,24 @@ The Final Figo Staging system is used for classifying cervical cancer.
 
 =head1 METHODS
 
-=head2 code($code)
-
-Used to get or set the Final Figo Stage code
-
 =head2 local_code($local_code)
 
 Used to get or set the Final Figo Stage local_code
 
+=head2 code($code)
+
+Used to get or set the Final Figo Stage code. Normally, 
+this value is derived from the local_code attribute.
+
 =head2 terminology($terminology)
 
-Used to get or set the Final Figo Stage terminology
+Used to get or set the Final Figo Stage terminology.
+Defaults to 'local'
 
 =head2 version($version)
 
-Used to get or set the Final Figo Stage version
+Used to get or set the Final Figo Stage version.
+Defaults to 'indeterminate'
 
 =head2 compose
 
@@ -249,6 +244,14 @@ Returns a hashref of the object in RAW format
 =head2 compose_flat
 
 Returns a hashref of the object in FLAT format
+
+=head1 PRIVATE METHODS
+
+=head2 _get_figo_code
+
+Private method to derive the Figo Code from the local_code parameter provided
+
+=cut
 
 =head1 DIAGNOSTICS
 

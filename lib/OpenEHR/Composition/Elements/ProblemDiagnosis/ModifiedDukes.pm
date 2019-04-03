@@ -11,53 +11,54 @@ extends 'OpenEHR::Composition';
 
 use version; our $VERSION = qv('0.0.2');
 
-enum 'Dukes_Code' => [
-    qw( A B C1 C2 D 99)
-];
+enum 'Dukes_Code' => [qw( A B C1 C2 D 99)];
 
 has code => (
-    is  => 'rw',
-    isa => 'Str',
-    lazy => 1,
+    is      => 'rw',
+    isa     => 'Str',
+    lazy    => 1,
     builder => '_get_dukes_code',
 );
 has value => (
-    is  => 'rw',
-    isa => 'Str',
-    lazy => 1,
+    is      => 'rw',
+    isa     => 'Str',
+    lazy    => 1,
     builder => '_get_dukes_value',
 );
 has terminology => (
-    is  => 'rw',
-    isa => 'Str',
+    is      => 'rw',
+    isa     => 'Str',
     default => 'local',
 );
 has local_code => (
-    is => 'rw', 
+    is  => 'rw',
     isa => 'Dukes_Code',
 );
 
 sub _get_dukes_code {
-    my $self = shift;
+    my $self        = shift;
     my $dukes_codes = {
-        A => 'at0002',
-        B => 'at0003',
+        A  => 'at0002',
+        B  => 'at0003',
         C1 => 'at0004',
         C2 => 'at0005',
-        D => 'at0006',
+        D  => 'at0006',
         99 => 'at0007',
     };
     $self->code( $dukes_codes->{ $self->local_code } );
 }
 
 sub _get_dukes_value {
-    my $self = shift;
+    my $self         = shift;
     my $dukes_values = {
         A => 'Dukes A Tumour confined to wall of bowel, nodes negative.',
-        B => 'Dukes B Tumour penetrates through the muscularis propia to involve extramural tissues, nodes negative.',
-        C1 => 'Dukes C1 Metastases confined to regional lymph nodes (node/s positive but apical node negative.',
-        C2 => 'Dukes C2 Metastases present in nodes at mesenteric artery ligature (apical node positive).',
-        D => 'Dukes D Metastatic spread outside the operative field.',
+        B => 'Dukes B Tumour penetrates through the muscularis propia '
+          . 'to involve extramural tissues, nodes negative.',
+        C1 => 'Dukes C1 Metastases confined to regional lymph nodes '
+          . '(node/s positive but apical node negative.',
+        C2 => 'Dukes C2 Metastases present in nodes at mesenteric '
+          . 'artery ligature (apical node positive).',
+        D  => 'Dukes D Metastatic spread outside the operative field.',
         99 => 'Dukes stage is not known',
     };
     $self->value( $dukes_values->{ $self->local_code } );
@@ -66,7 +67,7 @@ sub _get_dukes_value {
 sub compose {
     my $self = shift;
     $self->composition_format('RAW')
-        if ( $self->composition_format eq 'TDD' );
+      if ( $self->composition_format eq 'TDD' );
 
     my $formatter = 'compose_' . lc( $self->composition_format );
     $self->$formatter();
@@ -76,7 +77,8 @@ sub compose_structured {
     my $self        = shift;
     my $composition = {
         'modified_dukes_stage' => [
-            {   '|code'        => $self->code,
+            {
+                '|code'        => $self->code,
                 '|value'       => $self->local_code,
                 '|terminology' => $self->terminology,
             }
@@ -103,17 +105,18 @@ sub compose_raw {
             'value'  => 'Modified Dukes stage'
         },
         'items' => [
-            {   'value' => {
+            {
+                'value' => {
                     '@class'        => 'DV_CODED_TEXT',
                     'defining_code' => {
-                        'code_string'    => $self->code,     #'at0006',
+                        'code_string'    => $self->code,
                         '@class'         => 'CODE_PHRASE',
                         'terminology_id' => {
-                            'value'  => $self->terminology,    #'local',
+                            'value'  => $self->terminology,
                             '@class' => 'TERMINOLOGY_ID'
                         }
                     },
-                    'value' => $self->local_code,    #'Dukes Stage D'
+                    'value' => $self->local_code,
                 },
                 'name' => {
                     '@class' => 'DV_TEXT',
@@ -128,14 +131,13 @@ sub compose_raw {
 }
 
 sub compose_flat {
-    my $self        = shift;
+    my $self = shift;
+    my $path = 'gel_cancer_diagnosis/problem_diagnosis:__TEST__/'
+      . 'modified_dukes_stage:__DIAG__/modified_dukes_stage|';
     my $composition = {
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/modified_dukes_stage:__DIAG__/modified_dukes_stage|value'
-            => $self->local_code,    #'Dukes Stage D',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/modified_dukes_stage:__DIAG__/modified_dukes_stage|terminology'
-            => $self->terminology,    #'local',
-        'gel_cancer_diagnosis/problem_diagnosis:__TEST__/modified_dukes_stage:__DIAG__/modified_dukes_stage|code'
-            => $self->code,           #'at0006',
+        $path . 'value'       => $self->local_code,
+        $path . 'terminology' => $self->terminology,
+        $path . 'code'        => $self->code,
     };
     return $composition;
 }
@@ -176,17 +178,25 @@ The Dukes Staging system is used for classifying colorectal cancer.
 
 =head1 METHODS
 
+=head2 local_code($local_code)
+
+Used to get or set the local code
+
 =head2 code($code)
 
-Used to get or set the modified dukes stage code
+Used to get or set the modified dukes stage code. Normally, 
+this is derived from the local_code attribute.
 
 =head2 value($value)
 
-Used to get or set the modified dukes stage value
+Used to get or set the modified dukes stage value. Normally, 
+this is derived from the local_code attribute.
+
 
 =head2 terminology($terminology)
 
-Used to get or set the modified dukes stage terminology
+Used to get or set the modified dukes stage terminology.
+Defaults to 'indeterminate'
 
 =head2 compose
 
