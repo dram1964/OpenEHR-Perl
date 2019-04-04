@@ -334,7 +334,7 @@ sub get_ajcc_stage {
     my $report     = shift;
     my $pd         = shift;
     my $ajcc_stage = $pd->element('AJCC_Stage')
-      ->new( ajcc_code => $report->ajcc_tnm_stage_group_skin );
+      ->new( local_code => $report->ajcc_tnm_stage_group_skin );
     return $ajcc_stage;
 }
 
@@ -368,7 +368,6 @@ sub get_diagnosis {
         if ( length( $search_code) == 3 ) {
             $search_code .= 'X';
         }
-        print Dumper $search_code;
         my $code_name_rs = $schema->resultset('CodesIcd10')
           ->search( { code => $search_code, }, { rows => 1, }, );
         my $code_name = $code_name_rs->first;
