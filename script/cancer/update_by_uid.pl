@@ -364,7 +364,6 @@ sub get_ajcc_stage {
     my $pd         = shift;
     my $ajcc_stage = $pd->element('AJCC_Stage')
       ->new( local_code => $report->ajcc_tnm_stage_group_skin );
-    print Dumper $ajcc_stage->compose;
     return $ajcc_stage;
 }
 
