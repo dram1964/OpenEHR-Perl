@@ -96,12 +96,11 @@ sub report_cancer_update {
           ),
           "\n";
         next unless $report->event_icd10_diagnosis_code;
-        my $diagnosis = &get_diagnosis( $report, $pd );
-        $problem_diagnosis->diagnosis( [$diagnosis] );
-
               
         my $pd = OpenEHR::Composition::Elements::ProblemDiagnosis->new();
         my $problem_diagnosis = $pd->element('ProblemDiagnosis')->new();
+        my $diagnosis = &get_diagnosis( $report, $pd );
+        $problem_diagnosis->diagnosis( [$diagnosis] );
 
         my ( $tumour_id );
 
