@@ -119,7 +119,7 @@ sub get_primary_exam_code {
     my ( $imaging_code, $imaging_name, $imaging_terminology );
     if ($report->nicip_map) {
         $imaging_code = $report->nicip_map->nicip_code;
-        $imaging_name = $report->nicip_map->nicip_code;
+        $imaging_name = $report->nicip_map->gel_map->nicip_description;
         $imaging_terminology = 'NICIP';
     }
     else {
