@@ -60,14 +60,18 @@ my $imaging_report = $imaging_exam->element('ImagingReport')->new(
 $imaging_report->add_mappings($report);
 push @{ $imaging_exam->reports }, $imaging_report;
 
-if ($report->nicip_map) {
-    printf("ExamCode: %s, Nicip: %s\n", 
-        $report->examcode, $report->nicip_map->nicip_code);
-}
-else {
-    printf("No NICIP code for %s\n", 
-        $report->examcode);
-}
+# Build RequestDetails ReportReference
+my $report_reference = $imaging_exam->element('ReportReference')->new(
+    id => $report->reportid,
+);
+
+# Build ImagingExam RequestDetails Object
+my $request_details = $imaging_exam->element('RequestDetail')->new(
+    report_reference => $report_reference,
+    exam_request => [$report->examname],
+);
+push @{ $imaging_exam->request_details }, $request_details;
+    
 
 # Add the ImagingExam object to the RadiologyReport
 push @{ $radiology_report->imaging_exam }, $imaging_exam;
