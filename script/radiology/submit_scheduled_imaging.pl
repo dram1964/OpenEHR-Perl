@@ -30,7 +30,7 @@ while ( my $request = $scheduled_requests_rs->next ) {
                 imaging_exam => [],
                 report_date => DateTime::Format::DateParse->parse_datetime( $study->get_column( 'lastreported') ),
             );
-            $radiology_report->composition_format('FLAT');
+            $radiology_report->composition_format('STRUCTURED');
             #next unless $study->studyid eq '31190272';
             my $imaging_exam = OpenEHR::Composition::Elements::ImagingExam->new(
                 reports => [],

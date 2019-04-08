@@ -34,7 +34,7 @@ my $radiology_report = OpenEHR::Composition::RadiologyReport->new(
     imaging_exam => [],
     report_date => DateTime::Format::DateParse->parse_datetime( $report->lastreporteddate),
 );
-$radiology_report->composition_format('FLAT');
+$radiology_report->composition_format('STRUCTURED');
 
 my $imaging_exam = OpenEHR::Composition::Elements::ImagingExam->new(
     reports => [],
