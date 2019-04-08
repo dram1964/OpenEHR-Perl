@@ -19,11 +19,8 @@ my $nhs_number = &get_subject_id($uid); #'9467484064';
 die "Aborting: Unable to find nhs_number from UID\n" unless $nhs_number;
 
 my ($ehrid, $data_start_date, $data_end_date) = &get_order_data($nhs_number);
-#my $data_start_date = '2001-03-07';
-#my $data_end_date = '2019-03-19';
 die "Aborting: Unable to find order start_date for nhs_number\n" unless $data_start_date;
 die "Aborting: Unable to find order end_date for nhs_number\n" unless $data_end_date;
-
 
 print join ("#", $uid, $study_id, $nhs_number, $data_start_date, $data_end_date), "\n";
 
@@ -35,10 +32,10 @@ die "No reports found for $study_id\n" unless $report;
 my $radiology_report = OpenEHR::Composition::RadiologyReport->new(
     report_id => $study_id,
     imaging_exam => [],
-    #report_date => DateTime::Format::DateParse->parse_datetime( $report->get_column( 'lastreporteddate') ),
     report_date => DateTime::Format::DateParse->parse_datetime( $report->lastreporteddate),
 );
 $radiology_report->composition_format('FLAT');
+
 my $imaging_exam = OpenEHR::Composition::Elements::ImagingExam->new(
     reports => [],
     request_details => [],
@@ -72,62 +69,28 @@ else {
         $report->examcode);
 }
 
-# Add the ImagingExam object to the RadiologyReport for this visit
+# Add the ImagingExam object to the RadiologyReport
 push @{ $radiology_report->imaging_exam }, $imaging_exam;
 #print Dumper $radiology_report->compose;
 
 # Submit the composition
 if ( my $compositionUid = &submit_update( $radiology_report, $ehrid ) ) {
-    &update_datawarehouse($compositionUid, $report->studyid, $report->reportid);
+    &update_datawarehouse($compositionUid, $report->studyid);
 }
-die "Finished Testing\n";
 
-=for implementation
-
-            # Build ImagingExam ImagingReport Object
-            #my $result_status = $report_count++ == 1 ? 'at0011' : 'at0010';
-            printf("VisitID: %s, StudyId: %s, ReportId: %s\n", 
-                $visit->visitid, $study->studyid, $report->reportid);
-
-                # Build RequestDetails Requester
-                #my $requester = OpenEHR::Composition::Elements::ImagingExam::Requester->new();
-
-                # Build RequestDetails Receiver
-                #my $receiver = OpenEHR::Composition::Elements::ImagingExam::Receiver->new( id => $report->studyid,);
-
-                # Build RequestDetails dicom_url
-                #my dicom_url = '';
-
-            # Build RequestDetails ReportReference
-            my $report_reference = $imaging_exam->element('ReportReference')->new(
-                id => $report->reportid,
-            );
-
-            # Build ImagingExam RequestDetails Object
-            my $request_details = $imaging_exam->element('RequestDetail')->new(
-                report_reference => $report_reference,
-                exam_request => [$report->examname],
-            );
-            push @{ $imaging_exam->request_details }, $request_details;
-            
-        }
-    }
-}
-=cut
 
 =head2 update_datawarehouse( $composition_uid, $visit_id )
 
 Adds compostion_id, date_reported and reported_by fields to RadiologyReports
-table for the given visit_id
+table for the given study_id
 
 =cut
 
 sub update_datawarehouse {
-    my ( $composition_uid, $study_id, $report_id ) = @_;
+    my ( $composition_uid, $study_id ) = @_;
     my $search = $schema->resultset('RadiologyReport')->search(
         {
             studyid => $study_id,
-            reportid => $report_id,
         }
     );
     my $now = DateTime->now->datetime;
@@ -139,31 +102,6 @@ sub update_datawarehouse {
             reported_by    => $0,
         }
     );
-}
-
-=head2 submit_composition($compostion_object)
-
-Submit a composition object to OpenEHR server
-
-=cut 
-
-sub submit_composition {
-        my ( $radiology_report, $ehrid ) = @_; 
-        my $query = OpenEHR::REST::Composition->new();
-        $query->composition($radiology_report);
-        
-        $query->template_id('GEL Generic radiology report import.v0');
-        $query->submit_new($ehrid);
-        if ( $query->err_msg ) {
-            print 'Error occurred in submission: ' . $query->err_msg;
-            return 0;
-        }
-        else {
-            print 'Action is: ',                   $query->action,         "\n";
-            print 'Composition UID: ',             $query->compositionUid, "\n";
-            print 'Composition can be found at: ', $query->href,           "\n";
-            return $query->compositionUid
-        }
 }
 
 =head1 get_primary_exam_code 
@@ -186,29 +124,6 @@ sub get_primary_exam_code {
         $imaging_terminology = 'local';
     }
     return  $imaging_code, $imaging_name, $imaging_terminology;
-}
-
-=head2 get_scheduled_data_requests
-
-Returns a ResultSet for Data Requests that are 
-flagged with an order state of 'scheduled'
-
-=cut 
-
-sub get_scheduled_data_requests {
-    my $planned_requests_rs = $schema->resultset('InformationOrder')->search(
-        {
-            order_state_code => 529,
-            subject_id_type  => 'uk.nhs.nhs_number',
-            service_type     => 'radiology',
-        },
-        {
-            columns => [
-                qw/subject_ehr_id subject_id data_start_date data_end_date subject_id/
-            ]
-        },
-    );
-    return $planned_requests_rs;
 }
 
 =head2 get_latest_study_report

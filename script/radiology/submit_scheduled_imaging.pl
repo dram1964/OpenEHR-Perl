@@ -101,7 +101,7 @@ while ( my $request = $scheduled_requests_rs->next ) {
 
             # Submit the composition
             if ( my $compositionUid = &submit_composition( $radiology_report, $ehrid ) ) {
-                &update_datawarehouse($compositionUid, $visit->visitid, $study->studyid, $report->reportid);
+                &update_datawarehouse($compositionUid, $study->studyid);
             }
         }
     }
@@ -110,17 +110,15 @@ while ( my $request = $scheduled_requests_rs->next ) {
 =head2 update_datawarehouse( $composition_uid, $visit_id )
 
 Adds compostion_id, date_reported and reported_by fields to RadiologyReports
-table for the given visit_id
+table for the given study_id
 
 =cut
 
 sub update_datawarehouse {
-    my ( $composition_uid, $visit_id, $study_id, $report_id ) = @_;
+    my ( $composition_uid, $study_id ) = @_;
     my $search = $schema->resultset('RadiologyReport')->search(
         {
-            visitid => $visit_id,
             studyid => $study_id,
-            reportid => $report_id,
         }
     );
     my $now = DateTime->now->datetime;
