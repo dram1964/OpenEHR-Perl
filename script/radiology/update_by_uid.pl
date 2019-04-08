@@ -9,70 +9,84 @@ use Genomes_100K::Model;
 
 my $schema = Genomes_100K::Model->connect('CRIUGenomes');
 
-my $scheduled_requests_rs = &get_scheduled_data_requests;
+my $uid = $ARGV[0];
+die "No composition_id specified\n" unless $uid;
 
-while ( my $request = $scheduled_requests_rs->next ) {
-    my ( $ehrid, $nhs_number, $start_date, $end_date ) = (
-        $request->subject_ehr_id,  $request->subject_id,
-        $request->data_start_date, $request->data_end_date
-    );
-    print join( ":", $nhs_number, $start_date, $end_date ), "\n";
+my $study_id = &get_study_id($uid);
+die "No study found for uid\n" unless $study_id;
 
-    # Get a list of visits for the patient
-    my $visit_rs = &get_patient_visits($nhs_number);
-    while ( my $visit = $visit_rs->next ) {
-        #next unless $visit->visitid eq '7121596';
-        # Get a list of examinations for the visit
-        my $study_rs = &get_visit_studies($visit->visitid);
-        while ( my $study = $study_rs->next) {
-            my $radiology_report = OpenEHR::Composition::RadiologyReport->new(
-                report_id => $study->studyid,
-                imaging_exam => [],
-                report_date => DateTime::Format::DateParse->parse_datetime( $study->get_column( 'lastreported') ),
-            );
-            $radiology_report->composition_format('FLAT');
-            #next unless $study->studyid eq '31190272';
-            my $imaging_exam = OpenEHR::Composition::Elements::ImagingExam->new(
-                reports => [],
-                request_details => [],
-            );
-            # Get the latest report issued for the examination
-            my $report_rs = &get_latest_study_report($study->studyid);
-            my $report = $report_rs->first;
-            next unless $report;
+my $nhs_number = &get_subject_id($uid); #'9467484064';
+die "Aborting: Unable to find nhs_number from UID\n" unless $nhs_number;
+
+my ($ehrid, $data_start_date, $data_end_date) = &get_order_data($nhs_number);
+#my $data_start_date = '2001-03-07';
+#my $data_end_date = '2019-03-19';
+die "Aborting: Unable to find order start_date for nhs_number\n" unless $data_start_date;
+die "Aborting: Unable to find order end_date for nhs_number\n" unless $data_end_date;
+
+
+print join ("#", $uid, $study_id, $nhs_number, $data_start_date, $data_end_date), "\n";
+
+# Get the latest report issued for the examination
+my $report_rs = &get_latest_study_report($study_id);
+my $report = $report_rs->first;
+next unless $report;
+
+my $radiology_report = OpenEHR::Composition::RadiologyReport->new(
+    report_id => $study_id,
+    imaging_exam => [],
+    report_date => DateTime::Format::DateParse->parse_datetime( $report->get_column( 'lastreporteddate') ),
+);
+$radiology_report->composition_format('FLAT');
+my $imaging_exam = OpenEHR::Composition::Elements::ImagingExam->new(
+    reports => [],
+    request_details => [],
+);
+
+my $result_status = 'at0011';
+my $report_text = $report->reporttextparsed;
+
+my ( $imaging_code, $imaging_name, $imaging_terminology ) = 
+    &get_primary_exam_code($report);
+my $imaging_report = $imaging_exam->element('ImagingReport')->new(
+    imaging_code => $imaging_code,
+    imaging_name => $imaging_name,
+    imaging_terminology => $imaging_terminology,
+    report_text => $report_text,
+    modality => $report->modality,
+    result_status => $result_status,
+    result_date => DateTime::Format::DateParse->parse_datetime($report->reportauthoriseddatealt),
+    code_mappings => [],
+);
+
+$imaging_report->add_mappings($report);
+push @{ $imaging_exam->reports }, $imaging_report;
+
+if ($report->nicip_map) {
+    printf("ExamCode: %s, Nicip: %s\n", 
+        $report->examcode, $report->nicip_map->nicip_code);
+}
+else {
+    printf("No NICIP code for %s\n", 
+        $report->examcode);
+}
+
+# Add the ImagingExam object to the RadiologyReport for this visit
+push @{ $radiology_report->imaging_exam }, $imaging_exam;
+#print Dumper $radiology_report->compose;
+
+# Submit the composition
+if ( my $compositionUid = &submit_update( $radiology_report, $ehrid ) ) {
+    &update_datawarehouse($compositionUid, $report->studyid, $report->reportid);
+}
+die "Finished Testing\n";
+
+=for implementation
 
             # Build ImagingExam ImagingReport Object
             #my $result_status = $report_count++ == 1 ? 'at0011' : 'at0010';
-            my $result_status = 'at0011';
             printf("VisitID: %s, StudyId: %s, ReportId: %s\n", 
                 $visit->visitid, $study->studyid, $report->reportid);
-            my $report_text = $report->reporttextparsed;
-                #my $new_line_char = '\n';
-                #$report_text =~ s/\r?\n/\n/g;
-            my ( $imaging_code, $imaging_name, $imaging_terminology ) = 
-                &get_primary_exam_code($report);
-            my $imaging_report = $imaging_exam->element('ImagingReport')->new(
-                imaging_code => $imaging_code,
-                imaging_name => $imaging_name,
-                imaging_terminology => $imaging_terminology,
-                report_text => $report_text,
-                modality => $report->modality,
-                result_status => $result_status,
-                result_date => DateTime::Format::DateParse->parse_datetime($report->reportauthoriseddatealt),
-                code_mappings => [],
-            );
-            $imaging_report->add_mappings($report);
-
-            push @{ $imaging_exam->reports }, $imaging_report;
-
-            if ($report->nicip_map) {
-                printf("ExamCode: %s, Nicip: %s\n", 
-                    $report->examcode, $report->nicip_map->nicip_code);
-            }
-            else {
-                printf("No NICIP code for %s\n", 
-                    $report->examcode);
-            }
 
                 # Build RequestDetails Requester
                 #my $requester = OpenEHR::Composition::Elements::ImagingExam::Requester->new();
@@ -95,17 +109,10 @@ while ( my $request = $scheduled_requests_rs->next ) {
             );
             push @{ $imaging_exam->request_details }, $request_details;
             
-            # Add the ImagingExam object to the RadiologyReport for this visit
-            push @{ $radiology_report->imaging_exam }, $imaging_exam;
-            #print Dumper $radiology_report->compose;
-
-            # Submit the composition
-            if ( my $compositionUid = &submit_composition( $radiology_report, $ehrid ) ) {
-                &update_datawarehouse($compositionUid, $visit->visitid, $study->studyid, $report->reportid);
-            }
         }
     }
 }
+=cut
 
 =head2 update_datawarehouse( $composition_uid, $visit_id )
 
@@ -115,10 +122,9 @@ table for the given visit_id
 =cut
 
 sub update_datawarehouse {
-    my ( $composition_uid, $visit_id, $study_id, $report_id ) = @_;
+    my ( $composition_uid, $study_id, $report_id ) = @_;
     my $search = $schema->resultset('RadiologyReport')->search(
         {
-            visitid => $visit_id,
             studyid => $study_id,
             reportid => $report_id,
         }
@@ -234,18 +240,6 @@ without duplicate (earlier) reports
 
 sub get_visit_studies {
     my $visit_id = shift;
-=for removal
-    my $study_rs = $schema->resultset('RadiologyReport')->search(
-        {
-            visitid => $visit_id,
-            studystatus => 'Authorised',
-        },
-        {
-            columns => [ qw/ studyid reportauthoriseddatealt/ ],
-            distinct => 1,
-        }
-    );
-=cut 
     my $study_rs = $schema->resultset('RadiologyReport')->search(
         {
             visitid => $visit_id,
@@ -280,3 +274,84 @@ sub get_latest_study_report {
     );
     return $report_rs;
 }
+
+sub get_order_data {
+    my $subject_id = shift;
+    my $order_rs = $schema->resultset('InformationOrder')->search(
+        {
+            subject_id => $subject_id,
+            service_type => 'radiology',
+        },
+        {
+            order_by => { -desc => 'order_date'},
+            columns => [ qw(subject_ehr_id data_start_date data_end_date) ],
+            rows => 1,
+        }
+    );
+    if ( $order_rs == 1 ) {
+        my $order = $order_rs->first;
+        return $order->subject_ehr_id, $order->data_start_date, $order->data_end_date;
+    }
+    else {
+        return 0;
+    }
+}
+
+sub get_subject_id {
+    my $uid = shift;
+    my $composition_rs = $schema->resultset('RadiologyReport')->search(
+        {
+            composition_id => $uid,
+        },
+        {
+            columns => 'nhsnumber',
+            distinct => 1,
+        }
+    );
+    if ( $composition_rs->count == 1 ) {
+        return $composition_rs->first->nhsnumber;
+    }
+    else {
+        return 0;
+    }
+}
+
+sub get_study_id {
+    my $composition_uid = shift;
+
+    my $study_rs = $schema->resultset('RadiologyReport')->search(
+        {
+            composition_id => $composition_uid,
+        },
+        {
+            columns => 'studyid',
+            rows => 1,
+        }
+    );
+
+    if ($study_rs->count == 1) {
+        return $study_rs->first->studyid;
+    }
+    else {
+        return 0;
+    }
+}
+
+sub submit_update {
+    my ( $radiology_report, $ehrid ) = @_;
+    my $query = OpenEHR::REST::Composition->new();
+    $query->composition($radiology_report);
+    $query->template_id('GEL Generic radiology report import.v0');
+    $query->update_by_uid($uid);
+    if ( $query->err_msg ) {
+        print 'Error occurred in submission: ' . $query->err_msg;
+        return 0;
+    }
+    else {
+        print 'Action is: ',                   $query->action,         "\n";
+        print 'Composition UID: ',             $query->compositionUid, "\n";
+        print 'Composition can be found at: ', $query->href,           "\n";
+        return $query->compositionUid;
+    }
+}
+
