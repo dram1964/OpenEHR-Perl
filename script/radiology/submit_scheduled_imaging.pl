@@ -234,25 +234,13 @@ without duplicate (earlier) reports
 
 sub get_visit_studies {
     my $visit_id = shift;
-=for removal
     my $study_rs = $schema->resultset('RadiologyReport')->search(
         {
             visitid => $visit_id,
             studystatus => 'Authorised',
         },
         {
-            columns => [ qw/ studyid reportauthoriseddatealt/ ],
-            distinct => 1,
-        }
-    );
-=cut 
-    my $study_rs = $schema->resultset('RadiologyReport')->search(
-        {
-            visitid => $visit_id,
-            studystatus => 'Authorised',
-        },
-        {
-            select => [ 'studyid', { max => 'reportauthoriseddatealt' } ],
+            select => [ 'studyid', { max => 'lastreporteddate' } ],
             as => [ qw/ studyid lastreported / ],
             group_by => [qw/ studyid / ],
         }

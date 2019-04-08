@@ -30,12 +30,13 @@ print join ("#", $uid, $study_id, $nhs_number, $data_start_date, $data_end_date)
 # Get the latest report issued for the examination
 my $report_rs = &get_latest_study_report($study_id);
 my $report = $report_rs->first;
-next unless $report;
+die "No reports found for $study_id\n" unless $report;
 
 my $radiology_report = OpenEHR::Composition::RadiologyReport->new(
     report_id => $study_id,
     imaging_exam => [],
-    report_date => DateTime::Format::DateParse->parse_datetime( $report->get_column( 'lastreporteddate') ),
+    #report_date => DateTime::Format::DateParse->parse_datetime( $report->get_column( 'lastreporteddate') ),
+    report_date => DateTime::Format::DateParse->parse_datetime( $report->lastreporteddate),
 );
 $radiology_report->composition_format('FLAT');
 my $imaging_exam = OpenEHR::Composition::Elements::ImagingExam->new(
@@ -208,50 +209,6 @@ sub get_scheduled_data_requests {
         },
     );
     return $planned_requests_rs;
-}
-
-=head2 get_patient_visits
-
-Returns unique visit IDs for a specified patient
-
-=cut
-
-sub get_patient_visits {
-    my $nhs_number = shift;
-    my $visit_rs = $schema->resultset('RadiologyReport')->search(
-        {
-            nhsnumber => $nhs_number, 
-            reported_date => undef,
-        },
-        {
-            columns => [ qw/ visitid /],
-            distinct => 1,
-        }
-    );
-    return $visit_rs;
-}
-
-=head2 get_visit_studies
-
-Returns all the studies (examinations) performed on a visit
-without duplicate (earlier) reports
-
-=cut
-
-sub get_visit_studies {
-    my $visit_id = shift;
-    my $study_rs = $schema->resultset('RadiologyReport')->search(
-        {
-            visitid => $visit_id,
-            studystatus => 'Authorised',
-        },
-        {
-            select => [ 'studyid', { max => 'reportauthoriseddatealt' } ],
-            as => [ qw/ studyid lastreported / ],
-            group_by => [qw/ studyid / ],
-        }
-    );
-    return $study_rs;
 }
 
 =head2 get_latest_study_report
