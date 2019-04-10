@@ -16,8 +16,6 @@ Sets an expiry date for orders that have all compositions submitted
 =cut 
 
 sub update_expiry_date {
-    my ( $exclusions, $inclusions ) = @_;
-
     my $update_rs = $schema->resultset('InformationOrder')->search(
         {
             expiry_date  => undef,
