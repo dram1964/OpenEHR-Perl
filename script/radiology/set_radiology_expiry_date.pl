@@ -90,7 +90,7 @@ sub get_submitted_ids {
 
 =head2 &get_unsubmitted_ids() 
 
-returns an arrayref of patient_ids for all
+returns an arrayref of patient_ids for all authorised
 radiology reports that have no submitted compostions
 
 =cut 
@@ -100,6 +100,7 @@ sub get_unsubmitted_ids {
     my $unsubmitted_rs = $schema->resultset('RadiologyReport')->search(
         {
             composition_id =>  undef ,
+            studystatus => 'Authorised',
         },
         {
             columns => [ qw/ nhsnumber / ],
