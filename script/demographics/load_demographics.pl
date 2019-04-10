@@ -3,30 +3,37 @@ use warnings;
 
 use OpenEHR::REST::EHR;
 use OpenEHR::REST::Demographics;
+use DateTime;
 use Carecast::Model;
 use Genomes_100K::Model;
 use Data::Dumper;
 use JSON;
 
-my $carecast_schema          = Carecast::Model->connect('CRIUCarecast');
-my $genomes_schema = Genomes_100K::Model->connect('CRIUGenomes');
+my $carecast_schema = Carecast::Model->connect('CRIUCarecast');
+my $genomes_schema  = Genomes_100K::Model->connect('CRIUGenomes');
 
 my $subject_namespace = 'uk.nhs.nhs_number';
 
 my $patient_list_rs = $genomes_schema->resultset('InformationOrder')->search(
-    { },
+    {},
     {
-        join => 'demographic', 
-        '+columns' => ['demographic.nhs_number' ],
-        where => { 'demographic.demographic_status' => undef }
+        join       => 'demographic',
+        '+columns' => [ 'demographic.nhs_number' ],
+        where      => {
+            -or => {
+                'demographic.demographic_status' => undef,
+                'demographic.inserted'           => { '<' => \'order_date' },
+            }
+        },
     }
 );
 
-while (my $patient = $patient_list_rs->next) {
+while ( my $patient = $patient_list_rs->next ) {
     my $patient_number = $patient->subject_id;
     print "Processing $patient_number\n";
 
-    my $carecast_demographics_rs = $carecast_schema->resultset('Patient')->search(
+    my $carecast_demographics_rs =
+      $carecast_schema->resultset('Patient')->search(
         {
             nhs_number => $patient_number,
         },
@@ -35,15 +42,14 @@ while (my $patient = $patient_list_rs->next) {
                 qw/nhs_number hospital_patient_id surname fname1 fname2 date_of_birth sex death_flag date_of_death/
             ]
         },
-    );
+      );
     if ( $carecast_demographics_rs == 0 ) {
         print "No Carecast Demographics found for: $patient_number\n";
         next;
     }
     my $carecast_demographics = $carecast_demographics_rs->first;
 
-
-    my $order_rs       = $genomes_schema->resultset('InformationOrder')->search(
+    my $order_rs = $genomes_schema->resultset('InformationOrder')->search(
         {
             subject_id      => $patient_number,
             subject_id_type => $subject_namespace,
@@ -80,7 +86,6 @@ while (my $patient = $patient_list_rs->next) {
     }
 }
 
-
 sub add_demographics() {
     my ( $carecast_demographics, $ehr, $update_status ) = @_;
     $genomes_schema->resultset('Demographic')->update_or_create(
@@ -96,20 +101,20 @@ sub add_demographics() {
             date_of_death       => $carecast_demographics->date_of_death,
             subject_ehr_id      => $ehr->ehr_id,
             demographic_status  => $update_status,
+            inserted            => DateTime->now->ymd,
         }
     );
 }
 
-
 sub update_party() {
     my ( $carecast_demographics, $ehr ) = @_;
-    
+
     my $gender_code = $carecast_demographics->sex;
     my $gender;
-    if ($gender_code eq 'F') {
+    if ( $gender_code eq 'F' ) {
         $gender = 'FEMALE';
     }
-    elsif ($gender_code eq 'M') {
+    elsif ( $gender_code eq 'M' ) {
         $gender = 'MALE';
     }
     else {
@@ -125,7 +130,7 @@ sub update_party() {
     if ( $carecast_demographics->fname2 ) {
         $first_names = $first_names . ' ' . $carecast_demographics->fname2;
     }
-    
+
     my $party = {
         firstNames          => $first_names,
         lastNames           => $carecast_demographics->surname,
@@ -145,7 +150,7 @@ sub update_party() {
         }
     );
     $openehr_demographics->update_or_new( $ehr->ehr_id );
-    if ($openehr_demographics->err_msg) {
+    if ( $openehr_demographics->err_msg ) {
         print $openehr_demographics->err_msg;
         return 0;
     }
