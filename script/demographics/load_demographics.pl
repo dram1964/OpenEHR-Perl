@@ -100,29 +100,6 @@ sub add_demographics() {
     );
 }
 
-sub update_demographics() {
-    my ( $carecast_demographics, $ehr, $update_status ) = @_;
-    my $genomes_demographics = $genomes_schema->resultset('Demographic')->find(
-        {
-            nhs_number => $carecast_demographics->nhs_number,
-        }
-    );
-
-    $genomes_demographics->update(
-        {
-            hospital_patient_id => $carecast_demographics->hospital_patient_id,
-            surname             => $carecast_demographics->surname,
-            fname1              => $carecast_demographics->fname1,
-            fname2              => $carecast_demographics->fname2,
-            date_of_birth       => $carecast_demographics->date_of_birth,
-            sex                 => $carecast_demographics->sex,
-            death_flag          => $carecast_demographics->death_flag,
-            date_of_death       => $carecast_demographics->date_of_death,
-            subject_ehr_id      => $ehr->ehr_id,
-            demographic_status  => $update_status,
-        }
-    );
-}
 
 sub update_party() {
     my ( $carecast_demographics, $ehr ) = @_;
