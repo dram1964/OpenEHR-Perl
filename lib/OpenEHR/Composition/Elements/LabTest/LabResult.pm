@@ -8,7 +8,7 @@ extends 'OpenEHR::Composition';
 use Moose::Util::TypeConstraints;
 use Data::Dumper;
 
-use version; our $VERSION = qv('0.0.2');
+use version; our $VERSION = qv('0.0.1');
 
 has name => (
     is      => 'rw',
