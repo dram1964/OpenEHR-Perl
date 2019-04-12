@@ -11,53 +11,56 @@ use Data::Dumper;
 
 my $schema = Genomes_100K::Model->connect('CRIUGenomes');
 
-my $uid = $ARGV[0]; #'8b6591eb-4b1b-48f9-a9a4-09178d622d6d::default::2';
+my $uid = $ARGV[0];    #'8b6591eb-4b1b-48f9-a9a4-09178d622d6d::default::2';
 die "Aborting: No UID specified on command line\n" unless $uid;
 
 my $sample_id = &get_sample_id($uid);
 die "No sample found for this UID" unless $sample_id;
 
-my $subject_id = &get_subject_id($uid); #'9467484064';
+my $subject_id = &get_subject_id($uid);    #'9467484064';
 die "Aborting: Unable to find nhs_number from UID\n" unless $subject_id;
 
-my ($ehrid, $data_start_date, $data_end_date) = &get_order_data($subject_id);
+my ( $ehrid, $data_start_date, $data_end_date ) = &get_order_data($subject_id);
+
 #my $data_start_date = '2001-03-07';
 #my $data_end_date = '2019-03-19';
-die "Aborting: Unable to find order start_date for nhs_number\n" unless $data_start_date;
-die "Aborting: Unable to find order end_date for nhs_number\n" unless $data_end_date;
+die "Aborting: Unable to find order start_date for nhs_number\n"
+  unless $data_start_date;
+die "Aborting: Unable to find order end_date for nhs_number\n"
+  unless $data_end_date;
 
+print join( "#",
+    $uid, $ehrid, $sample_id, $subject_id, $data_start_date, $data_end_date ),
+  "\n";
 
-print join ("#", $uid, $ehrid, $sample_id, $subject_id, $data_start_date, $data_end_date), "\n";
 #die "Finished Testing";
 
-    my $samples_rs =
-      &select_sample_to_report( $sample_id, $data_start_date, $data_end_date );
+my $samples_rs =
+  &select_sample_to_report( $sample_id, $data_start_date, $data_end_date );
 
-    my $order_item_number = 1;
-    while ( my $sample = $samples_rs->next ) {
-        my $labreport          = [];
-        my $labnumber          = $sample->lab_number;
-        my $report_id          = $labnumber;
-        my $sample_report_date = $sample->last_authorised_date;
-        my $orders_ref         = &get_sample_orders($labnumber);
-        for my $order ( @{$orders_ref} ) {
-            my $data =
-              &get_order_data_hash( $sample, $order, $order_item_number,
-                $data_start_date, $data_end_date );
-            push @{$labreport}, $data;
-        }
-        if ( my $compositionUid = &submit_update( $labreport, $ehrid, $report_id, $sample_report_date ) ) {
-            &update_datawarehouse($compositionUid);
-        }
-
-        $order_item_number++;
-    }
+my $order_item_number  = 1;
+my $sample             = $samples_rs->first;
+my $labreport          = [];
+my $labnumber          = $sample->lab_number;
+my $report_id          = $labnumber;
+my $sample_report_date = $sample->last_authorised_date;
+my $orders_ref         = &get_sample_orders($labnumber);
+for my $order ( @{$orders_ref} ) {
+    my $data =
+      &get_order_data_hash( $sample, $order, $order_item_number,
+        $data_start_date, $data_end_date );
+    push @{$labreport}, $data;
+}
+if ( my $compositionUid = 
+    &submit_update( $labreport, $ehrid, $report_id, $sample_report_date ) ) {
+        &update_datawarehouse($report_id, $compositionUid);
+}
 
 sub update_datawarehouse {
-    my ( $composition_uid ) = @_;
+    my ($report_id, $composition_uid) = @_;
     my $search = $schema->resultset('PathologySample')->search(
         {
-            composition_id => $composition_uid,
+            lab_number => $report_id,
         }
     );
     my $now = DateTime->now->datetime;
@@ -110,6 +113,7 @@ Need to add logic for test_status lookup and collect_method
 sub get_order_data_hash {
     my ( $sample, $order, $order_item_number, $start_date, $end_date ) = @_;
     my $labnumber = $sample->lab_number;
+
     #print join( ":",
     #    "$order_item_number) ", $sample->nhs_number, $labnumber,
     #    $order->order_code,     $order->order_name,  $sample->sample_date,
@@ -187,7 +191,7 @@ Need to replace this statement with collect_method lookup
 
     my $lab_results_ref = &get_labresults( $labnumber, $order->order_code );
     for my $lab_result ( @{$lab_results_ref} ) {
-        my $results = &format_results($order->order_code, $lab_result);
+        my $results = &format_results( $order->order_code, $lab_result );
         push @{ $data->{labresults} }, $results;
     }
     return $data;
@@ -200,25 +204,25 @@ Returns a hashref for a labresult
 =cut
 
 sub format_results {
-        my ($order_code, $lab_result) = @_;
-        my $result          = $lab_result->result;
-        my $test_code       = $lab_result->test_code;
-        my $department_code = $lab_result->laboratory_department_code;
-        my $results = {
-            result_value  => $result,
-            range_low     => $lab_result->range_low,
-            range_high    => $lab_result->range_high,
-            testcode      => $lab_result->test_code,
-            testname      => $lab_result->test_name,
-            result_status => 'Final',
-            unit          => $lab_result->units,
-        };
-        my $result_mapping =
-          &get_mappings( $order_code, $test_code, $department_code );
-        if ($result_mapping) {
-            $results->{result_mapping} = $result_mapping;
-        }
-        return $results;
+    my ( $order_code, $lab_result ) = @_;
+    my $result          = $lab_result->result;
+    my $test_code       = $lab_result->test_code;
+    my $department_code = $lab_result->laboratory_department_code;
+    my $results         = {
+        result_value  => $result,
+        range_low     => $lab_result->range_low,
+        range_high    => $lab_result->range_high,
+        testcode      => $lab_result->test_code,
+        testname      => $lab_result->test_name,
+        result_status => 'Final',
+        unit          => $lab_result->units,
+    };
+    my $result_mapping =
+      &get_mappings( $order_code, $test_code, $department_code );
+    if ($result_mapping) {
+        $results->{result_mapping} = $result_mapping;
+    }
+    return $results;
 }
 
 =head2 get_order_mappings
@@ -403,6 +407,7 @@ sub submit_report() {
         die $path_report->err_msg;
     }
     if ( $path_report->action eq 'CREATE' ) {
+
         #print "Composition UID: ", $path_report->compositionUid, "\n";
         #print 'Composition can be found at: ' . $path_report->href, "\n";
         return $path_report->compositionUid;
@@ -516,8 +521,8 @@ sub select_sample_to_report {
     my ( $sample_id, $start_date, $end_date ) = @_;
     my $samples_rs = $schema->resultset('PathologySample')->search(
         {
-            lab_number    => $sample_id,
-            sample_date   => { '<=' => $end_date, '>=' => $start_date },
+            lab_number  => $sample_id,
+            sample_date => { '<=' => $end_date, '>=' => $start_date },
         },
         {
             columns => [
@@ -554,20 +559,21 @@ sub get_scheduled_data_requests {
 
 sub get_order_data {
     my $subject_id = shift;
-    my $order_rs = $schema->resultset('InformationOrder')->search(
+    my $order_rs   = $schema->resultset('InformationOrder')->search(
         {
-            subject_id => $subject_id,
+            subject_id   => $subject_id,
             service_type => 'pathology',
         },
         {
-            order_by => { -desc => 'order_date'},
-            columns => [ qw( subject_ehr_id data_start_date data_end_date) ],
-            rows => 1,
+            order_by => { -desc => 'order_date' },
+            columns => [qw( subject_ehr_id data_start_date data_end_date)],
+            rows    => 1,
         }
     );
     if ( $order_rs == 1 ) {
         my $order = $order_rs->first;
-        return $order->subject_ehr_id, $order->data_start_date, $order->data_end_date;
+        return $order->subject_ehr_id, $order->data_start_date,
+          $order->data_end_date;
     }
     else {
         return 0;
@@ -583,7 +589,7 @@ sub get_sample_id {
         },
         {
             columns => 'lab_number',
-            rows => 1,
+            rows    => 1,
         }
     );
     if ( $sample_rs->count == 1 ) {
@@ -595,13 +601,13 @@ sub get_sample_id {
 }
 
 sub get_subject_id {
-    my $uid = shift;
+    my $uid            = shift;
     my $composition_rs = $schema->resultset('PathologySample')->search(
         {
             composition_id => $uid,
         },
         {
-            columns => 'nhs_number',
+            columns  => 'nhs_number',
             distinct => 1,
         }
     );
