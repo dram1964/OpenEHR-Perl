@@ -16,7 +16,7 @@ while ( my $request = $scheduled_requests_rs->next ) {
         $request->subject_ehr_id,  $request->subject_id,
         $request->data_start_date, $request->data_end_date
     );
-    print join( ":", $nhs_number, $start_date, $end_date ), "\n";
+    #print join( ":", $nhs_number, $start_date, $end_date ), "\n";
 
     # Get a list of visits for the patient
     my $visit_rs = &get_patient_visits($nhs_number);
@@ -44,8 +44,7 @@ while ( my $request = $scheduled_requests_rs->next ) {
             # Build ImagingExam ImagingReport Object
             #my $result_status = $report_count++ == 1 ? 'at0011' : 'at0010';
             my $result_status = 'at0011';
-            printf("VisitID: %s, StudyId: %s, ReportId: %s\n", 
-                $visit->visitid, $study->studyid, $report->reportid);
+            #printf("VisitID: %s, StudyId: %s, ReportId: %s\n", $visit->visitid, $study->studyid, $report->reportid);
             my $report_text = $report->reporttextparsed;
                 #my $new_line_char = '\n';
                 #$report_text =~ s/\r?\n/\n/g;
@@ -66,12 +65,10 @@ while ( my $request = $scheduled_requests_rs->next ) {
             push @{ $imaging_exam->reports }, $imaging_report;
 
             if ($report->nicip_map) {
-                printf("ExamCode: %s, Nicip: %s\n", 
-                    $report->examcode, $report->nicip_map->nicip_code);
+                #printf("ExamCode: %s, Nicip: %s\n", $report->examcode, $report->nicip_map->nicip_code);
             }
             else {
-                printf("No NICIP code for %s\n", 
-                    $report->examcode);
+                #printf("No NICIP code for %s\n", $report->examcode);
             }
 
                 # Build RequestDetails Requester
@@ -150,9 +147,9 @@ sub submit_composition {
             return 0;
         }
         else {
-            print 'Action is: ',                   $query->action,         "\n";
-            print 'Composition UID: ',             $query->compositionUid, "\n";
-            print 'Composition can be found at: ', $query->href,           "\n";
+            #print 'Action is: ',                   $query->action,         "\n";
+            #print 'Composition UID: ',             $query->compositionUid, "\n";
+            #print 'Composition can be found at: ', $query->href,           "\n";
             return $query->compositionUid
         }
 }

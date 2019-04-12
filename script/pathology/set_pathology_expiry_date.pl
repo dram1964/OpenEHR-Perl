@@ -46,14 +46,14 @@ sub set_expiry_date {
     my $update     = shift;
     my $nhs_number = $update->subject_id;
     if ( grep { /$nhs_number/ } @{$exclusions} ) {
-        print "Subject ID: "
-          . $nhs_number
-          . ", found in exclusion list. Skipping\n";
+        #print "Subject ID: "
+        #  . $nhs_number
+        #  . ", found in exclusion list. Skipping\n";
     }
     elsif ( grep { /$nhs_number/ } @{$inclusions} ) {
-        print "Subject ID: "
-          . $nhs_number
-          . ", found in inclusion list. Updating\n";
+        #print "Subject ID: "
+        #  . $nhs_number
+        #  . ", found in inclusion list. Updating\n";
         my $order_rs = $schema->resultset('InformationOrder')->search(
             {
                 service_type => 'pathology',
@@ -73,9 +73,9 @@ sub set_expiry_date {
         }
     }
     else {
-        print "Subject ID: "
-          . $nhs_number
-          . " has no submitted compositions. Skipping\n";
+        #print "Subject ID: "
+        #  . $nhs_number
+        #  . " has no submitted compositions. Skipping\n";
     }
 }
 

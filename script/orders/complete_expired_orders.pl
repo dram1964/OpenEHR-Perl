@@ -25,7 +25,7 @@ if ( $expired_orders->count > 0 ) {
         $query->find_orders_by_uid( $order->composition_uid );
 
         if ( $query->response_code eq '204' ) {
-            print "No $state orders found on OpenEHR for " . $order->composition_uid . "\n";
+            #print "No $state orders found on OpenEHR for " . $order->composition_uid . "\n";
             next;
         }
         if ( $query->err_msg ) {
@@ -43,7 +43,7 @@ elsif ( $expired_orders->count == 1 ) {
     $query->find_orders_by_uid( $order->composition_uid );
 
     if ( $query->response_code eq '204' ) {
-        print "No $state orders found on OpenEHR for " . $order->composition_uid . "\n";
+        #print "No $state orders found on OpenEHR for " . $order->composition_uid . "\n";
         next;
     }
     if ( $query->err_msg ) {
@@ -55,7 +55,7 @@ elsif ( $expired_orders->count == 1 ) {
     &mark_completed($new_uid, $result);
 }
 else {
-    print "No expired orders found in InformationOrders table\n";
+    #print "No expired orders found in InformationOrders table\n";
 }
 
 
@@ -80,7 +80,7 @@ sub update_state {
     $retrieval->request_format('STRUCTURED');
     $retrieval->find_by_uid($uid);
     my $composition = $retrieval->composition_response;
-    print "Original order can be found at: " . $retrieval->href . "\n";
+    #print "Original order can be found at: " . $retrieval->href . "\n";
 
     # Recompose the composition with new state
     my $recompose = OpenEHR::Composition::InformationOrder->new();
@@ -98,7 +98,7 @@ sub update_state {
     if ( $order_update->err_msg ) {
         die "Error occurred in submission: " . $order_update->err_msg;
     }
-    print "Update can be found at: " . $order_update->href . "\n";
+    #print "Update can be found at: " . $order_update->href . "\n";
     return $order_update->compositionUid;
 }
 

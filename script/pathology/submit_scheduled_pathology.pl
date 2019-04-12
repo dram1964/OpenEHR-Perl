@@ -25,7 +25,7 @@ while ( my $request = $scheduled_requests_rs->next ) {
     if ($start_date =~ m/(\d{4,4}\-\d{2,2}\-\d{2,2})/ ) {
         $start_date = $1;
     }
-    print join( ":", $nhs_number, $start_date, $end_date ), "\n";
+    #print join( ":", $nhs_number, $start_date, $end_date ), "\n";
     my $samples_rs =
       &select_samples_to_report( $ehrid, $nhs_number, $start_date, $end_date );
 
@@ -60,11 +60,11 @@ Need to add logic for test_status lookup and collect_method
 sub get_order_data_hash {
     my ( $sample, $order, $order_item_number, $start_date, $end_date ) = @_;
     my $labnumber = $sample->lab_number;
-    print join( ":",
-        "$order_item_number) ", $sample->nhs_number, $labnumber,
-        $order->order_code,     $order->order_name,  $sample->sample_date,
-        $start_date,            $end_date ),
-      "\n";
+    #print join( ":",
+    #    "$order_item_number) ", $sample->nhs_number, $labnumber,
+    #    $order->order_code,     $order->order_name,  $sample->sample_date,
+    #    $start_date,            $end_date ),
+    #  "\n";
     my $data = {};
 
     if ( $sample->order_number ) {
@@ -353,8 +353,8 @@ sub submit_report() {
         die $path_report->err_msg;
     }
     if ( $path_report->action eq 'CREATE' ) {
-        print "Composition UID: ", $path_report->compositionUid, "\n";
-        print 'Composition can be found at: ' . $path_report->href, "\n";
+        #print "Composition UID: ", $path_report->compositionUid, "\n";
+        #print 'Composition can be found at: ' . $path_report->href, "\n";
         return $path_report->compositionUid;
     }
     else {

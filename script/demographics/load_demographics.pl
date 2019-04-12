@@ -30,7 +30,7 @@ my $patient_list_rs = $genomes_schema->resultset('InformationOrder')->search(
 
 while ( my $patient = $patient_list_rs->next ) {
     my $patient_number = $patient->subject_id;
-    print "Processing $patient_number\n";
+    #print "Processing $patient_number\n";
 
     my $carecast_demographics_rs =
       $carecast_schema->resultset('Patient')->search(
@@ -56,7 +56,7 @@ while ( my $patient = $patient_list_rs->next ) {
         }
     );
     if ( $order_rs->count == 0 ) {
-        print "No orders found for $patient_number\n";
+        #print "No orders found for $patient_number\n";
         next;
     }
     my $order = $order_rs->first;
@@ -72,12 +72,12 @@ while ( my $patient = $patient_list_rs->next ) {
 
     my $update_status = &update_party( $carecast_demographics, $ehr );
     if ( $ehr->action eq 'CREATE' ) {
-        print 'EHR can be found at ', $ehr->href, "\n";
+        #print 'EHR can be found at ', $ehr->href, "\n";
         &add_demographics( $carecast_demographics, $ehr, $update_status );
     }
     elsif ( $ehr->action eq 'RETRIEVE' ) {
-        print "EHR already exists for this subject (", $ehr->subject_id, ")\n";
-        print 'EHR can be found at ',                  $ehr->href,       "\n";
+        #print "EHR already exists for this subject (", $ehr->subject_id, ")\n";
+        #print 'EHR can be found at ',                  $ehr->href,       "\n";
         &add_demographics( $carecast_demographics, $ehr, $update_status );
     }
     else {
@@ -154,6 +154,6 @@ sub update_party() {
         print $openehr_demographics->err_msg;
         return 0;
     }
-    print "Party info at: " . $openehr_demographics->href . "\n";
+    #print "Party info at: " . $openehr_demographics->href . "\n";
     return 1;
 }

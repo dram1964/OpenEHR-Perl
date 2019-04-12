@@ -14,7 +14,7 @@ my $query = OpenEHR::REST::AQL->new();
 $query->find_orders_by_state($state);
 
 if ( $query->response_code eq '204') {
-    print "No $state orders found\n";
+    #print "No $state orders found\n";
     exit 1;
 }
 if ( $query->err_msg ) {
@@ -34,7 +34,7 @@ sub update_state {
     $retrieval->request_format('STRUCTURED');
     $retrieval->find_by_uid($uid);
     my $composition = $retrieval->composition_response;
-    print "Original order can be found at: " . $retrieval->href . "\n";
+    #print "Original order can be found at: " . $retrieval->href . "\n";
 
     # Recompose the composition with new state
     my $recompose = OpenEHR::Composition::InformationOrder->new();
@@ -51,7 +51,7 @@ sub update_state {
     if ($order_update->err_msg) {
         die "Error occurred in submission: " . $order_update->err_msg;
     }
-    print "Update can be found at: " . $order_update->href . "\n";
+    #print "Update can be found at: " . $order_update->href . "\n";
     return $order_update->compositionUid;
 
 }

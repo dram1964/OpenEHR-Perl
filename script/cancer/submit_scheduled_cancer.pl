@@ -58,13 +58,13 @@ sub report_cancer {
             },
         );
         while ( my $report = $reports_rs->next ) {
-            print join( ":",
-                $report->patient_hospital_number,
-                $report->nhs_number,
-                $report->event_date_diagnosis,
-                $report->event_icd10_diagnosis_code,
-              ),
-              "\n";
+            #print join( ":",
+            #    $report->patient_hospital_number,
+            #    $report->nhs_number,
+            #    $report->event_date_diagnosis,
+            #    $report->event_icd10_diagnosis_code,
+            #  ),
+            # "\n";
             next unless $report->event_icd10_diagnosis_code;
 
             my $pd = OpenEHR::Composition::Elements::ProblemDiagnosis->new();
@@ -177,9 +177,9 @@ This data is not currently in the Infoflex Extract
             return 0;
         }
         else {
-            print 'Action is: ',                   $query->action,         "\n";
-            print 'Composition UID: ',             $query->compositionUid, "\n";
-            print 'Composition can be found at: ', $query->href,           "\n";
+            #print 'Action is: ',                   $query->action,         "\n";
+            #print 'Composition UID: ',             $query->compositionUid, "\n";
+            #print 'Composition can be found at: ', $query->href,           "\n";
             &update_report_date( $events, $query->compositionUid );
         }
     }
