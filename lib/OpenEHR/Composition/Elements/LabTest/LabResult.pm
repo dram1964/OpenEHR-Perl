@@ -181,7 +181,6 @@ sub _format_result {
     my $self = shift;
     my ( $result, $magnitude, $magnitude_status, $unit, $result_text, $comment );
     $result = $self->result_value;
-    print Dumper $result;
 
     # Treat first line as result
     # and additional lines as a comment
