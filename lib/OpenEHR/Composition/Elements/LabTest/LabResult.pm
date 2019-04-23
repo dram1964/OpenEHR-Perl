@@ -130,8 +130,13 @@ sub _format_ref_range {
 
 sub _format_unit {
     my $self = shift;
-    if ( $self->unit eq '.' ) {
-        $self->unit('');
+    if ( $self->unit ) { 
+        if ( $self->unit eq '          ') { 
+            $self->unit('');
+        }
+        elsif ( $self->unit eq '.' ) {
+            $self->unit('');
+        }
     }
 }
 
@@ -176,6 +181,7 @@ sub _format_result {
     my $self = shift;
     my ( $result, $magnitude, $magnitude_status, $unit, $result_text, $comment );
     $result = $self->result_value;
+    print Dumper $result;
 
     # Treat first line as result
     # and additional lines as a comment

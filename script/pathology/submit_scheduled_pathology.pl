@@ -60,11 +60,11 @@ Need to add logic for test_status lookup and collect_method
 sub get_order_data_hash {
     my ( $sample, $order, $order_item_number, $start_date, $end_date ) = @_;
     my $labnumber = $sample->lab_number;
-    #print join( ":",
-    #    "$order_item_number) ", $sample->nhs_number, $labnumber,
-    #    $order->order_code,     $order->order_name,  $sample->sample_date,
-    #    $start_date,            $end_date ),
-    #  "\n";
+    print join( ":",
+        "$order_item_number) ", $sample->nhs_number, $labnumber,
+        $order->order_code,     $order->order_name,  $sample->sample_date,
+        $start_date,            $end_date ),
+      "\n";
     my $data = {};
 
     if ( $sample->order_number ) {

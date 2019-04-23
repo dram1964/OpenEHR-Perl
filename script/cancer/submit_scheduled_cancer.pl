@@ -58,13 +58,14 @@ sub report_cancer {
             },
         );
         while ( my $report = $reports_rs->next ) {
-            #print join( ":",
-            #    $report->patient_hospital_number,
-            #    $report->nhs_number,
-            #    $report->event_date_diagnosis,
-            #    $report->event_icd10_diagnosis_code,
-            #  ),
-            # "\n";
+            print join( ":",
+                $report->patient_hospital_number,
+                $report->nhs_number,
+                $report->event_date_diagnosis,
+                $report->event_icd10_diagnosis_code,
+                $report->figo_stage_group_skin,
+              ),
+             "\n";
             next unless $report->event_icd10_diagnosis_code;
 
             my $pd = OpenEHR::Composition::Elements::ProblemDiagnosis->new();
@@ -343,6 +344,7 @@ sub get_figo_stage {
     my $pd         = shift;
     my $figo_stage = $pd->element('FinalFigoStage')
       ->new( local_code => $report->figo_stage_group_skin, );
+    #print Dumper $figo_stage->compose;
     return $figo_stage;
 }
 
