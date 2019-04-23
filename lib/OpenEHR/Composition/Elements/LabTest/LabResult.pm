@@ -197,6 +197,12 @@ sub _format_result {
             $comment =~ s/\r//g;
             $self->unit($unit);
         }
+        if ( $comment =~ m[Units: (.*sqm)] ) {
+            my ($unit) = ( $1 );
+            $unit =~ s/\r//;
+            $comment =~ s/\r//g;
+            $self->unit($unit);
+        }
     }
 
     # Check if result is numeric

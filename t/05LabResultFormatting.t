@@ -1064,6 +1064,29 @@ is( $labtest->unit, 'mL/min/1.73sqm', 'unit set by constructor param' );
 ok( !( defined( $labtest->magnitude_status ) ), 'no magnitude status text set' );
 ok( !( defined( $labtest->result_text ) ), 'no result text set' );
 
+$data = {
+          'testcode' => 'GFR',
+          'testname' => 'GFR',
+          'range_high' => '',
+          'unit' => '.',
+          'range_low' => '',
+          'result_value' => '>90
+Units: mL/min/1.73sqm'
+        };
+ok( $labtest = OpenEHR::Composition::Elements::LabTest::LabResult->new( $data, ),
+    'construct new lab test object with GFR result with unit-only comment'
+);
+is( $labtest->magnitude, '90', 'magnitude set properly');
+is( $labtest->comment, 'Units: mL/min/1.73sqm', 'comment set properly');
+is( $labtest->testcode,   'GFR', 'test code set by constructor param' );
+is( $labtest->testname,   'GFR', 'test name set by constructor param' );
+is( $labtest->range_low,  '',    'range low set by constructor param' );
+is( $labtest->range_high, '',    'range high set by constructor param' );
+is( $labtest->ref_range,  '',    'ref range derived from ranges' );
+is( $labtest->unit, 'mL/min/1.73sqm', 'unit set by constructor param' );
+is( $labtest->magnitude_status, '>' , 'magnitude status text set' );
+ok( !( defined( $labtest->result_text ) ), 'no result text set' );
+
 SKIP: {
     skip "GFR Result formatting not implemented yet", 1;
 };
