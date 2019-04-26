@@ -477,6 +477,7 @@ sub select_samples_to_report {
             nhs_number    => $nhs_number,
             sample_date   => { '<=' => $end_date, '>=' => $start_date },
             reported_date => undef,
+            last_authorised_date => { -not => undef },
         },
         {
             columns => [
