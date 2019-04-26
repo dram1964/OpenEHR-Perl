@@ -96,10 +96,18 @@ Need to replace this statement with test_status lookup
         $data->{spec_type} = $sample_data->sample_type;
     }
     if ( $sample_data->sample_date ) {
-        $data->{collected} =
-          DateTime::Format::DateParse->parse_datetime(
-            $sample_data->sample_date . " " . $sample_data->sample_time );
+        if ( $sample_data->sample_time ) {
+            $data->{collected} =
+              DateTime::Format::DateParse->parse_datetime(
+                $sample_data->sample_date . " " . $sample_data->sample_time );
+        }
+        else {
+            $data->{collected} =
+              DateTime::Format::DateParse->parse_datetime(
+                $sample_data->sample_date  );
+        }
     }
+
 
 =head1 collect_method
 
