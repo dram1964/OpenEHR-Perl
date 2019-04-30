@@ -63,7 +63,6 @@ sub report_cancer {
                 $report->nhs_number,
                 $report->event_date_diagnosis,
                 $report->event_icd10_diagnosis_code,
-                $report->figo_stage_group_skin,
               ),
              "\n";
             next unless $report->event_icd10_diagnosis_code;
