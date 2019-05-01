@@ -52,7 +52,8 @@ elsif ( $expired_orders->count == 1 ) {
 
     my $result = $query->resultset->[0];
     my $new_uid = &update_state( $result->{composition_uid} );
-    &mark_completed($new_uid, $result);
+    my $status = &mark_completed($new_uid, $result);
+    die "Update to $new_uid failed" unless $status;
 }
 else {
     #print "No expired orders found in InformationOrders table\n";
@@ -64,11 +65,12 @@ sub mark_completed() {
     my $order = $schema->resultset('InformationOrder')->find({
         requestor_id => $result->{requestor_id},
     });
-    $order->update({
+    my $status = $order->update({
         composition_uid => $new_uid,
         order_state => 'complete',
         order_state_code => '532',
     });
+    return $status;
 }
 
 sub update_state {
