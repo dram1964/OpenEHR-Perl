@@ -21,7 +21,7 @@ sub find_expired_orders {
         },
         {
             columns => [qw/ composition_uid subject_id /],
-            rows => 10,
+            rows => 100,
         },
     );
 
@@ -35,9 +35,9 @@ sub find_expired_orders {
                       . ", found in exclusion list. Skipping\n";
                 }
                 elsif ( grep { /$nhs_number/ } @{$inclusions} ) {
-                    print "Subject ID: "
-                      . $nhs_number
-                      . ", found in inclusion list. Updating\n";
+                    #print "Subject ID: "
+                    #  . $nhs_number
+                    #  . ", found in inclusion list. Updating\n";
                     my $new_uid = &update_state($update->composition_uid);
                     if ( $new_uid ) {
                         my $status = &complete_order($new_uid, $update);
@@ -57,9 +57,9 @@ sub find_expired_orders {
                   . ", found in exclusion list. Skipping\n";
             }
             elsif ( grep { /$nhs_number/ } @{$inclusions} ) {
-                print "Subject ID: "
-                  . $nhs_number
-                  . ", found in inclusion list. Updating\n";
+                #print "Subject ID: "
+                #  . $nhs_number
+                #  . ", found in inclusion list. Updating\n";
                 my $new_uid = &update_state($update->composition_uid);
                 if ( $new_uid ) {
                     my $status = &complete_order($new_uid, $update);
