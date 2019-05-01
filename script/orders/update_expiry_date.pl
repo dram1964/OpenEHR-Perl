@@ -13,135 +13,69 @@ my $dbi_params = { LongReadLen => 80, LongTruncOk => 1 };
 my $schema =
   Genomes_100K::Schema->connect( $dbi_dsn, $user, $pass, $dbi_params );
 
-my $status = $ARGV[0];
-die &usage unless $status;
-
-my $aql_info_orders = << "END_AQL";
-    select 
- e/ehr_id/value as subject_ehr_id,
- e/ehr_status/subject/external_ref/namespace as subject_id_type,
- e/ehr_status/subject/external_ref/id/value as subject_id,
- c/uid/value as composition_uid,
- i/narrative/value as narrative,
- c/name/value as order_type,
- c/composer/name as ordered_by,
- i/uid/value as order_id,
- i/protocol[at0008]/items[at0010]/value/value as unique_message_id,
- i/activities[at0001]/timing/value as start_date,
- i/expiry_time/value as end_date,
- c/context/start_time/value as data_start_date,
- c/context/end_time/value as data_end_date,
- i/activities[at0001]/description[at0009]/items[at0148]/value/value as service_type,
- a/ism_transition/current_state/value as current_state,
- a/ism_transition/current_state/defining_code/code_string as current_state_code
-    from EHR e
-    contains COMPOSITION c[openEHR-EHR-COMPOSITION.report.v1]
-    contains (INSTRUCTION i[openEHR-EHR-INSTRUCTION.request.v0]
-    and ACTION a[openEHR-EHR-ACTION.service.v0])
-    where i/activities[at0001]/description[at0009]/items[at0121]/value = 'GEL Information data request'
-    and a/ism_transition/current_state/value = '$status'
-END_AQL
-
-my $query = OpenEHR::REST::AQL->new();
-$query->statement($aql_info_orders);
-$query->run_query;
-if ( $query->response_code eq '204') {
-    print "No $status orders found\n";
-    exit 1;
-}
-if ( $query->err_msg ) {
-    print Dumper ( "Query: " . $aql_info_orders );
-    die $query->err_msg;
-}
-
-#print Dumper $query->resultset->[0];
-#
-for my $result ( @{ $query->resultset } ) {
-    &update_order($result);
-    #&insert_order($result);
-    #&update_state($result->{composition_uid});
-}
-
-sub update_state {
-    my $uid = shift;
-    my $template_id = 'GEL - Data request Summary.v1';
-    # Retrieve the composition
-    my $retrieval = OpenEHR::REST::Composition->new();
-    $retrieval->request_format('STRUCTURED');
-    $retrieval->find_by_uid($uid);
-    my $composition = $retrieval->composition_response;
-    print "Original order can be found at: " . $retrieval->href . "\n";
-
-    print Dumper $composition;
-
-    # Recompose the composition with new status
-    my $recompose = OpenEHR::Composition::InformationOrder->new();
-    $recompose->decompose_structured($composition),
-    $recompose->current_state('scheduled');
-    $recompose->composition_format('STRUCTURED');
-    $recompose->compose;
-    #print Dumper $recompose;
-    
-    # Submit the update
-    my $order_update = OpenEHR::REST::Composition->new();
-    $order_update->composition($recompose);
-    $order_update->template_id($template_id);
-    $order_update->update_by_uid($uid);
-    if ($order_update->err_msg) {
-        die "Error occurred in submission: " . $order_update->err_msg;
+my $update_rs = &find_orders_with_no_expiry();
+if ( $update_rs->count > 0) {
+    while ( my $update = $update_rs->next ) {
+        my $expiry_date = &find_expiry_date_by_uid( $update->composition_uid );
+        my $result = &update_information_order_expiry_date($update->composition_uid, $expiry_date);
+        die unless $result;
     }
-    print "Update can be found at: " . $order_update->href . "\n";
-
+}
+else {
+    print "No null expiry dates found in Information Orders\n"
 }
 
-sub update_order() {
-    my $result = shift;
-    my $order_rs = $schema->resultset('InformationOrder')->search(
-       {
-           composition_uid => $result->{composition_uid},
-       }
-    );
-    my $order = $order_rs->first;
-        if ( defined($order) ) {
-            print "DEBUG: updating expiry date for ", $result->{composition_uid}, " to ", $result->{end_date},  "\n";
-            if ( $result->{end_date} ) {
-                $order->update( 
-                    {
-                        expiry_date => &date_format( $result->{end_date} )
-                    }
-                );
-            }
-            else {
-                print "No expiry date found for ", $result->{composition_uid}, "\n";
-            }
-        }
-        else {
-            print "No order defined for ", $result->{composition_uid}, "\n";
-        }
-}
-
-sub insert_order() {
-    my $result = shift;
-    my $order = $schema->resultset('InformationOrder')->update_or_create(
+sub update_information_order_expiry_date {
+    my ( $composition_uid, $expiry_date ) = @_;
+    print "Updating $composition_uid to Expiry Date: $expiry_date\n";
+    my $information_order = $schema->resultset('InformationOrder')->search(
         {
-            order_id          => $result->{order_id},
-            start_date        => &date_format($result->{start_date}),
-            end_date          => &date_format($result->{end_date}),
-            composition_uid   => $result->{composition_uid},
-            ordered_by        => $result->{ordered_by},
-            order_type        => $result->{order_type},
-            order_state       => $result->{order_state},
-            order_state_code  => $result->{order_state_code},
-            subject_id        => $result->{subject_id},
-            subject_id_type   => $result->{subject_id_type},
-            subject_ehr_id    => $result->{subject_ehr_id},
-            service_type      => $result->{service_type},
-            data_start_date   => &date_format($result->{data_start_date}),
-            data_end_date     => &date_format($result->{data_end_date}),
-            unique_message_id => $result->{unique_message_id},
+            composition_uid => $composition_uid
         }
     );
+    my $status = $information_order->update( 
+        {
+            expiry_date => $expiry_date,
+        }
+    );
+    return $status;
 }
+    
+sub find_expiry_date_by_uid {
+    my $composition_uid = shift;
+    my $expiry_query = << "END_EXPIRY_QUERY";
+    select c/content/expiry_time/value as expiry_time
+    from Composition c
+    where c/uid/value = '$composition_uid'
+END_EXPIRY_QUERY
+
+    my $query = OpenEHR::REST::AQL->new();
+    $query->statement($expiry_query);
+    $query->run_query;
+    if ( $query->response_code eq '204') {
+        print "No expiry_date found for $composition_uid\n";
+        return 0;
+    }
+    if ( $query->err_msg ) {
+        print Dumper ( "Query: " . $expiry_query);
+        die $query->err_msg;
+    }
+    my $result = $query->resultset->[0]->{expiry_time};
+    return &date_format($result);
+}
+
+sub find_orders_with_no_expiry {
+    my $orders_rs = $schema->resultset('InformationOrder')->search(
+        {
+            expiry_date => undef,
+        },
+        {
+            columns => [qw/ composition_uid /],
+        }
+    );
+    return $orders_rs;
+}
+
 
 sub date_format() {
     my $date = shift;
@@ -152,16 +86,4 @@ sub date_format() {
     $date =~ s/T/ / if defined($date);
     $date =~ s/Z// if defined($date);
     return $date;
-}
-
-sub usage() {
-    my $message = << "END_USAGE";
-Usage: 
-$0 [ planned | scheduled | completed | aborted ]
-
-You must provide a status value
-
-END_USAGE
-
-    print $message;
 }
