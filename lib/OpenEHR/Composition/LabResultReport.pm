@@ -52,7 +52,7 @@ sub add_labtests {
         $request->order_mapping( $order->{order_mapping} );
     }
     my $specimen = $labtest->element('Specimen')->new(
-        datetime_collected => $order->{collected},
+        datetime_collected => $order->{collected} || $order->{received},
         collection_method  => $order->{collect_method},
         datetime_received  => $order->{received},
         spec_id            => $order->{labnumber}->{id},
