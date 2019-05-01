@@ -21,7 +21,6 @@ sub find_expired_orders {
         },
         {
             columns => [qw/ composition_uid subject_id /],
-            rows => 1,
         },
     );
 
@@ -40,11 +39,11 @@ sub find_expired_orders {
                       . ", found in inclusion list. Updating\n";
                     my $new_uid = &update_state($update->composition_uid);
                     if ( $new_uid ) {
-                        &complete_order($new_uid, $update);
+                        my $status = &complete_order($new_uid, $update);
                     }
                 }
                 else {
-                    print "nhs_number not in exclusions or inclusions list";
+                    print "$nhs_number not in exclusions or inclusions list\n";
                 }
             }
         }
@@ -62,7 +61,7 @@ sub find_expired_orders {
                   . ", found in inclusion list. Updating\n";
                 my $new_uid = &update_state($update->composition_uid);
                 if ( $new_uid ) {
-                    &complete_order($new_uid, $update);
+                    my $status = &complete_order($new_uid, $update);
                 }
             }
             else {
@@ -71,7 +70,7 @@ sub find_expired_orders {
         }
     }
     else {
-        print "No expired orders found\n";
+        print "No expired cancer orders found\n";
     }
 }
 
@@ -88,7 +87,7 @@ sub update_state {
     # Recompose the composition with new state
     my $recompose = OpenEHR::Composition::InformationOrder->new();
     $recompose->decompose_structured($composition),
-    $recompose->current_state('scheduled');
+    $recompose->current_state('complete');
     $recompose->composition_format('STRUCTURED');
     #$recompose->compose;
     
@@ -121,15 +120,7 @@ sub complete_order {
         
         } 
     );
-    if ( $result ) {
-        print "Code to update composition goes here\n";
-
-    }
-    else {
-        print "Subject ID: "
-          . $nhs_number
-          . " has no submitted compositions. Skipping\n";
-    }
+    return $result;
 }
 
 =head2 &get_submitted_ids() 
