@@ -5,13 +5,9 @@ use OpenEHR::REST::AQL;
 use OpenEHR::REST::Composition;
 use OpenEHR::Composition::InformationOrder;
 use Genomes_100K::Schema;
+use Genomes_100K::Model;
 
-my $dbi_dsn    = 'dbi:ODBC:DSN=CRIUGenomes';
-my $user       = 'dr00';
-my $pass       = 'letmein';
-my $dbi_params = { LongReadLen => 80, LongTruncOk => 1 };
-my $schema =
-  Genomes_100K::Schema->connect( $dbi_dsn, $user, $pass, $dbi_params );
+my $schema = Genomes_100K::Model->connect('CRIUGenomes');
 
 my $update_rs = &find_orders_with_no_expiry();
 if ( $update_rs->count > 0) {
