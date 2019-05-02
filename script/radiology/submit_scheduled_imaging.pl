@@ -233,7 +233,7 @@ sub get_visit_studies {
         {
             visitid => $visit_id,
             studystatus => 'Authorised',
-            lastreporteddate => { -not => ''},
+            lastreporteddate => { '!=' => '' },
         },
         {
             select => [ 'studyid', { max => 'lastreporteddate' } ],
