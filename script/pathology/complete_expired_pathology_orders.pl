@@ -21,7 +21,6 @@ sub find_expired_orders {
         },
         {
             columns => [qw/ composition_uid subject_id /],
-            rows => 100,
         },
     );
 
