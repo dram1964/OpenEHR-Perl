@@ -15,7 +15,9 @@ my $genomes_schema  = Genomes_100K::Model->connect('CRIUGenomes');
 my $subject_namespace = 'uk.nhs.nhs_number';
 
 my $patient_list_rs = $genomes_schema->resultset('InformationOrder')->search(
-    {},
+    {
+        order_state => 'scheduled'
+    },
     {
         join       => 'demographic',
         '+columns' => [ 'demographic.nhs_number' ],
@@ -55,34 +57,32 @@ while ( my $patient = $patient_list_rs->next ) {
             subject_id_type => $subject_namespace,
         }
     );
-    if ( $order_rs->count == 0 ) {
-        #print "No orders found for $patient_number\n";
-        next;
-    }
-    my $order = $order_rs->first;
+    if ( $order_rs->count > 0 ) {
+        my $order = $order_rs->first;
 
-    my $ehr = OpenEHR::REST::EHR->new(
-        {
-            subject_id        => $patient_number,
-            subject_namespace => 'uk.nhs.nhs_number',
-            committer_name    => 'Committer Name',
+        my $ehr = OpenEHR::REST::EHR->new(
+            {
+                subject_id        => $patient_number,
+                subject_namespace => 'uk.nhs.nhs_number',
+                committer_name    => 'Committer Name',
+            }
+        );
+        $ehr->find_or_new;
+
+        my $update_status = &update_party( $carecast_demographics, $ehr );
+        if ( $ehr->action eq 'CREATE' ) {
+            #print 'EHR can be found at ', $ehr->href, "\n";
+            &add_demographics( $carecast_demographics, $ehr, $update_status );
         }
-    );
-    $ehr->find_or_new;
-
-    my $update_status = &update_party( $carecast_demographics, $ehr );
-    if ( $ehr->action eq 'CREATE' ) {
-        #print 'EHR can be found at ', $ehr->href, "\n";
-        &add_demographics( $carecast_demographics, $ehr, $update_status );
-    }
-    elsif ( $ehr->action eq 'RETRIEVE' ) {
-        #print "EHR already exists for this subject (", $ehr->subject_id, ")\n";
-        #print 'EHR can be found at ',                  $ehr->href,       "\n";
-        &add_demographics( $carecast_demographics, $ehr, $update_status );
-    }
-    else {
-        print "Error in submission:\n";
-        print $ehr->err_msg;
+        elsif ( $ehr->action eq 'RETRIEVE' ) {
+            #print "EHR already exists for this subject (", $ehr->subject_id, ")\n";
+            #print 'EHR can be found at ',                  $ehr->href,       "\n";
+            &add_demographics( $carecast_demographics, $ehr, $update_status );
+        }
+        else {
+            print "Error in submission:\n";
+            print $ehr->err_msg;
+        }
     }
 }
 
