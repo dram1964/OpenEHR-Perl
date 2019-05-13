@@ -1,13 +1,23 @@
 use strict;
 use warnings;
 
-use OpenEHR::REST::EHR;
-use OpenEHR::REST::Demographics;
-use DateTime;
-use Carecast::Model;
-use Genomes_100K::Model;
 use Data::Dumper;
 use JSON;
+use Getopt::Long;
+use DateTime;
+use OpenEHR::REST::EHR;
+use OpenEHR::REST::Demographics;
+use Carecast::Model;
+use Genomes_100K::Model;
+
+my ( $help );
+
+GetOptions (
+    "help" => \$help,
+    )
+or &usage("Error in command line arguments\n");
+
+&usage if $help;
 
 my $carecast_schema = Carecast::Model->connect('CRIUCarecast');
 my $genomes_schema  = Genomes_100K::Model->connect('CRIUGenomes');
@@ -156,4 +166,29 @@ sub update_party() {
     }
     #print "Party info at: " . $openehr_demographics->href . "\n";
     return 1;
+}
+
+sub usage() {
+    my $error_message = shift;
+    print $error_message if $error_message;
+    my $message = << "END_USAGE";
+Usage: 
+$0
+
+This script will search the InformationOrders table 
+in the data source system for all scheduled orders
+with no matching Demographics entry or for orders that
+were placed after the current demographics where loaded. 
+Demographics will then be pulled from the Demographics 
+master database into the Datasource system and a corresponding
+EHR and Party Record will be added to the OpenEHR system
+
+OPTIONS
+
+-h --help       [OPTIONAL] Prints this message and terminates
+
+END_USAGE
+
+    print $message;
+    exit 0;
 }
