@@ -1,20 +1,35 @@
 use strict;
 use warnings;
 use Data::Dumper;
+use Getopt::Long;
 use OpenEHR::REST::AQL;
 use OpenEHR::REST::Composition;
 use OpenEHR::Composition::InformationOrder;
 use Genomes_100K::Schema;
 use Genomes_100K::Model;
 
+my ($service_type, $help);
+
+GetOptions (
+    "type=s" => \$service_type,
+    "help" => \$help,
+    )
+or &usage("Error in command line arguments\n");
+
+die &usage unless $service_type;
+
 my $schema = Genomes_100K::Model->connect('CRIUGenomes');
 
 my $update_rs = &find_orders_with_no_expiry();
 if ( $update_rs->count > 0) {
     while ( my $update = $update_rs->next ) {
-        my $expiry_date = &find_expiry_date_by_uid( $update->composition_uid );
-        my $result = &update_information_order_expiry_date($update->composition_uid, $expiry_date);
-        die unless $result;
+        if ( my $expiry_date = &find_expiry_date_by_uid( $update->composition_uid ) ) {;
+            my $result = &update_information_order_expiry_date($update->composition_uid, $expiry_date);
+            die unless $result;
+        }
+        else {
+            print "No expiry date on ", $update->composition_uid, "\n";
+        }
     }
 }
 else {
@@ -49,7 +64,6 @@ END_EXPIRY_QUERY
     $query->statement($expiry_query);
     $query->run_query;
     if ( $query->response_code eq '204') {
-        print "No expiry_date found for $composition_uid\n";
         return 0;
     }
     if ( $query->err_msg ) {
@@ -64,6 +78,7 @@ sub find_orders_with_no_expiry {
     my $orders_rs = $schema->resultset('InformationOrder')->search(
         {
             expiry_date => undef,
+            service_type => $service_type,
         },
         {
             columns => [qw/ composition_uid /],
@@ -82,4 +97,26 @@ sub date_format() {
     $date =~ s/T/ / if defined($date);
     $date =~ s/Z// if defined($date);
     return $date;
+}
+
+sub usage() {
+    my $error_message = shift;
+    print $error_message if $error_message;
+    my $message = << "END_USAGE";
+Usage: 
+$0 -t [pathology | cancer | radiology]
+
+You must provide an NHS Number (10 digits) or the keyword rand 
+to place an order
+
+OPTIONS
+
+-t --type           Specify the Service Type for the order. 
+                    Must be one of: 
+                    [ pathology | cancer | radiology ]
+
+END_USAGE
+
+    print $message;
+    exit 0;
 }
