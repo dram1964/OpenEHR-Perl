@@ -157,11 +157,11 @@ A numeric offset (positive integer) must be provided.
 
 OPTIONS
 
--o --offset     Number of days prior to today. 
+-o --offset     [REQUIRED] Number of days prior to today. 
                 Scheduled orders with an expiry date before this
                 date will be marked as 'complete'
 
--h --help       Prints this message and terminates
+-h --help       [OPTIONAL] Prints this message and terminates
 
 END_USAGE
 
