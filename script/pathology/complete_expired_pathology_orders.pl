@@ -1,9 +1,17 @@
 use strict;
 use warnings;
+use Getopt::Long;
 use Genomes_100K::Model;
 use OpenEHR::REST::Composition;
 use OpenEHR::Composition::InformationOrder;
 use DateTime;
+
+my ($help);
+
+GetOptions( "help" => \$help, )
+  or &usage("Error in command line arguments\n");
+
+&usage if $help;
 
 my $schema = Genomes_100K::Model->connect('CRIUGenomes');
 my $dtf            = $schema->storage->datetime_parser;
@@ -13,9 +21,10 @@ my $inclusions = &get_submitted_ids;
 &find_expired_orders();
 
 sub find_expired_orders {
+    my $cut_off_date      = DateTime->now()->subtract( days => 7 );
     my $expired_orders_rs = $schema->resultset('InformationOrder')->search(
         {
-            expiry_date => { '<=', $dtf->format_datetime( DateTime->now() ) },
+            expiry_date      => { '<=', $dtf->format_datetime($cut_off_date) },
             order_state_code => '529',
             service_type => 'pathology',
         },
@@ -169,4 +178,31 @@ sub get_unsubmitted_ids {
         push @ids, $id->nhs_number;
     }
     return \@ids;
+}
+
+sub usage() {
+    my $error_message = shift;
+    print $error_message if $error_message;
+    my $message = << "END_USAGE";
+Usage: 
+$0 
+
+This script will mark as 'complete' all scheduled pathology orders 
+where the following conditions are met:
+    1) there are no outstanding compositions for the subject 
+       to be submitted 
+       and 
+    2) There is at least one composition for the subject submitted
+       and
+    3) The expiry date for the order is at least 7 days prior to 
+       now
+
+OPTIONS
+
+-h --help       Prints this message and terminates
+
+END_USAGE
+
+    print $message;
+    exit 0;
 }
