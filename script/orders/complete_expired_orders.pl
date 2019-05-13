@@ -1,19 +1,32 @@
 use strict;
 use warnings;
 use Data::Dumper;
+use Getopt::Long;
 use OpenEHR::REST::AQL;
 use OpenEHR::REST::Composition;
 use OpenEHR::Composition::InformationOrder;
 use Genomes_100K::Model;
+
+my ($offset, $help);
+
+GetOptions (
+    "offset=i" => \$offset,
+    "help" => \$help,
+    )
+or &usage("Error in command line arguments\n");
+
+&usage if $help;
+&usage unless $offset;
 
 my $schema = Genomes_100K::Model->connect('CRIUGenomes');
 
 my $state = 'scheduled';
 
 my $dtf            = $schema->storage->datetime_parser;
+my $cut_off_date = DateTime->now()->subtract( days => $offset );
 my $expired_orders = $schema->resultset('InformationOrder')->search(
     {
-        expiry_date => { '<=', $dtf->format_datetime( DateTime->now() ) },
+        expiry_date => { '<=', $dtf->format_datetime( $cut_off_date ) },
         order_state_code => '529',
     },
 );
@@ -56,7 +69,8 @@ elsif ( $expired_orders->count == 1 ) {
     die "Update to $new_uid failed" unless $status;
 }
 else {
-    #print "No expired orders found in InformationOrders table\n";
+    print "No expired orders older than cutoff date (", 
+        $cut_off_date, ") found in InformationOrders table\n";
 }
 
 
@@ -128,4 +142,29 @@ sub date_format() {
     $date =~ s/T/ / if defined($date);
     $date =~ s/Z// if defined($date);
     return $date;
+}
+
+sub usage() {
+    my $error_message = shift;
+    print $error_message if $error_message;
+    my $message = << "END_USAGE";
+Usage: 
+$0 -o offset
+
+This script will expire all scheduled orders whose expiry 
+date is more than 'offset' days older than today's date.
+A numeric offset (positive integer) must be provided. 
+
+OPTIONS
+
+-o --offset     Number of days prior to today. 
+                Scheduled orders with an expiry date before this
+                date will be marked as 'complete'
+
+-h --help       Prints this message and terminates
+
+END_USAGE
+
+    print $message;
+    exit 0;
 }
