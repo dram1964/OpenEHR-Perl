@@ -1,10 +1,20 @@
 use strict;
 use warnings;
 use Data::Dumper;
+use Getopt::Long;
 use OpenEHR::REST::AQL;
 use OpenEHR::REST::Composition;
 use OpenEHR::Composition::InformationOrder;
 use Genomes_100K::Model;
+
+my ( $help );
+
+GetOptions (
+    "help" => \$help,
+    )
+or &usage("Error in command line arguments\n");
+
+&usage if $help;
 
 my $schema = Genomes_100K::Model->connect('CRIUGenomes');
 
@@ -97,4 +107,25 @@ sub date_format() {
     }
 
     return $date;
+}
+
+sub usage() {
+    my $error_message = shift;
+    print $error_message if $error_message;
+    my $message = << "END_USAGE";
+Usage: 
+$0
+
+This script will transfer all orders marked as 'planned'
+from the OpenEHR system to the Datasource system and 
+change the status on both to 'scheduled'
+
+OPTIONS
+
+-h --help       [OPTIONAL] Prints this message and terminates
+
+END_USAGE
+
+    print $message;
+    exit 0;
 }
