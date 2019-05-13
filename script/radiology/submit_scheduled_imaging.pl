@@ -273,6 +273,7 @@ sub get_latest_study_report {
     );
     return $report_rs;
 }
+
 sub usage() {
     my $error_message = shift;
     print $error_message if $error_message;
@@ -280,7 +281,7 @@ sub usage() {
 Usage: 
 $0
 
-This script will transfer data Radiology Report data 
+This script will transfer Radiology Report data 
 from the Datasource system as compositions to the the OpenEHR system. 
 The Datasource system will then be updated with the report_date, 
 reported_by and composition_uid corresponding to each submission

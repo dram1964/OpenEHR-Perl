@@ -3,11 +3,21 @@ use warnings;
 use DateTime::Format::DateParse;
 use JSON;
 use DBI;
+use Getopt::Long;
 
 use OpenEHR::Composition::CancerReport;
 use OpenEHR::REST::Composition;
 use Genomes_100K::Model;
 use Data::Dumper;
+
+my ( $help );
+
+GetOptions (
+    "help" => \$help,
+    )
+or &usage("Error in command line arguments\n");
+
+&usage if $help;
 
 my $schema = Genomes_100K::Model->connect('CRIUGenomes');
 
@@ -475,3 +485,24 @@ sub get_cancer_diagnosis {
     return $cancer_diagnosis;
 }
 
+sub usage() {
+    my $error_message = shift;
+    print $error_message if $error_message;
+    my $message = << "END_USAGE";
+Usage: 
+$0
+
+This script will transfer Radiology Report data 
+from the Datasource system as compositions to the the OpenEHR system. 
+The Datasource system will then be updated with the report_date, 
+reported_by and composition_uid corresponding to each submission
+
+OPTIONS
+
+-h --help       [OPTIONAL] Prints this message and terminates
+
+END_USAGE
+
+    print $message;
+    exit 0;
+}
