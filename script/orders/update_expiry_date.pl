@@ -16,7 +16,7 @@ GetOptions (
     )
 or &usage("Error in command line arguments\n");
 
-die &usage unless $service_type;
+&usage unless $service_type;
 
 my $schema = Genomes_100K::Model->connect('CRIUGenomes');
 
@@ -106,12 +106,16 @@ sub usage() {
 Usage: 
 $0 -t [pathology | cancer | radiology]
 
-You must provide an NHS Number (10 digits) or the keyword rand 
-to place an order
+Where orders have been loaded to the datasource system
+with a blank expiry date, this script will search the
+original order composition and use the expiry date 
+provided (if found) to update the value in the 
+datasource system. The service type parameter 
+must be provided. 
 
 OPTIONS
 
--t --type           Specify the Service Type for the order. 
+-t --type           [REQUIRED] Specify the Service Type for the order. 
                     Must be one of: 
                     [ pathology | cancer | radiology ]
 
