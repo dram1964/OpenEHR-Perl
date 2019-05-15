@@ -127,7 +127,7 @@ Need to replace this statement with collect_method lookup
 =cut
 
     if ( $sample_data->receive_date ) {
-        my $receive_datetime = $sample_data->{received};
+        my $receive_datetime = $sample_data->receive_date;
         if ( $sample_data->receive_time ) {
             $receive_datetime = $receive_datetime . " " . $sample_data->receive_time;
         }
