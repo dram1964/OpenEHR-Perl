@@ -7,16 +7,21 @@ use OpenEHR::REST::Composition;
 use OpenEHR::Composition::InformationOrder;
 use Genomes_100K::Model;
 
-my ($offset, $help);
+my ($service_type, $offset, $help);
 
 GetOptions (
     "offset=i" => \$offset,
+    "service=s" => \$service_type,
     "help" => \$help,
     )
 or &usage("Error in command line arguments\n");
 
 &usage if $help;
-&usage unless $offset;
+&usage("No value for offset (-o) specified\n") unless $offset;
+&usage("No value for service type (-s) specified\n") unless $service_type;
+&usage("Invalid Service Type Specified: $service_type\n") 
+    unless grep { /^$service_type$/ } ( qw/ pathology cancer radiology / ) ;
+
 
 my $schema = Genomes_100K::Model->connect('CRIUGenomes');
 
@@ -28,6 +33,7 @@ my $expired_orders = $schema->resultset('InformationOrder')->search(
     {
         expiry_date => { '<=', $dtf->format_datetime( $cut_off_date ) },
         order_state_code => '529',
+        service_type => $service_type,
     },
 );
 
@@ -151,7 +157,8 @@ sub usage() {
 Usage: 
 $0 -o offset
 
-This script will expire all scheduled orders whose expiry 
+This script will expire all scheduled orders for the 
+specified service_type, whose expiry 
 date is more than 'offset' days older than today's date.
 A numeric offset (positive integer) must be provided. 
 
@@ -160,6 +167,9 @@ OPTIONS
 -o --offset     [REQUIRED] Number of days prior to today. 
                 Scheduled orders with an expiry date before this
                 date will be marked as 'complete'
+
+-s --service    [REQUIRED] Used to specify service type. Must be
+                one of [ pathology | cancer | radiology ]
 
 -h --help       [OPTIONAL] Prints this message and terminates
 
