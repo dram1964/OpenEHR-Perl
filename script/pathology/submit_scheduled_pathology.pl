@@ -127,8 +127,11 @@ Need to replace this statement with collect_method lookup
 =cut
 
     if ( $sample_data->receive_date ) {
-        $data->{received} = DateTime::Format::DateParse->parse_datetime(
-            $sample_data->receive_date . " " . $sample_data->receive_time );
+        my $receive_datetime = $sample_data->{received};
+        if ( $sample_data->receive_time ) {
+            $receive_datetime = $receive_datetime . " " . $sample_data->receive_time;
+        }
+        $data->{received} = DateTime::Format::DateParse->parse_datetime( $receive_datetime );
     }
     if ( $sample_data->clinician_code ) {
         $data->{clinician} = {
