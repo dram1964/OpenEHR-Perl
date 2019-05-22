@@ -37,7 +37,7 @@ my $expired_orders = $schema->resultset('InformationOrder')->search(
     },
 );
 
-if ( $expired_orders->count > 0 ) {
+if ( $expired_orders->count > 1 ) {
     while ( my $order = $expired_orders->next ) {
 
         my $query = OpenEHR::REST::AQL->new();
@@ -62,8 +62,7 @@ elsif ( $expired_orders->count == 1 ) {
     $query->find_orders_by_uid( $order->composition_uid );
 
     if ( $query->response_code eq '204' ) {
-        #print "No $state orders found on OpenEHR for " . $order->composition_uid . "\n";
-        next;
+        die "No $state orders found on OpenEHR for " . $order->composition_uid . "\n";
     }
     if ( $query->err_msg ) {
         die $query->err_msg;
