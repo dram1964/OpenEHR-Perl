@@ -37,7 +37,7 @@ my $expired_orders = $schema->resultset('InformationOrder')->search(
 if ( $expired_orders->count > 0 ) {
     while ( my $order = $expired_orders->next ) {
         next if defined($order->demographic);
-        print "No Demographics found for NHS Number: ", $order->subject_id, "\n";
+        #print "No Demographics found for NHS Number: ", $order->subject_id, "\n";
 
         my $query = OpenEHR::REST::AQL->new();
         $query->find_orders_by_uid( $order->composition_uid );
@@ -58,7 +58,7 @@ if ( $expired_orders->count > 0 ) {
 elsif ( $expired_orders->count == 1 ) {
     my $order = $expired_orders->first; 
     if (!defined($order->demographic)) {
-        print "No Demographics found for NHS Number: ", $order->subject_id, "\n";
+        #print "No Demographics found for NHS Number: ", $order->subject_id, "\n";
         my $query = OpenEHR::REST::AQL->new();
         $query->find_orders_by_uid( $order->composition_uid );
 
