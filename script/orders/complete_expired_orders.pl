@@ -74,8 +74,8 @@ elsif ( $expired_orders->count == 1 ) {
     die "Update to $new_uid failed" unless $status;
 }
 else {
-    print "No expired orders older than cutoff date (", 
-        $cut_off_date, ") found in InformationOrders table\n";
+#    print "No expired orders for $service_type older than cutoff date (", 
+#        $cut_off_date, ") found in InformationOrders table\n";
 }
 
 
