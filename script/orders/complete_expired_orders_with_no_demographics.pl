@@ -43,8 +43,8 @@ if ( $expired_orders->count > 0 ) {
         $query->find_orders_by_uid( $order->composition_uid );
 
         if ( $query->response_code eq '204' ) {
-            print "No $state orders found on OpenEHR for " . $order->composition_uid . "\n";
-            next;
+#            print "No $state orders found on OpenEHR for " . $order->composition_uid . "\n";
+#            next;
         }
         if ( $query->err_msg ) {
             die $query->err_msg;
@@ -77,8 +77,8 @@ elsif ( $expired_orders->count == 1 ) {
     }
 }
 else {
-    print "No expired orders older than cutoff date (", 
-        $cut_off_date, ") found in InformationOrders table\n";
+#    print "No expired orders older than cutoff date (", 
+#        $cut_off_date, ") found in InformationOrders table\n";
 }
 
 
