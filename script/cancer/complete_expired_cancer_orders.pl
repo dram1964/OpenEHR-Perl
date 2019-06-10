@@ -38,9 +38,9 @@ sub find_expired_orders {
             while ( my $update = $expired_orders_rs->next ) {
                 my $nhs_number = $update->subject_id;
                 if ( grep { /$nhs_number/ } @{$exclusions} ) {
-                    print "Subject ID: "
-                      . $nhs_number
-                      . ", found in exclusion list. Skipping\n";
+#                    print "Subject ID: "
+#                      . $nhs_number
+#                      . ", found in exclusion list. Skipping\n";
                 }
                 elsif ( grep { /$nhs_number/ } @{$inclusions} ) {
 
@@ -53,7 +53,7 @@ sub find_expired_orders {
                     }
                 }
                 else {
-                    print "$nhs_number not in exclusions or inclusions list\n";
+#                    print "$nhs_number not in exclusions or inclusions list\n";
                 }
             }
         }
@@ -61,9 +61,9 @@ sub find_expired_orders {
             my $update     = $expired_orders_rs->first;
             my $nhs_number = $update->subject_id;
             if ( grep { /$nhs_number/ } @{$exclusions} ) {
-                print "Subject ID: "
-                  . $nhs_number
-                  . ", found in exclusion list. Skipping\n";
+#                print "Subject ID: "
+#                  . $nhs_number
+#                  . ", found in exclusion list. Skipping\n";
             }
             elsif ( grep { /$nhs_number/ } @{$inclusions} ) {
 
@@ -76,13 +76,13 @@ sub find_expired_orders {
                 }
             }
             else {
-                print "$nhs_number not in exclusions or inclusions list\n";
+#                print "$nhs_number not in exclusions or inclusions list\n";
             }
         }
     }
     else {
-        print "No expired cancer orders found before cut off date: ",
-          $cut_off_date, "\n";
+#        print "No expired cancer orders found before cut off date: ",
+#          $cut_off_date, "\n";
     }
 }
 
