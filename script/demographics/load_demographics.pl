@@ -56,7 +56,7 @@ while ( my $patient = $patient_list_rs->next ) {
         },
       );
     if ( $carecast_demographics_rs == 0 ) {
-        print "No Carecast Demographics found for: $patient_number\n";
+#        print "No Carecast Demographics found for: $patient_number\n";
         next;
     }
     my $carecast_demographics = $carecast_demographics_rs->first;
