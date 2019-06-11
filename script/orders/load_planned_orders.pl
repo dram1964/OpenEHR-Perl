@@ -24,10 +24,13 @@ my $query = OpenEHR::REST::AQL->new();
 $query->find_orders_by_state($state);
 
 if ( $query->response_code eq '204' ) {
-
-    #print "No $state orders found\n";
+    print "No $state orders found\n";
     exit 1;
 }
+else {
+    print scalar($query->resultset), " $state orders found\n";
+}
+
 if ( $query->err_msg ) {
     die $query->err_msg;
 }
