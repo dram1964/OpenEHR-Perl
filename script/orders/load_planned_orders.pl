@@ -28,7 +28,7 @@ if ( $query->response_code eq '204' ) {
     exit 1;
 }
 else {
-    print scalar($query->resultset), " $state orders found\n";
+    print scalar( @{ $query->resultset } ), " $state orders found\n";
 }
 
 if ( $query->err_msg ) {
